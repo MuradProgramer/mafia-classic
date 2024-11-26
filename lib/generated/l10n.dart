@@ -669,6 +669,256 @@ class S {
       args: [],
     );
   }
+
+  /// `Players`
+  String get players {
+    return Intl.message(
+      'Players',
+      name: 'players',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Min`
+  String get min {
+    return Intl.message(
+      'Min',
+      name: 'min',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Max`
+  String get max {
+    return Intl.message(
+      'Max',
+      name: 'max',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Join`
+  String get join {
+    return Intl.message(
+      'Join',
+      name: 'join',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Game Started`
+  String get gameStarted {
+    return Intl.message(
+      'Game Started',
+      name: 'gameStarted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gathering Players`
+  String get gatheringPlayers {
+    return Intl.message(
+      'Gathering Players',
+      name: 'gatheringPlayers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Alive`
+  String get alive {
+    return Intl.message(
+      'Alive',
+      name: 'alive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dead`
+  String get dead {
+    return Intl.message(
+      'Dead',
+      name: 'dead',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create Game`
+  String get createGame {
+    return Intl.message(
+      'Create Game',
+      name: 'createGame',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password (Optional)`
+  String get passwordOptional {
+    return Intl.message(
+      'Password (Optional)',
+      name: 'passwordOptional',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Room Name`
+  String get roomName {
+    return Intl.message(
+      'Room Name',
+      name: 'roomName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset`
+  String get reset {
+    return Intl.message(
+      'Reset',
+      name: 'reset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Filter`
+  String get filter {
+    return Intl.message(
+      'Filter',
+      name: 'filter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Friends in the room`
+  String get friendInTheRoom {
+    return Intl.message(
+      'Friends in the room',
+      name: 'friendInTheRoom',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only rooms with available space`
+  String get onlyRoomsWithAvailableSpace {
+    return Intl.message(
+      'Only rooms with available space',
+      name: 'onlyRoomsWithAvailableSpace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rooms without a password`
+  String get roomsWithoutAPassword {
+    return Intl.message(
+      'Rooms without a password',
+      name: 'roomsWithoutAPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rooms with a password`
+  String get roomsWithAPassword {
+    return Intl.message(
+      'Rooms with a password',
+      name: 'roomsWithAPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Additional Roles`
+  String get additionalRoles {
+    return Intl.message(
+      'Additional Roles',
+      name: 'additionalRoles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rooms without additional roles`
+  String get roomsWithourAdditionalRoles {
+    return Intl.message(
+      'Rooms without additional roles',
+      name: 'roomsWithourAdditionalRoles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply`
+  String get apply {
+    return Intl.message(
+      'Apply',
+      name: 'apply',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close`
+  String get close {
+    return Intl.message(
+      'Close',
+      name: 'close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remaining time`
+  String get remainingTime {
+    return Intl.message(
+      'Remaining time',
+      name: 'remainingTime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Seconds`
+  String get seconds {
+    return Intl.message(
+      'Seconds',
+      name: 'seconds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Players in the Room`
+  String get playersInRoom {
+    return Intl.message(
+      'Players in the Room',
+      name: 'playersInRoom',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter message`
+  String get enterMessage {
+    return Intl.message(
+      'Enter message',
+      name: 'enterMessage',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

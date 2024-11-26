@@ -1,4 +1,5 @@
 {
+  "@@locale": "ru",
   "profile": "Профиль",
   "games": "Игры",
   "create": "Создать",
@@ -60,5 +61,36 @@
   "confirmPassword": "Повторите пароль",
   "passwordsDoNotMatch": "Пороли не совпадают",
   "signUp": "Регистрация",
-  "alreadyHaveAccauntSigIn": "Уже есть аккаунт? Войти"
+  "alreadyHaveAccauntSigIn": "Уже есть аккаунт? Войти",
+
+  "players": "Игроки",
+  "min": "Мин",
+  "max": "Макс",
+  "join": "Войти",
+  "gameStarted": "Игра Началась",
+  "gatheringPlayers": "Збор Игроков",
+
+  "alive": "Живой",
+  "dead": "Мертвый",
+
+  "createGame": "Создать Игру",
+  "passwordOptional": "Пароль (Необязательно)",
+  "roomName": "Название Комнаты",
+
+  "reset": "сбросить",
+  "filter": "Фильтр",
+  "friendInTheRoom": "Друзья в комнате",
+  "onlyRoomsWithAvailableSpace": "Только комнаты со свободным местом",
+  "roomsWithoutAPassword": "Комнаты без пароля",
+  "roomsWithAPassword": "Комнаты с паролем",
+  "additionalRoles": "Дополнительные роли",
+  "roomsWithourAdditionalRoles": "Комнаты без дополнительных ролей",
+  "apply": "Применить",
+
+  "close": "Закрыть",
+
+  "remainingTime": "Оставшееся время",
+  "seconds": "секунд",
+  "playersInRoom": "Игроки в комнате",
+  "enterMessage": "Введите сообщение"
 }

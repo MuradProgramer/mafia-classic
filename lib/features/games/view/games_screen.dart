@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:mafia_classic/generated/l10n.dart';
+
 class GamesScreen extends StatelessWidget {
   const GamesScreen({super.key});
 
@@ -14,18 +16,18 @@ class GamesScreen extends StatelessWidget {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Games'),
-          
+          title: Text(S.of(context).games),
+          automaticallyImplyLeading: false,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.add, color: Colors.white),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CreateGameScreen()),
-                );
-              },
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.add, color: Colors.white),
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => const CreateGameScreen()),
+            //     );
+            //   },
+            // ),
             IconButton(
               icon: const Icon(Icons.filter_list, color: Colors.white),
               onPressed: () {
@@ -122,9 +124,9 @@ class GameCard extends StatelessWidget {
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text('Players: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('Min: ${game.minPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('Max: ${game.maxPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('${S.of(context).min}: ${game.minPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('${S.of(context).max}: ${game.maxPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               ),
               const Spacer(),
@@ -132,10 +134,10 @@ class GameCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    game.status,
+                    game.status == 'Game Started' ? S.of(context).gameStarted : S.of(context).gatheringPlayers,
                     style: TextStyle(
                       fontSize: 12,
-                      color: game.status == 'Game Started'
+                      color: game.status ==  'Game Started'
                           ? Colors.red
                           : Colors.green,
                     ),
@@ -156,7 +158,7 @@ class GameCard extends StatelessWidget {
                   Row(
                     children: [
                       SizedBox(
-                        width: 70,
+                        width: 90,
                         child: ElevatedButton(                    
                           onPressed: () {
                             showDialog(
@@ -164,11 +166,11 @@ class GameCard extends StatelessWidget {
                               builder: (context) => const PlayersPopup(),
                             );
                           },
-                          child: const Text('Players'),
+                          child: Text(S.of(context).players),
                         ),
                       ),
                       SizedBox(
-                        width: 70,
+                        width: 90,
                         child: Container(
                           margin: const EdgeInsets.only(left: 15),
                           child: ElevatedButton(
@@ -183,7 +185,7 @@ class GameCard extends StatelessWidget {
                                 )),
                               );
                             },
-                            child: const Text('Join'),
+                            child: Text(S.of(context).join),
                           ),
                         ),
                       ),
@@ -223,7 +225,7 @@ class PlayersPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Players'),
+      title: Text(S.of(context).players),
       content: SizedBox(
         width: double.maxFinite,
         child: ListView.builder(
@@ -245,7 +247,7 @@ class PlayersPopup extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    players[index].status,
+                    players[index].status == 'Alive' ? S.of(context).alive : S.of(context).dead,
                     style: TextStyle(
                       fontSize: 12,
                       color: players[index].status == 'Alive'
@@ -264,7 +266,7 @@ class PlayersPopup extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Close'),
+          child: Text(S.of(context).close),
         ),
       ],
     );
@@ -285,27 +287,30 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   String roomName = '';
   double minPlayers = 5;
   double maxPlayers = 7;
-  Map<String, bool> roles = {
-    'Doctor': false,
-    'Lover': false,
-    'Journalist': false,
-    'Bodyguard': false,
-    'Spy': false,
-    'Terrorist': false,
-    'Bartender': false,
-    'Informant': false,
-  };
+  
   String password = '';
 
   @override
   Widget build(BuildContext context) {
+    Map<String, bool> roles = {
+      S.of(context).doctor: false,
+      S.of(context).mistress: false,
+      S.of(context).journalist: false,
+      S.of(context).bodyguard: false,
+      S.of(context).spy: false,
+      S.of(context).terrorist: false,
+      S.of(context).barman: false,
+      S.of(context).informant: false,
+    };
+
     return DecoratedBox(
       decoration: const BoxDecoration(
         image: DecorationImage(image: AssetImage("assets/modern-tall-buildings-1.png"), fit: BoxFit.cover, opacity: 0.4),
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Create Game'),
+          title: Text(S.of(context).createGame),
+          automaticallyImplyLeading: false,
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -314,9 +319,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Room Name',
-                    hintStyle: TextStyle(color: Colors.white30)
+                  decoration: InputDecoration(
+                    labelText: S.of(context).roomName,
+                    hintStyle: const TextStyle(color: Colors.white30)
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -326,7 +331,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   style: const TextStyle(color: Colors.white)
                 ),
                 const SizedBox(height: 20),
-                Text('Players: $minPlayers - $maxPlayers'),
+                Text('${S.of(context).players}: $minPlayers - $maxPlayers'),
                 RangeSlider(
                   values: RangeValues(minPlayers, maxPlayers),
                   min: 5,
@@ -340,9 +345,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Roles',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  S.of(context).roles,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Column(
@@ -363,9 +368,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 ),
                 const SizedBox(height: 20),
                 TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Password (Optional)',
-                    hintStyle: TextStyle(color: Colors.white30)
+                  decoration: InputDecoration(
+                    labelText: S.of(context).passwordOptional,
+                    hintStyle: const TextStyle(color: Colors.white30)
                   ),
                   obscureText: true,
                   onChanged: (value) {
@@ -381,7 +386,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     onPressed: () {
                       // Логика создания игры с сохранением состояний
                     },
-                    child: const Text('Create Game'),
+                    child: Text(S.of(context).createGame),
                   ),
                 ),
               ],
@@ -411,39 +416,41 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
   bool roomsWithPassword = false;
   bool noAdditionalRoles = false;
 
-  Map<String, bool> additionalRoles = {
-    'Doctor': false,
-    'Sheriff': false,
-    'Lover': false,
-    'Journalist': false,
-    'Bodyguard': false,
-    'Spy': false,
-    'Terrorist': false,
-    'Bartender': false,
-    'Informant': false,
-  };
-
-  void resetFilters() {
-    setState(() {
-      friendsInRoom = false;
-      roomsWithSpace = false;
-      roomsWithoutPassword = false;
-      roomsWithPassword = false;
-      noAdditionalRoles = false;
-
-      additionalRoles.updateAll((key, value) => false);
-    });
-  }
+  
 
   @override
   Widget build(BuildContext context) {
+    Map<String, bool> additionalRoles = {
+      S.of(context).doctor: false,
+      S.of(context).sheriff: false,
+      S.of(context).mistress: false,
+      S.of(context).journalist: false,
+      S.of(context).bodyguard: false,
+      S.of(context).spy: false,
+      S.of(context).terrorist: false,
+      S.of(context).barman: false,
+      S.of(context).informant: false,
+    };
+
+    void resetFilters() {
+      setState(() {
+        friendsInRoom = false;
+        roomsWithSpace = false;
+        roomsWithoutPassword = false;
+        roomsWithPassword = false;
+        noAdditionalRoles = false;
+
+        additionalRoles.updateAll((key, value) => false);
+      });
+    }
+
     return DecoratedBox(
       decoration: const BoxDecoration(
         image: DecorationImage(image: AssetImage("assets/modern-tall-buildings-1.png"), fit: BoxFit.cover, opacity: 0.4),
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Filter'),
+          title: Text(S.of(context).filter),
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -455,13 +462,16 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                 // reset
                 ElevatedButton(
                   onPressed: resetFilters,
-                  child: const Text('Reset', style: TextStyle(color: Colors.white)),
+                  child: Text(S.of(context).reset, style: const TextStyle(color: Colors.white)),
                 ),
                 const SizedBox(height: 20),
                 // friends in games
                 ListTile(
                   leading: const Icon(Icons.people, color: Colors.green),
-                  title: const Text('Friends in the room', style: TextStyle(color: Colors.white, fontSize: 15)),
+                  title: Text(
+                    S.of(context).friendInTheRoom, 
+                    style: const TextStyle(color: Colors.white, fontSize: 15)
+                  ),
                   trailing: Switch(
                     value: friendsInRoom,
                     onChanged: (value) {
@@ -473,7 +483,10 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                 ),
                 // only where places
                 ListTile(
-                  title: const Text('Only rooms with available space', style: TextStyle(color: Colors.white, fontSize: 15)),
+                  title: Text(
+                    S.of(context).onlyRoomsWithAvailableSpace, 
+                    style: const TextStyle(color: Colors.white, fontSize: 15)
+                  ),
                   trailing: Switch(
                     value: roomsWithSpace,
                     onChanged: (value) {
@@ -486,7 +499,10 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                 const SizedBox(height: 20),
                 // without password
                 ListTile(
-                  title: const Text('Rooms without a password', style: TextStyle(color: Colors.white, fontSize: 15)),
+                  title: Text(
+                    S.of(context).roomsWithoutAPassword, 
+                    style: const TextStyle(color: Colors.white, fontSize: 15)
+                  ),
                   trailing: Switch(
                     value: roomsWithoutPassword,
                     onChanged: (value) {
@@ -498,7 +514,10 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                 ),
                 // with password
                 ListTile(
-                  title: const Text('Rooms with a password', style: TextStyle(color: Colors.white, fontSize: 15)),
+                  title: Text(
+                    S.of(context).roomsWithAPassword, 
+                    style: const TextStyle(color: Colors.white, fontSize: 15)
+                  ),
                   trailing: Switch(
                     value: roomsWithPassword,
                     onChanged: (value) {
@@ -510,9 +529,9 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                 ),
                 const SizedBox(height: 20),
                 // roles
-                const Text(
-                  'Additional Roles',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  S.of(context).additionalRoles,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Column(
@@ -534,7 +553,10 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                 const SizedBox(height: 20),
                 // without additional roles
                 ListTile(
-                  title: const Text('Rooms without additional roles', style: TextStyle(color: Colors.white, fontSize: 15)),
+                  title: Text(
+                    S.of(context).roomsWithourAdditionalRoles, 
+                    style: const TextStyle(color: Colors.white, fontSize: 15)
+                  ),
                   trailing: Switch(
                     value: noAdditionalRoles,
                     onChanged: (value) {
@@ -550,7 +572,10 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                     onPressed: () {
                       //
                     },
-                    child: const Text('Apply', style: TextStyle(color: Colors.white)),
+                    child: Text(
+                      S.of(context).apply,
+                      style: const TextStyle(color: Colors.white)
+                    ),
                   ),
                 ),
               ],
@@ -622,7 +647,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     if (text.isNotEmpty) {
       setState(() {
         messages.add(ChatMessage(
-          nickname: 'Мой Никнейм',
+          nickname: 'Nickname',
           avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg',
           text: text,
         ));
@@ -648,7 +673,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             preferredSize: const Size.fromHeight(30.0),
             child: Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('Игроков в Комнате [${widget.currentPlayers}/${widget.maxPlayers}]'),
+              child: Text('${S.of(context).playersInRoom} [${widget.currentPlayers}/${widget.maxPlayers}]'),
             ),
           ),
         ),
@@ -662,12 +687,12 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
-                    'Осталось времени: $remainingTime секунд',
+                    '${S.of(context).remainingTime}: $remainingTime ${S.of(context).seconds}',
                     style: const TextStyle(fontSize: 20),
                   ),
                 ),
                 SizedBox(
-                  width: 50,
+                  width: 60,
                   height: 50,
                   child: ElevatedButton(                    
                     onPressed: () {
@@ -676,7 +701,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                       MaterialPageRoute(builder: (context) => const GameScreen(title: 'game name')),
                     );
                     },
-                    child: const Text('Join'),
+                    child: Text(S.of(context).join),
                   ),
                 ),
               ],
@@ -733,8 +758,8 @@ class PlayerTableWidget extends StatefulWidget {
 
 class _PlayerTableWidgetState extends State<PlayerTableWidget> {
   final List<Player> players = [
-    Player(nickname: 'Игрок 1', avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg', status: 'alive'),
-    Player(nickname: 'Игрок 2', avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg', status: 'alive'),
+    Player(nickname: 'Murad', avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg', status: 'alive'),
+    Player(nickname: 'Pervin', avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg', status: 'alive'),
   ];
 
   @override
@@ -834,8 +859,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
           child: TextField(
             style: const TextStyle(color: Colors.white),
             controller: _controller,
-            decoration: const InputDecoration(
-              hintText: 'Введите сообщение...',
+            decoration: InputDecoration(
+              hintText: '${S.of(context).enterMessage}...',
             ),
           ),
         ),

@@ -18,7 +18,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         image: DecorationImage(image: AssetImage("assets/modern-tall-buildings-2.png"), fit: BoxFit.cover, opacity: 0.4),
       ),
       child: Scaffold(
-        appBar: AppBar(title: Text(S.of(context).settings)),
+        appBar: AppBar(
+          title: Text(S.of(context).settings),
+          automaticallyImplyLeading: false
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

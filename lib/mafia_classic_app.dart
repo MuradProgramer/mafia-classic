@@ -43,7 +43,7 @@ class MafiaClassicApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        //locale: const Locale("en"),
+        //locale: const Locale("ru"),
         supportedLocales: S.delegate.supportedLocales,
         title: 'Flutter Demo',
         theme: theme,

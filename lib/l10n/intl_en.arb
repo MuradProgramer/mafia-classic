@@ -1,4 +1,5 @@
 {
+  "@@locale": "en",
   "profile": "Profile",
   "games": "Games",
   "create": "Create",
@@ -60,5 +61,36 @@
   "confirmPassword": "Confirm Password",
   "passwordsDoNotMatch": "Passwords do not match",
   "signUp": "Sign Up",
-  "alreadyHaveAccauntSigIn": "Alredy have an accaunt? Sign In"
+  "alreadyHaveAccauntSigIn": "Alredy have an accaunt? Sign In",
+
+  "players": "Players",
+  "min": "Min",
+  "max": "Max",
+  "join": "Join",
+  "gameStarted": "Game Started",
+  "gatheringPlayers": "Gathering Players",
+
+  "alive": "Alive",
+  "dead": "Dead",
+
+  "createGame": "Create Game",
+  "passwordOptional": "Password (Optional)",
+  "roomName": "Room Name",
+
+  "reset": "Reset",
+  "filter": "Filter",
+  "friendInTheRoom": "Friends in the room",
+  "onlyRoomsWithAvailableSpace": "Only rooms with available space",
+  "roomsWithoutAPassword": "Rooms without a password",
+  "roomsWithAPassword": "Rooms with a password",
+  "additionalRoles": "Additional Roles",
+  "roomsWithourAdditionalRoles": "Rooms without additional roles",
+  "apply": "Apply",
+
+  "close": "Close",
+
+  "remainingTime": "Remaining time",
+  "seconds": "Seconds",
+  "playersInRoom": "Players in the Room",
+  "enterMessage": "Enter message"
 }

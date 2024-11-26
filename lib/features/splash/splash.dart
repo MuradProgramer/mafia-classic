@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-//import 'package:mafia_classic/mafia_classic_app.dart';
-import 'package:mafia_classic/features/auth/auth.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
+//import 'package:mafia_classic/features/auth/auth.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
-//import 'package:mafia_classic/models/models.dart';
+import 'package:mafia_classic/models/models.dart';
 //import 'package:mafia_classic/features/profile/profile.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,16 +22,16 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 5), () {
       Navigator.push(context, 
         MaterialPageRoute(
-          builder: (context) => const SignInScreen()   // TRUEEE
+          //builder: (context) => const SignInScreen()   // TRUEEE
           //builder: (context) => const GamesScreen() 
-          // builder: (context) => HomeScreen(user: User(
-          //   nickname: 'murad',
-          //   email: 'murad',
-          //   avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg',
-          //   accessToken: 'asdads',
-          //   refreshToken: 'asads',
-          //   expirationDate: DateTime.now()
-          // ),)
+          builder: (context) => HomeScreen(user: User(
+            nickname: 'murad',
+            email: 'murad',
+            avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg',
+            accessToken: 'asdads',
+            refreshToken: 'asads',
+            expirationDate: DateTime.now()
+          ),)
         ) 
       );
     });
