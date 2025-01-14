@@ -11,7 +11,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-
+    
+  signalr_netcore: ^1.4.0
   intl: ^0.19.0
   equatable: ^2.0.5
   flutter_bloc: ^8.1.6

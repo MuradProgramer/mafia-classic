@@ -72,6 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    //////////////////////////
+    //setup(widget.user);
+
     _widgetOptions = <Widget>[
       GestureDetector(
         onTap: () {

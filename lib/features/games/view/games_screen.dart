@@ -1,12 +1,34 @@
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/services/api_service.dart';
 
-class GamesScreen extends StatelessWidget {
+List<Game> games = [];
+
+class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
+
+  @override
+  State<GamesScreen> createState() => _GamesScreenState();
+}
+
+class _GamesScreenState extends State<GamesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadGames();
+  }
+
+  void _loadGames() async {
+    final fetchedGames = await GetIt.I<ApiService>().getGames();
+    setState(() {
+      games = fetchedGames;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,50 +75,77 @@ class GamesScreen extends StatelessWidget {
 
 ////////// GAME CLASSES ////////
 
+//////////////////////////////////////////////////////////
 class Game {
   final String name;
-  final int currentPlayers;
+  //final int currentPlayers; // massive size
   final int minPlayers;
   final int maxPlayers;
   final String status;
-  final List<String> characters;
+  final bool hasPassword;
+  //final List<String> characters;
+  final List<Player> players;
 
   Game({
     required this.name,
-    required this.currentPlayers,
+    //required this.currentPlayers,
     required this.minPlayers,
     required this.maxPlayers,
     required this.status,
-    required this.characters,
+    //required this.characters,
+    required this.hasPassword,
+    required this.players,
   });
+
+  factory Game.fromJson(Map<String, dynamic> json) {
+    return Game(
+      name: json['Title'],
+      //currentPlayers: json['currentPlayers'],
+      //currentPlayers: json['currentPlayers'],
+      minPlayers: json['MinPlayers'],    
+      maxPlayers: json['MaxPlayers'],    
+      hasPassword: json['HasPassword'], 
+      status: json['Status'],    
+      players: json['Players']
+      //characters: json['characters'] as List<String>,    
+    );
+  }
 }
 
-List<Game> games = [
-  Game(
-    name: 'Mafia Game 1',
-    currentPlayers: 6,
-    minPlayers: 10,
-    maxPlayers: 20,
-    status: 'Gathering players',
-    characters: ['Mafia', 'Doctor', 'Sheriff'],
-  ),
-  Game(
-    name: 'Mafia Game 2',
-    currentPlayers: 7,
-    minPlayers: 4,
-    maxPlayers: 10,
-    status: 'Game Started',
-    characters: ['Mafia', 'Doctor', 'Sheriff'],
-  ),
-  Game(
-    name: 'Mafia Game 3',
-    currentPlayers: 10,
-    minPlayers: 5,
-    maxPlayers: 15,
-    status: 'Gathering players',
-    characters: ['Mafia', 'Doctor', 'Sheriff'],
-  )
-];
+//////////////////////////////////////////////////////////
+
+// [
+//   Game(
+//     name: 'Mafia Game 1',
+//     //currentPlayers: 6,
+//     minPlayers: 10,
+//     maxPlayers: 20,
+//     status: 'Gathering players',
+//     hasPassword: false,
+//     players: players
+//     //characters: ['Mafia', 'Doctor', 'Sheriff'],
+//   ),
+//   Game(
+//     name: 'Mafia Game 2',
+//     //currentPlayers: 7,
+//     minPlayers: 4,
+//     maxPlayers: 10,
+//     status: 'Game Started',
+//     hasPassword: false,
+//     players: players
+//     //characters: ['Mafia', 'Doctor', 'Sheriff'],
+//   ),
+//   Game(
+//     name: 'Mafia Game 3',
+//     //currentPlayers: 10,
+//     minPlayers: 5,
+//     maxPlayers: 15,
+//     status: 'Gathering players',
+//     hasPassword: false,
+//     players: players
+//     //characters: ['Mafia', 'Doctor', 'Sheriff'],
+//   )
+// ];
 
 
 ////////// GAMECARD ///////////
@@ -124,7 +173,9 @@ class GameCard extends StatelessWidget {
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  //////////////////////////////////////////////////////////
+                  //Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('${S.of(context).players}: 10', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('${S.of(context).min}: ${game.minPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('${S.of(context).max}: ${game.maxPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
@@ -144,7 +195,8 @@ class GameCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Row(
-                    children: game.characters
+                    //////////////////////////////////////////////////////////
+                    children: ['Mafia', 'Doctor', 'Sheriff'] //game.characters
                         .map((character) => const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 2.0),
                               child: Icon(
@@ -179,9 +231,10 @@ class GameCard extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(builder: (context) => GameLobbyScreen(
                                   roomName:  game.name, 
-                                  currentPlayers:  game.currentPlayers, 
+                                  //currentPlayers: game.currentPlayers, 
+                                  currentPlayers: 10, 
                                   maxPlayers: 15, 
-                                  activeRoles: game.characters
+                                  activeRoles: const ['Mafia', 'Doctor', 'Sheriff'] //game.characters
                                 )),
                               );
                             },
@@ -204,15 +257,34 @@ class GameCard extends StatelessWidget {
 
 class Player {
   final String nickname;
-  final String avatarUrl;
+  //final String avatarUrl;
   final String status;
 
-  Player({required this.nickname, required this.avatarUrl, required this.status});
+  Player({
+    required this.nickname, 
+    //required this.avatarUrl, 
+    required this.status
+  });
+
+  factory Player.fromJson(Map<String, dynamic> json) {
+    return Player(
+      nickname: json['Nickname'],
+      status: json['IsAlive']
+    );
+  }
 }
 
 List<Player> players = [
-  Player(nickname: 'Player1', avatarUrl: 'https://example.com/avatar1.png', status: 'Alive'),
-  Player(nickname: 'Player2', avatarUrl: 'https://example.com/avatar2.png', status: 'Dead'),
+  Player(
+    nickname: 'Player1', 
+    //avatarUrl: 'https://example.com/avatar1.png', 
+    status: 'Alive'
+  ),
+  Player(
+    nickname: 'Player2', 
+    //avatarUrl: 'https://example.com/avatar2.png', 
+    status: 'Dead'
+  ),
   
 ];
 
@@ -240,7 +312,9 @@ class PlayersPopup extends StatelessWidget {
                   Row(
                     children: [
                       CircleAvatar(
-                        child: Text(players[index].avatarUrl[0]),
+                        //////////////////////////////////////////
+                        //child: Text(players[index].avatarUrl[0]),
+                        child: Image.network('https://example.com/avatar1.png'),
                       ),
                       const SizedBox(width: 8),
                       Text(players[index].nickname, style: const TextStyle(fontSize: 12, color: Colors.black)),
@@ -283,16 +357,28 @@ class CreateGameScreen extends StatefulWidget {
   State<CreateGameScreen> createState() => _CreateGameScreenState();
 }
 
+//// LOGIC ////
 class _CreateGameScreenState extends State<CreateGameScreen> {
   String roomName = '';
   double minPlayers = 5;
   double maxPlayers = 7;
   
   String password = '';
+  
+  late Map<String, bool> roles;
 
   @override
-  Widget build(BuildContext context) {
-    Map<String, bool> roles = {
+  void initState() {
+    super.initState();
+    // Initialize an empty map or placeholder here
+    roles = {};
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize roles using S.of(context) here
+    roles = {
       S.of(context).doctor: false,
       S.of(context).mistress: false,
       S.of(context).journalist: false,
@@ -302,7 +388,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       S.of(context).barman: false,
       S.of(context).informant: false,
     };
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: const BoxDecoration(
         image: DecorationImage(image: AssetImage("assets/modern-tall-buildings-1.png"), fit: BoxFit.cover, opacity: 0.4),
@@ -359,7 +448,12 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         value: roles[role]!,
                         onChanged: (value) {
                           setState(() {
+                            final a = roles[role];
+                            //print('$a');
+                            print('Before: $roles');
                             roles[role] = value;
+                            //print('$role updated to $value');
+                            print('After: $roles');
                           });
                         },
                       ),
@@ -384,7 +478,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Логика создания игры с сохранением состояний
+                      // logic
                     },
                     child: Text(S.of(context).createGame),
                   ),
@@ -409,14 +503,13 @@ class FilterizationScreen extends StatefulWidget {
   State<FilterizationScreen> createState() => _FilterizationScreenState();
 }
 
+//// LOGIC ////
 class _FilterizationScreenState extends State<FilterizationScreen> {
   bool friendsInRoom = false;
   bool roomsWithSpace = false;
   bool roomsWithoutPassword = false;
   bool roomsWithPassword = false;
   bool noAdditionalRoles = false;
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -570,7 +663,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      //
+                      // LOGIC
                     },
                     child: Text(
                       S.of(context).apply,
@@ -586,7 +679,6 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
     );
   }
 }
-
 
 
 ///////////// GAMESSSS LOBBY SCRENNN ////////////////
@@ -747,7 +839,6 @@ class RoleIcon {
 }
 
 
-
 // Player List
 class PlayerTableWidget extends StatefulWidget {
   const PlayerTableWidget({super.key});
@@ -757,10 +848,11 @@ class PlayerTableWidget extends StatefulWidget {
 }
 
 class _PlayerTableWidgetState extends State<PlayerTableWidget> {
-  final List<Player> players = [
-    Player(nickname: 'Murad', avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg', status: 'alive'),
-    Player(nickname: 'Pervin', avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg', status: 'alive'),
-  ];
+  //////////////////////////////////////////////////////////
+  // final List<Player> players = [
+  //   Player(nickname: 'Murad', avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg', status: 'alive'),
+  //   Player(nickname: 'Pervin', avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg', status: 'alive'),
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -769,8 +861,10 @@ class _PlayerTableWidgetState extends State<PlayerTableWidget> {
       itemBuilder: (context, index) {
         final player = players[index];
         return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(player.avatarUrl),
+          leading: const CircleAvatar(
+            //////////////////////////////////////////////////////////
+            // backgroundImage: NetworkImage(player.avatarUrl),
+            backgroundImage: NetworkImage('https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg'),
           ),
           title: Text(player.nickname, style: const TextStyle(color: Colors.white)),
         );
@@ -778,7 +872,6 @@ class _PlayerTableWidgetState extends State<PlayerTableWidget> {
     );
   }
 }
-
 
 
 // chat 
@@ -879,8 +972,6 @@ class _MessageInputFieldState extends State<MessageInputField> {
 }
 
 
-
-
 ///////////// GAME /////////
 
 class GameScreen extends StatefulWidget {
@@ -895,14 +986,187 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
+    final double deviceHeight = MediaQuery.of(context).size.height;
+    final double deviceWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(widget.title, style: const TextStyle())
       ),
       body: Container(
+        margin: EdgeInsets.only(bottom: deviceHeight * 0.005),
+        color: Colors.white,
+        child: Column(
+          children: [
 
+            Container( //   TO ONE WIDGET
+              width: deviceWidth,
+              height: deviceHeight * 0.017,
+              margin: const EdgeInsets.all(2.0),
+              // decoration: BoxDecoration(
+              //   border: Border.all(
+              //     color: Colors.black, 
+              //     width: 1.0, 
+              //   ),
+              //   borderRadius: BorderRadius.circular(4.0),
+              // ),
+
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: deviceHeight * 0.03,
+                    width: deviceWidth * 0.663,
+                    child: const Center(
+                      child: Text(
+                        "Game Started",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black
+                        )
+                      ),
+                    )
+                  ),
+                  Container(
+                    height: deviceHeight * 0.03,
+                    width: deviceWidth * 0.3,
+                    child: const Center(
+                      child: Text(
+                        "Players",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black
+                        )
+                      ), 
+                    )
+                  ),
+                ],
+              ),
+            ),
+
+            Container( // SECOND
+              height: deviceHeight * 0.7,
+              width: deviceWidth,
+              margin: const EdgeInsets.all(4.0),
+              // decoration: BoxDecoration(
+              //   border: Border.all(
+              //     color: Colors.black,
+              //     width: 1.0,
+              //   ),
+              //   borderRadius: BorderRadius.circular(4.0),
+              // ),
+              
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: deviceWidth * 0.663,
+                    height: deviceHeight * 0.7,
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //     color: Colors.black,
+                    //     width: 1.0,
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(4.0),
+                    // ),
+
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        Container(
+                          width: deviceWidth * 0.663,
+                          height: deviceHeight * 0.2,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: const Text(
+                            "Box",
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        
+                        Container(
+                          width: deviceWidth * 0.663,
+                          height: deviceHeight * 0.49,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: const Text(
+                            "Box",
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    )
+                  ),
+
+                  Container(
+                    width: deviceWidth * 0.3,
+                    height: deviceHeight * 0.7,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                    child: const Text(
+                      "Box",
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                ],
+              )
+            ),
+
+            Container(
+              width: deviceWidth,
+              height: deviceHeight * 0.055,
+              margin: const EdgeInsets.all(4.0),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+                borderRadius: BorderRadius.circular(4.0),
+              ),
+              child: const Text(
+                "Box",
+                textAlign: TextAlign.center,
+              ),
+            )
+          ],
+        ),
       )
     
     );
   }
 }
+
+
+// Container(
+//                 width: deviceWidth,
+//                 height: deviceHeight * 0.7,
+//                 margin: const EdgeInsets.all(4.0),
+//                 decoration: BoxDecoration(
+//                   border: Border.all(
+//                     color: Colors.black,
+//                     width: 1.0,
+//                   ),
+//                   borderRadius: BorderRadius.circular(4.0),
+//                 ),
+//                 child: const Text(
+//                   "Box",
+//                   textAlign: TextAlign.center,
+//                 ),
+//               ),

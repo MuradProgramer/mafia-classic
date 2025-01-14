@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_classic/features/games/view/view.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
+import 'package:signalr_netcore/ihub_protocol.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 import 'token_aware_service.dart';
 
@@ -12,7 +15,80 @@ class ApiService extends TokenAwareService {
   DateTime _expiration;
   String _refreshToken;
 
-  ApiService(this._accessToken, this._expiration, this._refreshToken);
+  ///////// SIGNAL R ///////////
+  late HubConnection hubConnection;
+
+  ApiService(this._accessToken, this._expiration, this._refreshToken) {
+    hubConnection = HubConnectionBuilder().withUrl(
+      'http://localhost:5000/chat',
+      options: HttpConnectionOptions(
+        headers: MessageHeaders()..setHeaderValue('Authorization', 'Bearer $_accessToken'),
+      ),
+    )
+    .build();
+  }
+
+  // CACHE ELEMEK LAZIMDI
+
+  Future<void> connectHub() async {
+    hubConnection.on('GameLobbies',      getGamesList);
+    await hubConnection.start();
+    // hubConnection.on('GameLobbyCreated', _handleReceivedMessage);
+    // hubConnection.on('GameLobbyClosed',  _handleReceivedMessage);
+    // hubConnection.on('PlayerJoined',     _handleReceivedMessage);
+    // hubConnection.on('PlayerLeft',       _handleReceivedMessage);
+  }
+
+  Future<List<Game>> getGames() async {
+    //List<Game> gamesA;
+    //await connectHub();
+    // return getGamesList();
+    return games;
+  }
+
+  List<Game>? getGamesList(List<Object?>? parameters) { ///////// SIGNAL R ///////////
+    List<dynamic> jsonData = parameters as List<dynamic>;
+
+    final gamesList = jsonData.isEmpty ? null : jsonData.map((item) {
+      return Game.fromJson(item as Map<String, dynamic>);
+    }).toList();
+
+    return gamesList;
+  }
+
+  List<Game> games = [
+    Game(
+      name: 'Mafia Game 1',
+      //currentPlayers: 6,
+      minPlayers: 10,
+      maxPlayers: 20,
+      status: 'Gathering players',
+      hasPassword: false,
+      players: players
+      //characters: ['Mafia', 'Doctor', 'Sheriff'],
+    ),
+    Game(
+      name: 'Mafia Game 2',
+      //currentPlayers: 7,
+      minPlayers: 4,
+      maxPlayers: 10,
+      status: 'Game Started',
+      hasPassword: false,
+      players: players
+      //characters: ['Mafia', 'Doctor', 'Sheriff'],
+    ),
+    Game(
+      name: 'Mafia Game 3',
+      //currentPlayers: 10,
+      minPlayers: 5,
+      maxPlayers: 15,
+      status: 'Gathering players',
+      hasPassword: false,
+      players: players
+      //characters: ['Mafia', 'Doctor', 'Sheriff'],
+    )
+  ];
+
 
   @override
   Future<String> getAccessToken() async {
@@ -245,6 +321,10 @@ class ApiService extends TokenAwareService {
 
 
   // sendMessage (token, nickname, date, )
+
+
+  ///////// SIGNAL R ///////////
+  
 }
 
 void setup(User user) {
