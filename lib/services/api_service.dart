@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -18,9 +19,15 @@ class ApiService extends TokenAwareService {
   ///////// SIGNAL R ///////////
   late HubConnection hubConnection;
 
+  // StreamController to handle the stream of games
+  final StreamController<List<Game>> _gamesController = StreamController<List<Game>>.broadcast();
+  
+  // Getter for the games stream
+  Stream<List<Game>> get gamesStream => _gamesController.stream;
+
   ApiService(this._accessToken, this._expiration, this._refreshToken) {
     hubConnection = HubConnectionBuilder().withUrl(
-      'http://localhost:5000/chat',
+      'https://localhost:7141/mainlobby',
       options: HttpConnectionOptions(
         headers: MessageHeaders()..setHeaderValue('Authorization', 'Bearer $_accessToken'),
       ),
@@ -46,14 +53,17 @@ class ApiService extends TokenAwareService {
     return games;
   }
 
-  List<Game>? getGamesList(List<Object?>? parameters) { ///////// SIGNAL R ///////////
+  void getGamesList(List<Object?>? parameters) { ///////// SIGNAL R ///////////
     List<dynamic> jsonData = parameters as List<dynamic>;
 
     final gamesList = jsonData.isEmpty ? null : jsonData.map((item) {
       return Game.fromJson(item as Map<String, dynamic>);
     }).toList();
 
-    return gamesList;
+    if (gamesList != null) {
+      _gamesController.add(gamesList); // Notify listeners
+    }
+    //return gamesList;
   }
 
   List<Game> games = [
@@ -89,6 +99,35 @@ class ApiService extends TokenAwareService {
     )
   ];
 
+  void dispose() {
+    _gamesController.close();
+  }
+
+  Future<bool> createGame(Game game) async {
+    bool status = false;
+    await executeWithTokenCheck((accessToken) async {
+      final formDataObject = FormData.fromMap({'Game': game});
+
+      final response = await GetIt.I<DioService>().dio.post(
+        'Friend/RequestFriendship',
+        data: formDataObject,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        status = true;
+      } else if (response.statusCode == 409) {
+        // request to alredy friend
+      } else if (response.statusCode == 404) {
+        // not find
+      }
+    });
+    return status;
+  }
 
   @override
   Future<String> getAccessToken() async {

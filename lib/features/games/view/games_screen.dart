@@ -17,10 +17,13 @@ class GamesScreen extends StatefulWidget {
 }
 
 class _GamesScreenState extends State<GamesScreen> {
+  late ApiService apiService;
+
   @override
   void initState() {
     super.initState();
-    _loadGames();
+    GetIt.I<ApiService>().connectHub();
+    //_loadGames();
   }
 
   void _loadGames() async {
@@ -61,12 +64,34 @@ class _GamesScreenState extends State<GamesScreen> {
             ),
           ],
         ),
-        body: ListView.builder(
-          itemCount: games.length, 
-          itemBuilder: (context, index) {
-            return GameCard(game: games[index]);
+        body: 
+        StreamBuilder<List<Game>>(
+          stream: GetIt.I<ApiService>().gamesStream,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No games available.'));
+            } else {
+              final gamesSnap = snapshot.data!;
+              return ListView.builder(
+                itemCount: gamesSnap.length, 
+                itemBuilder: (context, index) {
+                  return GameCard(game: games[index]);
+                },
+              );
+            }
           },
         ),
+        
+        // ListView.builder(
+        //   itemCount: games.length, 
+        //   itemBuilder: (context, index) {
+        //     return GameCard(game: games[index]);
+        //   },
+        // ),
       ),
     );
   }
@@ -98,15 +123,19 @@ class Game {
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
+    final playersFrom = json['Players'].isEmpty ? null : json['Players'].map((item) {
+      return Player.fromJson(item as Map<String, dynamic>);
+    }).toList();
+
     return Game(
       name: json['Title'],
       //currentPlayers: json['currentPlayers'],
       //currentPlayers: json['currentPlayers'],
-      minPlayers: json['MinPlayers'],    
-      maxPlayers: json['MaxPlayers'],    
+      minPlayers: json['MinCapacity'],    
+      maxPlayers: json['MaxCapacity'],    
       hasPassword: json['HasPassword'], 
       status: json['Status'],    
-      players: json['Players']
+      players: playersFrom
       //characters: json['characters'] as List<String>,    
     );
   }
@@ -175,7 +204,7 @@ class GameCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   //////////////////////////////////////////////////////////
                   //Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('${S.of(context).players}: 10', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('${S.of(context).players}: ${game.players.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('${S.of(context).min}: ${game.minPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('${S.of(context).max}: ${game.maxPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
@@ -257,18 +286,19 @@ class GameCard extends StatelessWidget {
 
 class Player {
   final String nickname;
-  //final String avatarUrl;
+  final String avatarUrl;
   final String status;
 
   Player({
     required this.nickname, 
-    //required this.avatarUrl, 
+    required this.avatarUrl, 
     required this.status
   });
 
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
       nickname: json['Nickname'],
+      avatarUrl: json['AvatarUrl'],
       status: json['IsAlive']
     );
   }
@@ -277,12 +307,12 @@ class Player {
 List<Player> players = [
   Player(
     nickname: 'Player1', 
-    //avatarUrl: 'https://example.com/avatar1.png', 
+    avatarUrl: 'https://example.com/avatar1.png', 
     status: 'Alive'
   ),
   Player(
     nickname: 'Player2', 
-    //avatarUrl: 'https://example.com/avatar2.png', 
+    avatarUrl: 'https://example.com/avatar2.png', 
     status: 'Dead'
   ),
   
@@ -478,7 +508,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      // logic
+                      
                     },
                     child: Text(S.of(context).createGame),
                   ),

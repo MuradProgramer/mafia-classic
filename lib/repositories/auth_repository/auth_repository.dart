@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/api_service.dart';
@@ -50,11 +49,15 @@ class AuthRepository {
 
   Future<User> signUp(String nickname, String email, String password) async {
 
-    final formDataObject = FormData.fromMap({'email': email, 'password': password, 'nickname': nickname});
+    final dataObject = jsonEncode({
+      'email': email, 
+      'password': password, 
+      'nickname': nickname
+    });
 
     final response = await GetIt.I<DioService>().dio.post(
       'Account/SignUp',
-      data: formDataObject,
+      data: dataObject,
     );
 
     if (response.statusCode == 200) {
