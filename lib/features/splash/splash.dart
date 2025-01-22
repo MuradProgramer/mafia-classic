@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mafia_classic/features/games/view/games_screen.dart';
-import 'package:mafia_classic/mafia_classic_app.dart';
-import 'package:mafia_classic/features/auth/auth.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
-import 'package:mafia_classic/models/models.dart';
+//import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/features/auth/auth.dart';
+import 'package:mafia_classic/features/games/view/games_screen.dart';
+//import 'package:mafia_classic/features/games/view/games_screen.dart';
+//import 'package:mafia_classic/models/models.dart';
 //import 'package:mafia_classic/features/profile/profile.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,8 +24,8 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 1), () {
       Navigator.push(context, 
         MaterialPageRoute(
-          builder: (context) => const SignInScreen()   // TRUEEE
-          //builder: (context) => const GamesScreen() 
+          //builder: (context) => const SignUpScreen()   // TRUEEE
+          builder: (context) => const CreateGameScreen() 
           // builder: (context) => HomeScreen(user: User(
           //   nickname: 'murad',
           //   email: 'murad',

@@ -18,6 +18,9 @@ dependencies:
   flutter_bloc: ^8.1.6
   get_it: ^7.7.0
   dio: ^5.5.0+1
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.17
+  flutter_svg_provider: ^1.0.7
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +44,11 @@ flutter:
     - assets/mafia-icon.png
     - assets/mafia-icon-2.png
     - assets/butter.png
+    - assets/images/
+  fonts:
+    - family: CenturyGothic
+      fonts:
+        - asset: assets/fonts/centurygothic.ttf
 
 flutter_intl:
   enabled: true

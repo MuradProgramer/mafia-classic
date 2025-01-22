@@ -26,6 +26,13 @@ class _GamesScreenState extends State<GamesScreen> {
     //_loadGames();
   }
 
+  @override
+  void dispose() {
+    // Dispose of the hub connection when the screen is closed
+    GetIt.I<ApiService>().disconnectHub();
+    super.dispose();
+  }
+
   void _loadGames() async {
     final fetchedGames = await GetIt.I<ApiService>().getGames();
     setState(() {
@@ -79,7 +86,7 @@ class _GamesScreenState extends State<GamesScreen> {
               return ListView.builder(
                 itemCount: gamesSnap.length, 
                 itemBuilder: (context, index) {
-                  return GameCard(game: games[index]);
+                  return GameCard(game: gamesSnap[index]);
                 },
               );
             }
@@ -123,9 +130,9 @@ class Game {
   });
 
   factory Game.fromJson(Map<String, dynamic> json) {
-    final playersFrom = json['Players'].isEmpty ? null : json['Players'].map((item) {
-      return Player.fromJson(item as Map<String, dynamic>);
-    }).toList();
+    // final playersFrom = json['Players'].isEmpty ? null : json['Players'].map((item) {
+    //   return Player.fromJson(item as Map<String, dynamic>);
+    // }).toList();
 
     return Game(
       name: json['Title'],
@@ -134,8 +141,10 @@ class Game {
       minPlayers: json['MinCapacity'],    
       maxPlayers: json['MaxCapacity'],    
       hasPassword: json['HasPassword'], 
-      status: json['Status'],    
-      players: playersFrom
+      status: json['Status'],
+      players: json['Players'].isEmpty ? <Player>[] : (json['Players'] as List)
+          .map((playerJson) => Player.fromJson(playerJson))
+          .toList()
       //characters: json['characters'] as List<String>,    
     );
   }
@@ -287,19 +296,19 @@ class GameCard extends StatelessWidget {
 class Player {
   final String nickname;
   final String avatarUrl;
-  final String status;
+  final bool isAlive;
 
   Player({
     required this.nickname, 
     required this.avatarUrl, 
-    required this.status
+    required this.isAlive
   });
 
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
       nickname: json['Nickname'],
       avatarUrl: json['AvatarUrl'],
-      status: json['IsAlive']
+      isAlive: json['IsAlive'] as bool
     );
   }
 }
@@ -308,12 +317,12 @@ List<Player> players = [
   Player(
     nickname: 'Player1', 
     avatarUrl: 'https://example.com/avatar1.png', 
-    status: 'Alive'
+    isAlive: true
   ),
   Player(
     nickname: 'Player2', 
     avatarUrl: 'https://example.com/avatar2.png', 
-    status: 'Dead'
+    isAlive: false
   ),
   
 ];
@@ -351,10 +360,10 @@ class PlayersPopup extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    players[index].status == 'Alive' ? S.of(context).alive : S.of(context).dead,
+                    players[index].isAlive == true ? S.of(context).alive : S.of(context).dead,
                     style: TextStyle(
                       fontSize: 12,
-                      color: players[index].status == 'Alive'
+                      color: players[index].isAlive == true
                           ? Colors.green
                           : Colors.red,
                     ),
@@ -395,21 +404,21 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   
   String password = '';
   
-  late Map<String, bool> roles;
+  late Map<String, bool> rolesL10;
+  late Map<String, bool> mainRoles;
 
   @override
   void initState() {
     super.initState();
     // Initialize an empty map or placeholder here
-    roles = {};
+    rolesL10 = {};
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Initialize roles using S.of(context) here
-    roles = {
-      S.of(context).doctor: false,
+    
+    rolesL10 = {
       S.of(context).mistress: false,
       S.of(context).journalist: false,
       S.of(context).bodyguard: false,
@@ -417,6 +426,16 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       S.of(context).terrorist: false,
       S.of(context).barman: false,
       S.of(context).informant: false,
+    };
+
+    mainRoles = {
+      "mistress": false,
+      "journalist": false,
+      "bodyguard": false,
+      "spy": false,
+      "terrorist": false,
+      "barman": false,
+      "informant": false,
     };
   }
 
@@ -470,20 +489,22 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 ),
                 const SizedBox(height: 10),
                 Column(
-                  children: roles.keys.map((role) {
+                  children: rolesL10.keys.map((role) {
                     return ListTile(
-                      leading: const Icon(Icons.person, color: Colors.white), // Замените на иконку роли
+                      leading: const Icon(Icons.person, color: Colors.white),
                       title: Text(role, style: const TextStyle(color: Colors.white)),
                       trailing: Switch(
-                        value: roles[role]!,
+                        value: rolesL10[role]!,
                         onChanged: (value) {
                           setState(() {
-                            final a = roles[role];
-                            //print('$a');
-                            print('Before: $roles');
-                            roles[role] = value;
-                            //print('$role updated to $value');
-                            print('After: $roles');
+                            rolesL10[role] = value;
+                            for (var i = 0; i < rolesL10.length; i++) {
+                              if (rolesL10.keys.elementAt(i) == role) {
+                                mainRoles[mainRoles.keys.elementAt(i)] = true;
+                              }
+                            }
+                            //print('roles l10: $rolesL10');
+                            //print('main roles: $mainRoles');
                           });
                         },
                       ),

@@ -18,6 +18,7 @@ class ApiService extends TokenAwareService {
 
   ///////// SIGNAL R ///////////
   late HubConnection hubConnection;
+  bool hubIsConnected = false;
 
   // StreamController to handle the stream of games
   final StreamController<List<Game>> _gamesController = StreamController<List<Game>>.broadcast();
@@ -27,7 +28,7 @@ class ApiService extends TokenAwareService {
 
   ApiService(this._accessToken, this._expiration, this._refreshToken) {
     hubConnection = HubConnectionBuilder().withUrl(
-      'https://localhost:7141/mainlobby',
+      'https://192.168.0.1:5163/mainlobby',
       options: HttpConnectionOptions(
         headers: MessageHeaders()..setHeaderValue('Authorization', 'Bearer $_accessToken'),
       ),
@@ -35,35 +36,70 @@ class ApiService extends TokenAwareService {
     .build();
   }
 
-  // CACHE ELEMEK LAZIMDI
-
   Future<void> connectHub() async {
-    hubConnection.on('GameLobbies',      getGamesList);
-    await hubConnection.start();
+    if (hubIsConnected) {
+      print("HubConnection already established.");
+      return; // Avoid reconnecting if already connected
+    }
+
+    hubConnection.on('GameLobbies', (List<Object?>? parameters) {
+      //print('33: $parameters');
+      final List<Game>? gamesList = decodeGameParameters(parameters);
+
+      if (gamesList != null) {
+        _gamesController.add(gamesList); // Notify listeners
+      }
+    });
+
+    try {
+      print("Starting HubConnection...");
+      await hubConnection.start();
+      hubIsConnected = true;
+      print("HubConnection started.");
+    } catch (e) {
+      print("Failed to start HubConnection: $e");
+    }
     // hubConnection.on('GameLobbyCreated', _handleReceivedMessage);
     // hubConnection.on('GameLobbyClosed',  _handleReceivedMessage);
     // hubConnection.on('PlayerJoined',     _handleReceivedMessage);
     // hubConnection.on('PlayerLeft',       _handleReceivedMessage);
   }
 
+  List<Game>? decodeGameParameters(List<Object?>? parameters) {
+    if (parameters == null || parameters.isEmpty || parameters.first == null) {
+      print("No data received.");
+      return null;
+    }
+
+    try {
+      final List<dynamic> jsonData = json.decode(parameters.first as String);
+
+      final games = jsonData.map((gameJson) {
+        return Game.fromJson(gameJson as Map<String, dynamic>);
+      }).toList();
+
+      return games;
+    } catch (e) {
+      print("Error decoding parameters: $e");
+      return null;
+    }
+  }
+
+  Future<void> disconnectHub() async {
+    hubConnection.stop().then((_) {
+      hubIsConnected = false;
+      print('Hub connection stopped');
+    }).catchError((error) {
+      print('Error stopping hub connection: $error');
+    });
+  }
+
+  
   Future<List<Game>> getGames() async {
     //List<Game> gamesA;
     //await connectHub();
     // return getGamesList();
     return games;
-  }
-
-  void getGamesList(List<Object?>? parameters) { ///////// SIGNAL R ///////////
-    List<dynamic> jsonData = parameters as List<dynamic>;
-
-    final gamesList = jsonData.isEmpty ? null : jsonData.map((item) {
-      return Game.fromJson(item as Map<String, dynamic>);
-    }).toList();
-
-    if (gamesList != null) {
-      _gamesController.add(gamesList); // Notify listeners
-    }
-    //return gamesList;
   }
 
   List<Game> games = [
@@ -121,9 +157,9 @@ class ApiService extends TokenAwareService {
       if (response.statusCode == 200) {
         status = true;
       } else if (response.statusCode == 409) {
-        // request to alredy friend
+        // 
       } else if (response.statusCode == 404) {
-        // not find
+        // 
       }
     });
     return status;
