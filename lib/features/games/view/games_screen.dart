@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'dart:async';
@@ -109,22 +110,22 @@ class _GamesScreenState extends State<GamesScreen> {
 
 //////////////////////////////////////////////////////////
 class Game {
-  final String name;
+  final String title;
   //final int currentPlayers; // massive size
   final int minPlayers;
   final int maxPlayers;
-  final String status;
+  String status;
   final bool hasPassword;
-  //final List<String> characters;
+  final List<String> extraRoles;
   final List<Player> players;
 
   Game({
-    required this.name,
+    required this.title,
     //required this.currentPlayers,
     required this.minPlayers,
     required this.maxPlayers,
     required this.status,
-    //required this.characters,
+    required this.extraRoles,
     required this.hasPassword,
     required this.players,
   });
@@ -135,7 +136,7 @@ class Game {
     // }).toList();
 
     return Game(
-      name: json['Title'],
+      title: json['Title'],
       //currentPlayers: json['currentPlayers'],
       //currentPlayers: json['currentPlayers'],
       minPlayers: json['MinCapacity'],    
@@ -144,8 +145,8 @@ class Game {
       status: json['Status'],
       players: json['Players'].isEmpty ? <Player>[] : (json['Players'] as List)
           .map((playerJson) => Player.fromJson(playerJson))
-          .toList()
-      //characters: json['characters'] as List<String>,    
+          .toList(),
+      extraRoles: json['ExtraRoles'].isEmpty ? <String>[] : json['ExtraRoles'] as List<String>,    
     );
   }
 }
@@ -207,7 +208,7 @@ class GameCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    game.name,
+                    game.title,
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -268,7 +269,7 @@ class GameCard extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => GameLobbyScreen(
-                                  roomName:  game.name, 
+                                  roomName:  game.title, 
                                   //currentPlayers: game.currentPlayers, 
                                   currentPlayers: 10, 
                                   maxPlayers: 15, 
@@ -389,6 +390,66 @@ class PlayersPopup extends StatelessWidget {
 
 //////// CREATE GAME /////////
 
+class CreateGame {
+  final String title;
+  final int minPlayers;
+  final int maxPlayers;
+  final String? password;
+  final List<String> extraRoles;
+
+  CreateGame({
+    required this.title, 
+    required this.minPlayers, 
+    required this.maxPlayers, 
+    required this.password, 
+    required this.extraRoles
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': title,
+      'minPlayers': minPlayers,
+      'maxPlayers': maxPlayers,
+      'password': password,
+      'extraRoles': extraRoles,
+    };
+  }
+}
+
+class PlayerJoinedGame {
+  final String title;
+  final Player player;
+
+  PlayerJoinedGame({
+    required this.title, 
+    required this.player
+  });
+  
+  factory PlayerJoinedGame.fromJson(Map<String, dynamic> json) {
+    return PlayerJoinedGame(
+      title: json['title'],
+      player: Player.fromJson(json['player'])
+    );
+  }
+}
+
+class PlayerLeftGame {
+  final String title;
+  final String nickname;
+
+  PlayerLeftGame({
+    required this.title, 
+    required this.nickname
+  });
+  
+  factory PlayerLeftGame.fromJson(Map<String, dynamic> json) {
+    return PlayerLeftGame(
+      title: json['title'],
+      nickname: json['nickname']
+    );
+  }
+}
+
 class CreateGameScreen extends StatefulWidget {
   const CreateGameScreen({super.key});
 
@@ -399,13 +460,14 @@ class CreateGameScreen extends StatefulWidget {
 //// LOGIC ////
 class _CreateGameScreenState extends State<CreateGameScreen> {
   String roomName = '';
-  double minPlayers = 5;
-  double maxPlayers = 7;
+  int minPlayers = 5;
+  int maxPlayers = 7;
   
   String password = '';
   
   late Map<String, bool> rolesL10;
   late Map<String, bool> mainRoles;
+  List<String> roles = <String>[];
 
   @override
   void initState() {
@@ -471,14 +533,14 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 const SizedBox(height: 20),
                 Text('${S.of(context).players}: $minPlayers - $maxPlayers'),
                 RangeSlider(
-                  values: RangeValues(minPlayers, maxPlayers),
+                  values: RangeValues(minPlayers.toDouble(), maxPlayers.toDouble()),
                   min: 5,
                   max: 20,
                   divisions: 15,
                   onChanged: (RangeValues values) {
                     setState(() {
-                      minPlayers = values.start;
-                      maxPlayers = values.end;
+                      minPlayers = values.start.toInt();
+                      maxPlayers = values.end.toInt();
                     });
                   },
                 ),
@@ -529,7 +591,22 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      
+                      mainRoles.forEach((mainRole, state) {
+                        print(mainRole);
+                        print(state);
+                        if (state) {
+                          roles.add(mainRole);
+                        }
+                      });
+                      CreateGame finalGame = CreateGame(
+                        title: roomName, 
+                        minPlayers: minPlayers, 
+                        maxPlayers: maxPlayers, 
+                        password: (password.isEmpty) ? "" : password, 
+                        extraRoles: roles
+                      );
+                      //print(jsonEncode(finalGame.toJson()));
+                      GetIt.I<ApiService>().createGame(jsonEncode(finalGame.toJson()));
                     },
                     child: Text(S.of(context).createGame),
                   ),

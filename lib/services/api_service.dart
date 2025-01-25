@@ -16,6 +16,8 @@ class ApiService extends TokenAwareService {
   DateTime _expiration;
   String _refreshToken;
 
+  late List<Game>? allGames;
+
   ///////// SIGNAL R ///////////
   late HubConnection hubConnection;
   bool hubIsConnected = false;
@@ -27,6 +29,7 @@ class ApiService extends TokenAwareService {
   Stream<List<Game>> get gamesStream => _gamesController.stream;
 
   ApiService(this._accessToken, this._expiration, this._refreshToken) {
+    allGames = <Game>[];
     hubConnection = HubConnectionBuilder().withUrl(
       'https://192.168.0.1:5163/mainlobby',
       options: HttpConnectionOptions(
@@ -42,12 +45,86 @@ class ApiService extends TokenAwareService {
       return; // Avoid reconnecting if already connected
     }
 
+    // DONE
     hubConnection.on('GameLobbies', (List<Object?>? parameters) {
       //print('33: $parameters');
-      final List<Game>? gamesList = decodeGameParameters(parameters);
+      final List<Game>? gamesList = decodeGamesParameters(parameters);
 
-      if (gamesList != null) {
-        _gamesController.add(gamesList); // Notify listeners
+      allGames = gamesList;
+
+      if (allGames != null) {
+        _gamesController.add(allGames!); // Notify listeners
+      }
+    });
+
+    // INCOMPLETE
+    hubConnection.on('GameLobbyCreated', (List<Object?>? parameters) {
+      final Game? game = decodeGameParameters(parameters);
+
+      if (game != null) {
+        allGames?.add(game);
+        _gamesController.add(allGames!); // Notify listeners
+      }
+    });
+
+    // INCOMPLETE
+    hubConnection.on('GameLobbyClosed', (List<Object?>? parameters) {
+      final String? title = parameters?.first as String;
+
+      if (title != null && allGames != null) {
+        if (allGames!.any((game) => game.title == title)) {
+          allGames!.removeWhere((game) => game.title == title);
+        }
+        _gamesController.add(allGames!); // Notify listeners
+      }
+    });
+
+    // INCOMPLETE
+    hubConnection.on('PlayerJoined', (List<Object?>? parameters) {
+      final PlayerJoinedGame? playerJoinedToGame = decodePlayerJoinedGameParameters(parameters);
+
+      if (playerJoinedToGame != null && allGames != null) {
+        if (!allGames!
+          .firstWhere((game) => game.title == playerJoinedToGame.title)
+          .players.any((player) => player.nickname == playerJoinedToGame.player.nickname)) {
+
+          allGames!
+          .firstWhere((game) => game.title == playerJoinedToGame.title)
+          .players.add(playerJoinedToGame.player);
+        }
+        _gamesController.add(allGames!); // Notify listeners
+      }
+    });
+
+    // INCOMPLETE
+    hubConnection.on('PlayerLeft', (List<Object?>? parameters) {
+      final PlayerLeftGame? playerLeftGame = decodePlayerLeftGameParameters(parameters);
+
+      if (playerLeftGame != null && allGames != null) {
+        if (allGames!
+          .firstWhere((game) => game.title == playerLeftGame.title)
+          .players.any((player) => player.nickname == playerLeftGame.nickname)) {
+
+          allGames!
+          .firstWhere((game) => game.title == playerLeftGame.title)
+          .players.removeWhere((player) => player.nickname == playerLeftGame.nickname);
+        }
+        else {
+          print('There is no player with this nickname');
+        }
+        _gamesController.add(allGames!); // Notify listeners
+      }
+    });
+
+    // INCOMPLETE
+    hubConnection.on('GameStarted', (List<Object?>? parameters) {
+      final String? title = parameters?.first as String;
+
+      if (title != null && allGames != null) {
+        if (allGames!.any((game) => game.title == title)) {
+          allGames!.firstWhere((game) => game.title == title).status = 'Game Started';
+        }
+        _gamesController.add(allGames!); // Notify listeners
       }
     });
 
@@ -59,13 +136,25 @@ class ApiService extends TokenAwareService {
     } catch (e) {
       print("Failed to start HubConnection: $e");
     }
-    // hubConnection.on('GameLobbyCreated', _handleReceivedMessage);
-    // hubConnection.on('GameLobbyClosed',  _handleReceivedMessage);
-    // hubConnection.on('PlayerJoined',     _handleReceivedMessage);
-    // hubConnection.on('PlayerLeft',       _handleReceivedMessage);
   }
 
-  List<Game>? decodeGameParameters(List<Object?>? parameters) {
+  Game? decodeGameParameters(List<Object?>? parameters) {
+    if (parameters == null || parameters.isEmpty || parameters.first == null) {
+      print("No data received.");
+      return null;
+    }
+
+    try {
+      final List<dynamic> jsonData = json.decode(parameters.first as String);
+
+      return Game.fromJson(jsonData as Map<String, dynamic>);
+    } catch (e) {
+      print("Error decoding parameters: $e");
+      return null;
+    }
+  }
+
+  List<Game>? decodeGamesParameters(List<Object?>? parameters) {
     if (parameters == null || parameters.isEmpty || parameters.first == null) {
       print("No data received.");
       return null;
@@ -79,6 +168,38 @@ class ApiService extends TokenAwareService {
       }).toList();
 
       return games;
+    } catch (e) {
+      print("Error decoding parameters: $e");
+      return null;
+    }
+  }
+
+  PlayerJoinedGame? decodePlayerJoinedGameParameters(List<Object?>? parameters) {
+    if (parameters == null || parameters.isEmpty || parameters.first == null) {
+      print("No data received.");
+      return null;
+    }
+
+    try {
+      final List<dynamic> jsonData = json.decode(parameters.first as String);
+
+      return PlayerJoinedGame.fromJson(jsonData as Map<String, dynamic>);
+    } catch (e) {
+      print("Error decoding parameters: $e");
+      return null;
+    }
+  }
+
+  PlayerLeftGame? decodePlayerLeftGameParameters(List<Object?>? parameters) {
+    if (parameters == null || parameters.isEmpty || parameters.first == null) {
+      print("No data received.");
+      return null;
+    }
+
+    try {
+      final List<dynamic> jsonData = json.decode(parameters.first as String);
+
+      return PlayerLeftGame.fromJson(jsonData as Map<String, dynamic>);
     } catch (e) {
       print("Error decoding parameters: $e");
       return null;
@@ -104,34 +225,34 @@ class ApiService extends TokenAwareService {
 
   List<Game> games = [
     Game(
-      name: 'Mafia Game 1',
+      title: 'Mafia Game 1',
       //currentPlayers: 6,
       minPlayers: 10,
       maxPlayers: 20,
       status: 'Gathering players',
       hasPassword: false,
-      players: players
-      //characters: ['Mafia', 'Doctor', 'Sheriff'],
+      players: players,
+      extraRoles: ['Mafia', 'Doctor', 'Sheriff'],
     ),
     Game(
-      name: 'Mafia Game 2',
+      title: 'Mafia Game 2',
       //currentPlayers: 7,
       minPlayers: 4,
       maxPlayers: 10,
       status: 'Game Started',
       hasPassword: false,
-      players: players
-      //characters: ['Mafia', 'Doctor', 'Sheriff'],
+      players: players,
+      extraRoles: ['Mafia', 'Doctor', 'Sheriff'],
     ),
     Game(
-      name: 'Mafia Game 3',
+      title: 'Mafia Game 3',
       //currentPlayers: 10,
       minPlayers: 5,
       maxPlayers: 15,
       status: 'Gathering players',
       hasPassword: false,
-      players: players
-      //characters: ['Mafia', 'Doctor', 'Sheriff'],
+      players: players,
+      extraRoles: ['Mafia', 'Doctor', 'Sheriff'],
     )
   ];
 
@@ -139,13 +260,16 @@ class ApiService extends TokenAwareService {
     _gamesController.close();
   }
 
-  Future<bool> createGame(Game game) async {
+  Future<bool> createGame(String game) async {
     bool status = false;
+
     await executeWithTokenCheck((accessToken) async {
       final formDataObject = FormData.fromMap({'Game': game});
 
+      print(formDataObject);
+
       final response = await GetIt.I<DioService>().dio.post(
-        'Friend/RequestFriendship',
+        'GameLobby/CreateLobby',
         data: formDataObject,
         options: Options(
           headers: {
@@ -162,6 +286,7 @@ class ApiService extends TokenAwareService {
         // 
       }
     });
+    
     return status;
   }
 
