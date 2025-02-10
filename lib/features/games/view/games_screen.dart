@@ -146,7 +146,7 @@ class Game {
       players: json['Players'].isEmpty ? <Player>[] : (json['Players'] as List)
           .map((playerJson) => Player.fromJson(playerJson))
           .toList(),
-      extraRoles: json['ExtraRoles'].isEmpty ? <String>[] : json['ExtraRoles'] as List<String>,    
+      extraRoles: json['ExtraRoles'].isEmpty ? <String>[] : json['ExtraRoles'].cast<String>(),    
     );
   }
 }
@@ -642,8 +642,8 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
   @override
   Widget build(BuildContext context) {
     Map<String, bool> additionalRoles = {
-      S.of(context).doctor: false,
-      S.of(context).sheriff: false,
+      //S.of(context).doctor: false,
+      //S.of(context).sheriff: false,
       S.of(context).mistress: false,
       S.of(context).journalist: false,
       S.of(context).bodyguard: false,

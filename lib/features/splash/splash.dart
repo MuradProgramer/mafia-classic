@@ -25,7 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           //builder: (context) => const SignUpScreen()   // TRUEEE
-          builder: (context) => const CreateGameScreen() 
+          builder: (context) => const FilterizationScreen()
+          //builder: (context) => const CreateGameScreen() 
           // builder: (context) => HomeScreen(user: User(
           //   nickname: 'murad',
           //   email: 'murad',

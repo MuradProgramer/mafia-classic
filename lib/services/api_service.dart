@@ -30,10 +30,13 @@ class ApiService extends TokenAwareService {
 
   ApiService(this._accessToken, this._expiration, this._refreshToken) {
     allGames = <Game>[];
+
     hubConnection = HubConnectionBuilder().withUrl(
-      'https://192.168.0.1:5163/mainlobby',
+      'https://192.168.1.2:7141/mainlobby',
       options: HttpConnectionOptions(
-        headers: MessageHeaders()..setHeaderValue('Authorization', 'Bearer $_accessToken'),
+        accessTokenFactory: () => Future.value("$_accessToken"),
+        //skipNegotiation: true,
+        //transport: HttpTransportType.WebSockets,
       ),
     )
     .build();
@@ -181,7 +184,7 @@ class ApiService extends TokenAwareService {
     }
 
     try {
-      final List<dynamic> jsonData = json.decode(parameters.first as String);
+      final dynamic jsonData = json.decode(parameters.first as String);
 
       return PlayerJoinedGame.fromJson(jsonData as Map<String, dynamic>);
     } catch (e) {
@@ -197,7 +200,7 @@ class ApiService extends TokenAwareService {
     }
 
     try {
-      final List<dynamic> jsonData = json.decode(parameters.first as String);
+      final dynamic jsonData = json.decode(parameters.first as String);
 
       return PlayerLeftGame.fromJson(jsonData as Map<String, dynamic>);
     } catch (e) {
