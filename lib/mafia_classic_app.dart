@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: ProfileScreen(user: widget.user),
       ),
-      const GamesScreen(),
+      GamesScreen(user: widget.user),
       const CreateGameScreen(),
       const SettingsScreen(),
     ];

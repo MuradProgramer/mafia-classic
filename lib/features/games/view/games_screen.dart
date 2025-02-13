@@ -6,23 +6,32 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
 
 List<Game> games = [];
 
+//late User authorizedUser;
+User authorizedUser = User(email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
+
 class GamesScreen extends StatefulWidget {
-  const GamesScreen({super.key});
+  final User user;
+
+  const GamesScreen({
+    super.key, 
+    required this.user
+  });
 
   @override
   State<GamesScreen> createState() => _GamesScreenState();
 }
 
 class _GamesScreenState extends State<GamesScreen> {
-  late ApiService apiService;
 
   @override
   void initState() {
     super.initState();
+    authorizedUser = widget.user;
     GetIt.I<ApiService>().connectHub();
     //_loadGames();
   }
@@ -213,7 +222,7 @@ class GameCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   //////////////////////////////////////////////////////////
-                  //Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  /////Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('${S.of(context).players}: ${game.players.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('${S.of(context).min}: ${game.minPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('${S.of(context).max}: ${game.maxPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
@@ -248,6 +257,8 @@ class GameCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
+
+                      // BUTTON:      Players Popup
                       SizedBox(
                         width: 90,
                         child: ElevatedButton(                    
@@ -260,21 +271,27 @@ class GameCard extends StatelessWidget {
                           child: Text(S.of(context).players),
                         ),
                       ),
+
+                      // BUTTON:      Game Lobby
                       SizedBox(
                         width: 90,
                         child: Container(
                           margin: const EdgeInsets.only(left: 15),
+
                           child: ElevatedButton(
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => GameLobbyScreen(
-                                  roomName:  game.title, 
-                                  //currentPlayers: game.currentPlayers, 
-                                  currentPlayers: 10, 
-                                  maxPlayers: 15, 
-                                  activeRoles: const ['Mafia', 'Doctor', 'Sheriff'] //game.characters
-                                )),
+                                MaterialPageRoute(builder: (context) => 
+                                  GameLobbyScreen(
+                                    game: game,
+                                    //roomName:  game.title, 
+                                    //currentPlayers: game.currentPlayers, 
+                                    // currentPlayers: 10, 
+                                    // maxPlayers: 15, 
+                                    // activeRoles: const ['Mafia', 'Doctor', 'Sheriff'] //game.characters
+                                  )
+                                ),
                               );
                             },
                             child: Text(S.of(context).join),
@@ -815,17 +832,19 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
 
 // lobby screen
 class GameLobbyScreen extends StatefulWidget {
-  final String roomName;
-  final int currentPlayers;
-  final int maxPlayers;
-  final List<String> activeRoles;
+  // final String roomName;
+  // final int currentPlayers;
+  // final int maxPlayers;
+  // final List<String> activeRoles;
+  final Game game;
 
   const GameLobbyScreen({
     super.key, 
-    required this.roomName,
-    required this.currentPlayers,
-    required this.maxPlayers,
-    required this.activeRoles,
+    // required this.roomName,
+    // required this.currentPlayers,
+    // required this.maxPlayers,
+    // required this.activeRoles,
+    required this.game
   });
 
   @override
@@ -867,8 +886,8 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     if (text.isNotEmpty) {
       setState(() {
         messages.add(ChatMessage(
-          nickname: 'Nickname',
-          avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg',
+          nickname: authorizedUser.nickname,
+          avatarUrl: authorizedUser.avatarUrl,
           text: text,
         ));
       });
@@ -883,17 +902,17 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.roomName),
+          title: Text(widget.game.title),
           actions: [
             Row(
-              children: widget.activeRoles.map((role) => const Icon(Icons.person)).toList(),
+              children: widget.game.extraRoles.map((role) => const Icon(Icons.person)).toList(),
             ),
           ],
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(30.0),
             child: Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('${S.of(context).playersInRoom} [${widget.currentPlayers}/${widget.maxPlayers}]'),
+              child: Text('${S.of(context).playersInRoom} [${widget.game.players.length}/${widget.game.maxPlayers}]'),
             ),
           ),
         ),
@@ -914,12 +933,12 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 SizedBox(
                   width: 60,
                   height: 50,
-                  child: ElevatedButton(                    
+                  child: ElevatedButton(    
                     onPressed: () {
                       Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const GameScreen(title: 'game name')),
-                    );
+                        context,
+                        MaterialPageRoute(builder: (context) => const GameScreen(title: 'game name'))
+                      );
                     },
                     child: Text(S.of(context).join),
                   ),
@@ -927,17 +946,17 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
               ],
             ),
       
-            // Player list
+            // DEF:     Players Table
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(),
                 ),
-                child: const PlayerTableWidget(),
+                child: PlayerTableWidget(playersInRoom: widget.game.players),
               ),
             ),
       
-            // Chat
+            // DEF:     Chat
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -947,7 +966,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
               ),
             ),
       
-            // Message enter
+            // INPUT:     Enter the message
             Container(
               decoration: BoxDecoration(
                 border: Border.all(),
@@ -969,7 +988,12 @@ class RoleIcon {
 
 // Player List
 class PlayerTableWidget extends StatefulWidget {
-  const PlayerTableWidget({super.key});
+
+  final List<Player> playersInRoom;
+
+  const PlayerTableWidget({
+    super.key, required this.playersInRoom
+  });
 
   @override
   State<PlayerTableWidget> createState() => _PlayerTableWidgetState();
@@ -985,14 +1009,14 @@ class _PlayerTableWidgetState extends State<PlayerTableWidget> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: players.length,
+      itemCount: widget.playersInRoom.length,
       itemBuilder: (context, index) {
-        final player = players[index];
+        final player = widget.playersInRoom[index];
         return ListTile(
-          leading: const CircleAvatar(
+          leading: CircleAvatar(
             //////////////////////////////////////////////////////////
             // backgroundImage: NetworkImage(player.avatarUrl),
-            backgroundImage: NetworkImage('https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg'),
+            backgroundImage: NetworkImage(player.avatarUrl), 
           ),
           title: Text(player.nickname, style: const TextStyle(color: Colors.white)),
         );
