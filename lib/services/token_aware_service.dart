@@ -1,4 +1,5 @@
-abstract class TokenAwareService {
+abstract class 
+TokenAwareService {
   Future<String> getAccessToken();
   Future<void> refreshToken();
   bool isTokenExpired();

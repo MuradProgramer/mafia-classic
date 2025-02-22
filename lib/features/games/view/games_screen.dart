@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/models/player.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:signalr_netcore/http_connection_options.dart';
@@ -41,7 +42,7 @@ class _GamesScreenState extends State<GamesScreen> {
   @override
   void dispose() {
     // Dispose of the hub connection when the screen is closed
-    GetIt.I<ApiService>().disconnectGameHub();
+    GetIt.I<ApiService>().disconnectMainHub();
     super.dispose();
   }
 
@@ -865,6 +866,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
+
 // lobby screen
 class GameLobbyScreen extends StatefulWidget {
   // final String roomName;
@@ -887,14 +889,28 @@ class GameLobbyScreen extends StatefulWidget {
 }
 
 class _GameLobbyScreenState extends State<GameLobbyScreen> {
-  final List<ChatMessage> messages = [];
+  List<ChatMessage> gameLobbyChatMessages = [];
+  late List<LobbyPlayer> gameLobbyPlayers;
+  //final List<ChatMessage> messages = [];
   late Timer _timer;
   int remainingTime = 60;
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
-    
+
+    for (var player in widget.game.players) {
+      gameLobbyPlayers.add(LobbyPlayer(
+        nickname: player.nickname, 
+        avatarUrl: player.avatarUrl, 
+        isAlive: player.isAlive
+      ));
+    }
+
+    // NOTE:    UNCOMMENT THIS SECTION
+
+
+    //!   GAME LOBBY HUB
     GetIt.I<ApiService>().gameHubConnection = HubConnectionBuilder().withUrl(
       'https://192.168.1.2:7141/gamelobby?title=${widget.game.title}.&password=',
       options: HttpConnectionOptions(
@@ -905,19 +921,188 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     )
     .build();
 
-    GetIt.I<ApiService>().connectGameHub();
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    // DONE
+    GetIt.I<ApiService>().gameHubConnection.on('GameLobbyData', (List<Object?>? parameters) {
+      // NOTE:    parameters as Map<String, dynamic> to variable
+      final List<GameLobbyChatPlayer>? messages = GetIt.I<ApiService>().decodeGameLobbyChatPlayersParameters(parameters);
+      
+      // DONE:    MESSAGES IN VIEW
       setState(() {
-        if (remainingTime > 0) {
-          remainingTime--;
-        } else {
-          timer.cancel();
-          // Logic start after time ends
-          startGame();
+        if (!(messages == null || messages.isEmpty)) {
+          for (var message in messages) {
+            gameLobbyChatMessages.add(ChatMessage(
+              nickname: message.nickname, 
+              avatarUrl: widget.game.players.firstWhere((player) => player.nickname == message.nickname).avatarUrl, 
+              text: message.content
+            ));
+          }
         }
       });
+      
+      // DONE:    TIMER
+      final String eventTime = (parameters as Map<String, dynamic>)['eventTime'];
+      if (eventTime.isNotEmpty) {
+        final DateTime parsedDate = DateTime.parse(eventTime);
+
+        setState(() {
+          remainingTime = parsedDate.difference(DateTime.now()).inSeconds;
+        });
+
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          setState(() {
+            if (remainingTime > 0) {
+              remainingTime--;
+            } else {
+              timer.cancel();
+              // Logic start after time ends
+              startGame();
+            }
+          });
+        });
+      }
     });
+    
+    // INCOMPLETE
+    GetIt.I<ApiService>().gameHubConnection.on('GameStarted', (List<Object?>? parameters) {
+      // {
+      //   "role": "Mafia",
+      //   "citizenCount": 5,
+      //   "mafiaCount": 2,
+      //   "playerRoles": [
+      //     {
+      //         "nickname": "Player1",
+      //         "role": "Mafia"
+      //     },
+      //     {
+      //         "nickname": "Player2",
+      //         "role": "Citizen"
+      //     },
+      //     {
+      //         "nickname": "Player3",
+      //         "role": "Doctor"
+      //     }
+      //   ]
+      // }
+
+      if (parameters == null || parameters.isEmpty) return;
+
+      var data = parameters.first as Map<String, dynamic>;
+
+      String role = data['role'] ?? '';
+      int citizenCount = data['citizenCount'] ?? 0;
+      int mafiaCount = data['mafiaCount'] ?? 0;
+
+      List<dynamic> playerRolesJson = data['playerRoles'] ?? [];
+      List<PlayerRole> playerRoles = playerRolesJson.map((json) => PlayerRole.fromJson(json)).toList();
+
+    });
+
+    // DONE
+    GetIt.I<ApiService>().gameHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      // DONE:   PLAYER
+      var data = parameters.first as Map<String, dynamic>;
+      var playerDto = data['player'] as Map<String, dynamic>;
+
+      LobbyPlayer player = LobbyPlayer.fromJson(playerDto);
+
+      setState(() {
+        gameLobbyPlayers.add(player);
+      });
+
+      // DONE:    EVENT TIME
+      String eventTime = data['eventTime'] ?? '';
+      if (eventTime.isNotEmpty) {
+        final DateTime parsedDate = DateTime.parse(eventTime);
+
+        setState(() {
+          remainingTime = parsedDate.difference(DateTime.now()).inSeconds;
+        });
+
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          setState(() {
+            if (remainingTime > 0) {
+              remainingTime--;
+            } else {
+              timer.cancel();
+              // Logic start after time ends
+              startGame();
+            }
+          });
+        });
+      }
+    });
+
+    // DONE
+    GetIt.I<ApiService>().gameHubConnection.on('PlayerLeft', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      final String nickname = parameters.first as String;
+
+      setState(() {
+        gameLobbyPlayers.removeWhere((player) => player.nickname == nickname);
+      });
+    });
+
+    // DONE
+    GetIt.I<ApiService>().gameHubConnection.on('StopEventTimer', (List<Object?>? parameters) {
+      // NOTE:    STOP TIMER IF THE TIMER TICKING
+      setState(() {
+        _timer.cancel();
+        remainingTime = 0;
+      });
+    });
+
+    // DONE
+    GetIt.I<ApiService>().gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      var data = parameters.first as Map<String, dynamic>;
+
+      // NOTE:    CHANGE CLASS NAME
+      GameLobbyChatPlayer message = GameLobbyChatPlayer.fromJson(data);
+
+      final nickname = message.nickname;
+      final content = message.content; 
+
+      setState(() {
+        gameLobbyChatMessages.add(ChatMessage(
+          nickname: nickname, 
+          avatarUrl: widget.game.players.firstWhere((player) => player.nickname == message.nickname).avatarUrl, 
+          text: content
+        ));
+      });
+    });
+
+    // DONE
+    GetIt.I<ApiService>().gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
+      GetIt.I<ApiService>().disconnectGameHub();
+    });
+
+    if (!GetIt.I<ApiService>().gameHubIsConnected) {
+      print("Game HubConnection already established.");
+      try {
+        print("Starting HubConnection...");
+        await GetIt.I<ApiService>().gameHubConnection.start();
+        GetIt.I<ApiService>().gameHubIsConnected = true;
+        print("HubConnection started.");
+      } catch (e) {
+        print("Failed to start HubConnection: $e");
+      }
+    }
+
+    // _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    //   setState(() {
+    //     if (remainingTime > 0) {
+    //       remainingTime--;
+    //     } else {
+    //       timer.cancel();
+    //       // Logic start after time ends
+    //       startGame();
+    //     }
+    //   });
+    // });
   }
 
   void startGame() {
@@ -933,7 +1118,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   void sendMessage(String text) {
     if (text.isNotEmpty) {
       setState(() {
-        messages.add(ChatMessage(
+        gameLobbyChatMessages.add(ChatMessage(
           nickname: authorizedUser.nickname,
           avatarUrl: authorizedUser.avatarUrl,
           text: text,
@@ -960,7 +1145,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             preferredSize: const Size.fromHeight(30.0),
             child: Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('${S.of(context).playersInRoom} [${widget.game.players.length}/${widget.game.maxPlayers}]'),
+              child: Text('${S.of(context).playersInRoom} [${gameLobbyPlayers.length}/${widget.game.maxPlayers}]'),
             ),
           ),
         ),
@@ -968,13 +1153,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
           children: [
             // Тimer: before the game starts
       
+            // DEF:     TIMER
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
-                    '${S.of(context).remainingTime}: $remainingTime ${S.of(context).seconds}',
+                    remainingTime != 0 ? '${S.of(context).remainingTime}: $remainingTime ${S.of(context).seconds}' : "",
                     style: const TextStyle(fontSize: 20),
                   ),
                 ),
@@ -1000,7 +1186,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 decoration: BoxDecoration(
                   border: Border.all(),
                 ),
-                child: PlayerTableWidget(playersInRoom: widget.game.players),
+                child: PlayerTableWidget(playersInRoom: gameLobbyPlayers),
               ),
             ),
       
@@ -1010,9 +1196,60 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 decoration: BoxDecoration(
                   border: Border.all(),
                 ),
-                child: ChatWidget(messages: messages),
+                child: ChatWidget(messages: gameLobbyChatMessages),
               ),
             ),
+
+            // Expanded(
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       border: Border.all(),
+            //     ),
+            //     child: StreamBuilder<List<Game>>(
+            //       stream: GetIt.I<ApiService>().gamesStream,
+            //       builder: (context, snapshot) {
+            //         if (snapshot.connectionState == ConnectionState.waiting) {
+            //           return const Center(child: CircularProgressIndicator());
+            //         } else if (snapshot.hasError) {
+            //           return Center(child: Text('Error: ${snapshot.error}'));
+            //         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            //           return const Center(child: Text('No games available.'));
+            //         } else {
+            //           final gamesSnap = snapshot.data!;
+            //           return ListView.builder(
+            //             itemCount: gamesSnap.length, 
+            //             itemBuilder: (context, index) {
+            //               return GameCard(game: gamesSnap[index]);
+            //             },
+            //           );
+            //         }
+            //       },
+            //     ),
+            //   ),
+            // ),
+
+            //! STREAM
+            // body: 
+            // StreamBuilder<List<Game>>(
+            //   stream: GetIt.I<ApiService>().gamesStream,
+            //   builder: (context, snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.waiting) {
+            //       return const Center(child: CircularProgressIndicator());
+            //     } else if (snapshot.hasError) {
+            //       return Center(child: Text('Error: ${snapshot.error}'));
+            //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            //       return const Center(child: Text('No games available.'));
+            //     } else {
+            //       final gamesSnap = snapshot.data!;
+            //       return ListView.builder(
+            //         itemCount: gamesSnap.length, 
+            //         itemBuilder: (context, index) {
+            //           return GameCard(game: gamesSnap[index]);
+            //         },
+            //       );
+            //     }
+            //   },
+            // ),
       
             // INPUT:     Enter the message
             Container(
@@ -1037,7 +1274,7 @@ class RoleIcon {
 // Player List
 class PlayerTableWidget extends StatefulWidget {
 
-  final List<Player> playersInRoom;
+  final List<LobbyPlayer> playersInRoom;
 
   const PlayerTableWidget({
     super.key, required this.playersInRoom
