@@ -60,3 +60,23 @@ class Friend extends _Player{
     required this.lastSeen
   });  
 }
+
+class LobbyPlayer {
+  final String nickname;
+  final String avatarUrl;
+  final bool isAlive;
+
+  LobbyPlayer({
+    required this.nickname, 
+    required this.avatarUrl, 
+    required this.isAlive
+  });
+
+  factory LobbyPlayer.fromJson(Map<String, dynamic> json) {
+    return LobbyPlayer(
+      nickname: json['nickname'],
+      avatarUrl: json['avatarUrl'],
+      isAlive: json['isAlive'] as bool
+    );
+  }
+}

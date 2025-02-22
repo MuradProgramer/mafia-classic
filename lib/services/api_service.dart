@@ -4,11 +4,13 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/features/games/view/view.dart';
+import 'package:mafia_classic/generated/intl/messages_en.dart';
+import 'package:mafia_classic/main.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
 import 'package:signalr_netcore/ihub_protocol.dart';
 import 'package:signalr_netcore/signalr_client.dart';
-
+ 
 import 'token_aware_service.dart';
 
 class ApiService extends TokenAwareService {
@@ -16,22 +18,29 @@ class ApiService extends TokenAwareService {
   DateTime _expiration;
   String _refreshToken;
 
+  FutureOr<String>? get accessToken => _accessToken;
+
   late List<Game>? allGames;
 
   ///////// SIGNAL R ///////////
-  late HubConnection hubConnection;
-  bool hubIsConnected = false;
+  late HubConnection mainHubConnection;
+  bool mainHubIsConnected = false;
+
+  late HubConnection gameHubConnection;
+  bool gameHubIsConnected = false;
 
   // StreamController to handle the stream of games
   final StreamController<List<Game>> _gamesController = StreamController<List<Game>>.broadcast();
+  final StreamController<List<GameLobbyChatPlayer>> _gameLobbyChatController = StreamController<List<GameLobbyChatPlayer>>.broadcast();
   
   // Getter for the games stream
   Stream<List<Game>> get gamesStream => _gamesController.stream;
+  Stream<List<GameLobbyChatPlayer>> get gameLobbyChatStream => _gameLobbyChatController.stream;
 
   ApiService(this._accessToken, this._expiration, this._refreshToken) {
     allGames = <Game>[];
 
-    hubConnection = HubConnectionBuilder().withUrl(
+    mainHubConnection = HubConnectionBuilder().withUrl(
       'https://192.168.1.2:7141/mainlobby',
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value("$_accessToken"),
@@ -42,14 +51,14 @@ class ApiService extends TokenAwareService {
     .build();
   }
 
-  Future<void> connectHub() async {
-    if (hubIsConnected) {
+  Future<void> connectMainHub() async {
+    if (mainHubIsConnected) {
       print("HubConnection already established.");
       return; // Avoid reconnecting if already connected
     }
 
     // DONE
-    hubConnection.on('GameLobbies', (List<Object?>? parameters) {
+    mainHubConnection.on('GameLobbies', (List<Object?>? parameters) {
       //print('33: $parameters');
       final List<Game>? gamesList = decodeGamesParameters(parameters);
 
@@ -61,7 +70,7 @@ class ApiService extends TokenAwareService {
     });
 
     // INCOMPLETE
-    hubConnection.on('GameLobbyCreated', (List<Object?>? parameters) {
+    mainHubConnection.on('GameLobbyCreated', (List<Object?>? parameters) {
       final Game? game = decodeGameParameters(parameters);
 
       if (game != null) {
@@ -71,7 +80,7 @@ class ApiService extends TokenAwareService {
     });
 
     // INCOMPLETE
-    hubConnection.on('GameLobbyClosed', (List<Object?>? parameters) {
+    mainHubConnection.on('GameLobbyClosed', (List<Object?>? parameters) {
       final String? title = parameters?.first as String;
 
       if (title != null && allGames != null) {
@@ -83,7 +92,7 @@ class ApiService extends TokenAwareService {
     });
 
     // INCOMPLETE
-    hubConnection.on('PlayerJoined', (List<Object?>? parameters) {
+    mainHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
       final PlayerJoinedGame? playerJoinedToGame = decodePlayerJoinedGameParameters(parameters);
 
       if (playerJoinedToGame != null && allGames != null) {
@@ -100,7 +109,7 @@ class ApiService extends TokenAwareService {
     });
 
     // INCOMPLETE
-    hubConnection.on('PlayerLeft', (List<Object?>? parameters) {
+    mainHubConnection.on('PlayerLeft', (List<Object?>? parameters) {
       final PlayerLeftGame? playerLeftGame = decodePlayerLeftGameParameters(parameters);
 
       if (playerLeftGame != null && allGames != null) {
@@ -120,7 +129,7 @@ class ApiService extends TokenAwareService {
     });
 
     // INCOMPLETE
-    hubConnection.on('GameStarted', (List<Object?>? parameters) {
+    mainHubConnection.on('GameStarted', (List<Object?>? parameters) {
       final String? title = parameters?.first as String;
 
       if (title != null && allGames != null) {
@@ -131,16 +140,133 @@ class ApiService extends TokenAwareService {
       }
     });
 
+
+    mainHubConnection.on('CloseConnection', (List<Object?>? parameters) async {
+      await disconnectMainHub();
+    });
+
     try {
       print("Starting HubConnection...");
-      await hubConnection.start();
-      hubIsConnected = true;
+      await mainHubConnection.start();
+      mainHubIsConnected = true;
       print("HubConnection started.");
     } catch (e) {
       print("Failed to start HubConnection: $e");
     }
   }
 
+  Future<void> connectGameHub() async {
+    if (gameHubIsConnected) {
+      print("Game HubConnection already established.");
+      return; // Avoid reconnecting if already connected
+    }
+
+    // INCOMPLETE
+    gameHubConnection.on('GameLobbyData', (List<Object?>? parameters) {
+      // NOTE:    parameters as Map<String, dynamic> to variable
+      final List<GameLobbyChatPlayer>? messages = decodeGameLobbyChatPlayersParameters(parameters);
+
+      final String eventTime = (parameters as Map<String, dynamic>)['eventTime'];
+      if (eventTime.isNotEmpty) {
+        final DateTime parsedDate = DateTime.parse(eventTime);
+      }
+    });
+    
+    // INCOMPLETE
+    gameHubConnection.on('GameStarted', (List<Object?>? parameters) {
+      // {
+      //   "role": "Mafia",
+      //   "citizenCount": 5,
+      //   "mafiaCount": 2,
+      //   "playerRoles": [
+      //     {
+      //         "nickname": "Player1",
+      //         "role": "Mafia"
+      //     },
+      //     {
+      //         "nickname": "Player2",
+      //         "role": "Citizen"
+      //     },
+      //     {
+      //         "nickname": "Player3",
+      //         "role": "Doctor"
+      //     }
+      //   ]
+      // }
+
+      if (parameters == null || parameters.isEmpty) return;
+
+      var data = parameters.first as Map<String, dynamic>;
+
+      String role = data['role'] ?? '';
+      int citizenCount = data['citizenCount'] ?? 0;
+      int mafiaCount = data['mafiaCount'] ?? 0;
+
+      List<dynamic> playerRolesJson = data['playerRoles'] ?? [];
+      List<PlayerRole> playerRoles = playerRolesJson.map((json) => PlayerRole.fromJson(json)).toList();
+
+    });
+
+    // INCOMPLETE
+    gameHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      var data = parameters.first as Map<String, dynamic>;
+      var playerDto = data['player'] as Map<String, dynamic>;
+
+      LobbyPlayer player = LobbyPlayer.fromJson(playerDto);
+
+      String eventTime = data['eventTime'] ?? '';
+      if (eventTime.isNotEmpty) {
+        final DateTime parsedDate = DateTime.parse(eventTime);
+      }
+
+    });
+
+    // INCOMPLETE
+    gameHubConnection.on('PlayerLeft', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      final String nickname = parameters.first as String;
+ 
+    });
+
+    // INCOMPLETE
+    gameHubConnection.on('StopEventTimer', (List<Object?>? parameters) {
+      // NOTE:    STOP TIMER IF THE TIMER TICKING
+
+    });
+
+    // INCOMPLETE
+    gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      var data = parameters.first as Map<String, dynamic>;
+
+      // NOTE:    CHANGE CLASS NAME
+      GameLobbyChatPlayer message = GameLobbyChatPlayer.fromJson(data);
+
+      final nickname = message.nickname;
+      final content = message.content; 
+
+    });
+
+    // DONE
+    gameHubConnection.on('CloseConnection', (List<Object?>? parameters) async {
+      await disconnectGameHub();
+    });
+
+    try {
+      print("Starting HubConnection...");
+      await gameHubConnection.start();
+      gameHubIsConnected = true;
+      print("HubConnection started.");
+    } catch (e) {
+      print("Failed to start HubConnection: $e");
+    }
+  }
+
+// NOTE:    MAIN LOBBY SOCKET PARSERS
   Game? decodeGameParameters(List<Object?>? parameters) {
     if (parameters == null || parameters.isEmpty || parameters.first == null) {
       print("No data received.");
@@ -209,15 +335,46 @@ class ApiService extends TokenAwareService {
     }
   }
 
-  Future<void> disconnectHub() async {
-    hubConnection.stop().then((_) {
-      hubIsConnected = false;
+
+  // NOTE:    GAME LOBBY SOCKET PARSERS
+  List<GameLobbyChatPlayer>? decodeGameLobbyChatPlayersParameters(List<Object?>? parameters) {
+    if (parameters == null || parameters.isEmpty || parameters.first == null) {
+      print("No data received.");
+      return null;
+    }
+
+    try {
+      final List<dynamic> jsonData = json.decode((parameters as Map<String, dynamic>)['messages'] as String) ?? [];
+
+      final gameLobbyChatPlayers = jsonData.map((gameJson) {
+        return GameLobbyChatPlayer.fromJson(gameJson as Map<String, dynamic>);
+      }).toList();
+
+      return gameLobbyChatPlayers;
+    } catch (e) {
+      print("Error decoding parameters: $e");
+      return null;
+    }
+  }
+
+
+  Future<void> disconnectMainHub() async {
+    mainHubConnection.stop().then((_) {
+      mainHubIsConnected = false;
       print('Hub connection stopped');
     }).catchError((error) {
       print('Error stopping hub connection: $error');
     });
   }
 
+  Future<void> disconnectGameHub() async {
+    gameHubConnection.stop().then((_) {
+      gameHubIsConnected = false;
+      print('Hub connection stopped');
+    }).catchError((error) {
+      print('Error stopping hub connection: $error');
+    });
+  }
   
   Future<List<Game>> getGames() async {
     //List<Game> gamesA;

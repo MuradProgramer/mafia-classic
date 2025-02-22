@@ -8,6 +8,8 @@ import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
+import 'package:signalr_netcore/http_connection_options.dart';
+import 'package:signalr_netcore/hub_connection_builder.dart';
 
 List<Game> games = [];
 
@@ -32,14 +34,14 @@ class _GamesScreenState extends State<GamesScreen> {
   void initState() {
     super.initState();
     authorizedUser = widget.user;
-    GetIt.I<ApiService>().connectHub();
+    GetIt.I<ApiService>().connectMainHub();
     //_loadGames();
   }
 
   @override
   void dispose() {
     // Dispose of the hub connection when the screen is closed
-    GetIt.I<ApiService>().disconnectHub();
+    GetIt.I<ApiService>().disconnectGameHub();
     super.dispose();
   }
 
@@ -81,6 +83,8 @@ class _GamesScreenState extends State<GamesScreen> {
             ),
           ],
         ),
+
+        //! STREAM
         body: 
         StreamBuilder<List<Game>>(
           stream: GetIt.I<ApiService>().gamesStream,
@@ -145,17 +149,17 @@ class Game {
     // }).toList();
 
     return Game(
-      title: json['Title'],
+      title: json['title'],
       //currentPlayers: json['currentPlayers'],
       //currentPlayers: json['currentPlayers'],
-      minPlayers: json['MinCapacity'],    
-      maxPlayers: json['MaxCapacity'],    
-      hasPassword: json['HasPassword'], 
-      status: json['Status'],
-      players: json['Players'].isEmpty ? <Player>[] : (json['Players'] as List)
+      minPlayers: json['minCapacity'],    
+      maxPlayers: json['maxCapacity'],    
+      hasPassword: json['hasPassword'], 
+      status: json['status'],
+      players: json['players'].isEmpty ? <Player>[] : (json['players'] as List)
           .map((playerJson) => Player.fromJson(playerJson))
           .toList(),
-      extraRoles: json['ExtraRoles'].isEmpty ? <String>[] : json['ExtraRoles'].cast<String>(),    
+      extraRoles: json['extraRoles'].isEmpty ? <String>[] : json['extraRoles'].cast<String>(),    
     );
   }
 }
@@ -324,9 +328,9 @@ class Player {
 
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
-      nickname: json['Nickname'],
-      avatarUrl: json['AvatarUrl'],
-      isAlive: json['IsAlive'] as bool
+      nickname: json['nickname'],
+      avatarUrl: json['avatarUrl'],
+      isAlive: json['isAlive'] as bool
     );
   }
 }
@@ -463,6 +467,37 @@ class PlayerLeftGame {
     return PlayerLeftGame(
       title: json['title'],
       nickname: json['nickname']
+    );
+  }
+}
+
+class GameLobbyChatPlayer {
+  final String nickname;
+  final String content;
+
+  GameLobbyChatPlayer({
+    required this.nickname, 
+    required this.content
+  });
+  
+  factory GameLobbyChatPlayer.fromJson(Map<String, dynamic> json) {
+    return GameLobbyChatPlayer(
+      nickname: json['nickname'],
+      content: json['content']
+    );
+  }
+}
+
+class PlayerRole {
+  final String nickname;
+  final String role;
+
+  PlayerRole({required this.nickname, required this.role});
+
+  factory PlayerRole.fromJson(Map<String, dynamic> json) {
+    return PlayerRole(
+      nickname: json['nickname'] ?? '',
+      role: json['role'] ?? '',
     );
   }
 }
@@ -859,6 +894,19 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   @override
   void initState() {
     super.initState();
+    
+    GetIt.I<ApiService>().gameHubConnection = HubConnectionBuilder().withUrl(
+      'https://192.168.1.2:7141/gamelobby?title=${widget.game.title}.&password=',
+      options: HttpConnectionOptions(
+        accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
+        //skipNegotiation: true,
+        //transport: HttpTransportType.WebSockets,
+      ),
+    )
+    .build();
+
+    GetIt.I<ApiService>().connectGameHub();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (remainingTime > 0) {
