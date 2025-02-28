@@ -41,11 +41,11 @@ class ApiService extends TokenAwareService {
     allGames = <Game>[];
 
     mainHubConnection = HubConnectionBuilder().withUrl(
-      'https://192.168.1.2:7141/mainlobby',
+      'https://192.168.1.50:7141/mainlobby',
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value("$_accessToken"),
-        //skipNegotiation: true,
-        //transport: HttpTransportType.WebSockets,
+        skipNegotiation: true,
+        transport: HttpTransportType.WebSockets,
       ),
     )
     .build();
@@ -274,9 +274,9 @@ class ApiService extends TokenAwareService {
     }
 
     try {
-      final List<dynamic> jsonData = json.decode(parameters.first as String);
+      final Map<String, dynamic> jsonData = json.decode(parameters.first as String);
 
-      return Game.fromJson(jsonData as Map<String, dynamic>);
+      return Game.fromJson(jsonData);
     } catch (e) {
       print("Error decoding parameters: $e");
       return null;
@@ -344,7 +344,7 @@ class ApiService extends TokenAwareService {
     }
 
     try {
-      final List<dynamic> jsonData = json.decode((parameters as Map<String, dynamic>)['messages'] as String) ?? [];
+      final List<dynamic> jsonData = json.decode(parameters.first as String)['messages'] ?? [];
 
       final gameLobbyChatPlayers = jsonData.map((gameJson) {
         return GameLobbyChatPlayer.fromJson(gameJson as Map<String, dynamic>);

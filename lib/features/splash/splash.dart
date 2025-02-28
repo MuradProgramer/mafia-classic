@@ -24,31 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 1), () {
       Navigator.push(context, 
         MaterialPageRoute(
-          //builder: (context) => const SignInScreen()   // TRUEEE
-          builder: (context) => GameLobbyScreen(game: 
-            Game(
-              status: "alive",
-              title: "Room 1", 
-              hasPassword: false, 
-              minPlayers: 5, 
-              maxPlayers: 15, 
-              extraRoles: ["asd", "asd", "asd"],
-              players: [ 
-                Player(nickname: "Player 1", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", isAlive: true),
-                Player(nickname: "Player 2", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", isAlive: false),
-              ]
-            ),
-          )
-          //builder: (context) => const CreateGameScreen() 
-          // builder: (context) => HomeScreen(user: User(
-          //   nickname: 'murad',
-          //   email: 'murad',
-          //   avatarUrl: 'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg',
-          //   accessToken: 'asdads',
-          //   refreshToken: 'asads',
-          //   expirationDate: DateTime.now()
-          // ),)
-          //builder: (context) => const GameScreen(title: "Mafia Game 1")
+          builder: (context) => const SignInScreen()   // TRUEEE
         ) 
       );
     });

@@ -8,7 +8,7 @@ class DioService {
 
   DioService()
       : dio = Dio(BaseOptions(
-          baseUrl:  "https://192.168.1.3:7141/api/",
+          baseUrl:  "https://192.168.1.50:7141/api/",
           headers: {
             'Content-Type': 'application/json',
             //'Accept': 'application/json', // Добавляем, если сервер всегда возвращает JSON

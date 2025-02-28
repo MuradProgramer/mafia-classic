@@ -11,6 +11,7 @@ import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:signalr_netcore/http_connection_options.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
+import 'package:signalr_netcore/itransport.dart';
 
 List<Game> games = [];
 
@@ -42,7 +43,7 @@ class _GamesScreenState extends State<GamesScreen> {
   @override
   void dispose() {
     // Dispose of the hub connection when the screen is closed
-    GetIt.I<ApiService>().disconnectMainHub();
+    // GetIt.I<ApiService>().disconnectMainHub();
     super.dispose();
   }
 
@@ -890,13 +891,13 @@ class GameLobbyScreen extends StatefulWidget {
 
 class _GameLobbyScreenState extends State<GameLobbyScreen> {
   List<ChatMessage> gameLobbyChatMessages = [];
-  late List<LobbyPlayer> gameLobbyPlayers;
+  List<LobbyPlayer> gameLobbyPlayers = [];
   //final List<ChatMessage> messages = [];
   late Timer _timer;
   int remainingTime = 60;
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
 
     for (var player in widget.game.players) {
@@ -907,26 +908,28 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       ));
     }
 
+    // reference lazimdi her defe container nedi istifade elirsen
+    var apiService = GetIt.I<ApiService>();
+
     // NOTE:    UNCOMMENT THIS SECTION
 
-
     //!   GAME LOBBY HUB
-    GetIt.I<ApiService>().gameHubConnection = HubConnectionBuilder().withUrl(
-      'https://192.168.1.2:7141/gamelobby?title=${widget.game.title}.&password=',
+    apiService.gameHubConnection = HubConnectionBuilder().withUrl(
+      'https://192.168.1.50:7141/gamelobby?title=${widget.game.title}',
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
-        //skipNegotiation: true,
-        //transport: HttpTransportType.WebSockets,
+        skipNegotiation: true,
+        transport: HttpTransportType.WebSockets,
       ),
     )
     .build();
 
     // DONE
-    GetIt.I<ApiService>().gameHubConnection.on('GameLobbyData', (List<Object?>? parameters) {
+    apiService.gameHubConnection.on('GameLobbyData', (List<Object?>? parameters) {
       // NOTE:    parameters as Map<String, dynamic> to variable
       final List<GameLobbyChatPlayer>? messages = GetIt.I<ApiService>().decodeGameLobbyChatPlayersParameters(parameters);
-      
       // DONE:    MESSAGES IN VIEW
+
       setState(() {
         if (!(messages == null || messages.isEmpty)) {
           for (var message in messages) {
@@ -938,9 +941,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
           }
         }
       });
-      
+
       // DONE:    TIMER
-      final String eventTime = (parameters as Map<String, dynamic>)['eventTime'];
+      final String eventTime = json.decode(parameters!.first as String)['eventTime'];
       if (eventTime.isNotEmpty) {
         final DateTime parsedDate = DateTime.parse(eventTime);
 
@@ -963,7 +966,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     });
     
     // INCOMPLETE
-    GetIt.I<ApiService>().gameHubConnection.on('GameStarted', (List<Object?>? parameters) {
+    apiService.gameHubConnection.on('GameStarted', (List<Object?>? parameters) {
       // {
       //   "role": "Mafia",
       //   "citizenCount": 5,
@@ -986,7 +989,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       if (parameters == null || parameters.isEmpty) return;
 
-      var data = parameters.first as Map<String, dynamic>;
+      var data = json.decode(parameters.first as String);
 
       String role = data['role'] ?? '';
       int citizenCount = data['citizenCount'] ?? 0;
@@ -994,15 +997,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       List<dynamic> playerRolesJson = data['playerRoles'] ?? [];
       List<PlayerRole> playerRoles = playerRolesJson.map((json) => PlayerRole.fromJson(json)).toList();
-
     });
 
     // DONE
-    GetIt.I<ApiService>().gameHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
+    apiService.gameHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
       // DONE:   PLAYER
-      var data = parameters.first as Map<String, dynamic>;
+      var data = json.decode(parameters.first as String);
       var playerDto = data['player'] as Map<String, dynamic>;
 
       LobbyPlayer player = LobbyPlayer.fromJson(playerDto);
@@ -1035,7 +1037,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     });
 
     // DONE
-    GetIt.I<ApiService>().gameHubConnection.on('PlayerLeft', (List<Object?>? parameters) {
+    apiService.gameHubConnection.on('PlayerLeft', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
       final String nickname = parameters.first as String;
@@ -1046,7 +1048,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     });
 
     // DONE
-    GetIt.I<ApiService>().gameHubConnection.on('StopEventTimer', (List<Object?>? parameters) {
+    apiService.gameHubConnection.on('StopEventTimer', (List<Object?>? parameters) {
       // NOTE:    STOP TIMER IF THE TIMER TICKING
       setState(() {
         _timer.cancel();
@@ -1055,10 +1057,10 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     });
 
     // DONE
-    GetIt.I<ApiService>().gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
+    apiService.gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
-      var data = parameters.first as Map<String, dynamic>;
+      var data = json.decode(parameters.first as String);
 
       // NOTE:    CHANGE CLASS NAME
       GameLobbyChatPlayer message = GameLobbyChatPlayer.fromJson(data);
@@ -1076,20 +1078,23 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     });
 
     // DONE
-    GetIt.I<ApiService>().gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
+    apiService.gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
       GetIt.I<ApiService>().disconnectGameHub();
     });
 
-    if (!GetIt.I<ApiService>().gameHubIsConnected) {
-      print("Game HubConnection already established.");
-      try {
-        print("Starting HubConnection...");
-        await GetIt.I<ApiService>().gameHubConnection.start();
-        GetIt.I<ApiService>().gameHubIsConnected = true;
-        print("HubConnection started.");
-      } catch (e) {
-        print("Failed to start HubConnection: $e");
-      }
+    // GetIt.I<ApiService>().gameHubConnection.onclose((error) {
+    //     print('Connection closed by client. Error: ${error?.toString() ?? "No error"}');
+    // });
+
+    if (!apiService.gameHubIsConnected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        apiService.gameHubConnection.start()?.then((_) {
+          apiService.gameHubIsConnected = true;
+          print("Connected to SignalR!");
+        }).catchError((e) {
+          print("Connection error: $e");
+        });
+      });
     }
 
     // _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
