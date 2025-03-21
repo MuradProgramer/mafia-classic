@@ -41,7 +41,7 @@ class ApiService extends TokenAwareService {
     allGames = <Game>[];
 
     mainHubConnection = HubConnectionBuilder().withUrl(
-      'https://192.168.1.50:7141/mainlobby',
+      'https://46.32.173.182/mainlobby',
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value("$_accessToken"),
         skipNegotiation: true,
@@ -251,6 +251,9 @@ class ApiService extends TokenAwareService {
 
     });
 
+
+    // METHODS FOR 
+
     // DONE
     gameHubConnection.on('CloseConnection', (List<Object?>? parameters) async {
       await disconnectGameHub();
@@ -361,7 +364,7 @@ class ApiService extends TokenAwareService {
   Future<void> disconnectMainHub() async {
     mainHubConnection.stop().then((_) {
       mainHubIsConnected = false;
-      print('Hub connection stopped');
+      print('Main Hub connection stopped');
     }).catchError((error) {
       print('Error stopping hub connection: $error');
     });
@@ -370,7 +373,7 @@ class ApiService extends TokenAwareService {
   Future<void> disconnectGameHub() async {
     gameHubConnection.stop().then((_) {
       gameHubIsConnected = false;
-      print('Hub connection stopped');
+      print('Game Hub connection stopped');
     }).catchError((error) {
       print('Error stopping hub connection: $error');
     });

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_classic/features/games/game/game.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/models/player.dart';
@@ -43,7 +44,7 @@ class _GamesScreenState extends State<GamesScreen> {
   @override
   void dispose() {
     // Dispose of the hub connection when the screen is closed
-    // GetIt.I<ApiService>().disconnectMainHub();
+    GetIt.I<ApiService>().disconnectMainHub();
     super.dispose();
   }
 
@@ -348,7 +349,31 @@ List<Player> players = [
     avatarUrl: 'https://example.com/avatar2.png', 
     isAlive: false
   ),
-  
+  Player(
+    nickname: 'Player3', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: true
+  ),
+  Player(
+    nickname: 'Player4', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: true
+  ),
+  Player(
+    nickname: 'Player5', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: true
+  ),
+  Player(
+    nickname: 'Player6', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: false
+  ),
+  Player(
+    nickname: 'Player7', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: true
+  ),
 ];
 
 
@@ -893,8 +918,8 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   List<ChatMessage> gameLobbyChatMessages = [];
   List<LobbyPlayer> gameLobbyPlayers = [];
   //final List<ChatMessage> messages = [];
-  late Timer _timer;
-  int remainingTime = 60;
+  late Timer? _timer;
+  int remainingTime = 8;
 
   @override
   void initState() {
@@ -915,7 +940,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     //!   GAME LOBBY HUB
     apiService.gameHubConnection = HubConnectionBuilder().withUrl(
-      'https://192.168.1.50:7141/gamelobby?title=${widget.game.title}',
+      'https://46.32.173.182/gamelobby?title=${widget.game.title}',
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
         skipNegotiation: true,
@@ -924,7 +949,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     )
     .build();
 
-    // DONE
+    // DONE - TIMER HERE
     apiService.gameHubConnection.on('GameLobbyData', (List<Object?>? parameters) {
       // NOTE:    parameters as Map<String, dynamic> to variable
       final List<GameLobbyChatPlayer>? messages = GetIt.I<ApiService>().decodeGameLobbyChatPlayersParameters(parameters);
@@ -957,15 +982,24 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
               remainingTime--;
             } else {
               timer.cancel();
-              // Logic start after time ends
-              startGame();
+            }
+          });
+        });
+      }
+      else {
+       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          setState(() {
+            if (remainingTime > 5) {
+              remainingTime--;
+            } else {
+              timer.cancel();
             }
           });
         });
       }
     });
     
-    // INCOMPLETE
+    // DONE
     apiService.gameHubConnection.on('GameStarted', (List<Object?>? parameters) {
       // {
       //   "role": "Mafia",
@@ -997,9 +1031,11 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       List<dynamic> playerRolesJson = data['playerRoles'] ?? [];
       List<PlayerRole> playerRoles = playerRolesJson.map((json) => PlayerRole.fromJson(json)).toList();
+
+      startGame(widget.game.title, role, citizenCount, mafiaCount, playerRoles);
     });
 
-    // DONE
+    // DONE - TIMER HERE
     apiService.gameHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
@@ -1028,8 +1064,17 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
               remainingTime--;
             } else {
               timer.cancel();
-              // Logic start after time ends
-              startGame();
+            }
+          });
+        });
+      }
+      else {
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          setState(() {
+            if (remainingTime > 5) {
+              remainingTime--;
+            } else {
+              timer.cancel();
             }
           });
         });
@@ -1051,7 +1096,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     apiService.gameHubConnection.on('StopEventTimer', (List<Object?>? parameters) {
       // NOTE:    STOP TIMER IF THE TIMER TICKING
       setState(() {
-        _timer.cancel();
+        _timer!.cancel();
         remainingTime = 0;
       });
     });
@@ -1110,13 +1155,29 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     // });
   }
 
-  void startGame() {
+  void startGame(String title, String role, int citizenCount, int mafiaCount, List<PlayerRole> playerRoles) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => 
+        GameScreen(
+          title: title,
+          role: role,
+          citizenCount: citizenCount,
+          mafiaCount: mafiaCount,
+          playersRole: playerRoles,
+        )
+      ),
+    );
     log('Игра началась!');
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer!.cancel();
+    //!   NEED TO BE TESTED
+    if (Navigator.of(context).canPop()) {
+      GetIt.I<ApiService>().disconnectGameHub();
+    }
     super.dispose();
   }
 
@@ -1174,9 +1235,40 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                   height: 50,
                   child: ElevatedButton(    
                     onPressed: () {
+                      List<PlayerRole> playerRoles = [
+                        PlayerRole(
+                          nickname: 'Player1',
+                          role: 'Doctor'
+                        ),
+                        PlayerRole(
+                          nickname: 'Player2',
+                          role: 'Citizen'
+                        ),
+                        PlayerRole(
+                          nickname: 'Player3',
+                          role: 'Mafia'
+                        ),
+                        PlayerRole(
+                          nickname: 'Player4', 
+                          role: 'Citizen'
+                        ),
+                        PlayerRole(
+                          nickname: 'Player5',
+                          role: 'Citizen'
+                        ),
+                        PlayerRole(
+                          nickname: 'Player6',
+                          role: 'Mafia'
+                        ),
+                        PlayerRole(
+                          nickname: 'Player7',
+                          role: 'Barman'
+                        ),
+                      ];
+
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const GameScreen(title: 'game name'))
+                        MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia',))
                       );
                     },
                     child: Text(S.of(context).join),
@@ -1412,203 +1504,3 @@ class _MessageInputFieldState extends State<MessageInputField> {
     );
   }
 }
-
-
-///////////// GAME /////////
-
-class GameScreen extends StatefulWidget {
-  final String title;
-
-  const GameScreen({super.key, required this.title});
-
-  @override
-  State<GameScreen> createState() => _GameScreenState();
-}
-
-class _GameScreenState extends State<GameScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final double deviceHeight = MediaQuery.of(context).size.height;
-    final double deviceWidth = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(widget.title, style: const TextStyle())
-      ),
-      body: Container(
-        margin: EdgeInsets.only(bottom: deviceHeight * 0.005),
-        color: Colors.white,
-        child: Column(
-          children: [
-
-            Container( //   TO ONE WIDGET
-              width: deviceWidth,
-              height: deviceHeight * 0.017,
-              margin: const EdgeInsets.all(2.0),
-              // decoration: BoxDecoration(
-              //   border: Border.all(
-              //     color: Colors.black, 
-              //     width: 1.0, 
-              //   ),
-              //   borderRadius: BorderRadius.circular(4.0),
-              // ),
-
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    height: deviceHeight * 0.03,
-                    width: deviceWidth * 0.663,
-                    child: const Center(
-                      child: Text(
-                        "Game Started",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black
-                        )
-                      ),
-                    )
-                  ),
-                  Container(
-                    height: deviceHeight * 0.03,
-                    width: deviceWidth * 0.3,
-                    child: const Center(
-                      child: Text(
-                        "Players",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black
-                        )
-                      ), 
-                    )
-                  ),
-                ],
-              ),
-            ),
-
-            Container( // SECOND
-              height: deviceHeight * 0.7,
-              width: deviceWidth,
-              margin: const EdgeInsets.all(4.0),
-              // decoration: BoxDecoration(
-              //   border: Border.all(
-              //     color: Colors.black,
-              //     width: 1.0,
-              //   ),
-              //   borderRadius: BorderRadius.circular(4.0),
-              // ),
-              
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: deviceWidth * 0.663,
-                    height: deviceHeight * 0.7,
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //     color: Colors.black,
-                    //     width: 1.0,
-                    //   ),
-                    //   borderRadius: BorderRadius.circular(4.0),
-                    // ),
-
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-
-                        Container(
-                          width: deviceWidth * 0.663,
-                          height: deviceHeight * 0.2,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.black,
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: const Text(
-                            "Box",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        
-                        Container(
-                          width: deviceWidth * 0.663,
-                          height: deviceHeight * 0.49,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.black,
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: const Text(
-                            "Box",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    )
-                  ),
-
-                  Container(
-                    width: deviceWidth * 0.3,
-                    height: deviceHeight * 0.7,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.black,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: const Text(
-                      "Box",
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                ],
-              )
-            ),
-
-            Container(
-              width: deviceWidth,
-              height: deviceHeight * 0.055,
-              margin: const EdgeInsets.all(4.0),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-                borderRadius: BorderRadius.circular(4.0),
-              ),
-              child: const Text(
-                "Box",
-                textAlign: TextAlign.center,
-              ),
-            )
-          ],
-        ),
-      )
-    
-    );
-  }
-}
-
-
-// Container(
-//                 width: deviceWidth,
-//                 height: deviceHeight * 0.7,
-//                 margin: const EdgeInsets.all(4.0),
-//                 decoration: BoxDecoration(
-//                   border: Border.all(
-//                     color: Colors.black,
-//                     width: 1.0,
-//                   ),
-//                   borderRadius: BorderRadius.circular(4.0),
-//                 ),
-//                 child: const Text(
-//                   "Box",
-//                   textAlign: TextAlign.center,
-//                 ),
-//               ),

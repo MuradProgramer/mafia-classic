@@ -4,10 +4,43 @@ import 'package:flutter/material.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
 //import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/features/auth/auth.dart';
+import 'package:mafia_classic/features/games/game/game.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
 //import 'package:mafia_classic/models/models.dart';
 //import 'package:mafia_classic/features/profile/profile.dart';
+
+List<PlayerRole> players = [
+  PlayerRole(
+    nickname: 'Player1',
+    role: 'Doctor'
+  ),
+  PlayerRole(
+    nickname: 'Player2',
+    role: 'Citizen'
+  ),
+  PlayerRole(
+    nickname: 'Player3',
+    role: 'Mafia'
+  ),
+  PlayerRole(
+    nickname: 'Player4', 
+    role: 'Citizen'
+  ),
+  PlayerRole(
+    nickname: 'Player5',
+    role: 'Citizen'
+  ),
+  PlayerRole(
+    nickname: 'Player6',
+    role: 'Mafia'
+  ),
+  PlayerRole(
+    nickname: 'Player7',
+    role: 'Barman'
+  ),
+];
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,6 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           builder: (context) => const SignInScreen()   // TRUEEE
+          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Citizen',)
         ) 
       );
     });
