@@ -41,6 +41,44 @@ List<PlayerRole> players = [
   ),
 ];
 
+List<Player> allPlayers = [
+  Player(
+    nickname: 'Player1',
+    isAlive: true,
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  ),
+  Player(
+    nickname: 'Player2',
+    isAlive: true,
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  ),
+  Player(
+    nickname: 'Player3',
+    isAlive: true,
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  ),
+  Player(
+    nickname: 'Player4',
+    isAlive: true,
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  ),
+  Player(
+    nickname: 'Player5',
+    isAlive: true,
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  ),
+  Player(
+    nickname: 'Player6',
+    isAlive: true,
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  ),
+  Player(
+    nickname: 'Player7',
+    isAlive: true,
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  ),
+];
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -58,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           builder: (context) => const SignInScreen()   // TRUEEE
-          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Citizen',)
+          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: allPlayers,)
         ) 
       );
     });

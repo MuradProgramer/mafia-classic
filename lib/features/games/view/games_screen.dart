@@ -1165,6 +1165,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
           citizenCount: citizenCount,
           mafiaCount: mafiaCount,
           playersRole: playerRoles,
+          allPlayers: widget.game.players,
         )
       ),
     );
@@ -1268,7 +1269,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia',))
+                        MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: widget.game.players,))
                       );
                     },
                     child: Text(S.of(context).join),

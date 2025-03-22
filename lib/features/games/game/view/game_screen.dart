@@ -8,6 +8,7 @@ import 'package:mafia_classic/features/games/game/models/in_game_player.dart';
 import 'package:mafia_classic/features/games/games.dart';
 import 'package:mafia_classic/features/games/game/models/models.dart';
 import 'package:mafia_classic/features/games/game/widgets/widgets.dart';
+import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/services/api_service.dart';
 
 class GameScreen extends StatefulWidget {
@@ -15,18 +16,18 @@ class GameScreen extends StatefulWidget {
   final String role;
   final int mafiaCount;
   final int citizenCount;
-  final List<PlayerRole> playersRole;
-  List<InGamePlayer> inGamePlayers;
+  final List<PlayerRole>? playersRole;
+  final List<Player> allPlayers;
 
-  GameScreen(
+  const GameScreen(
     {
     super.key, 
     required this.title, 
     required this.playersRole, 
     required this.role, 
     required this.mafiaCount, 
-    required this.citizenCount,
-    this.inGamePlayers = const []
+    required this.citizenCount, 
+    required this.allPlayers
   });
 
   @override
@@ -37,7 +38,8 @@ class _GameScreenState extends State<GameScreen> {
   String gamePhase = 'Morning';
   int mafiaAlive = 0;
   int citizenAlive = 0;
-  List<String> markNames = ['Sheriff', 'Informant', 'Doctor'];
+  List<String> markNames = [];
+  List<InGamePlayer> inGamePlayers = [];
 
   List<PlayerRole> namesOfRevealed = [];
   List<PlayerRole> namesOfDead = [];
@@ -54,24 +56,37 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-  void _sendMessage() {
+  void _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
-    setState(() {
-      _inGameMessages.add(InGameMessage(
-        nickname: "You",
-        content: _messageController.text.trim(),
-        avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
-      ));
-    });
+    await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[
+      'nickname', 
+      _messageController.text.trim()
+    ]);
+
+    // setState(() {
+    //   inGameMessages.add(InGameMessage(
+    //     nickname: "You",
+    //     content: _messageController.text.trim(),
+    //     avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
+    //   ));
+    // });
 
     _messageController.clear();
     _scrollToBottom();
   }
 
-  final List<InGameMessage> _inGameMessages = [
-    InGameMessage(nickname: 'Player 1', content: 'hello world', avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png')
+  List<InGameMessage> inGameMessages = [
+    //InGameMessage(nickname: 'Player 1', content: 'hello world', avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png')
   ];
+
+  // NOTE:    TESTING
+  void printInGamePlayers() {
+    print('------------------------');
+    for (var el in inGamePlayers) {
+      print('Name: ${el.nickname}  |  Role: ${el.role}  |  IsAlive: ${el.isAlive}  |  IsRevealed: ${el.isRevealed}  |  AvatarUrl: ${el.avatarUrl?.substring(0, 10)}');
+    }
+  }
 
   @override
   void initState() {
@@ -82,14 +97,35 @@ class _GameScreenState extends State<GameScreen> {
 
     var apiService = GetIt.I<ApiService>();
 
-    for (var playerRole in widget.playersRole) {
-      widget.inGamePlayers.add(InGamePlayer(
-        nickname: playerRole.nickname, 
-        role: playerRole.role, 
+    for (var playerR in widget.allPlayers) {
+      if (widget.playersRole != null) {
+        inGamePlayers.add(InGamePlayer(
+          nickname: playerR.nickname, 
+          isAlive: true, 
+          isRevealed: false,
+          role: widget.playersRole?.firstWhere((pl) => pl.nickname == playerR.nickname).role == 'Mafia' ? 'Mafia' : 'undef',
+          avatarUrl: playerR.avatarUrl
+        ));
+        continue;
+      } 
+      inGamePlayers.add(InGamePlayer(
+        nickname: playerR.nickname, 
         isAlive: true, 
-        isRevealed: false
+        isRevealed: false,
+        role: 'undef',
+        avatarUrl: playerR.avatarUrl
       ));
     }
+
+    if (widget.playersRole != null) {
+      for (var el in widget.playersRole!) {
+        print('${el.nickname} ${el.role}');
+      }
+    }
+    print('------------------------');
+
+    printInGamePlayers();
+    
 
     // NOTE: TESTING
     apiService.gameHubConnection.on('Mark', (List<Object?>? parameters) {
@@ -123,7 +159,8 @@ class _GameScreenState extends State<GameScreen> {
       PlayerRole player = PlayerRole.fromJson(playerDto);
 
       setState(() {
-        widget.inGamePlayers.firstWhere((inplayer) => inplayer.nickname == player.nickname).isRevealed = true;
+        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == player.nickname).isRevealed = true;
+        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == player.nickname).role = player.role;
         namesOfRevealed.add(PlayerRole(nickname: player.nickname, role: player.role));
       });
     });
@@ -138,7 +175,7 @@ class _GameScreenState extends State<GameScreen> {
       InterviewedPlayer playersInterviewed = InterviewedPlayer.fromJson(interviewedPlayerDto);
 
       setState(() {
-      _inGameMessages.add(InGameMessage(
+      inGameMessages.add(InGameMessage(
         nickname: "SYSTEM",
         content: 'Player ${playersInterviewed.firstPlayer} and ${playersInterviewed.secondPlayer} {players.message}',
         avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
@@ -159,7 +196,8 @@ class _GameScreenState extends State<GameScreen> {
       PlayerRole playerDead = PlayerRole.fromJson(playerDto);
 
       setState(() {
-        widget.inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
+        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
+        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).role = playerDead.role;
         namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
       });
     });
@@ -209,6 +247,26 @@ class _GameScreenState extends State<GameScreen> {
 
       log('WINNER: $winner    |    POINTS: $points');
     });
+  
+    // NOTE: 
+    apiService.gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      var data = json.decode(parameters.first as String);
+
+      final String nickname = data['nickname'];
+      final String content = data['content'];
+      final String avatarUrl = inGamePlayers.firstWhere((pl) => pl.nickname == nickname).avatarUrl ?? '';
+
+      setState(() {
+        inGameMessages.add(InGameMessage(
+          nickname: nickname, 
+          content: content, 
+          avatarUrl: avatarUrl
+        ));
+      });
+    });
+
   }
 
   @override
@@ -226,6 +284,45 @@ class _GameScreenState extends State<GameScreen> {
         color: Colors.grey.shade800,
         child: Column(
           children: [
+
+
+            //NOTE:    FOR TESTING
+            Container(
+              margin: const EdgeInsets.only(top: 5),
+              width: 400,
+              height: 40,
+              child: ElevatedButton(
+                onPressed: () {
+                  // NOTE:    Event: Interviewed
+                  // setState(() {
+                  //   inGameMessages.add(InGameMessage(
+                  //     nickname: "SYSTEM",
+                  //     content: 'Player PLAYER2 and PLAYER4 ARE IN THE SAME GROUP',
+                  //     avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
+                  //     isSystemMessage: true
+                  //   ));
+                  // });
+
+                  // NOTE:    Event: Mystery
+                  // setState(() {
+                  //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').isRevealed = true;
+                  //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').role = 'Barman';
+                  //   namesOfRevealed.add(PlayerRole(nickname: 'Player4', role: 'Barman'));
+                  //   printInGamePlayers();
+                  // });
+
+                  // NOTE:    Event: PlayerDead
+                  // setState(() {
+                  //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').isAlive = false;
+                  //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').role = 'Terrorist';
+                  //   namesOfDead.add(PlayerRole(nickname: 'Player1', role: 'Terrorist'));
+                  //   printInGamePlayers();
+                  // });
+                  
+                },
+                child: const Text('ACTION'),
+              ),
+            ),
 
             Container( //   TO ONE WIDGET
               width: deviceWidth,
@@ -303,6 +400,7 @@ class _GameScreenState extends State<GameScreen> {
                                   SizedBox(
                                     width: 150,
                                     child: Text(
+                                      //? MARKED ROLES
                                       markNames.isNotEmpty ? markNames.join(", ") : '', 
                                       style: const TextStyle(fontSize: 14, color: Colors.amber),
                                     )
@@ -335,7 +433,14 @@ class _GameScreenState extends State<GameScreen> {
                                       ],
                                     ),
                                   ),
-                                  const Spacer()
+                                  //? TIMER
+                                  Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Text(
+                                      phaseTime != 0 ? '$phaseTime' : "",
+                                      style: const TextStyle(fontSize: 20),
+                                    ),
+                                  ),
                                 ],
                               )
                             ],
@@ -353,7 +458,7 @@ class _GameScreenState extends State<GameScreen> {
                             ),
                             borderRadius: BorderRadius.circular(4.0),
                           ),
-                          child: InGameChatBox(messages: _inGameMessages, scrollController: _scrollController, messageController: _messageController, scrollToBottom: _scrollToBottom,),
+                          child: InGameChatBox(messages: inGameMessages, scrollController: _scrollController, messageController: _messageController, scrollToBottom: _scrollToBottom,),
                         ),
                       ],
                     )
@@ -378,9 +483,9 @@ class _GameScreenState extends State<GameScreen> {
                         mainAxisSpacing: 10,
                         childAspectRatio: 0.6,
                       ),
-                      itemCount: widget.inGamePlayers.length,
+                      itemCount: inGamePlayers.length,
                       itemBuilder: (context, index) {
-                        final player = widget.inGamePlayers[index];
+                        final player = inGamePlayers[index];
 
                         return Column(
                           mainAxisSize: MainAxisSize.min,

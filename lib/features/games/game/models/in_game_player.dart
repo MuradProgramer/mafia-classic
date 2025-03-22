@@ -1,13 +1,15 @@
 class InGamePlayer {
   final String nickname;
-  final String role;
   bool isAlive;
   bool isRevealed;
+  String? role;
+  String? avatarUrl;
 
   InGamePlayer({
     required this.nickname, 
-    required this.role, 
     required this.isAlive, 
-    required this.isRevealed
+    required this.isRevealed,
+    this.role,
+    this.avatarUrl
   });
 }
