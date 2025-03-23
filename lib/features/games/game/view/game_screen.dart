@@ -45,7 +45,7 @@ class _GameScreenState extends State<GameScreen> {
   List<PlayerRole> namesOfDead = [];
 
   late Timer? _timer;
-  int phaseTime = 40;
+  int phaseTime = 31;
 
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
@@ -59,26 +59,45 @@ class _GameScreenState extends State<GameScreen> {
   void _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
-    await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[
-      'nickname', 
+    await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[ 
       _messageController.text.trim()
     ]);
 
-    // setState(() {
-    //   inGameMessages.add(InGameMessage(
-    //     nickname: "You",
-    //     content: _messageController.text.trim(),
-    //     avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
-    //   ));
-    // });
+    setState(() {
+      inGameMessages.add(InGameMessage(
+        nickname: authorizedUser.nickname,
+        content: _messageController.text.trim(),
+        avatarUrl: authorizedUser.avatarUrl,
+      ));
+    });
 
     _messageController.clear();
     _scrollToBottom();
   }
 
+  void startTimer(int seconds) {
+    _timer?.cancel();
+
+    setState(() {
+      phaseTime = seconds;
+    });
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (phaseTime > 0) {
+        setState(() {
+          phaseTime--;
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
   List<InGameMessage> inGameMessages = [
     //InGameMessage(nickname: 'Player 1', content: 'hello world', avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png')
   ];
+
+
 
   // NOTE:    TESTING
   void printInGamePlayers() {
@@ -97,35 +116,86 @@ class _GameScreenState extends State<GameScreen> {
 
     var apiService = GetIt.I<ApiService>();
 
-    for (var playerR in widget.allPlayers) {
-      if (widget.playersRole != null) {
-        inGamePlayers.add(InGamePlayer(
-          nickname: playerR.nickname, 
-          isAlive: true, 
-          isRevealed: false,
-          role: widget.playersRole?.firstWhere((pl) => pl.nickname == playerR.nickname).role == 'Mafia' ? 'Mafia' : 'undef',
-          avatarUrl: playerR.avatarUrl
-        ));
-        continue;
-      } 
+    Map<String, String> roleMap = {};
+    if (widget.playersRole != null) {
+      for (var element in widget.playersRole!) {
+        roleMap[element.nickname] = element.role;
+      }
+    }
+
+    for (var item in widget.allPlayers) {
+      if (item.nickname == authorizedUser.nickname) continue;
       inGamePlayers.add(InGamePlayer(
-        nickname: playerR.nickname, 
-        isAlive: true, 
+        nickname: item.nickname,
+        isAlive: true,
         isRevealed: false,
-        role: 'undef',
-        avatarUrl: playerR.avatarUrl
+        role: roleMap[item.nickname] ?? 'undef',
+        avatarUrl: item.avatarUrl,
       ));
     }
 
-    if (widget.playersRole != null) {
-      for (var el in widget.playersRole!) {
-        print('${el.nickname} ${el.role}');
-      }
-    }
-    print('------------------------');
+    // for (var playerR in widget.allPlayers) {
+    //   if (widget.playersRole != null) {
+    //     if (widget.playersRole!.isNotEmpty) {
+    //       inGamePlayers.add(InGamePlayer(
+    //         nickname: playerR.nickname, 
+    //         isAlive: true, 
+    //         isRevealed: false,
+    //         role: widget.playersRole?.firstWhere((pl) => pl.nickname == playerR.nickname).role == 'Mafia' ? 'Mafia' : 'undef',
+    //         avatarUrl: playerR.avatarUrl
+    //       ));
+    //       continue;
+    //     }
+    //   } 
+    //   inGamePlayers.add(InGamePlayer(
+    //     nickname: playerR.nickname, 
+    //     isAlive: true, 
+    //     isRevealed: false,
+    //     role: 'undef',
+    //     avatarUrl: playerR.avatarUrl
+    //   ));
+    // }
 
     printInGamePlayers();
     
+    // NOTE:    REALIZATION OF PHASE
+    apiService.gameHubConnection.on('Phase', (List<Object?>? parameters) {
+      log('Phase Method Is Triggered');
+      if (parameters == null || parameters.isEmpty) return;
+
+      var data = json.decode(parameters.first as String);
+
+      final String phase = data['phase'];
+
+      setState(() {
+        gamePhase = phase;
+        log('game phase: $gamePhase');
+      });
+
+      // DONE:   EVENT TIMER
+      String eventTime = data['eventTime'] ?? '';
+
+      log(eventTime);
+      if (eventTime.isNotEmpty) {
+        final DateTime parsedDate = DateTime.parse(eventTime);
+        log(parsedDate.difference(DateTime.now()).inSeconds.toString()); // NOTE: 
+        //startTimer(parsedDate.difference(DateTime.now()).inSeconds);
+
+        setState(() {
+          phaseTime = parsedDate.difference(DateTime.now()).inSeconds;
+        });
+
+        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          if (phaseTime > 0) {
+            setState(() {
+              phaseTime--;
+            });
+          } else {
+            timer.cancel();
+          }
+        });
+      }
+    });
 
     // NOTE: TESTING
     apiService.gameHubConnection.on('Mark', (List<Object?>? parameters) {
@@ -188,52 +258,25 @@ class _GameScreenState extends State<GameScreen> {
 
     // NOTE: TESTING
     apiService.gameHubConnection.on('PlayerDead', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
+      log('PlayerDead    Method Is Triggered');
+      if (parameters == null || parameters.isEmpty) { 
+        log('PlayerDead    Parameters Are Null or Empty');
+        return; 
+      }
 
       var data = json.decode(parameters.first as String);
       var playerDto = data as Map<String, dynamic>;
 
       PlayerRole playerDead = PlayerRole.fromJson(playerDto);
+      log('PLAYER DEAD:    Nickname: ${playerDead.nickname} Role: ${playerDead.role}');
 
       setState(() {
         inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
         inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).role = playerDead.role;
         namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
       });
-    });
 
-    // NOTE:    REALIZATION OF PHASE
-    apiService.gameHubConnection.on('Phase', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
-
-      var data = json.decode(parameters.first as String);
-
-      final String phase = data['phase'];
-
-      setState(() {
-        gamePhase = phase;
-        log('game phase: $gamePhase');
-      });
-
-      // DONE:   EVENT TIMER
-      String eventTime = data['eventTime'] ?? '';
-      if (eventTime.isNotEmpty) {
-        final DateTime parsedDate = DateTime.parse(eventTime);
-
-        setState(() {
-          phaseTime = parsedDate.difference(DateTime.now()).inSeconds;
-        });
-
-        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          setState(() {
-            if (phaseTime > 0) {
-              phaseTime--;
-            } else {
-              timer.cancel();
-            }
-          });
-        });
-      }
+      printInGamePlayers();
     });
 
     // NOTE:    REALIZATION OF WINNING AND POINTS
@@ -267,6 +310,10 @@ class _GameScreenState extends State<GameScreen> {
       });
     });
 
+    // DONE
+    apiService.gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
+      GetIt.I<ApiService>().disconnectGameHub();
+    });
   }
 
   @override

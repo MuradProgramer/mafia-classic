@@ -918,8 +918,11 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   List<ChatMessage> gameLobbyChatMessages = [];
   List<LobbyPlayer> gameLobbyPlayers = [];
   //final List<ChatMessage> messages = [];
-  late Timer? _timer;
+  Timer? _timer = null;
+  bool timerIsStarted = false;
   int remainingTime = 8;
+
+  bool shouldDisconnect = true;
 
   @override
   void initState() {
@@ -969,7 +972,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       // DONE:    TIMER
       final String eventTime = json.decode(parameters!.first as String)['eventTime'];
-      if (eventTime.isNotEmpty) {
+      if (eventTime.isNotEmpty && !timerIsStarted) {
         final DateTime parsedDate = DateTime.parse(eventTime);
 
         setState(() {
@@ -985,17 +988,8 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             }
           });
         });
-      }
-      else {
-       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          setState(() {
-            if (remainingTime > 5) {
-              remainingTime--;
-            } else {
-              timer.cancel();
-            }
-          });
-        });
+
+        timerIsStarted = !timerIsStarted;
       }
     });
     
@@ -1051,7 +1045,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       // DONE:    EVENT TIME
       String eventTime = data['eventTime'] ?? '';
-      if (eventTime.isNotEmpty) {
+      if (eventTime.isNotEmpty && !timerIsStarted) {
         final DateTime parsedDate = DateTime.parse(eventTime);
 
         setState(() {
@@ -1067,17 +1061,8 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             }
           });
         });
-      }
-      else {
-        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          setState(() {
-            if (remainingTime > 5) {
-              remainingTime--;
-            } else {
-              timer.cancel();
-            }
-          });
-        });
+
+        timerIsStarted = !timerIsStarted;
       }
     });
 
@@ -1158,6 +1143,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   void startGame(String title, String role, int citizenCount, int mafiaCount, List<PlayerRole> playerRoles) {
     Navigator.push(
       context,
+      // NOTE:  MATERIAL PAGE ROUTE ---- ANDROID: HER YERDE shupheli
       MaterialPageRoute(builder: (context) => 
         GameScreen(
           title: title,
@@ -1173,10 +1159,16 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    shouldDisconnect = ModalRoute.of(context)?.settings.name != "GameScreen";
+  }
+
+  @override
   void dispose() {
-    _timer!.cancel();
-    //!   NEED TO BE TESTED
-    if (Navigator.of(context).canPop()) {
+    _timer?.cancel();
+    // DONE
+    if (shouldDisconnect) {
       GetIt.I<ApiService>().disconnectGameHub();
     }
     super.dispose();
