@@ -134,34 +134,11 @@ class _GameScreenState extends State<GameScreen> {
       ));
     }
 
-    // for (var playerR in widget.allPlayers) {
-    //   if (widget.playersRole != null) {
-    //     if (widget.playersRole!.isNotEmpty) {
-    //       inGamePlayers.add(InGamePlayer(
-    //         nickname: playerR.nickname, 
-    //         isAlive: true, 
-    //         isRevealed: false,
-    //         role: widget.playersRole?.firstWhere((pl) => pl.nickname == playerR.nickname).role == 'Mafia' ? 'Mafia' : 'undef',
-    //         avatarUrl: playerR.avatarUrl
-    //       ));
-    //       continue;
-    //     }
-    //   } 
-    //   inGamePlayers.add(InGamePlayer(
-    //     nickname: playerR.nickname, 
-    //     isAlive: true, 
-    //     isRevealed: false,
-    //     role: 'undef',
-    //     avatarUrl: playerR.avatarUrl
-    //   ));
-    // }
-
     printInGamePlayers();
     
-    // NOTE:    REALIZATION OF PHASE
+    // !:    REALIZATION OF PHASE
     apiService.gameHubConnection.on('Phase', (List<Object?>? parameters) {
-      log('Phase Method Is Triggered');
-      if (parameters == null || parameters.isEmpty) return;
+      if (parameters == null || parameters.isEmpty) return; 
 
       var data = json.decode(parameters.first as String);
 
@@ -175,10 +152,8 @@ class _GameScreenState extends State<GameScreen> {
       // DONE:   EVENT TIMER
       String eventTime = data['eventTime'] ?? '';
 
-      log(eventTime);
       if (eventTime.isNotEmpty) {
         final DateTime parsedDate = DateTime.parse(eventTime);
-        log(parsedDate.difference(DateTime.now()).inSeconds.toString()); // NOTE: 
         //startTimer(parsedDate.difference(DateTime.now()).inSeconds);
 
         setState(() {
@@ -197,7 +172,7 @@ class _GameScreenState extends State<GameScreen> {
       }
     });
 
-    // NOTE: TESTING
+    // DONE
     apiService.gameHubConnection.on('Mark', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
@@ -208,7 +183,7 @@ class _GameScreenState extends State<GameScreen> {
       });
     });
 
-    // NOTE: TESTING
+    // DONE
     apiService.gameHubConnection.on('Unmark', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
@@ -219,7 +194,7 @@ class _GameScreenState extends State<GameScreen> {
       });
     });
 
-    // NOTE: TESTING
+    // DONE
     apiService.gameHubConnection.on('Mystery', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
@@ -235,7 +210,7 @@ class _GameScreenState extends State<GameScreen> {
       });
     });
 
-    // NOTE: TESTING
+    // DONE
     apiService.gameHubConnection.on('Interviewed', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
@@ -247,7 +222,7 @@ class _GameScreenState extends State<GameScreen> {
       setState(() {
       inGameMessages.add(InGameMessage(
         nickname: "SYSTEM",
-        content: 'Player ${playersInterviewed.firstPlayer} and ${playersInterviewed.secondPlayer} {players.message}',
+        content: 'Player ${playersInterviewed.firstPlayer} and ${playersInterviewed.secondPlayer} ${playersInterviewed.message}',
         avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
         isSystemMessage: true
       ));
@@ -256,11 +231,9 @@ class _GameScreenState extends State<GameScreen> {
     _scrollToBottom();
     });
 
-    // NOTE: TESTING
+    // DONE
     apiService.gameHubConnection.on('PlayerDead', (List<Object?>? parameters) {
-      log('PlayerDead    Method Is Triggered');
       if (parameters == null || parameters.isEmpty) { 
-        log('PlayerDead    Parameters Are Null or Empty');
         return; 
       }
 
@@ -268,7 +241,6 @@ class _GameScreenState extends State<GameScreen> {
       var playerDto = data as Map<String, dynamic>;
 
       PlayerRole playerDead = PlayerRole.fromJson(playerDto);
-      log('PLAYER DEAD:    Nickname: ${playerDead.nickname} Role: ${playerDead.role}');
 
       setState(() {
         inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
@@ -279,14 +251,14 @@ class _GameScreenState extends State<GameScreen> {
       printInGamePlayers();
     });
 
-    // NOTE:    REALIZATION OF WINNING AND POINTS
+    // DONE:    REALIZATION OF WINNING AND POINTS
     apiService.gameHubConnection.on('GameOver', (List<Object?>? parameters) {
       if (parameters == null || parameters.isEmpty) return;
 
       var data = json.decode(parameters.first as String);
 
       final String winner = data['winner'];
-      final String points = data['points'];
+      final int points = data['points'];
 
       log('WINNER: $winner    |    POINTS: $points');
     });
@@ -314,6 +286,8 @@ class _GameScreenState extends State<GameScreen> {
     apiService.gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
       GetIt.I<ApiService>().disconnectGameHub();
     });
+  
+    //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
   }
 
   @override
