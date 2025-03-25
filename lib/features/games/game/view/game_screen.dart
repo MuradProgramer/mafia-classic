@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
@@ -9,6 +11,7 @@ import 'package:mafia_classic/features/games/games.dart';
 import 'package:mafia_classic/features/games/game/models/models.dart';
 import 'package:mafia_classic/features/games/game/widgets/widgets.dart';
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/services/api_service.dart';
 
 class GameScreen extends StatefulWidget {
@@ -35,11 +38,25 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  String gamePhase = 'Morning';
+  String gamePhase = '';
   int mafiaAlive = 0;
   int citizenAlive = 0;
   List<String> markNames = [];
   List<InGamePlayer> inGamePlayers = [];
+
+  bool isAliveMyself = true;
+  bool canIVote = true;
+  bool iVoted = false;
+  bool votesAreVisibleToMe = false;
+
+  // DEF:    SKILLS VARIABLES
+  bool canIUseSkill = false;
+  bool iUsedSkill = false;
+  List<String> toWhomIUsedSkill = [];
+  List<String> specialForJournalist = [];
+
+
+  int index = 0;
 
   List<PlayerRole> namesOfRevealed = [];
   List<PlayerRole> namesOfDead = [];
@@ -97,7 +114,62 @@ class _GameScreenState extends State<GameScreen> {
     //InGameMessage(nickname: 'Player 1', content: 'hello world', avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png')
   ];
 
+  void votePlayer(String votedPlayerNickname) async {
+    if (!isAliveMyself) return;
 
+    if (!inGamePlayers.firstWhere((el) => el.nickname == votedPlayerNickname).isAlive) return;
+
+    if (markNames.any((el) => el == 'Satisfied')) return;
+
+    if (widget.role == 'Terrorist') return;
+
+    if (gamePhase == 'Day') {
+      return;
+    }
+    else if (gamePhase == 'Night') {
+      if ('Mafia' != widget.role) {
+        return;
+      }
+    }
+
+    await GetIt.I<ApiService>().gameHubConnection.invoke('Vote', args: <Object>[
+      votedPlayerNickname
+    ]);
+  }
+  
+  void useSkill(List<String> influencedBySkillPlayersNickname) async {
+    if (!isAliveMyself) return;
+
+    if (markNames.any((el) => el == 'Satisfied')) return;
+
+    for (var element in influencedBySkillPlayersNickname) { //!
+      if (!inGamePlayers.firstWhere((el) => el.nickname == element).isAlive) return; 
+    }
+
+    // NOTE:    CHECKING ROLES
+
+    if (widget.role == 'Mafia' || widget.role == 'Citizen' || widget.role == 'Spy') {
+      return;
+    }
+
+    if (gamePhase == 'Day') {
+      if (widget.role != 'Bodyguard') return;
+    }
+
+    if (gamePhase == 'DayVoting') {
+      if (widget.role != 'Terrorist') return;
+    }
+
+    if (gamePhase == 'Night') {
+      if (!['Barman', 'Informant', 'Journalist', 'Doctor', 'Mistress', 'Sheriff'].any((el) => el == widget.role)) {
+        return;
+      }
+    }
+
+    await GetIt.I<ApiService>().gameHubConnection.invoke('Skill', args: 
+      influencedBySkillPlayersNickname
+    );
+  }
 
   // NOTE:    TESTING
   void printInGamePlayers() {
@@ -131,10 +203,13 @@ class _GameScreenState extends State<GameScreen> {
         isRevealed: false,
         role: roleMap[item.nickname] ?? 'undef',
         avatarUrl: item.avatarUrl,
+        votesOfPlayer: []
       ));
     }
 
-    printInGamePlayers();
+    //printInGamePlayers();
+    checkIfEligibleToVote();
+    checkIfEligibleToUseSkill();
     
     // !:    REALIZATION OF PHASE
     apiService.gameHubConnection.on('Phase', (List<Object?>? parameters) {
@@ -146,6 +221,39 @@ class _GameScreenState extends State<GameScreen> {
 
       setState(() {
         gamePhase = phase;
+
+        if (widget.role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
+          votesAreVisibleToMe = false;
+        }
+        else if (gamePhase == 'DayVoting') {
+          votesAreVisibleToMe = true;
+        }
+        else if ((widget.role != 'Mafia' && gamePhase == 'Night')) {
+          votesAreVisibleToMe = false;
+        }
+        else {
+          votesAreVisibleToMe = true;
+        }
+
+        for (var element in inGamePlayers) {
+          element.votesOfPlayer = [];
+        }
+
+        iVoted = false;
+        
+        checkIfEligibleToVote();
+
+        iUsedSkill = false;
+        toWhomIUsedSkill = [];
+
+        checkIfEligibleToUseSkill();
+
+        inGameMessages.add(InGameMessage(
+          nickname: authorizedUser.nickname,
+          content: 'Phase: $gamePhase',
+          avatarUrl: authorizedUser.avatarUrl,
+          isSystemMessage: true
+        ));
         log('game phase: $gamePhase');
       });
 
@@ -246,6 +354,17 @@ class _GameScreenState extends State<GameScreen> {
         inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
         inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).role = playerDead.role;
         namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
+
+        if (['Mafia', 'Terrorist', 'Barman', 'Mistress'].any((s) => s == playerDead.role)) {
+          mafiaAlive -= 1;
+        } else {
+          citizenAlive -= 1;
+        }
+
+        if (playerDead.nickname == authorizedUser.nickname) {
+          youAreDead();
+          isAliveMyself = false;
+        }
       });
 
       printInGamePlayers();
@@ -283,11 +402,153 @@ class _GameScreenState extends State<GameScreen> {
     });
 
     // DONE
+    apiService.gameHubConnection.on('Voted', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      var data = json.decode(parameters.first as String);
+
+      final String from = data['from'];
+      final String target = data['target'];
+
+      setState(() {
+        inGamePlayers.firstWhere((el) => el.nickname == target).votesOfPlayer!.add(from);
+      });
+    });
+
+    // DONE
     apiService.gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
       GetIt.I<ApiService>().disconnectGameHub();
     });
-  
     //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
+  }
+
+
+  void changeState1(bool newState) {
+    setState(() {
+      canIVote = newState;
+    });
+  }
+
+  void changeState2(bool newState) {
+    setState(() {
+      canIUseSkill = newState;
+    });
+  }
+
+  void checkIfEligibleToVote() {
+    if (!['Day', 'DayVoting', 'Night', 'NightVoting'].any((el) => el == gamePhase)) {
+      changeState1(false);
+      return;
+    }
+
+    if (!isAliveMyself) {
+      changeState1(false);
+      return;
+    }
+
+    if (widget.role == 'Terrorist') {
+      changeState1(false);
+      return;
+    }
+
+    if (markNames.any((el) => el == 'Satisfied')) {
+      changeState1(false);
+      return;
+    }
+
+    if (gamePhase == 'Day') {
+      changeState1(false);
+      return;
+    } else if (gamePhase == 'DayVoting') {
+      changeState1(true);
+      return;
+    } else if (gamePhase == 'NightVoting') {
+      if ('Mafia' != widget.role) {
+        changeState1(false);
+        return;
+      }
+      else {
+        changeState1(true);
+        return;
+      }
+    } else if (gamePhase == 'Night') {
+      changeState1(false);
+      return;
+    }
+
+    changeState1(true);
+    return;
+  }
+
+  void checkIfEligibleToUseSkill() {
+    if (!['Day', 'DayVoting', 'Night', 'NightVoting'].any((el) => el == gamePhase)) {
+      changeState2(false);
+      return;
+    }
+    if (!isAliveMyself) {
+      changeState2(false);
+      return;
+    }
+
+    if (markNames.any((el) => el == 'Satisfied')) {
+      changeState2(false);
+      return;
+    }
+
+    if (widget.role == 'Mafia' || widget.role == 'Citizen' || widget.role == 'Spy') {
+      changeState2(false);
+      return;
+    }
+
+    if (gamePhase == 'Day') {
+      if (widget.role != 'Bodyguard') {
+        changeState2(false);
+        return;
+      }
+    }
+
+    if (gamePhase == 'DayVoting') {
+      if (widget.role != 'Terrorist') {
+        changeState2(false);
+        return;
+      }
+    }
+
+    if (gamePhase == 'Night') {
+      if (!['Informant', 'Journalist', 'Doctor', 'Mistress', 'Sheriff'].any((el) => el == widget.role)) {
+        changeState2(false);
+        return;
+      }
+    }
+
+    if (gamePhase == 'NightVoting') {
+      if ('Barman' != widget.role) {
+        changeState2(false);
+        return;
+      }
+    }
+
+    changeState2(true);
+  }
+
+  void youAreDead() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("You Died!"),
+          content: const Text("You have been eliminated from the game."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -308,43 +569,104 @@ class _GameScreenState extends State<GameScreen> {
 
 
             //NOTE:    FOR TESTING
-            Container(
-              margin: const EdgeInsets.only(top: 5),
-              width: 400,
-              height: 40,
-              child: ElevatedButton(
-                onPressed: () {
-                  // NOTE:    Event: Interviewed
-                  // setState(() {
-                  //   inGameMessages.add(InGameMessage(
-                  //     nickname: "SYSTEM",
-                  //     content: 'Player PLAYER2 and PLAYER4 ARE IN THE SAME GROUP',
-                  //     avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
-                  //     isSystemMessage: true
-                  //   ));
-                  // });
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 5, left: 5),
+                  width: 150,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // NOTE:    Event: Interviewed
+                      // setState(() {
+                      //   inGameMessages.add(InGameMessage(
+                      //     nickname: "SYSTEM",
+                      //     content: 'Player PLAYER2 and PLAYER4 ARE IN THE SAME GROUP',
+                      //     avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
+                      //     isSystemMessage: true
+                      //   ));
+                      // });
 
-                  // NOTE:    Event: Mystery
-                  // setState(() {
-                  //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').isRevealed = true;
-                  //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').role = 'Barman';
-                  //   namesOfRevealed.add(PlayerRole(nickname: 'Player4', role: 'Barman'));
-                  //   printInGamePlayers();
-                  // });
+                      // NOTE:    Event: Mystery
+                      // setState(() {
+                      //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').isRevealed = true;
+                      //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').role = 'Barman';
+                      //   namesOfRevealed.add(PlayerRole(nickname: 'Player4', role: 'Barman'));
+                      //   printInGamePlayers();
+                      // });
 
-                  // NOTE:    Event: PlayerDead
-                  // setState(() {
-                  //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').isAlive = false;
-                  //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').role = 'Terrorist';
-                  //   namesOfDead.add(PlayerRole(nickname: 'Player1', role: 'Terrorist'));
-                  //   printInGamePlayers();
-                  // });
-                  
-                },
-                child: const Text('ACTION'),
-              ),
+                      // NOTE:    Event: PlayerDead
+                      setState(() {
+                        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').isAlive = false;
+                        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').role = 'Terrorist';
+                        namesOfDead.add(PlayerRole(nickname: 'Player1', role: 'Terrorist'));
+                        printInGamePlayers();
+                      });
+                    },
+                    child: const Text('ACTION'),
+                  ),
+                ),
+
+                Container(
+                  margin: const EdgeInsets.only(top: 5, right: 5),
+                  width: 200,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // NOTE:    Event: Phase
+                      setState(() {
+                        final phases = ['Day', 'DayVoting', 'Night', 'NightVoting'];
+                        gamePhase = phases[index];
+                        index += 1;
+                        if (index > 3) {
+                          index = 0;
+                        }
+
+                        // NOTE:   VOTE
+                        if (widget.role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
+                          votesAreVisibleToMe = false;
+                        }
+                        else if (gamePhase == 'DayVoting') {
+                          votesAreVisibleToMe = true;
+                        }
+                        else if ((widget.role != 'Mafia' && gamePhase == 'Night')) {
+                          votesAreVisibleToMe = false;
+                        }
+                        else {
+                          votesAreVisibleToMe = true;
+                        }
+
+                        for (var element in inGamePlayers) {
+                          element.votesOfPlayer = [];
+                        }
+
+                        iVoted = false;
+                        
+                        checkIfEligibleToVote();
+
+                        // NOTE:    SKILL
+                        //!!!!!!!!!!!!!!
+
+                        iUsedSkill = false;
+                        toWhomIUsedSkill = [];
+
+                        checkIfEligibleToUseSkill();
+
+                        inGameMessages.add(InGameMessage(
+                          nickname: authorizedUser.nickname,
+                          content: 'Phase: $gamePhase',
+                          avatarUrl: authorizedUser.avatarUrl,
+                          isSystemMessage: true
+                        ));
+                      });
+                    },
+                    child: const Text('CHANGE PHASE'),
+                  ),
+                ),
+              ],
             ),
-
+            
             Container( //   TO ONE WIDGET
               width: deviceWidth,
               height: deviceHeight * 0.017,
@@ -517,39 +839,165 @@ class _GameScreenState extends State<GameScreen> {
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                   // NOTE:    IF THE ROLE IS MAFIA IT WILL SHOW OTHER MAFIAS
-                                  color: widget.role == 'Mafia' //! IF
-                                    ? player.role == 'Mafia' //! IF
-                                      ? Colors.purple 
-                                      : player.isRevealed //! IF
-                                        ? Colors.amber 
-                                        : player.isAlive //! IF
-                                          ? Colors.black 
-                                          : Colors.red 
-                                    : player.isRevealed //! IF
-                                      ? Colors.amber 
-                                      : player.isAlive //! IF
-                                        ? Colors.black 
-                                        : Colors.red,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  !player.isAlive 
-                                    ? namesOfDead.firstWhere((playerDead) => playerDead.nickname == player.nickname).role 
+                                  color: 
+                                    player.isAlive
+                                      ? widget.role == 'Mafia'
+                                        ? ['Mafia', 'Terrorist'].any((el) => el == player.role)
+                                          ? Colors.purple
+                                          : player.isRevealed
+                                            ? Colors.amber
+                                            : Colors.black
+                                      : Colors.black
                                     : player.isRevealed
-                                      ? namesOfRevealed.firstWhere((playerRevealed) => playerRevealed.nickname == player.nickname).role 
-                                      : '',
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                      ? Colors.amber
+                                      : Colors.red
+                                  
+                                  // widget.role == 'Mafia' //! IF
+                                  //   ? ['Mafia', 'Terrorist'].any((el) => el == player.role)  //! IF
+                                  //     ? Colors.purple 
+                                  //     : player.isRevealed //! IF
+                                  //       ? Colors.amber 
+                                  //       : player.isAlive //! IF
+                                  //         ? Colors.black 
+                                  //         : Colors.red 
+                                  //   : player.isRevealed //! IF
+                                  //     ? Colors.amber 
+                                  //     : player.isAlive //! IF
+                                  //       ? Colors.black 
+                                  //       : Colors.red,
+                                  ,borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      !player.isAlive 
+                                        ? namesOfDead.firstWhere((playerDead) => playerDead.nickname == player.nickname).role 
+                                        : player.isRevealed
+                                          ? namesOfRevealed.firstWhere((playerRevealed) => playerRevealed.nickname == player.nickname).role 
+                                          : '',
+                                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
+                                    Text(
+                                      (player.isAlive && votesAreVisibleToMe) 
+                                        ? player.votesOfPlayer!.isNotEmpty 
+                                          ?'${player.votesOfPlayer!.length}'
+                                          : ''
+                                        : '',
+                                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
+                                    // DEF:    SKILLS BUTTON
+                                    GestureDetector(
+                                      onTap: () {
+                                        if (iUsedSkill) {
+                                          return;
+                                        }
+
+                                        if (!canIUseSkill) {
+                                          return;
+                                        }
+
+                                        if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
+                                          return;
+                                        }
+
+                                        if (toWhomIUsedSkill.any((el) => el == player.nickname)) {
+                                          return;
+                                        }
+                                        
+                                        setState(() {
+                                          if (widget.role == 'Journalist') {
+                                            if (specialForJournalist.any((el) => el == player.nickname)) {
+                                              return;
+                                            }
+
+                                            toWhomIUsedSkill.add(player.nickname);
+                                            specialForJournalist.add(player.nickname);
+
+                                            log('added: ${player.nickname}');
+
+                                            if (toWhomIUsedSkill.length == 2) {
+                                              iUsedSkill = true;
+                                              //!!!!!!!!!!!!!!
+                                              useSkill(toWhomIUsedSkill);
+                                              return;
+                                            }
+                                          }
+                                          else {
+                                            iUsedSkill = true;
+                                            for (var e in toWhomIUsedSkill) {
+                                              log(e);
+                                            }
+                                            toWhomIUsedSkill.add(player.nickname);
+                                            //!!!!!!!!!!!!!!
+                                            useSkill(toWhomIUsedSkill);
+                                          }
+                                          log('used skill on: ${player.nickname}');
+                                        });
+                                      },
+                                      child: (!iUsedSkill && canIUseSkill && player.isAlive) 
+                                      ? (widget.role == 'Journalist' && !specialForJournalist.any((el) => el == player.nickname)) 
+                                        ? Container(
+                                          height: 20,
+                                          width: 40,
+                                          color: Colors.cyan[900],
+                                          child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
+                                        )
+                                        : 
+                                          Container(
+                                              height: 20,
+                                              width: 40,
+                                              color: Colors.cyan[900],
+                                              child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
+                                            )
+                                      : const SizedBox(),
+                                    )
+                                  ],
                                 ),
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              player.nickname,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
-                              softWrap: true,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
+                            // DEF:    Voting
+                            GestureDetector(
+                              onTap: () {
+                                if (iVoted) return;
+
+                                if (!canIVote) return;
+
+                                if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
+                                  //changeState1(false);
+                                  return;
+                                }
+                                //!
+                                if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
+                                  return;
+                                }
+
+                                setState(() {
+                                  iVoted = true;
+                                  //!!!!!!!!!!!!!!
+                                  //inGamePlayers.firstWhere((el) => el.nickname == player.nickname).votesOfPlayer!.add(authorizedUser.nickname);
+                                  votePlayer(player.nickname);
+                                  log('taped: ${player.nickname}');
+                                });
+                              },
+                              child: Text(
+                                player.nickname,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: //(!iVoted && canIVote) ? Colors.green : Colors.white, 
+                                  (!iVoted && canIVote && player.isAlive) 
+                                  //!
+                                    ? (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') 
+                                      ? Colors.white 
+                                      : Colors.green 
+                                    : Colors.white, 
+                                  fontSize: 12
+                                ),
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                                
+                              ),
                             ),
                           ],
                         );

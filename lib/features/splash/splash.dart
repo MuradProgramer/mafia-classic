@@ -33,7 +33,7 @@ List<PlayerRole> players = [
   ),
   PlayerRole(
     nickname: 'Player6',
-    role: 'Mafia'
+    role: 'Terrorist'
   ),
   PlayerRole(
     nickname: 'Player7',
@@ -96,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           builder: (context) => const SignInScreen()   // TRUEEE
-          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: allPlayers,)
+          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Bodyguard', allPlayers: allPlayers,)
         ) 
       );
     });
