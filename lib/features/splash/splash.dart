@@ -12,7 +12,7 @@ import 'package:mafia_classic/features/games/view/games_screen.dart';
 
 List<PlayerRole> players = [
   PlayerRole(
-    nickname: 'Player1',
+    nickname: 'Player1111111',
     role: 'Doctor'
   ),
   PlayerRole(
@@ -43,7 +43,7 @@ List<PlayerRole> players = [
 
 List<Player> allPlayers = [
   Player(
-    nickname: 'Player1',
+    nickname: 'Player1111111',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
@@ -96,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           builder: (context) => const SignInScreen()   // TRUEEE
-          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Bodyguard', allPlayers: allPlayers,)
+          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Journalist', allPlayers: allPlayers,)
         ) 
       );
     });

@@ -13,6 +13,7 @@ import 'package:mafia_classic/features/games/game/widgets/widgets.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/services/api_service.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 class GameScreen extends StatefulWidget {
   final String title;
@@ -38,7 +39,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  String gamePhase = '';
+  String gamePhase = 'Night';
   int mafiaAlive = 0;
   int citizenAlive = 0;
   List<String> markNames = [];
@@ -61,7 +62,7 @@ class _GameScreenState extends State<GameScreen> {
   List<PlayerRole> namesOfRevealed = [];
   List<PlayerRole> namesOfDead = [];
 
-  late Timer? _timer;
+  //late Timer? _timer;
   int phaseTime = 31;
 
   final ScrollController _scrollController = ScrollController();
@@ -92,45 +93,54 @@ class _GameScreenState extends State<GameScreen> {
     _scrollToBottom();
   }
 
-  void startTimer(int seconds) {
-    _timer?.cancel();
+  // void startTimer(int seconds) {
+  //   _timer?.cancel();
 
-    setState(() {
-      phaseTime = seconds;
-    });
+  //   setState(() {
+  //     phaseTime = seconds;
+  //   });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (phaseTime > 0) {
-        setState(() {
-          phaseTime--;
-        });
-      } else {
-        timer.cancel();
-      }
-    });
-  }
+  //   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+  //     if (phaseTime > 0) {
+  //       setState(() {
+  //         phaseTime--;
+  //       });
+  //     } else {
+  //       timer.cancel();
+  //     }
+  //   });
+  // }
 
   List<InGameMessage> inGameMessages = [
     //InGameMessage(nickname: 'Player 1', content: 'hello world', avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png')
   ];
 
   void votePlayer(String votedPlayerNickname) async {
+    log('111');
     if (!isAliveMyself) return;
+    log('112');
 
     if (!inGamePlayers.firstWhere((el) => el.nickname == votedPlayerNickname).isAlive) return;
+    log('113');
 
     if (markNames.any((el) => el == 'Satisfied')) return;
+    log('114');
 
     if (widget.role == 'Terrorist') return;
+    log('115');
 
     if (gamePhase == 'Day') {
+      log('116');
       return;
     }
     else if (gamePhase == 'Night') {
+      log('117');
       if ('Mafia' != widget.role) {
+        log('118');
         return;
       }
     }
+    log('119');
 
     await GetIt.I<ApiService>().gameHubConnection.invoke('Vote', args: <Object>[
       votedPlayerNickname
@@ -166,8 +176,8 @@ class _GameScreenState extends State<GameScreen> {
       }
     }
 
-    await GetIt.I<ApiService>().gameHubConnection.invoke('Skill', args: 
-      influencedBySkillPlayersNickname
+    await GetIt.I<ApiService>().gameHubConnection.invoke('Skill', args:
+      [influencedBySkillPlayersNickname]
     );
   }
 
@@ -213,211 +223,297 @@ class _GameScreenState extends State<GameScreen> {
     
     // !:    REALIZATION OF PHASE
     apiService.gameHubConnection.on('Phase', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return; 
-
-      var data = json.decode(parameters.first as String);
-
-      final String phase = data['phase'];
-
-      setState(() {
-        gamePhase = phase;
-
-        if (widget.role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
-          votesAreVisibleToMe = false;
-        }
-        else if (gamePhase == 'DayVoting') {
-          votesAreVisibleToMe = true;
-        }
-        else if ((widget.role != 'Mafia' && gamePhase == 'Night')) {
-          votesAreVisibleToMe = false;
-        }
-        else {
-          votesAreVisibleToMe = true;
-        }
-
-        for (var element in inGamePlayers) {
-          element.votesOfPlayer = [];
-        }
-
-        iVoted = false;
+      try {
+        if (parameters == null || parameters.isEmpty) return; 
         
-        checkIfEligibleToVote();
-
-        iUsedSkill = false;
-        toWhomIUsedSkill = [];
-
-        checkIfEligibleToUseSkill();
-
-        inGameMessages.add(InGameMessage(
-          nickname: authorizedUser.nickname,
-          content: 'Phase: $gamePhase',
-          avatarUrl: authorizedUser.avatarUrl,
-          isSystemMessage: true
-        ));
-        log('game phase: $gamePhase');
-      });
+        //var data = json.decode(parameters.first as String);
+        
+        log(parameters.first as String);
+        final String phase = parameters.first as String;
+        
+        setState(() {
+          gamePhase = phase;
+        
+          if (widget.role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
+            votesAreVisibleToMe = false;
+          }
+          else if (gamePhase == 'DayVoting') {
+            votesAreVisibleToMe = true;
+          }
+          else if ((widget.role != 'Mafia' && gamePhase == 'Night')) {
+            votesAreVisibleToMe = false;
+          }
+          else {
+            votesAreVisibleToMe = true;
+          }
+        
+          for (var element in inGamePlayers) {
+            element.votesOfPlayer = [];
+          }
+        
+          iVoted = false;
+          
+          checkIfEligibleToVote();
+        
+          iUsedSkill = false;
+          toWhomIUsedSkill = [];
+        
+          checkIfEligibleToUseSkill();
+        
+          inGameMessages.add(InGameMessage(
+            nickname: authorizedUser.nickname,
+            content: 'Phase: $gamePhase',
+            avatarUrl: authorizedUser.avatarUrl,
+            isSystemMessage: true
+          ));
+          log('game phase: $gamePhase');
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     PHASE EVENT - GAME SCREEN: ${e.toString()}');
+      }
 
       // DONE:   EVENT TIMER
-      String eventTime = data['eventTime'] ?? '';
+      // String eventTime = data['eventTime'] ?? '';
 
-      if (eventTime.isNotEmpty) {
-        final DateTime parsedDate = DateTime.parse(eventTime);
-        //startTimer(parsedDate.difference(DateTime.now()).inSeconds);
+      // if (eventTime.isNotEmpty) {
+      //   final DateTime parsedDate = DateTime.parse(eventTime);
+      //   //startTimer(parsedDate.difference(DateTime.now()).inSeconds);
 
-        setState(() {
-          phaseTime = parsedDate.difference(DateTime.now()).inSeconds;
-        });
+      //   setState(() {
+      //     phaseTime = parsedDate.difference(DateTime.now()).inSeconds;
+      //   });
 
-        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          if (phaseTime > 0) {
-            setState(() {
-              phaseTime--;
-            });
-          } else {
-            timer.cancel();
-          }
-        });
-      }
+      //   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      //     if (phaseTime > 0) {
+      //       setState(() {
+      //         phaseTime--;
+      //       });
+      //     } else {
+      //       timer.cancel();
+      //     }
+      //   });
+      // }
     });
 
     // DONE
     apiService.gameHubConnection.on('Mark', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
-
-      final String mark = parameters.first as String;
-
-      setState(() {
-        markNames.add(mark);
-      });
+      try {
+        if (parameters == null || parameters.isEmpty) return;
+        
+        final String mark = parameters.first as String;
+        
+        setState(() {
+          markNames.add(mark);
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     MARK EVENT - GAME SCREEN: ${e.toString()}');
+      }
     });
 
     // DONE
     apiService.gameHubConnection.on('Unmark', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
-
-      final String unmark = parameters.first as String;
-
-      setState(() {
-        markNames.remove(unmark);
-      });
+      try {
+        if (parameters == null || parameters.isEmpty) return;
+        
+        final String unmark = parameters.first as String;
+        
+        setState(() {
+          markNames.remove(unmark);
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     UNMARK EVENT - GAME SCREEN: ${e.toString()}');
+      }
     });
 
     // DONE
     apiService.gameHubConnection.on('Mystery', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
-
-      var data = json.decode(parameters.first as String);
-      var playerDto = data as Map<String, dynamic>;
-
-      PlayerRole player = PlayerRole.fromJson(playerDto);
-
-      setState(() {
-        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == player.nickname).isRevealed = true;
-        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == player.nickname).role = player.role;
-        namesOfRevealed.add(PlayerRole(nickname: player.nickname, role: player.role));
-      });
+      try {
+        if (parameters == null || parameters.isEmpty) return;
+        
+        var data = json.decode(parameters.first as String);
+        var playerDto = data as Map<String, dynamic>;
+        
+        PlayerRole player = PlayerRole.fromJson(playerDto);
+        
+        setState(() {
+          inGamePlayers.firstWhere((inplayer) => inplayer.nickname == player.nickname).isRevealed = true;
+          inGamePlayers.firstWhere((inplayer) => inplayer.nickname == player.nickname).role = player.role;
+          namesOfRevealed.add(PlayerRole(nickname: player.nickname, role: player.role));
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     MYSTERY EVENT - GAME SCREEN: ${e.toString()}');
+      }
     });
 
     // DONE
-    apiService.gameHubConnection.on('Interviewed', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
+    // apiService.gameHubConnection.on('Interviewed', (List<Object?>? parameters) {
+    //   if (parameters == null || parameters.isEmpty) return;
 
-      var data = json.decode(parameters.first as String);
-      var interviewedPlayerDto = data as Map<String, dynamic>;
+    //   var data = json.decode(parameters.first as String);
+    //   var interviewedPlayerDto = data as Map<String, dynamic>;
 
-      InterviewedPlayer playersInterviewed = InterviewedPlayer.fromJson(interviewedPlayerDto);
+    //   InterviewedPlayer playersInterviewed = InterviewedPlayer.fromJson(interviewedPlayerDto);
 
-      setState(() {
-      inGameMessages.add(InGameMessage(
-        nickname: "SYSTEM",
-        content: 'Player ${playersInterviewed.firstPlayer} and ${playersInterviewed.secondPlayer} ${playersInterviewed.message}',
-        avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
-        isSystemMessage: true
-      ));
-    });
+    //   setState(() {
+    //     inGameMessages.add(InGameMessage(
+    //       nickname: "SYSTEM",
+    //       content: 'Player ${playersInterviewed.firstPlayer} and ${playersInterviewed.secondPlayer} ${playersInterviewed.message}',
+    //       avatarUrl: "https://www.w3schools.com/w3images/avatar6.png",
+    //       isSystemMessage: true
+    //     ));
+    //   });
 
-    _scrollToBottom();
-    });
+    // _scrollToBottom();
+    // });
 
     // DONE
     apiService.gameHubConnection.on('PlayerDead', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) { 
-        return; 
+      try {
+        if (parameters == null || parameters.isEmpty) {
+          return; 
+        }
+        
+        var data = json.decode(parameters.first as String);
+        var playerDto = data as Map<String, dynamic>;
+        
+        PlayerRole playerDead = PlayerRole.fromJson(playerDto);
+        
+        setState(() {
+        
+          if (playerDead.nickname == authorizedUser.nickname) {
+            log('PLAYER DEAD:    playerDead.nickname == authorizedUser.nickname: ${playerDead.nickname == authorizedUser.nickname}');
+            youAreDead();
+            isAliveMyself = false;
+            return;
+          }
+        
+          inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
+          inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).role = playerDead.role;
+          namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
+        
+          if (['Mafia', 'Terrorist', 'Barman', 'Informant'].any((s) => s == playerDead.role)) {
+            mafiaAlive -= 1;
+          } else {
+            citizenAlive -= 1;
+          }
+          
+        });
+        
+        printInGamePlayers();
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     PLAYER DEAD EVENT - GAME SCREEN: ${e.toString()}');
       }
-
-      var data = json.decode(parameters.first as String);
-      var playerDto = data as Map<String, dynamic>;
-
-      PlayerRole playerDead = PlayerRole.fromJson(playerDto);
-
-      setState(() {
-        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
-        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).role = playerDead.role;
-        namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
-
-        if (['Mafia', 'Terrorist', 'Barman', 'Mistress'].any((s) => s == playerDead.role)) {
-          mafiaAlive -= 1;
-        } else {
-          citizenAlive -= 1;
-        }
-
-        if (playerDead.nickname == authorizedUser.nickname) {
-          youAreDead();
-          isAliveMyself = false;
-        }
-      });
-
-      printInGamePlayers();
     });
 
     // DONE:    REALIZATION OF WINNING AND POINTS
     apiService.gameHubConnection.on('GameOver', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
-
-      var data = json.decode(parameters.first as String);
-
-      final String winner = data['winner'];
-      final int points = data['points'];
-
-      log('WINNER: $winner    |    POINTS: $points');
+      try {
+        if (parameters == null || parameters.isEmpty) return;
+        
+        var data = json.decode(parameters.first as String);
+        
+        final String winner = data['winner'];
+        final int points = data['points'];
+        
+        log('WINNER: $winner    |    POINTS: $points');
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     GAME OVER EVENT - GAME SCREEN: ${e.toString()}');
+      }
     });
   
+    apiService.gameHubConnection.off('ReceiveMessage');
     // NOTE: 
     apiService.gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
-
-      var data = json.decode(parameters.first as String);
-
-      final String nickname = data['nickname'];
-      final String content = data['content'];
-      final String avatarUrl = inGamePlayers.firstWhere((pl) => pl.nickname == nickname).avatarUrl ?? '';
-
-      setState(() {
-        inGameMessages.add(InGameMessage(
-          nickname: nickname, 
-          content: content, 
-          avatarUrl: avatarUrl
-        ));
-      });
+      try {
+        if (parameters == null || parameters.isEmpty) return;
+        
+        log('1111');
+        print(parameters.first);
+        log('2222');
+        var data = json.decode(parameters.first as String);
+        log('3333');
+        
+        final String nickname = data['nickname'];
+        final String type = data['type'];
+        final String content = data['content'];
+        log('4444');
+        String avatarUrl = '';
+        if (type != 'System') {
+          inGamePlayers.firstWhere((pl) => pl.nickname == nickname).avatarUrl;
+        }
+        log('5555');
+        
+        setState(() {
+          inGameMessages.add(InGameMessage(
+            nickname: nickname, 
+            content: content, 
+            avatarUrl: avatarUrl,
+            isSystemMessage: type == 'System' ? true : false
+          ));
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     RECIEVE MESSAGE EVENT - GAME SCREEN: ${e.toString()}');
+      }
     });
 
     // DONE
     apiService.gameHubConnection.on('Voted', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
-
-      var data = json.decode(parameters.first as String);
-
-      final String from = data['from'];
-      final String target = data['target'];
-
-      setState(() {
-        inGamePlayers.firstWhere((el) => el.nickname == target).votesOfPlayer!.add(from);
-      });
+      try {
+        if (parameters == null || parameters.isEmpty) return;
+        print('VOTED EVENT LOG 2: ${parameters.first}');
+        //return;
+        var data = json.decode(parameters.first.toString());
+        
+        final String from = data['from'];
+        final String target = data['target'];
+        
+        setState(() {
+          inGamePlayers.firstWhere((el) => el.nickname == target).votesOfPlayer!.add(from);
+        });
+      } catch (e) {
+        log('EXCEPTION IN:     VOTED EVENT - GAME SCREEN: ${e.toString()}');
+      }
     });
 
     // DONE
     apiService.gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
-      GetIt.I<ApiService>().disconnectGameHub();
+      try {
+        GetIt.I<ApiService>().disconnectGameHub();
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     CLOSE CONNECTION EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+    
+    // INCOMPLETE
+    apiService.gameHubConnection.on('Timer', (List<Object?>? parameters) {
+      try {
+        if (parameters == null || parameters.isEmpty) return;
+        
+        setState(() {
+          phaseTime = parameters.first as int;
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // NOTE:    TESTING
+    apiService.gameHubConnection.on('Ping', (List<Object?>? parameters) {
+      log('PING BLED');
+    });
+
+    apiService.gameHubConnection.onclose(({Exception? error}) {
+      print("OnClose: $error");
+    });
+
+    // Событие: начало реконнекта
+    apiService.gameHubConnection.onreconnecting(({Exception? error}) {
+      print("OnReconnecting: $error");
+    });
+
+    // Событие: успешный реконнект или подключение
+    apiService.gameHubConnection.onreconnected(({String? connectionId}) {
+      print("OnReconnected: $connectionId");
     });
     //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
   }
@@ -589,20 +685,20 @@ class _GameScreenState extends State<GameScreen> {
                       // });
 
                       // NOTE:    Event: Mystery
-                      // setState(() {
-                      //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').isRevealed = true;
-                      //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').role = 'Barman';
-                      //   namesOfRevealed.add(PlayerRole(nickname: 'Player4', role: 'Barman'));
-                      //   printInGamePlayers();
-                      // });
-
-                      // NOTE:    Event: PlayerDead
                       setState(() {
-                        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').isAlive = false;
-                        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').role = 'Terrorist';
-                        namesOfDead.add(PlayerRole(nickname: 'Player1', role: 'Terrorist'));
+                        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').isRevealed = true;
+                        inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player4').role = 'Barman';
+                        namesOfRevealed.add(PlayerRole(nickname: 'Player4', role: 'Barman'));
                         printInGamePlayers();
                       });
+
+                      // NOTE:    Event: PlayerDead
+                      // setState(() {
+                      //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').isAlive = false;
+                      //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').role = 'Terrorist';
+                      //   namesOfDead.add(PlayerRole(nickname: 'Player1', role: 'Terrorist'));
+                      //   printInGamePlayers();
+                      // });
                     },
                     child: const Text('ACTION'),
                   ),
@@ -823,8 +919,8 @@ class _GameScreenState extends State<GameScreen> {
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 8,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 0.6,
+                        mainAxisSpacing: 15,
+                        childAspectRatio: 0.45,
                       ),
                       itemCount: inGamePlayers.length,
                       itemBuilder: (context, index) {
@@ -847,10 +943,10 @@ class _GameScreenState extends State<GameScreen> {
                                           : player.isRevealed
                                             ? Colors.amber
                                             : Colors.black
-                                      : Colors.black
-                                    : player.isRevealed
-                                      ? Colors.amber
-                                      : Colors.red
+                                      : player.isRevealed
+                                        ? Colors.amber
+                                        : Colors.black
+                                    : Colors.red
                                   
                                   // widget.role == 'Mafia' //! IF
                                   //   ? ['Mafia', 'Terrorist'].any((el) => el == player.role)  //! IF
@@ -935,20 +1031,23 @@ class _GameScreenState extends State<GameScreen> {
                                         });
                                       },
                                       child: (!iUsedSkill && canIUseSkill && player.isAlive) 
-                                      ? (widget.role == 'Journalist' && !specialForJournalist.any((el) => el == player.nickname)) 
-                                        ? Container(
-                                          height: 20,
-                                          width: 40,
-                                          color: Colors.cyan[900],
-                                          child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
-                                        )
-                                        : 
-                                          Container(
+                                      ? (widget.role == 'Journalist') 
+                                        ? (!specialForJournalist.any((el) => el == player.nickname))
+                                          ? Container(
+                                            height: 20,
+                                            width: 40,
+                                            color: Colors.cyan[900],
+                                            child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
+                                          )
+                                          : const SizedBox()
+                                        : !inGamePlayers.firstWhere((e) => e.nickname == player.nickname).isRevealed 
+                                          ? Container(
                                               height: 20,
                                               width: 40,
                                               color: Colors.cyan[900],
                                               child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
-                                            )
+                                            ) 
+                                          : const SizedBox()
                                       : const SizedBox(),
                                     )
                                   ],
@@ -959,25 +1058,33 @@ class _GameScreenState extends State<GameScreen> {
                             // DEF:    Voting
                             GestureDetector(
                               onTap: () {
+                                log('vote 1');
                                 if (iVoted) return;
+                                log('vote 2');
 
                                 if (!canIVote) return;
+                                log('vote 3');
 
                                 if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
                                   //changeState1(false);
                                   return;
                                 }
+                                log('vote 4');
                                 //!
                                 if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
                                   return;
                                 }
+                                log('vote 5');
 
                                 setState(() {
+                                  log('vote 6');
                                   iVoted = true;
                                   //!!!!!!!!!!!!!!
                                   //inGamePlayers.firstWhere((el) => el.nickname == player.nickname).votesOfPlayer!.add(authorizedUser.nickname);
                                   votePlayer(player.nickname);
+                                  log('vote 7');
                                   log('taped: ${player.nickname}');
+                                  log('vote 8');
                                 });
                               },
                               child: Text(

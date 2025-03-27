@@ -918,9 +918,10 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   List<ChatMessage> gameLobbyChatMessages = [];
   List<LobbyPlayer> gameLobbyPlayers = [];
   //final List<ChatMessage> messages = [];
-  Timer? _timer = null;
+  //Timer? _timer = null;
   bool timerIsStarted = false;
-  int remainingTime = 8;
+  int remainingTime = -1;
+
 
   bool shouldDisconnect = true;
 
@@ -946,8 +947,8 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       'https://46.32.173.182/gamelobby?title=${widget.game.title}',
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
-        skipNegotiation: true,
-        transport: HttpTransportType.WebSockets,
+        // skipNegotiation: true,
+        // transport: HttpTransportType.WebSockets,
       ),
     )
     .build();
@@ -955,11 +956,15 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     // DONE - TIMER HERE
     apiService.gameHubConnection.on('GameLobbyData', (List<Object?>? parameters) {
       // NOTE:    parameters as Map<String, dynamic> to variable
+      log('1');
       final List<GameLobbyChatPlayer>? messages = GetIt.I<ApiService>().decodeGameLobbyChatPlayersParameters(parameters);
+      log('2');
       // DONE:    MESSAGES IN VIEW
 
       setState(() {
+        log('3');
         if (!(messages == null || messages.isEmpty)) {
+          log('4');
           for (var message in messages) {
             gameLobbyChatMessages.add(ChatMessage(
               nickname: message.nickname, 
@@ -968,29 +973,30 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             ));
           }
         }
+        log('5');
       });
 
       // DONE:    TIMER
-      final String eventTime = json.decode(parameters!.first as String)['eventTime'];
-      if (eventTime.isNotEmpty && !timerIsStarted) {
-        final DateTime parsedDate = DateTime.parse(eventTime);
+      // final String eventTime = json.decode(parameters!.first as String)['eventTime'];
+      // if (eventTime.isNotEmpty && !timerIsStarted) {
+      //   final DateTime parsedDate = DateTime.parse(eventTime);
 
-        setState(() {
-          remainingTime = parsedDate.difference(DateTime.now()).inSeconds;
-        });
+      //   setState(() {
+      //     remainingTime = parsedDate.difference(DateTime.now()).inSeconds;
+      //   });
 
-        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          setState(() {
-            if (remainingTime > 0) {
-              remainingTime--;
-            } else {
-              timer.cancel();
-            }
-          });
-        });
+      //   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      //     setState(() {
+      //       if (remainingTime > 0) {
+      //         remainingTime--;
+      //       } else {
+      //         timer.cancel();
+      //       }
+      //     });
+      //   });
 
-        timerIsStarted = !timerIsStarted;
-      }
+      //   timerIsStarted = !timerIsStarted;
+      // }
     });
     
     // DONE
@@ -1031,39 +1037,44 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // DONE - TIMER HERE
     apiService.gameHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
+      log('1');
+      if (parameters == null || parameters.isEmpty) {
+        log('2');
+        return;
+      }
 
       // DONE:   PLAYER
+      log(parameters.first as String);
       var data = json.decode(parameters.first as String);
-      var playerDto = data['player'] as Map<String, dynamic>;
+      //var playerDto = data['player'] as Map<String, dynamic>;
 
-      LobbyPlayer player = LobbyPlayer.fromJson(playerDto);
+      LobbyPlayer player = LobbyPlayer.fromJson(data);
 
       setState(() {
         gameLobbyPlayers.add(player);
       });
 
       // DONE:    EVENT TIME
-      String eventTime = data['eventTime'] ?? '';
-      if (eventTime.isNotEmpty && !timerIsStarted) {
-        final DateTime parsedDate = DateTime.parse(eventTime);
+      // String eventTime = data['eventTime'] ?? '';
+      // if (eventTime.isNotEmpty && !timerIsStarted) {
+      //   final DateTime parsedDate = DateTime.parse(eventTime);
 
-        setState(() {
-          remainingTime = parsedDate.difference(DateTime.now()).inSeconds;
-        });
+      //   setState(() {
+      //     remainingTime = parsedDate.difference(DateTime.now()).inSeconds;
+      //   });
 
-        _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-          setState(() {
-            if (remainingTime > 0) {
-              remainingTime--;
-            } else {
-              timer.cancel();
-            }
-          });
-        });
+      //   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      //     setState(() {
+      //       if (remainingTime > 0) {
+      //         remainingTime--;
+      //       } else {
+      //         timer.cancel();
+      //       }
+      //     });
+      //   });
 
-        timerIsStarted = !timerIsStarted;
-      }
+      //   timerIsStarted = !timerIsStarted;
+      // }
     });
 
     // DONE
@@ -1074,20 +1085,24 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       setState(() {
         gameLobbyPlayers.removeWhere((player) => player.nickname == nickname);
+        if (gameLobbyPlayers.length < widget.game.minPlayers) {
+          remainingTime = -1;
+        }
       });
     });
 
     // DONE
-    apiService.gameHubConnection.on('StopEventTimer', (List<Object?>? parameters) {
-      // NOTE:    STOP TIMER IF THE TIMER TICKING
-      setState(() {
-        _timer!.cancel();
-        remainingTime = 0;
-      });
-    });
+    // apiService.gameHubConnection.on('StopEventTimer', (List<Object?>? parameters) {
+    //   // NOTE:    STOP TIMER IF THE TIMER TICKING
+    //   setState(() {
+    //     _timer!.cancel();
+    //     remainingTime = 0;
+    //   });
+    // });
 
     // DONE
     apiService.gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
+      log('PERVIN');
       if (parameters == null || parameters.isEmpty) return;
 
       var data = json.decode(parameters.first as String);
@@ -1112,6 +1127,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       GetIt.I<ApiService>().disconnectGameHub();
     });
 
+    // INCOMPLETE
+    apiService.gameHubConnection.on('Timer', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty) return;
+
+      setState(() {
+        remainingTime = parameters.first as int;
+      });
+    });
     // GetIt.I<ApiService>().gameHubConnection.onclose((error) {
     //     print('Connection closed by client. Error: ${error?.toString() ?? "No error"}');
     // });
@@ -1166,7 +1189,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    //_timer?.cancel();
     // DONE
     if (shouldDisconnect) {
       GetIt.I<ApiService>().disconnectGameHub();
@@ -1219,7 +1242,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
-                    remainingTime != 0 ? '${S.of(context).remainingTime}: $remainingTime ${S.of(context).seconds}' : "",
+                    remainingTime != -1 ? '${S.of(context).remainingTime}: $remainingTime ${S.of(context).seconds}' : "Waiting",
                     style: const TextStyle(fontSize: 20),
                   ),
                 ),
