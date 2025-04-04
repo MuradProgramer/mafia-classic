@@ -14,7 +14,41 @@ import 'package:signalr_netcore/http_connection_options.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 import 'package:signalr_netcore/itransport.dart';
 
-List<Game> games = [];
+int stateToJoin = 1;
+
+List<Game> games = [
+  Game(
+    title: 'Mafia Game 1',
+    //currentPlayers: 6,
+    minPlayers: 10,
+    maxPlayers: 20,
+    status: 'Gathering players',
+    hasPassword: false,
+    players: players,
+    extraRoles: ['Mafia', 'Doctor', 'Sheriff'],
+  ),
+  Game(
+    title: 'Mafia Game 2',
+    //currentPlayers: 7,
+    minPlayers: 4,
+    maxPlayers: 10,
+    status: 'Game Started',
+    hasPassword: false,
+    players: playersWithMe,
+    extraRoles: ['Mafia', 'Doctor', 'Sheriff'],
+  ),
+  Game(
+    title: 'Mafia Game 3',
+    //currentPlayers: 10,
+    minPlayers: 5,
+    maxPlayers: 15,
+    status: 'Gathering players',
+    hasPassword: false,
+    players: players,
+    extraRoles: ['Mafia', 'Doctor', 'Sheriff'],
+  )
+];
+
 
 //late User authorizedUser;
 User authorizedUser = User(email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
@@ -33,13 +67,150 @@ class GamesScreen extends StatefulWidget {
 
 class _GamesScreenState extends State<GamesScreen> {
 
+  late List<Game>? allGames;
+
   @override
   void initState() {
     super.initState();
     authorizedUser = widget.user;
-    GetIt.I<ApiService>().connectMainHub();
-    //_loadGames();
-  }
+
+    // NOTE:    MAIN HUB CONNECTION AND SOCKETS
+
+    var apiService = GetIt.I<ApiService>();
+    
+    //! BUILD
+    apiService.mainHubConnection = HubConnectionBuilder().withUrl(
+      'https://46.32.173.182/mainlobby',
+      options: HttpConnectionOptions(
+        accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
+        skipNegotiation: true,
+        transport: HttpTransportType.WebSockets,
+      ),
+    )
+    .build();
+
+
+    //! METHODS
+
+    // DONE
+    apiService.mainHubConnection.on('GameLobbies', (List<Object?>? parameters) {
+      //print('33: $parameters');
+      final List<Game>? gamesList = apiService.decodeGamesParameters(parameters);
+
+      if (allGames != null) {
+        setState(() {
+          allGames = gamesList;
+        });
+      }
+    });
+
+    // INCOMPLETE
+    apiService.mainHubConnection.on('GameLobbyCreated', (List<Object?>? parameters) {
+      final Game? game = apiService.decodeGameParameters(parameters);
+
+      if (game != null) {
+        setState(() {
+          allGames?.add(game);
+        });
+      }
+    });
+
+    // INCOMPLETE
+    apiService.mainHubConnection.on('GameLobbyClosed', (List<Object?>? parameters) {
+      final String? title = parameters?.first as String;
+
+      if (title != null && allGames != null) {
+        if (allGames!.any((game) => game.title == title)) {
+          setState(() {
+            allGames!.removeWhere((game) => game.title == title);
+          });
+        }
+      }
+    });
+
+    // INCOMPLETE
+    apiService.mainHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
+      final PlayerJoinedGame? playerJoinedToGame = apiService.decodePlayerJoinedGameParameters(parameters);
+
+      if (playerJoinedToGame != null && allGames != null) {
+        if (!allGames!
+          .firstWhere((game) => game.title == playerJoinedToGame.title)
+          .players.any((player) => player.nickname == playerJoinedToGame.player.nickname)) {
+
+          setState(() {
+            allGames!
+            .firstWhere((game) => game.title == playerJoinedToGame.title)
+            .players.add(playerJoinedToGame.player);
+          });
+        }
+      }
+    });
+
+    // INCOMPLETE
+    apiService.mainHubConnection.on('PlayerLeft', (List<Object?>? parameters) {
+      final PlayerLeftGame? playerLeftGame = apiService.decodePlayerLeftGameParameters(parameters);
+
+      if (playerLeftGame != null && allGames != null) {
+        if (allGames!
+          .firstWhere((game) => game.title == playerLeftGame.title)
+          .players.any((player) => player.nickname == playerLeftGame.nickname)) {
+
+          setState(() {
+            allGames!
+            .firstWhere((game) => game.title == playerLeftGame.title)
+            .players.removeWhere((player) => player.nickname == playerLeftGame.nickname);
+          });
+        }
+        else {
+          print('There is no player with this nickname');
+        }
+      }
+    });
+
+    // INCOMPLETE
+    apiService.mainHubConnection.on('GameStarted', (List<Object?>? parameters) {
+      final String? title = parameters?.first as String;
+
+      if (title != null && allGames != null) {
+        if (allGames!.any((game) => game.title == title)) {
+          setState(() {
+            allGames!.firstWhere((game) => game.title == title).status = 'Game Started';
+          });
+        }
+      }
+    });
+
+
+    apiService.mainHubConnection.on('CloseConnection', (List<Object?>? parameters) async {
+      await apiService.disconnectMainHub();
+    });
+
+
+    //! CONNECTION
+    if (!apiService.gameHubIsConnected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        apiService.gameHubConnection.start()?.then((_) {
+          apiService.gameHubIsConnected = true;
+          print("Connected to SignalR!");
+        }).catchError((e) {
+          print("Connection error: $e");
+        });
+      });
+    }
+
+
+
+    bool temp = false;
+    for (var game in games) {
+      for (var player in game.players) {
+        if (player.nickname == authorizedUser.nickname) {
+          stateToJoin = (player.isAlive) ? 2 : 3;
+          temp = true;
+          break;
+        }
+      }
+      if (temp) break;
+    }}
 
   @override
   void dispose() {
@@ -88,34 +259,38 @@ class _GamesScreenState extends State<GamesScreen> {
         ),
 
         //! STREAM
-        body: 
-        StreamBuilder<List<Game>>(
-          stream: GetIt.I<ApiService>().gamesStream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('No games available.'));
-            } else {
-              final gamesSnap = snapshot.data!;
-              return ListView.builder(
-                itemCount: gamesSnap.length, 
-                itemBuilder: (context, index) {
-                  return GameCard(game: gamesSnap[index]);
-                },
-              );
+        // body: 
+        // StreamBuilder<List<Game>>(
+        //   stream: GetIt.I<ApiService>().gamesStream,
+        //   builder: (context, snapshot) {
+        //     if (snapshot.connectionState == ConnectionState.waiting) {
+        //       return const Center(child: CircularProgressIndicator());
+        //     } else if (snapshot.hasError) {
+        //       return Center(child: Text('Error: ${snapshot.error}'));
+        //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        //       return const Center(child: Text('No games available.'));
+        //     } else {
+        //       final gamesSnap = snapshot.data!;
+        //       return ListView.builder(
+        //         itemCount: gamesSnap.length, 
+        //         itemBuilder: (context, index) {
+        //           return GameCard(game: gamesSnap[index]);
+        //         },
+        //       );
+        //     }
+        //   },
+        // ),
+        
+        body: ListView.builder(
+          //! AllGames
+          itemCount: (allGames == null || allGames!.isNotEmpty) ? allGames!.length : 0, 
+          itemBuilder: (context, index) {
+            if (allGames == null || allGames!.isNotEmpty)
+            {
+              return GameCard(game: allGames![index]);
             }
           },
         ),
-        
-        // ListView.builder(
-        //   itemCount: games.length, 
-        //   itemBuilder: (context, index) {
-        //     return GameCard(game: games[index]);
-        //   },
-        // ),
       ),
     );
   }
@@ -205,10 +380,30 @@ class Game {
 
 ////////// GAMECARD ///////////
 
-class GameCard extends StatelessWidget {
+class GameCard extends StatefulWidget {
   final Game game;
 
   const GameCard({super.key, required this.game});
+
+  @override
+  State<GameCard> createState() => _GameCardState();
+}
+
+class _GameCardState extends State<GameCard> {
+  String text = '';
+  
+
+  @override
+  void initState() {
+    if (widget.game.players.any((e) => e.nickname == authorizedUser.nickname)) {
+      if (widget.game.players.firstWhere((e) => e.nickname == authorizedUser.nickname).isAlive) {
+        text = 'You Are Playing Here';
+      } else {
+        text = 'You Died Here';
+      }
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,98 +413,101 @@ class GameCard extends StatelessWidget {
         margin: const EdgeInsets.all(10),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
+          child: Column(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Text(
-                    game.title,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  //////////////////////////////////////////////////////////
-                  /////Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('${S.of(context).players}: ${game.players.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('${S.of(context).min}: ${game.minPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('${S.of(context).max}: ${game.maxPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    game.status == 'Game Started' ? S.of(context).gameStarted : S.of(context).gatheringPlayers,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: game.status ==  'Game Started'
-                          ? Colors.red
-                          : Colors.green,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    //////////////////////////////////////////////////////////
-                    children: ['Mafia', 'Doctor', 'Sheriff'] //game.characters
-                        .map((character) => const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 2.0),
-                              child: Icon(
-                                Icons.person, 
-                                size: 24,
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
-                      // BUTTON:      Players Popup
-                      SizedBox(
-                        width: 90,
-                        child: ElevatedButton(                    
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => const PlayersPopup(),
-                            );
-                          },
-                          child: Text(S.of(context).players),
-                        ),
+                      Text(
+                        widget.game.title,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
-
-                      // BUTTON:      Game Lobby
-                      SizedBox(
-                        width: 90,
-                        child: Container(
-                          margin: const EdgeInsets.only(left: 15),
-
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => 
-                                  GameLobbyScreen(
-                                    game: game,
-                                    //roomName:  game.title, 
-                                    //currentPlayers: game.currentPlayers, 
-                                    // currentPlayers: 10, 
-                                    // maxPlayers: 15, 
-                                    // activeRoles: const ['Mafia', 'Doctor', 'Sheriff'] //game.characters
-                                  )
-                                ),
-                              );
-                            },
-                            child: Text(S.of(context).join),
-                          ),
-                        ),
-                      ),
+                      const SizedBox(height: 8),
+                      //////////////////////////////////////////////////////////
+                      /////Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text('${S.of(context).players}: ${widget.game.players.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text('${S.of(context).min}: ${widget.game.minPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text('${S.of(context).max}: ${widget.game.maxPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  
+                  const Spacer(),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        widget.game.status == 'Game Started' ? S.of(context).gameStarted : S.of(context).gatheringPlayers,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: widget.game.status ==  'Game Started'
+                              ? Colors.red
+                              : Colors.green,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        //////////////////////////////////////////////////////////
+                        children: ['Mafia', 'Doctor', 'Sheriff'] //game.characters
+                            .map((character) => const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 2.0),
+                                  child: Icon(
+                                    Icons.person, 
+                                    size: 24,
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+              
+                          // BUTTON:      Players Popup
+                          if ((stateToJoin == 2 && text == 'You Are Playing Here') || (stateToJoin != 2)) SizedBox(
+                            width: 90,
+                            child: ElevatedButton(     
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => const PlayersPopup(),
+                                );
+                              },
+                              child: Text(S.of(context).players),
+                            ),
+                          ),
+              
+                          // BUTTON:      Game Lobby
+                          if ((stateToJoin == 2 && text == 'You Are Playing Here') || (stateToJoin != 2)) SizedBox(
+                            width: 90,
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 15),
+              
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => 
+                                      (text == 'You Are Playing Here' || text == 'You Died Here')
+                                      //!!!!!!!!!!!!!!!! 
+                                      ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, citizenCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true)
+                                      : GameLobbyScreen(
+                                        game: widget.game,
+                                      )
+                                    ),
+                                  );
+                                },
+                                child: Text(S.of(context).join),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                    ],
+                  ),
                 ],
               ),
+              Text(text, style: const TextStyle(fontSize: 20),)
             ],
           ),
         ),
@@ -376,6 +574,43 @@ List<Player> players = [
   ),
 ];
 
+List<Player> playersWithMe = [
+  Player(
+    nickname: 'Player1', 
+    avatarUrl: 'https://example.com/avatar1.png', 
+    isAlive: true
+  ),
+  Player(
+    nickname: 'Player2', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: false
+  ),
+  Player(
+    nickname: 'Player3', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: true
+  ),
+  Player(
+    nickname: 'Player4', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: true
+  ),
+  Player(
+    nickname: 'musayev', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: true
+  ),
+  Player(
+    nickname: 'Player6', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: false
+  ),
+  Player(
+    nickname: 'Player7', 
+    avatarUrl: 'https://example.com/avatar2.png', 
+    isAlive: true
+  ),
+];
 
 ////////// PLAYER ///////
 
@@ -1175,6 +1410,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
           mafiaCount: mafiaCount,
           playersRole: playerRoles,
           allPlayers: widget.game.players,
+          cameBackFromAfk: false,
         )
       ),
     );
@@ -1284,7 +1520,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: widget.game.players,))
+                        MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: widget.game.players, cameBackFromAfk: false))
                       );
                     },
                     child: Text(S.of(context).join),
