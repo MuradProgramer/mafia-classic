@@ -96,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           builder: (context) => const SignInScreen()   // TRUEEE
-          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Journalist', allPlayers: allPlayers,)
+          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Journalist', allPlayers: allPlayers, cameBackFromAfk: false,)
           //builder: (context) => GamesScreen(user: authorizedUser)
         ) 
       );

@@ -173,6 +173,7 @@ class _GameScreenState extends State<GameScreen> {
     mafiaAlive = widget.mafiaCount;
     citizenAlive = widget.citizenCount;
 
+    //!!!!!!!!!!!!!!
     var apiService = GetIt.I<ApiService>();
 
     //printInGamePlayers();
@@ -181,6 +182,7 @@ class _GameScreenState extends State<GameScreen> {
     //   e.isAlive = false;
     // }
 
+    //!!!!!!!!!!!!
     if (!apiService.gameHubIsConnected) {
       apiService.gameHubConnection = HubConnectionBuilder().withUrl(
         'https://46.32.173.182/gamelobby?title=${widget.title}',
@@ -194,6 +196,8 @@ class _GameScreenState extends State<GameScreen> {
     }
     
     if (widget.cameBackFromAfk) {
+      //!!!!!!!!!!!!
+      
       apiService.gameHubConnection.on('ReconnectGameData', (List<Object?>? parameters) {
         try {
           if (parameters == null || parameters.isEmpty) return;
@@ -325,7 +329,7 @@ class _GameScreenState extends State<GameScreen> {
           log('EXCEPTION IN:     ReconnectGameData EVENT - GAME SCREEN: ${e.toString()}');
         }
       });
-    
+      
     } else {
       Map<String, String> roleMap = {};
       if (widget.playersRole != null) {
@@ -617,6 +621,7 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
+    
   }
 
   @override
@@ -820,21 +825,23 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+
   String getCardImage(InGamePlayer player) {
     if (!player.isAlive) {
       return 'assets/images/${player.role!.toLowerCase()}-dead.png';
-      //return 'assets/images/mafia-dead.png';
+    }
+
+    if (player.nickname == authorizedUser.nickname) {
+      return 'assets/images/${player.role!.toLowerCase()}.png';
     }
 
     if (player.isRevealed) {
       return 'assets/images/${player.role!.toLowerCase()}.png';
-      //return 'assets/images/mafia.png';
     }
 
     if (widget.role == 'Mafia') {
       if (['Terrorist', 'Mafia'].any((e) => e == player.role)) {
         return 'assets/images/${player.role!.toLowerCase()}.png';
-        //return 'assets/images/mafia.png';
       }
     }
 
@@ -1059,114 +1066,17 @@ class _GameScreenState extends State<GameScreen> {
               */
               
               Container(
-                height: deviceHeight * 0.7,
+                height: deviceHeight * 0.75,
                 width: deviceWidth,
                 margin: const EdgeInsets.all(4.0),
                 
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: deviceWidth * 0.663,
-                      height: deviceHeight * 0.7,
-      
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-      
-                          //?    INFO PART
-                          Container(
-                            width: deviceWidth * 0.663,
-                            height: deviceHeight * 0.14,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    votesOnMe != 0 
-                                      ? Text('$votesOnMe', style: const TextStyle(fontSize: 14, color: Colors.red)) 
-                                      : const SizedBox(height: 0.1, width: 0.1),
-                                    //? ROLE
-                                    Text(widget.role, style: const TextStyle(fontSize: 20)),
-                                    SizedBox(
-                                      width: 150,
-                                      child: Text(
-                                        //? MARKED ROLES
-                                        markNames.isNotEmpty ? markNames.join(", ") : '', 
-                                        style: const TextStyle(fontSize: 14, color: Colors.amber),
-                                      )
-                                    )
-                                  ],
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.only(top: 7, right: 10),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            //? MAFIA COUNT
-                                            "  Mafia: ${widget.mafiaCount} | $mafiaAlive", 
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.red
-                                            ),
-                                          ),
-                                          //? CITIZEN COUNT
-                                          Text(
-                                            "Citizen: ${widget.citizenCount} | $citizenAlive", 
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.green
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    //? TIMER
-                                    Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: Text(
-                                        phaseTime != 0 ? '$phaseTime' : "",
-                                        style: const TextStyle(fontSize: 20),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            )
-                          ),
-                          
-                          //?    CHAT PART
-                          Container(
-                            width: deviceWidth * 0.663,
-                            height: deviceHeight * 0.5525,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                            child: InGameChatBox(messages: inGameMessages, scrollController: _scrollController, messageController: _messageController, scrollToBottom: _scrollToBottom,),
-                          ),
-                        ],
-                      )
-                    ),
-      
-                    //?    PLAYERS PART
+                    //?    INFO PART
                     Container(
-                      width: deviceWidth * 0.3,
-                      height: deviceHeight * 0.7,
+                      width: deviceWidth * 0.979,
+                      height: deviceHeight * 0.14,
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: Colors.white,
@@ -1174,344 +1084,527 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                         borderRadius: BorderRadius.circular(4.0),
                       ),
-                      child: GridView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          // crossAxisCount: 2,
-                          // crossAxisSpacing: 7,
-                          // mainAxisSpacing: 10,
-                          // childAspectRatio: 0.45,
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 7,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 0.45,
-                        ),
-                        itemCount: inGamePlayers.length,
-                        itemBuilder: (context, index) {
-                          final player = inGamePlayers[index];
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
 
-                          return Column(
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              // votesOnMe != 0 
+                              //   ? Text('$votesOnMe', style: const TextStyle(fontSize: 14, color: Colors.red)) 
+                              //   : const SizedBox(height: 0.1, width: 0.1),
                               
-                              Expanded(
-                                flex: 3,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (!canIVote || iVoted) {
-                                      if (!canIUseSkill || iUsedSkill) {
-                                        return;
-                                      }
-                                    } else {
-                                      if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
-                                        return;
-                                      }
-                                      
-                                      if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
-                                        return;
-                                      }
-                                        
-                                      setState(() {
-                                        iVoted = true;
-                                        //!!!!!!!!!!!!!!
-                                        //inGamePlayers.firstWhere((el) => el.nickname == player.nickname).votesOfPlayer!.add(authorizedUser.nickname);
-                                        votePlayer(player.nickname);
-                                        log('Voted to: ${player.nickname}');
-                                      });
-                                      return;
-                                    }
-
-                                    if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
-                                      return;
-                                    }
-                                
-                                    if (toWhomIUsedSkill.any((el) => el == player.nickname)) {
-                                      return;
-                                    }
+                              
+                              //? ROLE
+                              Container(
+                                margin: const EdgeInsets.only(left: 5),
+                                child: Row(
+                                  children: [
                                     
-                                    setState(() {
-                                      if (widget.role == 'Journalist') {
-                                        if (specialForJournalist.any((el) => el == player.nickname)) {
-                                          return;
-                                        }
+                                    //? ROLE
+                                    Column(
+                                      children: [
                                 
-                                        toWhomIUsedSkill.add(player.nickname);
-                                        specialForJournalist.add(player.nickname);
-                                
-                                        log('added: ${player.nickname}');
-                                
-                                        if (toWhomIUsedSkill.length == 2) {
-                                          iUsedSkill = true;
-                                          //!!!!!!!!!!!!!!
-                                          useSkill(toWhomIUsedSkill);
-                                          return;
-                                        }
-                                      }
-                                      else {
-                                        if (player.isRevealed) {
-                                          return;
-                                        }
-                                        iUsedSkill = true;
-                                        for (var e in toWhomIUsedSkill) {
-                                          log(e);
-                                        }
-                                        toWhomIUsedSkill.add(player.nickname);
-                                        //!!!!!!!!!!!!!!
-                                        useSkill(toWhomIUsedSkill);
-                                      }
-                                      log('used skill on: ${player.nickname}');
-                                    });
-                                    
-                                  },
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-
-                                      Container(
-                                        height: 100,
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: AssetImage(getCardImage(player)),
-                                            fit: BoxFit.cover,
-                                          ),
-                                          borderRadius: BorderRadius.circular(10),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(0.3),
-                                              blurRadius: 5,
-                                              offset: const Offset(0, 3),
+                                        Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                                                    
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: Stack(
+                                                children: [
+                                                  Image.asset(
+                                                    getCardImage(InGamePlayer(
+                                                      nickname: authorizedUser.nickname,
+                                                      isAlive: isAliveMyself,
+                                                      isRevealed: false,
+                                                      role: widget.role,
+                                                    )),
+                                                    height: 80,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Container(
+                                                    height: 80,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.3),
+                                                          blurRadius: 5,
+                                                          offset: const Offset(0, 3),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
+                                                                    
+                                            if (votesOnMe > 0)
+                                              Positioned(
+                                                top: 10,
+                                                right: 10,
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(4),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red,
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                  child: Text(
+                                                    "$votesOnMe",
+                                                    style: const TextStyle(color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                            
                                           ],
                                         ),
-                                      ),
-
-                                      if (player.votesOfPlayer!.isNotEmpty)
-                                        Positioned(
-                                          top: 10,
-                                          right: 10,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(4),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red,
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: Text(
-                                              "${player.votesOfPlayer!.length}",
-                                              style: const TextStyle(color: Colors.white),
-                                            ),
-                                          ),
-                                        ),
-                                        
-                                      if (canIVote && !iVoted && player.isAlive && checkSecondIfEligibleToVote(player))
-                                        const Positioned(
-                                          bottom: 10,
-                                          left: 10,
-                                          child: AnimatedImageButton(
-                                            imagePath: 'assets/images/target.png',
-                                          ),
-                                        ),
-                                        
-                                      if (canIUseSkill 
-                                        && !iUsedSkill 
-                                        && player.isAlive
-                                        && checkSecondIfEligibleToUseSkill(player)
+                                
+                                        Text(widget.role, style: const TextStyle(fontSize: 18)),
+                                      ],
+                                    ),
+                                
+                                    Column(
+                                      children: [
+                                        SizedBox(
+                                          width: 150,
+                                          child: Text(
+                                            //? MARKED ROLES
+                                            markNames.isNotEmpty ? markNames.join(", ") : '', 
+                                            style: const TextStyle(fontSize: 14, color: Colors.amber),
+                                          )
                                         )
-                                        const Positioned(
-                                          bottom: 10,
-                                          left: 10,
-                                          child: AnimatedIconButton(
-                                            icon: Icons.star,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              
-                              Expanded(
-                                flex: 1,
-                                child: Text(
-                                  player.nickname,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: player.isAlive ? Colors.white : Colors.grey,
-                                  ),
+                                      ],
+                                    )
+                                  ],
                                 ),
                               )
-                            ],
-                          );
 
-                          /*
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
+                              
+
+
+                              // SizedBox(
+                              //   width: 150,
+                              //   child: Text(
+                              //     //? MARKED ROLES
+                              //     markNames.isNotEmpty ? markNames.join(", ") : '', 
+                              //     style: const TextStyle(fontSize: 14, color: Colors.amber),
+                              //   )
+                              // )
+                            ],
+                          ),
+
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // DEF:    Player Card
-                              Expanded(
-                                flex: 5,
-                                child: Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    // NOTE:    IF THE ROLE IS MAFIA IT WILL SHOW OTHER MAFIAS
-                                    //DONE
-                                    color: 
-                                      player.isAlive
-                                        ? widget.role == 'Mafia'
-                                          ? ['Mafia', 'Terrorist'].any((el) => el == player.role)
-                                            ? Colors.purple
-                                            : player.isRevealed
-                                              ? Colors.amber
-                                              : Colors.black
-                                        : player.isRevealed
-                                          ? Colors.amber
-                                          : Colors.black
-                                      : Colors.red
-                                    , borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        !player.isAlive 
-                                          ? namesOfDead.firstWhere((playerDead) => playerDead.nickname == player.nickname).role 
-                                          : player.isRevealed
-                                            ? namesOfRevealed.firstWhere((playerRevealed) => playerRevealed.nickname == player.nickname).role 
-                                            : '',
-                                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                              Container(
+                                margin: const EdgeInsets.only(top: 7, right: 10),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      //? MAFIA COUNT
+                                      "  Mafia: ${widget.mafiaCount} | $mafiaAlive", 
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.red
                                       ),
-                                      Text(
-                                        (player.isAlive && votesAreVisibleToMe) 
-                                          ? player.votesOfPlayer!.isNotEmpty 
-                                            ?'${player.votesOfPlayer!.length}'
-                                            : ''
-                                          : '',
-                                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
+                                    //? CITIZEN COUNT
+                                    Text(
+                                      "Citizen: ${widget.citizenCount} | $citizenAlive", 
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.green
                                       ),
-                                      // DEF:    SKILLS BUTTON
-                                      GestureDetector(
-                                        onTap: () {
-                                          if (iUsedSkill) {
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              //? TIMER
+                              Padding(
+                                padding: const EdgeInsets.all(15.0),
+                                child: Text(
+                                  phaseTime != 0 ? '$phaseTime' : "",
+                                  style: const TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      )
+                    ),
+            
+                    //? PLAYERS AND CHAT
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //?    CHAT PART
+                        Container(
+                          width: deviceWidth * 0.663,
+                          height: deviceHeight * 0.6025,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: InGameChatBox(messages: inGameMessages, scrollController: _scrollController, messageController: _messageController, scrollToBottom: _scrollToBottom,),
+                        ),
+
+                        //?    PLAYERS PART
+                        Container(
+                          width: deviceWidth * 0.3,
+                          height: deviceHeight * 0.6025,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: GridView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              // crossAxisCount: 2,
+                              // crossAxisSpacing: 7,
+                              // mainAxisSpacing: 10,
+                              // childAspectRatio: 0.45,
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 7,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 0.45,
+                            ),
+                            itemCount: inGamePlayers.length,
+                            itemBuilder: (context, index) {
+                              final player = inGamePlayers[index];
+                        
+                              return Column(
+                                children: [
+                                  
+                                  Expanded(
+                                    flex: 3,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        if (!canIVote || iVoted) {
+                                          if (!canIUseSkill || iUsedSkill) {
                                             return;
                                           }
-                                      
-                                          if (!canIUseSkill) {
-                                            return;
-                                          }
-                                      
+                                        } else {
                                           if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
                                             return;
                                           }
-                                      
-                                          if (toWhomIUsedSkill.any((el) => el == player.nickname)) {
+                                          
+                                          if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
                                             return;
                                           }
-                                          
+                                            
                                           setState(() {
-                                            if (widget.role == 'Journalist') {
-                                              if (specialForJournalist.any((el) => el == player.nickname)) {
-                                                return;
-                                              }
-                                      
-                                              toWhomIUsedSkill.add(player.nickname);
-                                              specialForJournalist.add(player.nickname);
-                                      
-                                              log('added: ${player.nickname}');
-                                      
-                                              if (toWhomIUsedSkill.length == 2) {
-                                                iUsedSkill = true;
-                                                //!!!!!!!!!!!!!!
-                                                useSkill(toWhomIUsedSkill);
-                                                return;
-                                              }
+                                            iVoted = true;
+                                            //!!!!!!!!!!!!!!
+                                            //inGamePlayers.firstWhere((el) => el.nickname == player.nickname).votesOfPlayer!.add(authorizedUser.nickname);
+                                            votePlayer(player.nickname);
+                                            log('Voted to: ${player.nickname}');
+                                          });
+                                          return;
+                                        }
+                        
+                                        if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
+                                          return;
+                                        }
+                                    
+                                        if (toWhomIUsedSkill.any((el) => el == player.nickname)) {
+                                          return;
+                                        }
+                                        
+                                        setState(() {
+                                          if (widget.role == 'Journalist') {
+                                            if (specialForJournalist.any((el) => el == player.nickname)) {
+                                              return;
                                             }
-                                            else {
+                                    
+                                            toWhomIUsedSkill.add(player.nickname);
+                                            specialForJournalist.add(player.nickname);
+                                    
+                                            log('added: ${player.nickname}');
+                                    
+                                            if (toWhomIUsedSkill.length == 2) {
                                               iUsedSkill = true;
-                                              for (var e in toWhomIUsedSkill) {
-                                                log(e);
-                                              }
-                                              toWhomIUsedSkill.add(player.nickname);
                                               //!!!!!!!!!!!!!!
                                               useSkill(toWhomIUsedSkill);
+                                              return;
                                             }
-                                            log('used skill on: ${player.nickname}');
-                                          });
-                                        },
-                                        child: (!iUsedSkill && canIUseSkill && player.isAlive) 
-                                        ? (widget.role == 'Journalist') 
-                                          ? (!specialForJournalist.any((el) => el == player.nickname))
-                                            ? Container(
-                                              height: 20,
-                                              width: 40,
-                                              color: Colors.cyan[900],
-                                              child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
+                                          }
+                                          else {
+                                            if (player.isRevealed) {
+                                              return;
+                                            }
+                                            iUsedSkill = true;
+                                            for (var e in toWhomIUsedSkill) {
+                                              log(e);
+                                            }
+                                            toWhomIUsedSkill.add(player.nickname);
+                                            //!!!!!!!!!!!!!!
+                                            useSkill(toWhomIUsedSkill);
+                                          }
+                                          log('used skill on: ${player.nickname}');
+                                        });
+                                        
+                                      },
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                        
+                                          Container(
+                                            height: 100,
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                image: AssetImage(getCardImage(player)),
+                                                fit: BoxFit.cover,
+                                              ),
+                                              borderRadius: BorderRadius.circular(10),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.3),
+                                                  blurRadius: 5,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                        
+                                          if (player.votesOfPlayer!.isNotEmpty)
+                                            Positioned(
+                                              top: 10,
+                                              right: 10,
+                                              child: Container(
+                                                padding: const EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red,
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                child: Text(
+                                                  "${player.votesOfPlayer!.length}",
+                                                  style: const TextStyle(color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                            
+                                          if (canIVote && !iVoted && player.isAlive && checkSecondIfEligibleToVote(player))
+                                            const Positioned(
+                                              bottom: 10,
+                                              left: 10,
+                                              child: AnimatedImageButton(
+                                                imagePath: 'assets/images/target.png',
+                                              ),
+                                            ),
+                                            
+                                          if (canIUseSkill 
+                                            && !iUsedSkill 
+                                            && player.isAlive
+                                            && checkSecondIfEligibleToUseSkill(player)
                                             )
-                                            : const SizedBox()
-                                          : !inGamePlayers.firstWhere((e) => e.nickname == player.nickname).isRevealed 
-                                            ? Container(
-                                                height: 20,
-                                                width: 40,
-                                                color: Colors.cyan[900],
-                                                child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
-                                              ) 
-                                            : const SizedBox()
-                                        : const SizedBox(),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              // DEF:    Voting
-                              Expanded(
-                                flex: 2,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (iVoted) return;
-                                      
-                                    if (!canIVote) return;
-                                      
-                                    if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
-                                      //changeState1(false);
-                                      return;
-                                    }
-                                    
-                                    if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
-                                      return;
-                                    }
-                                      
-                                    setState(() {
-                                      iVoted = true;
-                                      //!!!!!!!!!!!!!!
-                                      //inGamePlayers.firstWhere((el) => el.nickname == player.nickname).votesOfPlayer!.add(authorizedUser.nickname);
-                                      votePlayer(player.nickname);
-                                      log('taped: ${player.nickname}');
-                                    });
-                                  },
-                                  
-                                  child: Text(
-                                    player.nickname,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: //(!iVoted && canIVote) ? Colors.green : Colors.white, 
-                                      (!iVoted && canIVote && player.isAlive) 
-                                      //!
-                                        ? (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') 
-                                          ? Colors.white 
-                                          : Colors.green 
-                                        : Colors.white, 
-                                      fontSize: 12
+                                            const Positioned(
+                                              bottom: 10,
+                                              left: 10,
+                                              child: AnimatedIconButton(
+                                                icon: Icons.star,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
                                     ),
-                                    softWrap: true,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
                                   ),
-                                ),
-                              ),
-                            ],
-                          );
-                          */
-                        },
-                      ),
+                                  const SizedBox(height: 8),
+                                  
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      player.nickname,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: player.isAlive ? Colors.white : Colors.grey,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              );
+                        
+                              /*
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // DEF:    Player Card
+                                  Expanded(
+                                    flex: 5,
+                                    child: Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        // NOTE:    IF THE ROLE IS MAFIA IT WILL SHOW OTHER MAFIAS
+                                        //DONE
+                                        color: 
+                                          player.isAlive
+                                            ? widget.role == 'Mafia'
+                                              ? ['Mafia', 'Terrorist'].any((el) => el == player.role)
+                                                ? Colors.purple
+                                                : player.isRevealed
+                                                  ? Colors.amber
+                                                  : Colors.black
+                                            : player.isRevealed
+                                              ? Colors.amber
+                                              : Colors.black
+                                          : Colors.red
+                                        , borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            !player.isAlive 
+                                              ? namesOfDead.firstWhere((playerDead) => playerDead.nickname == player.nickname).role 
+                                              : player.isRevealed
+                                                ? namesOfRevealed.firstWhere((playerRevealed) => playerRevealed.nickname == player.nickname).role 
+                                                : '',
+                                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                                          ),
+                                          Text(
+                                            (player.isAlive && votesAreVisibleToMe) 
+                                              ? player.votesOfPlayer!.isNotEmpty 
+                                                ?'${player.votesOfPlayer!.length}'
+                                                : ''
+                                              : '',
+                                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                                          ),
+                                          // DEF:    SKILLS BUTTON
+                                          GestureDetector(
+                                            onTap: () {
+                                              if (iUsedSkill) {
+                                                return;
+                                              }
+                                          
+                                              if (!canIUseSkill) {
+                                                return;
+                                              }
+                                          
+                                              if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
+                                                return;
+                                              }
+                                          
+                                              if (toWhomIUsedSkill.any((el) => el == player.nickname)) {
+                                                return;
+                                              }
+                                              
+                                              setState(() {
+                                                if (widget.role == 'Journalist') {
+                                                  if (specialForJournalist.any((el) => el == player.nickname)) {
+                                                    return;
+                                                  }
+                                          
+                                                  toWhomIUsedSkill.add(player.nickname);
+                                                  specialForJournalist.add(player.nickname);
+                                          
+                                                  log('added: ${player.nickname}');
+                                          
+                                                  if (toWhomIUsedSkill.length == 2) {
+                                                    iUsedSkill = true;
+                                                    //!!!!!!!!!!!!!!
+                                                    useSkill(toWhomIUsedSkill);
+                                                    return;
+                                                  }
+                                                }
+                                                else {
+                                                  iUsedSkill = true;
+                                                  for (var e in toWhomIUsedSkill) {
+                                                    log(e);
+                                                  }
+                                                  toWhomIUsedSkill.add(player.nickname);
+                                                  //!!!!!!!!!!!!!!
+                                                  useSkill(toWhomIUsedSkill);
+                                                }
+                                                log('used skill on: ${player.nickname}');
+                                              });
+                                            },
+                                            child: (!iUsedSkill && canIUseSkill && player.isAlive) 
+                                            ? (widget.role == 'Journalist') 
+                                              ? (!specialForJournalist.any((el) => el == player.nickname))
+                                                ? Container(
+                                                  height: 20,
+                                                  width: 40,
+                                                  color: Colors.cyan[900],
+                                                  child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
+                                                )
+                                                : const SizedBox()
+                                              : !inGamePlayers.firstWhere((e) => e.nickname == player.nickname).isRevealed 
+                                                ? Container(
+                                                    height: 20,
+                                                    width: 40,
+                                                    color: Colors.cyan[900],
+                                                    child: const Center(child: Text('Use', style: TextStyle(fontSize: 12))),
+                                                  ) 
+                                                : const SizedBox()
+                                            : const SizedBox(),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  // DEF:    Voting
+                                  Expanded(
+                                    flex: 2,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        if (iVoted) return;
+                                          
+                                        if (!canIVote) return;
+                                          
+                                        if (!inGamePlayers.firstWhere((el) => el.nickname == player.nickname).isAlive) {
+                                          //changeState1(false);
+                                          return;
+                                        }
+                                        
+                                        if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
+                                          return;
+                                        }
+                                          
+                                        setState(() {
+                                          iVoted = true;
+                                          //!!!!!!!!!!!!!!
+                                          //inGamePlayers.firstWhere((el) => el.nickname == player.nickname).votesOfPlayer!.add(authorizedUser.nickname);
+                                          votePlayer(player.nickname);
+                                          log('taped: ${player.nickname}');
+                                        });
+                                      },
+                                      
+                                      child: Text(
+                                        player.nickname,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: //(!iVoted && canIVote) ? Colors.green : Colors.white, 
+                                          (!iVoted && canIVote && player.isAlive) 
+                                          //!
+                                            ? (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') 
+                                              ? Colors.white 
+                                              : Colors.green 
+                                            : Colors.white, 
+                                          fontSize: 12
+                                        ),
+                                        softWrap: true,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                              */
+                            },
+                          ),
+                        ),
+                      ],
                     )
+
                   ],
                 )
               ),
