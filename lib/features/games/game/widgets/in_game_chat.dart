@@ -28,7 +28,7 @@ class _InGameChatBoxState extends State<InGameChatBox> {
       itemBuilder: (context, index) {
         final message = widget.messages[index];
     
-        if (message.isSystemMessage) {
+        if (message.type == 'System') {
           // Event Message
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -48,7 +48,7 @@ class _InGameChatBoxState extends State<InGameChatBox> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(message.avatarUrl),
+                backgroundImage: NetworkImage(message.avatarUrl ?? ''), //!!!!!!!!!!!
                 radius: 20,
               ),
               const SizedBox(width: 8),
@@ -57,7 +57,7 @@ class _InGameChatBoxState extends State<InGameChatBox> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      message.nickname,
+                      message.nickname ?? '', //!!!!!!!!!!!!
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Text(

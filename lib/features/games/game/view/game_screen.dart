@@ -121,7 +121,7 @@ class _GameScreenState extends State<GameScreen> {
 
     await GetIt.I<ApiService>().gameHubConnection.invoke('Vote', args: <Object>[
       votedPlayerNickname
-    ]);
+    ]).then((value) => log('vote playeer method suucesfully'));
   }
   
   void useSkill(List<String> influencedBySkillPlayersNickname) async {
@@ -180,6 +180,18 @@ class _GameScreenState extends State<GameScreen> {
     // for (var e in inGamePlayers) {
     //   e.isAlive = false;
     // }
+
+    if (!apiService.gameHubIsConnected) {
+      apiService.gameHubConnection = HubConnectionBuilder().withUrl(
+        'https://46.32.173.182/gamelobby?title=${widget.title}',
+        options: HttpConnectionOptions(
+          accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
+          // skipNegotiation: true,
+          // transport: HttpTransportType.WebSockets,
+        ),
+      )
+      .build();
+    }
     
     if (widget.cameBackFromAfk) {
       apiService.gameHubConnection.on('ReconnectGameData', (List<Object?>? parameters) {
@@ -188,31 +200,49 @@ class _GameScreenState extends State<GameScreen> {
           
           var data = json.decode(parameters.first as String);
 
+
           final role = data['role'];
+          log('01');
           final phase = data['gamePhase'];
+          log('02');
           final isAlive = data['isAlive'] as bool;
+          log('03');
           final mafiaCount = data['mafiaCount'] as int;
+          log('04');
           final citizenCount = data['citizenCount'] as int;
+          log('05');
           final aliveMafiaCount = data['aliveMafiaCount'] as int;
+          log('06');
           final aliveCitizenCount = data['aliveCitizenCount'] as int;
+          log('07');
 
-
+          //log((data['messages'] as List<dynamic>)[0]['nickname'].toString());
+          final players = (data['players'] as List<dynamic>?)
+              ?.map((e) => PlayersFromAfk.fromJson(e))
+              .toList() ?? [];
+              
           final messages = (data['messages'] as List<dynamic>?)
               ?.map((e) => InGameMessage.fromJson(e))
               .toList() ?? [];
+          
+          log('8');
 
           final marksOfPlayer = (data['playerMarks'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ?? [];
           
+          log('9');
+          //log((data['votes'] as List<dynamic>?).toString());
           final votes = (data['votes'] as List<dynamic>?)
               ?.map((e) => Vote.fromJson(e))
               .toList() ?? [];
 
-          final players = (data['players'] as List<dynamic>?)
-              ?.map((e) => PlayersFromAfk.fromJson(e))
-              .toList() ?? [];
+          log('10');
+          // final players = (data['players'] as List<dynamic>?)
+          //     ?.map((e) => PlayersFromAfk.fromJson(e))
+          //     .toList() ?? [];
 
+          log('11');
           // final players = data['players'].map((playerJson) {
           //   return PlayersFromAfk.fromJson(playerJson as Map<String, dynamic>);
           // }).toList();
@@ -225,15 +255,23 @@ class _GameScreenState extends State<GameScreen> {
             widget.citizenCount = citizenCount;
             mafiaAlive = aliveMafiaCount;
             citizenAlive = aliveCitizenCount;
-
+            
             for (InGameMessage message in messages) {
+              
               if (message.type == 'Default') {
-                message.avatarUrl = players.firstWhere((el) => el.nickname == message.nickname).avatarUrl!;
+                if (players.any((el) => el.nickname == message.nickname)) {
+                  message.avatarUrl = players.firstWhere((el) => el.nickname == message.nickname).avatarUrl;
+                } else {
+                  message.avatarUrl = authorizedUser.avatarUrl;
+                }
               }
               inGameMessages.add(message);
             }
+            log('pox mashini 2');
+
 
             inGameMessages = messages;
+            log('pox mashini 3');
 
             markNames = marksOfPlayer;
 
@@ -281,11 +319,13 @@ class _GameScreenState extends State<GameScreen> {
               }
             }
 
+
           });
         } on Exception catch (e) {
           log('EXCEPTION IN:     ReconnectGameData EVENT - GAME SCREEN: ${e.toString()}');
         }
       });
+    
     } else {
       Map<String, String> roleMap = {};
       if (widget.playersRole != null) {
@@ -368,8 +408,6 @@ class _GameScreenState extends State<GameScreen> {
         log('EXCEPTION IN:     PHASE EVENT - GAME SCREEN: ${e.toString()}');
       }
     });
-
-
 
     // DONE
     apiService.gameHubConnection.on('Mark', (List<Object?>? parameters) {
@@ -567,6 +605,16 @@ class _GameScreenState extends State<GameScreen> {
       print("OnReconnected: $connectionId");
     });
     
+    if (!apiService.gameHubIsConnected) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        apiService.gameHubConnection.start()?.then((_) {
+          apiService.gameHubIsConnected = true;
+          print("Connected to SignalR!");
+        }).catchError((e) {
+          print("Connection error: $e");
+        });
+      });
+    }
 
     //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
   }
@@ -710,15 +758,19 @@ class _GameScreenState extends State<GameScreen> {
     changeSkillState(true);
   }
 
-  bool checkSecondIfEligibleToUseSkill(String nickname) {
+  bool checkSecondIfEligibleToUseSkill(InGamePlayer player) {
     if (widget.role == 'Journalist') {
-      if (specialForJournalist.any((el) => el == nickname)) {
+      if (specialForJournalist.any((el) => el == player.nickname)) {
         return false;
       }
     } else {
-      if(toWhomIUsedSkill.contains(nickname)) {
+      if(toWhomIUsedSkill.contains(player.nickname)) {
         return false;
       }
+    }
+
+    if (player.isRevealed) {
+      return false;
     }
     return true;
   }
@@ -738,6 +790,14 @@ class _GameScreenState extends State<GameScreen> {
         changeSendMessageState(false);
       }
     }
+  }
+
+  bool checkSecondIfEligibleToVote(InGamePlayer player) {
+    if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
+      return false;
+    }
+
+    return true;
   }
 
   void youAreDead() {
@@ -998,45 +1058,6 @@ class _GameScreenState extends State<GameScreen> {
               ),
               */
               
-
-              Container( //   TO ONE WIDGET
-                width: deviceWidth,
-                height: deviceHeight * 0.017,
-                margin: const EdgeInsets.all(2.0),
-      
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: deviceHeight * 0.03,
-                      width: deviceWidth * 0.663,
-                      child: const Center(
-                        child: Text(
-                          "Game Started",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white
-                          )
-                        ),
-                      )
-                    ),
-                    SizedBox(
-                      height: deviceHeight * 0.03,
-                      width: deviceWidth * 0.3,
-                      child: const Center(
-                        child: Text(
-                          "Players",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white
-                          )
-                        ), 
-                      )
-                    ),
-                  ],
-                ),
-              ),
-      
               Container(
                 height: deviceHeight * 0.7,
                 width: deviceWidth,
@@ -1192,8 +1213,8 @@ class _GameScreenState extends State<GameScreen> {
                                       setState(() {
                                         iVoted = true;
                                         //!!!!!!!!!!!!!!
-                                        inGamePlayers.firstWhere((el) => el.nickname == player.nickname).votesOfPlayer!.add(authorizedUser.nickname);
-                                        //votePlayer(player.nickname);
+                                        //inGamePlayers.firstWhere((el) => el.nickname == player.nickname).votesOfPlayer!.add(authorizedUser.nickname);
+                                        votePlayer(player.nickname);
                                         log('Voted to: ${player.nickname}');
                                       });
                                       return;
@@ -1221,19 +1242,21 @@ class _GameScreenState extends State<GameScreen> {
                                         if (toWhomIUsedSkill.length == 2) {
                                           iUsedSkill = true;
                                           //!!!!!!!!!!!!!!
-                                          //useSkill(toWhomIUsedSkill);
+                                          useSkill(toWhomIUsedSkill);
                                           return;
                                         }
                                       }
                                       else {
-                                        log('112');
+                                        if (player.isRevealed) {
+                                          return;
+                                        }
                                         iUsedSkill = true;
                                         for (var e in toWhomIUsedSkill) {
                                           log(e);
                                         }
                                         toWhomIUsedSkill.add(player.nickname);
                                         //!!!!!!!!!!!!!!
-                                        //useSkill(toWhomIUsedSkill);
+                                        useSkill(toWhomIUsedSkill);
                                       }
                                       log('used skill on: ${player.nickname}');
                                     });
@@ -1278,7 +1301,7 @@ class _GameScreenState extends State<GameScreen> {
                                           ),
                                         ),
                                         
-                                      if (canIVote && !iVoted && player.isAlive)
+                                      if (canIVote && !iVoted && player.isAlive && checkSecondIfEligibleToVote(player))
                                         const Positioned(
                                           bottom: 10,
                                           left: 10,
@@ -1290,7 +1313,7 @@ class _GameScreenState extends State<GameScreen> {
                                       if (canIUseSkill 
                                         && !iUsedSkill 
                                         && player.isAlive
-                                        && checkSecondIfEligibleToUseSkill(player.nickname)
+                                        && checkSecondIfEligibleToUseSkill(player)
                                         )
                                         const Positioned(
                                           bottom: 10,

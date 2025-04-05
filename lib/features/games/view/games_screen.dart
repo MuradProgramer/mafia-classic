@@ -67,7 +67,7 @@ class GamesScreen extends StatefulWidget {
 
 class _GamesScreenState extends State<GamesScreen> {
 
-  late List<Game>? allGames;
+  List<Game>? allGames = [];
 
   @override
   void initState() {
@@ -97,7 +97,7 @@ class _GamesScreenState extends State<GamesScreen> {
       //print('33: $parameters');
       final List<Game>? gamesList = apiService.decodeGamesParameters(parameters);
 
-      if (allGames != null) {
+      if (gamesList != null) {
         setState(() {
           allGames = gamesList;
         });
@@ -187,10 +187,10 @@ class _GamesScreenState extends State<GamesScreen> {
 
 
     //! CONNECTION
-    if (!apiService.gameHubIsConnected) {
+    if (!apiService.mainHubIsConnected) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        apiService.gameHubConnection.start()?.then((_) {
-          apiService.gameHubIsConnected = true;
+        apiService.mainHubConnection.start()?.then((_) {
+          apiService.mainHubIsConnected = true;
           print("Connected to SignalR!");
         }).catchError((e) {
           print("Connection error: $e");
@@ -437,10 +437,10 @@ class _GameCardState extends State<GameCard> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        widget.game.status == 'Game Started' ? S.of(context).gameStarted : S.of(context).gatheringPlayers,
+                        widget.game.status == 'Started' ? S.of(context).gameStarted : S.of(context).gatheringPlayers,
                         style: TextStyle(
                           fontSize: 12,
-                          color: widget.game.status ==  'Game Started'
+                          color: widget.game.status ==  'Started'
                               ? Colors.red
                               : Colors.green,
                         ),
