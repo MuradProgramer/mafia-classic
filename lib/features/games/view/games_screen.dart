@@ -1195,9 +1195,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // NOTE:    UNCOMMENT THIS SECTION
 
+    var connectionUri = (widget.game.hasPassword)
+      ? "https://46.32.173.182/gamelobby?title=${widget.game.title}&password=${password}" // passwordu tapammiram
+      : "https://46.32.173.182/gamelobby?title=${widget.game.title}";
+
     //!   GAME LOBBY HUB
     apiService.gameHubConnection = HubConnectionBuilder().withUrl(
-      'https://46.32.173.182/gamelobby?title=${widget.game.title}',
+      connectionUri, // MURAD PASSWORD LAZIMDI BURA
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
         // skipNegotiation: true,

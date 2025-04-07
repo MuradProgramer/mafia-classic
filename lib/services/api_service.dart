@@ -431,34 +431,11 @@ class ApiService extends TokenAwareService {
 
     await executeWithTokenCheck((accessToken) async {
 
-      String pass = '';
-
-      if (game.password == null) {
-        pass == 'pedaraz1';
-      } else if (game.password!.isEmpty) {
-        pass == 'pedaraz2';
-      } else if (game.password == '') {
-        pass == 'pedaraz3';
-      } else {
-        pass == game.password;
-      }
-
-      print(pass);
-      
-
-      final formDataObject = FormData.fromMap({
-        'title': game.title,
-        'maxCapacity': game.maxPlayers,
-        'minCapacity': game.minPlayers,
-        'extraRoles': game.extraRoles,
-        'password': pass
-      });
-
-      //print(formDataObject);
+      final dataJson = jsonEncode(game);
 
       final response = await GetIt.I<DioService>().dio.post(
         'GameLobby/CreateLobby',
-        data: formDataObject,
+        data: dataJson,
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
