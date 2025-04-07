@@ -200,10 +200,10 @@ class S {
     );
   }
 
-  /// `Mistress`
+  /// `Beauty`
   String get mistress {
     return Intl.message(
-      'Mistress',
+      'Beauty',
       name: 'mistress',
       desc: '',
       args: [],
@@ -323,7 +323,7 @@ class S {
   /// `The Mistress is a civilian. At night, she comes to the player and distracts him from the action. The player to whom the Mistress came cannot use his ability at night, and also will not be able to vote the next day. The Mistress's love spell wears off only on next night.`
   String get roleMistressDescription {
     return Intl.message(
-      'The Mistress is a civilian. At night, she comes to the player and distracts him from the action. The player to whom the Mistress came cannot use his ability at night, and also will not be able to vote the next day. The Mistress\'s love spell wears off only on next night.',
+      'The Beauty is a civilian. At night, she comes to the player and distracts him from the action. The player to whom the Beauty came cannot use his ability at night, and also will not be able to vote the next day. The Beauty\'s love spell wears off only on next night.',
       name: 'roleMistressDescription',
       desc: '',
       args: [],

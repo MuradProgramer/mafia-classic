@@ -690,9 +690,9 @@ class CreateGame {
 
   Map<String, dynamic> toJson() {
     return {
-      'name': title,
-      'minPlayers': minPlayers,
-      'maxPlayers': maxPlayers,
+      'title': title,
+      'minCapacity': minPlayers,
+      'maxCapacity': maxPlayers,
       'password': password,
       'extraRoles': extraRoles,
     };
@@ -904,10 +904,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 const SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       mainRoles.forEach((mainRole, state) {
-                        print(mainRole);
-                        print(state);
                         if (state) {
                           roles.add(mainRole);
                         }
@@ -920,7 +918,27 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         extraRoles: roles
                       );
                       //print(jsonEncode(finalGame.toJson()));
-                      GetIt.I<ApiService>().createGame(jsonEncode(finalGame.toJson()));
+                     //bool status = await GetIt.I<ApiService>().createGame(jsonEncode(finalGame.toJson()));
+                     bool status = await GetIt.I<ApiService>().createGame(finalGame);
+
+                      if (status) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => 
+                            GameLobbyScreen(
+                              game: Game(
+                                title: roomName, 
+                                minPlayers: minPlayers, 
+                                maxPlayers: maxPlayers, 
+                                status: 'Gathering Players', 
+                                extraRoles: roles, 
+                                hasPassword: (password.isEmpty) ? false : true, 
+                                players: []
+                              ),
+                            )
+                          ),
+                        );
+                      }
                     },
                     child: Text(S.of(context).createGame),
                   ),

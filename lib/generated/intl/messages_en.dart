@@ -107,7 +107,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "roleMafiaDescription": MessageLookupByLibrary.simpleMessage(
             "The Mafia is a registered character in the game. Each team of Mafiosi knows the players from their country, unlike the citizens of the world, who do not know who is playing for whom. They wake up at night in order to kill one of the inhabitants of the world, also known like them. Doctor and Sheriff."),
         "roleMistressDescription": MessageLookupByLibrary.simpleMessage(
-            "The Mistress is a civilian. At night, she comes to the player and distracts him from the action. The player to whom the Mistress came cannot use his ability at night, and also will not be able to vote the next day. The Mistress\'s love spell wears off only on next night."),
+            "The Beauty is a civilian. At night, she comes to the player and distracts him from the action. The player to whom the Beauty came cannot use his ability at night, and also will not be able to vote the next day. The Beauty\'s love spell wears off only on next night."),
         "roleSheriffDescription": MessageLookupByLibrary.simpleMessage(
             "The Sheriff is a civilian. He is one of the most important players in the Mafia game. Every night he can examine another player and find out who is a Mafioso in the game and who is a civilian."),
         "roleSpyDescription": MessageLookupByLibrary.simpleMessage(

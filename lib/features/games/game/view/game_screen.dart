@@ -148,7 +148,7 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     if (gamePhase == 'Night') {
-      if (!['Barman', 'Informant', 'Journalist', 'Doctor', 'Mistress', 'Sheriff'].any((el) => el == widget.role)) {
+      if (!['Barman', 'Informant', 'Journalist', 'Doctor', 'Beauty', 'Sheriff'].any((el) => el == widget.role)) {
         return;
       }
     }
@@ -747,7 +747,7 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     if (gamePhase == 'Night') {
-      if (!['Informant', 'Journalist', 'Doctor', 'Mistress', 'Sheriff'].any((el) => el == widget.role)) {
+      if (!['Informant', 'Journalist', 'Doctor', 'Beauty', 'Sheriff'].any((el) => el == widget.role)) {
         changeSkillState(false);
         return;
       }
