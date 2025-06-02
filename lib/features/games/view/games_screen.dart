@@ -49,7 +49,7 @@ List<Game> games = [
   )
 ];
 
-
+//!!!!!!!!!!!!!!!!!!!!!!!
 //late User authorizedUser;
 User authorizedUser = User(email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
 
@@ -201,9 +201,11 @@ class _GamesScreenState extends State<GamesScreen> {
 
 
     bool temp = false;
-    for (var game in games) {
+    //!!!!!!!!!!!!!!!!!
+    for (var game in allGames!) {
       for (var player in game.players) {
         if (player.nickname == authorizedUser.nickname) {
+          log('message: ${player.nickname} is in the game ${game.title}');
           stateToJoin = (player.isAlive) ? 2 : 3;
           temp = true;
           break;
@@ -469,7 +471,7 @@ class _GameCardState extends State<GameCard> {
                               onPressed: () {
                                 showDialog(
                                   context: context,
-                                  builder: (context) => const PlayersPopup(),
+                                  builder: (context) => PlayersPopup(playersInGame: widget.game.players),
                                 );
                               },
                               child: Text(S.of(context).players),
@@ -489,9 +491,11 @@ class _GameCardState extends State<GameCard> {
                                     MaterialPageRoute(builder: (context) => 
                                       (text == 'You Are Playing Here' || text == 'You Died Here')
                                       //!!!!!!!!!!!!!!!! 
-                                      ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, citizenCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true)
+                                      ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, citizenCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false,)
                                       : GameLobbyScreen(
                                         game: widget.game,
+                                        //! ------------------- CHANGE -------------------
+                                        password: "",
                                       )
                                     ),
                                   );
@@ -614,9 +618,19 @@ List<Player> playersWithMe = [
 
 ////////// PLAYER ///////
 
-class PlayersPopup extends StatelessWidget {
-  const PlayersPopup({super.key});
+class PlayersPopup extends StatefulWidget {
+  final List<Player> playersInGame;
+  
+  const PlayersPopup({
+    super.key, 
+    required this.playersInGame
+  });
 
+  @override
+  State<PlayersPopup> createState() => _PlayersPopupState();
+}
+
+class _PlayersPopupState extends State<PlayersPopup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -625,7 +639,8 @@ class PlayersPopup extends StatelessWidget {
         width: double.maxFinite,
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: players.length,
+          //!!!!!!!!!!!!!!!!!!!!!!!!!
+          itemCount: widget.playersInGame.length,
           itemBuilder: (context, index) {
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
@@ -636,18 +651,23 @@ class PlayersPopup extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         //////////////////////////////////////////
-                        //child: Text(players[index].avatarUrl[0]),
-                        child: Image.network('https://example.com/avatar1.png'),
+                        //child: Text(widget.playersInGame[index].avatarUrl[0]),
+                        child: Image.network(widget.playersInGame[index].avatarUrl),
                       ),
                       const SizedBox(width: 8),
-                      Text(players[index].nickname, style: const TextStyle(fontSize: 12, color: Colors.black)),
+                      //!!!!!!!!!!!!!!!!!
+                      //wText(players[index].nickname, style: const TextStyle(fontSize: 12, color: Colors.black)),
+                      Text(widget.playersInGame[index].nickname, style: const TextStyle(fontSize: 12, color: Colors.black)),
                     ],
                   ),
                   Text(
-                    players[index].isAlive == true ? S.of(context).alive : S.of(context).dead,
+                    //!!!!!!!!!!!!!!!!!
+                    //players[index].isAlive == true ? S.of(context).alive : S.of(context).dead,
+                    widget.playersInGame[index].isAlive == true ? S.of(context).alive : S.of(context).dead,
                     style: TextStyle(
                       fontSize: 12,
-                      color: players[index].isAlive == true
+                      //!!!!!!!!!!!!!!!!!
+                      color: widget.playersInGame[index].isAlive == true
                           ? Colors.green
                           : Colors.red,
                     ),
@@ -935,6 +955,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                 hasPassword: (password.isEmpty) ? false : true, 
                                 players: []
                               ),
+                              password: (password.isEmpty) ? "" : password,
                             )
                           ),
                         );
@@ -1153,6 +1174,7 @@ class GameLobbyScreen extends StatefulWidget {
   // final int maxPlayers;
   // final List<String> activeRoles;
   final Game game;
+  final String password;
 
   const GameLobbyScreen({
     super.key, 
@@ -1160,7 +1182,8 @@ class GameLobbyScreen extends StatefulWidget {
     // required this.currentPlayers,
     // required this.maxPlayers,
     // required this.activeRoles,
-    required this.game
+    required this.game,
+    required this.password
   });
 
   @override
@@ -1195,8 +1218,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // NOTE:    UNCOMMENT THIS SECTION
 
+    //! ------------------- CHANGE -------------------
     var connectionUri = (widget.game.hasPassword)
-      ? "https://46.32.173.182/gamelobby?title=${widget.game.title}&password=${password}" // passwordu tapammiram
+      ? "https://46.32.173.182/gamelobby?title=${widget.game.title}&password=${widget.password}" // passwordu tapammiram
       : "https://46.32.173.182/gamelobby?title=${widget.game.title}";
 
     //!   GAME LOBBY HUB
@@ -1381,6 +1405,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // DONE
     apiService.gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
+      print("Disonnected to SignalR! 1400 games screen");
       GetIt.I<ApiService>().disconnectGameHub();
     });
 
@@ -1400,7 +1425,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         apiService.gameHubConnection.start()?.then((_) {
           apiService.gameHubIsConnected = true;
-          print("Connected to SignalR!");
+          print("Connected to SignalR! 1400 games screen");
         }).catchError((e) {
           print("Connection error: $e");
         });
@@ -1433,6 +1458,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
           playersRole: playerRoles,
           allPlayers: widget.game.players,
           cameBackFromAfk: false,
+          gameIsReadyWidget: true,
         )
       ),
     );
@@ -1450,8 +1476,10 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     //_timer?.cancel();
     // DONE
     if (shouldDisconnect) {
+      print("Disonnected to SignalR! 1400 games screen");
       GetIt.I<ApiService>().disconnectGameHub();
     }
+    print("1400 games screen Dispose");
     super.dispose();
   }
 
@@ -1504,50 +1532,51 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                     style: const TextStyle(fontSize: 20),
                   ),
                 ),
-                SizedBox(
-                  width: 60,
-                  height: 50,
-                  child: ElevatedButton(    
-                    onPressed: () {
-                      List<PlayerRole> playerRoles = [
-                        PlayerRole(
-                          nickname: 'Player1',
-                          role: 'Doctor'
-                        ),
-                        PlayerRole(
-                          nickname: 'Player2',
-                          role: 'Citizen'
-                        ),
-                        PlayerRole(
-                          nickname: 'Player3',
-                          role: 'Mafia'
-                        ),
-                        PlayerRole(
-                          nickname: 'Player4', 
-                          role: 'Citizen'
-                        ),
-                        PlayerRole(
-                          nickname: 'Player5',
-                          role: 'Citizen'
-                        ),
-                        PlayerRole(
-                          nickname: 'Player6',
-                          role: 'Mafia'
-                        ),
-                        PlayerRole(
-                          nickname: 'Player7',
-                          role: 'Barman'
-                        ),
-                      ];
+                // SizedBox(
+                //   width: 60,
+                //   height: 50,
+                //   child: ElevatedButton(    
+                //     onPressed: () {
+                //       List<PlayerRole> playerRoles = [
+                //         PlayerRole(
+                //           nickname: 'Player1',
+                //           role: 'Doctor'
+                //         ),
+                //         PlayerRole(
+                //           nickname: 'Player2',
+                //           role: 'Citizen'
+                //         ),
+                //         PlayerRole(
+                //           nickname: 'Player3',
+                //           role: 'Mafia'
+                //         ),
+                //         PlayerRole(
+                //           nickname: 'Player4', 
+                //           role: 'Citizen'
+                //         ),
+                //         PlayerRole(
+                //           nickname: 'Player5',
+                //           role: 'Citizen'
+                //         ),
+                //         PlayerRole(
+                //           nickname: 'Player6',
+                //           role: 'Mafia'
+                //         ),
+                //         PlayerRole(
+                //           nickname: 'Player7',
+                //           role: 'Barman'
+                //         ),
+                //       ];
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: widget.game.players, cameBackFromAfk: false))
-                      );
-                    },
-                    child: Text(S.of(context).join),
-                  ),
-                ),
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: widget.game.players, cameBackFromAfk: false))
+                //       );
+                //     },
+                //     child: Text(S.of(context).join),
+                //   ),
+                // ),
+              
               ],
             ),
       

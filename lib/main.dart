@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
@@ -18,5 +19,12 @@ void main() async {
   GetIt.I.registerSingleton(PlayerRepository());
   GetIt.I.registerSingleton(AuthRepository());
   GetIt.I.registerSingleton(DioService());
-  runApp(const MafiaClassicApp());
+  runApp(
+    ScreenUtilInit(
+      designSize: const Size(393, 852),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) => const MafiaClassicApp(),
+    ),
+  );
 }

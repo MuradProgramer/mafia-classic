@@ -5,7 +5,6 @@ import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/blocs/sign_up/sign_up_bloc.dart';
 import 'package:mafia_classic/features/auth/signin/signin.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class SignUpScreen extends StatefulWidget {
 

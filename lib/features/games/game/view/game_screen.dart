@@ -5,15 +5,21 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' as math;
 
+//NOTE:      53, 90, 4
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/game/models/in_game_player.dart';
 import 'package:mafia_classic/features/games/games.dart';
 import 'package:mafia_classic/features/games/game/models/models.dart';
 import 'package:mafia_classic/features/games/game/widgets/widgets.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/main.dart';
 import 'package:mafia_classic/services/api_service.dart';
+import 'package:mafia_classic/theme/theme.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 class GameScreen extends StatefulWidget {
@@ -23,6 +29,7 @@ class GameScreen extends StatefulWidget {
   int citizenCount;
   final List<PlayerRole>? playersRole;
   final List<Player> allPlayers;
+  final bool gameIsReadyWidget;
 
   final bool cameBackFromAfk;
 
@@ -34,7 +41,8 @@ class GameScreen extends StatefulWidget {
     required this.mafiaCount, 
     required this.citizenCount, 
     required this.allPlayers, 
-    required this.cameBackFromAfk
+    required this.cameBackFromAfk,
+    required this.gameIsReadyWidget
   });
 
   @override
@@ -42,7 +50,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  String gamePhase = 'Night'; // +
+  String gamePhase = 'Day'; // +
   int mafiaAlive = 0; // +
   int citizenAlive = 0; // +
   List<InGamePlayer> inGamePlayers = []; // +
@@ -71,6 +79,8 @@ class _GameScreenState extends State<GameScreen> {
   int phaseTime = 0;
   Timer? _intoxicationTimer;
 
+  bool gameIsReady = false;
+
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
 
@@ -83,9 +93,10 @@ class _GameScreenState extends State<GameScreen> {
   void _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
-    await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[ 
-      _messageController.text.trim()
-    ]);
+    //!!!!!!!!!!!!!!!!!!
+    // await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[ 
+    //   _messageController.text.trim()
+    // ]);
 
     setState(() {
       inGameMessages.add(InGameMessage(
@@ -172,11 +183,15 @@ class _GameScreenState extends State<GameScreen> {
 
     mafiaAlive = widget.mafiaCount;
     citizenAlive = widget.citizenCount;
+    gameIsReady = widget.gameIsReadyWidget;
+    printInGamePlayers();
+    // !!!!!!!!!!!!!!!!!!!
+    /*
 
     //!!!!!!!!!!!!!!
     var apiService = GetIt.I<ApiService>();
 
-    //printInGamePlayers();
+    //
     //toWhomIUsedSkill.add('Player7');
     // for (var e in inGamePlayers) {
     //   e.isAlive = false;
@@ -184,6 +199,7 @@ class _GameScreenState extends State<GameScreen> {
 
     //!!!!!!!!!!!!
     if (!apiService.gameHubIsConnected) {
+      print("187 games screen - creating connection");
       apiService.gameHubConnection = HubConnectionBuilder().withUrl(
         'https://46.32.173.182/gamelobby?title=${widget.title}',
         options: HttpConnectionOptions(
@@ -201,7 +217,6 @@ class _GameScreenState extends State<GameScreen> {
       apiService.gameHubConnection.on('ReconnectGameData', (List<Object?>? parameters) {
         try {
           if (parameters == null || parameters.isEmpty) return;
-          
           var data = json.decode(parameters.first as String);
 
 
@@ -252,6 +267,7 @@ class _GameScreenState extends State<GameScreen> {
           // }).toList();
 
           setState(() {
+            gameIsReady = true;
             widget.role = role;
             gamePhase = phase;
             isAliveMyself = isAlive;
@@ -271,11 +287,13 @@ class _GameScreenState extends State<GameScreen> {
               }
               inGameMessages.add(message);
             }
-            log('pox mashini 2');
 
+            checkIfEligibleToVote();
+            checkIfEligibleToUseSkill();
+            checkIfEligibleToSendMessage();
+            intoxicationEffect();
 
             inGameMessages = messages;
-            log('pox mashini 3');
 
             markNames = marksOfPlayer;
 
@@ -478,9 +496,14 @@ class _GameScreenState extends State<GameScreen> {
         setState(() {
         
           if (playerDead.nickname == authorizedUser.nickname) {
-            log('PLAYER DEAD:    playerDead.nickname == authorizedUser.nickname: ${playerDead.nickname == authorizedUser.nickname}');
             youAreDead();
+            if (['Mafia', 'Terrorist', 'Beauty', 'Barman'].any((e) => e == playerDead.role)) {
+              mafiaAlive -= 1;
+            } else {
+              citizenAlive -= 1;
+            }
             isAliveMyself = false;
+            checkIfEligibleToSendMessage();
             return;
           }
         
@@ -519,6 +542,7 @@ class _GameScreenState extends State<GameScreen> {
     });
   
     apiService.gameHubConnection.off('ReceiveMessage');
+    
     // DONE 
     apiService.gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
       try {
@@ -613,12 +637,15 @@ class _GameScreenState extends State<GameScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         apiService.gameHubConnection.start()?.then((_) {
           apiService.gameHubIsConnected = true;
+          gameIsReady = true;
           print("Connected to SignalR!");
         }).catchError((e) {
           print("Connection error: $e");
         });
       });
     }
+
+    */
 
     //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
     
@@ -627,6 +654,9 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void dispose() {
     _intoxicationTimer?.cancel();
+    print("Disonnected to SignalR! 600 games screen");
+    GetIt.I<ApiService>().disconnectGameHub();
+    GetIt.I<ApiService>().gameHubIsConnected = false;
     super.dispose();
   }
 
@@ -634,6 +664,7 @@ class _GameScreenState extends State<GameScreen> {
     List<String> symbols = ['!', '@', '#', '%', '^', '&', '*'];
     return List.generate(count, (index) => symbols[math.Random().nextInt(symbols.length)]).join();
   }
+  
   void intoxicationEffect() {
     if (markNames.any((e) => e == 'Intoxicated')) {
       _intoxicationTimer = Timer.periodic(const Duration(milliseconds: 60), (timer) {
@@ -781,6 +812,11 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void checkIfEligibleToSendMessage() {
+    if (!isAliveMyself) {
+      changeSendMessageState(true);
+      return;
+    }
+
     if (gamePhase == 'DayVoting' || gamePhase == 'NightVoting') {
       changeSendMessageState(false);
       return;
@@ -806,6 +842,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void youAreDead() {
+    
     showDialog(
       context: context,
       builder: (context) {
@@ -827,6 +864,10 @@ class _GameScreenState extends State<GameScreen> {
 
 
   String getCardImage(InGamePlayer player) {
+    if (player.role == '') {
+      return "assets/images/default.png";
+    }
+
     if (!player.isAlive) {
       return 'assets/images/${player.role!.toLowerCase()}-dead.png';
     }
@@ -853,16 +894,23 @@ class _GameScreenState extends State<GameScreen> {
     final double deviceHeight = MediaQuery.of(context).size.height;
     final double deviceWidth = MediaQuery.of(context).size.width;
 
-    return Stack(
+    final double ornamentSize = 35.sp;
+    final double ornamentMargin = 10.sp;
+
+    final double height10 = deviceHeight * 0.01;
+    final double width10 = deviceWidth * 0.023;
+
+    return !gameIsReady ? const Center(child: CircularProgressIndicator()) :  Stack(
       children: [
       Positioned.fill(
         child: Image.asset(
-          ['Day', 'DayVoting'].any((e) => e == gamePhase) ? "assets/images/day-phase.png" : "assets/images/night-phase.png",
+          ['Day', 'DayVoting'].any((e) => e == gamePhase) ? "assets/images/game-phase-day.png" : "assets/images/game-phase-night.png",
           fit: BoxFit.cover,
         ),
       ),
       Scaffold(
         backgroundColor: Colors.transparent,
+        /*
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           automaticallyImplyLeading: false,
@@ -922,6 +970,532 @@ class _GameScreenState extends State<GameScreen> {
             },
             child: Text(widget.title, style: const TextStyle(fontSize: 30, color: Colors.white)))
         ),
+        */
+
+        body: LayoutBuilder(
+          builder: (context, sizes) {
+            if (sizes.maxWidth < 360) {
+              return const Spacer();
+            } else if (sizes.maxWidth < 600) {
+              return Container(
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    SizedBox(height: deviceHeight * 0.07),
+                    
+                    //? INFO PART
+                    Container(
+                      width: deviceWidth * 0.88,
+                      height: deviceHeight * 0.13,
+                      decoration: BoxDecoration(
+                        color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFECC5) : const Color(0xFF2C2C2C),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Stack(
+                        children: [
+              
+                          //? ORNAMENTS
+                          Stack(
+                            children: [
+                              // Top-left ornament
+                              Positioned(
+                                top: ornamentMargin,
+                                left: ornamentMargin,
+                                child: Image.asset(
+                                  "assets/images/game-ornament-${['Day', 'DayVoting'].any((e) => e == gamePhase) ? "day" : "night"}.png",
+                                  width: ornamentSize,
+                                  height: ornamentSize,
+                                ),
+                              ),
+                              // Top-right ornament (rotated 90 degrees)
+                              Positioned(
+                                top: ornamentMargin,
+                                right: ornamentMargin,
+                                child: Transform.rotate(
+                                  angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                                  child: Image.asset(
+                                    "assets/images/game-ornament-${['Day', 'DayVoting'].any((e) => e == gamePhase) ? "day" : "night"}.png",
+                                    width: ornamentSize,
+                                    height: ornamentSize,
+                                  ),
+                                ),
+                              ),
+                              // Bottom-left ornament (rotated 270 degrees)
+                              Positioned(
+                                bottom: ornamentMargin,
+                                left: ornamentMargin,
+                                child: Transform.rotate(
+                                  angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                                  child: Image.asset(
+                                    "assets/images/game-ornament-${['Day', 'DayVoting'].any((e) => e == gamePhase) ? "day" : "night"}.png",
+                                    width: ornamentSize,
+                                    height: ornamentSize,
+                                  ),
+                                ),
+                              ),
+                              // Bottom-right ornament (rotated 180 degrees)
+                              Positioned(
+                                bottom: ornamentMargin,
+                                right: ornamentMargin,
+                                child: Transform.rotate(
+                                  angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                                  child: Image.asset(
+                                    "assets/images/game-ornament-${['Day', 'DayVoting'].any((e) => e == gamePhase) ? "day" : "night"}.png",
+                                    width: ornamentSize,
+                                    height: ornamentSize,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                children: [
+              
+                                  //? TITLE
+                                  Text(
+                                    'Avengers999',
+                                    style: GoogleFonts.playfairDisplay(
+                                      fontSize: 24.sp,
+                                      color: const Color(0xFFFFB000),
+                                      fontWeight: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? FontWeight.w700 : FontWeight.w400,
+                                    ),
+                                  ),
+              
+                                  SizedBox(height: deviceHeight * 0.0072),
+              
+                                  //? PLAYERS INFORMATION
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      SizedBox(width: deviceWidth * 0.03),
+                                      //? PLAYERS COUNT INFORMATION
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              //NOTE: FONT SIZE
+                                              Text(
+                                                '${inGamePlayers.length} ',
+                                                style: TextStyle(
+                                                  height: 1,
+                                                  color: const Color(0xFFFFB000),
+                                                  fontFamily: 'CenturyGothic',
+                                                  fontSize: deviceWidth * 0.035
+                                                ),
+                                              ),
+                                              Text(
+                                                'Players in the room',
+                                                style: TextStyle(
+                                                  height: 1,
+                                                  color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
+                                                  fontFamily: 'CenturyGothic',
+                                                  fontSize: deviceWidth * 0.035
+                                                )
+                                              ),
+                                            ],
+                                          ),
+              
+                                          SizedBox(height: height10 / 2),
+              
+                                          SizedBox(
+                                            width: deviceWidth * 0.416,
+                                            height: 5,
+                                            child: Divider(
+                                              color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
+                                              thickness: 1,
+                                            ),
+                                          ),
+              
+                                          SizedBox(height: height10 / 2),
+              
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Mafia ',
+                                                style: TextStyle(
+                                                  height: 1,
+                                                  color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
+                                                  fontFamily: 'CenturyGothic',
+                                                  fontSize: deviceWidth * 0.035
+                                                )
+                                              ),
+                                              Text(
+                                                '$mafiaAlive|${widget.mafiaCount}',
+                                                style: TextStyle(
+                                                  height: 1,
+                                                  color: const Color(0xFFFFB000),
+                                                  fontFamily: 'CenturyGothic',
+                                                  fontSize: deviceWidth * 0.035
+                                                ),
+                                              ),
+                                              SizedBox(width: width10),
+                                              Text(
+                                                'Civilian ',
+                                                style: TextStyle(
+                                                  height: 1,
+                                                  color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
+                                                  fontFamily: 'CenturyGothic',
+                                                  fontSize: deviceWidth * 0.035
+                                                )
+                                              ),
+                                              Text(
+                                                '$citizenAlive|${widget.citizenCount}',
+                                                style: TextStyle(
+                                                  height: 1,
+                                                  color: const Color(0xFFFFB000),
+                                                  fontFamily: 'CenturyGothic',
+                                                  fontSize: deviceWidth * 0.035
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+              
+                                        ],
+                                      ),
+                                    
+                                      SizedBox(width: deviceWidth * 0.08),
+              
+                                      //? AFFECTED BY 
+                                      SizedBox(
+                                        width: deviceWidth * 0.25,
+                                        child: Row(
+                                          children: [
+                                            Image.asset(
+                                              'assets/images/roles-sheriff-icon-small.png',
+                                              fit: BoxFit.scaleDown,
+                                              width: deviceWidth * 0.05,
+                                              height: deviceHeight * 0.03,
+                                            ),
+                                            SizedBox(width: deviceWidth * 0.007),
+                                            Image.asset(
+                                              'assets/images/roles-sheriff-icon-small.png',
+                                              fit: BoxFit.scaleDown,
+                                              width: deviceWidth * 0.05,
+                                              height: deviceHeight * 0.03,
+                                            ),
+                                            SizedBox(width: deviceWidth * 0.007),
+                                            Image.asset(
+                                              'assets/images/roles-sheriff-icon-small.png',
+                                              fit: BoxFit.scaleDown,
+                                              width: deviceWidth * 0.05,
+                                              height: deviceHeight * 0.03,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+              
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+              
+                    SizedBox(height: 10.w),
+                    
+                    //? DAY AND NIGHT PART
+                    Container(
+                      width: deviceWidth * 0.88,
+                      height: deviceHeight * 0.037,
+                      decoration: BoxDecoration(
+                        color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFECC5) : const Color(0xFF2C2C2C),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          
+                          //? DAY COUNT
+                          Container(
+                            margin: EdgeInsets.only(left: 15.w),
+                            child: Text(
+                              'Day 1',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
+                                fontFamily: 'CenturyGothic',
+                              ),
+                            ),
+                          ),
+              
+                          //? ICONS +
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    gamePhase = 'Day';
+                                  });
+                                },
+                                //NOTE: FONT SIZE
+                                child: Icon(
+                                  Icons.sunny,
+                                  color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFB000) : Colors.black,
+                                  size: 25.sp,
+                                ),
+                              ),
+              
+                              SizedBox(width: width10),
+              
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    gamePhase = 'Night';
+                                  });
+                                },
+                                //NOTE: FONT SIZE
+                                child: Icon(
+                                  Icons.nights_stay,
+                                  color: !['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFB000) : Colors.black,
+                                  size: 20.sp,
+                                ),
+                              )
+                            ],
+                          ),
+              
+                          //? TIMER
+                          Container(
+                            margin: EdgeInsets.only(right: 15.w),
+                            //NOTE: FONT SIZE
+                            child: Text(
+                              '1:56',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
+                                fontFamily: 'CenturyGothic',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+              
+                    SizedBox(height: height10),
+              
+                    //? PLAYERS PART AND ROLE CARD +
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        //? PLAYERS +
+                        Container(
+                          width: deviceWidth * 0.59,
+                          height: deviceHeight * 0.23,
+                          padding: const EdgeInsets.only(top: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: GridView.builder(
+                            padding: EdgeInsets.zero,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3, // 3 cards per row
+                              childAspectRatio: 0.8, // Adjust aspect ratio to fit card height
+                              crossAxisSpacing: 0, // Spacing between columns
+                              mainAxisSpacing: 0, // Spacing between rows
+                            ),
+                            itemCount: players.length,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/roles-noname-icon.png',
+                                    width: 54.w,
+                                    height: 72.h,
+                                  ),
+                                  Text(
+                                    players[index].nickname,
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontFamily: 'CenturyGothic',
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                        
+                        SizedBox(width: 10.w),
+              
+                        //? ROLE CARD +
+                        Container(
+                          width: deviceWidth * 0.25,
+                          height: deviceHeight * 0.23,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                widget.role,
+                                style: GoogleFonts.playfairDisplay(
+                                  fontSize: 19.sp,
+                                  color: const Color(0xFFFFB000),
+                                  fontWeight: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? FontWeight.w700 : FontWeight.w400,
+                                ),
+                              ),
+                              Text(
+                                'is your destiny', // NOTE:    Translation L10
+                                style: TextStyle(
+                                  height: 1,
+                                  fontSize: 14.sp,
+                                  fontFamily: 'CenturyGothic',
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w400
+                                ),
+                              ),
+              
+                              SizedBox(height: 10.h),
+              
+                              Image.asset(
+                                // getCardImage(InGamePlayer(
+                                //   nickname: authorizedUser.nickname,
+                                //   isAlive: isAliveMyself,
+                                //   isRevealed: false,
+                                //   role: widget.role,
+                                //   avatarUrl: authorizedUser.avatarUrl
+                                // )),
+                                'assets/images/resident-icon.png',
+                                fit: BoxFit.scaleDown,
+                                width: deviceWidth * 0.174,
+                                height: deviceHeight * 0.106,
+                              ),
+              
+                              SizedBox(height: 10.h),
+              
+                              // BUTTON:    Use Skill or Vote
+                              Center(
+                                child: Container(
+                                  padding: EdgeInsets.all(3.sp),
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 1.5,
+                                    ),
+                                    borderRadius: BorderRadius.circular(34.0),
+                                  ),
+                                  child: SizedBox(
+                                    width: deviceWidth * 0.255,
+                                    height: deviceHeight * 0.04,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        // !!!!!!!!!!!!
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => Dialog(
+                                            backgroundColor: Colors.transparent,
+                                            child: VotePopup(),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFFFB000),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(34.0),
+                                          side: const BorderSide(
+                                            color: Colors.white,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+              
+                                      child: Text(
+                                        'Use Skill', // NOTE:    Translation L10
+                                        style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  
+                    SizedBox(height: height10),
+              
+                    //? MESSAGES PART
+                    Container(
+                      width: deviceWidth * 0.87,
+                      height: deviceHeight * 0.4,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFECC5) : const Color(0xFF1E1E1E),
+                            border: Border.all(
+                              color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: InGameChatBox(messages: inGameMessages, scrollController: _scrollController, messageController: _messageController, scrollToBottom: _scrollToBottom, isAlive: isAliveMyself, gamePhase: gamePhase,)
+                        ),
+                      ),
+                    ),
+              
+                    SizedBox(height: height10),
+              
+                    //? INPUT PART
+                    Container(
+                      width: deviceWidth * 0.87,
+                      height: deviceHeight * 0.067,
+                      decoration: BoxDecoration(
+                        color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black.withOpacity(0.4) : const Color(0xFF2B2B2B),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(left: 7, right: 7),
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: Image.asset(
+                                'assets/images/game-stickers-icon.png',
+                                width: 30.h,
+                                height: 30.h,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: deviceWidth * 0.75,
+                            height: deviceHeight * 0.06,
+                            child: EnterMessage(messageController: _messageController, sendMessage: _sendMessage, canISendMessage: canISendMessage, gamePhase: gamePhase,)
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              
+              );
+            } else {
+              return const Spacer();
+            }
+          }
+        ),
+        
+        /*
         body: Container(
           margin: EdgeInsets.only(bottom: deviceHeight * 0.005),
           color: Colors.transparent,
@@ -1250,7 +1824,7 @@ class _GameScreenState extends State<GameScreen> {
                             ),
                             borderRadius: BorderRadius.circular(4.0),
                           ),
-                          child: InGameChatBox(messages: inGameMessages, scrollController: _scrollController, messageController: _messageController, scrollToBottom: _scrollToBottom,),
+                          child: InGameChatBox(messages: inGameMessages, scrollController: _scrollController, messageController: _messageController, scrollToBottom: _scrollToBottom, isAlive: isAliveMyself,),
                         ),
 
                         //?    PLAYERS PART
@@ -1626,12 +2200,35 @@ class _GameScreenState extends State<GameScreen> {
             ],
           ),
         )
+        */
       
       ),
     
     ]);
   }
 }
+
+
+class VotePopup extends StatefulWidget {
+  final int timerSeconds;
+
+  const VotePopup({
+    super.key, required this.timerSeconds
+  });
+  
+  @override
+  State<VotePopup> createState() => _VotePopupState();
+}
+
+class _VotePopupState extends State<VotePopup> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+
+
+
 
 class AnimatedIconButton extends StatefulWidget {
   final IconData icon;

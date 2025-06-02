@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mafia_classic/features/auth/auth.dart';
 import 'package:mafia_classic/features/games/game/game.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
+import 'package:mafia_classic/features/profile/roles/view/roles_screen.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
 //import 'package:mafia_classic/models/models.dart';
 //import 'package:mafia_classic/features/profile/profile.dart';
@@ -95,10 +96,11 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 1), () {
       Navigator.push(context, 
         MaterialPageRoute(
-          builder: (context) => const SignInScreen()   // TRUEEE
-          //builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Journalist', allPlayers: allPlayers, cameBackFromAfk: false,)
+          //builder: (context) => const SignInScreen()   // TRUEEE
+          builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Sheriff', allPlayers: allPlayers, cameBackFromAfk: false, gameIsReadyWidget: true,)
           //builder: (context) => GamesScreen(user: authorizedUser)
-          //builder: (context) => const CreateGameScreen()
+          //builder: (context) => const CreateGameScreen(),
+          //builder: (context) => const RolesScreen() // FALSEEE
         ) 
       );
     });
