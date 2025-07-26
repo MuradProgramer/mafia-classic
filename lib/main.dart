@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 void main() async {
+  //debugPaintSizeEnabled = true;
   HttpOverrides.global = MyHttpOverrides();
   GetIt.I.registerSingleton(PlayerRepository());
   GetIt.I.registerSingleton(AuthRepository());

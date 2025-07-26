@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 
 import 'package:mafia_classic/theme/theme.dart';
@@ -67,7 +69,43 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  late List<Widget> _widgetOptions;
+  //late List<Widget> _widgetOptions;
+
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
+
+  Widget _buildOffstageNavigator(int index) {
+    return Offstage(
+      offstage: _selectedIndex != index,
+      child: Navigator(
+        key: _navigatorKeys[index],
+        onGenerateRoute: (routeSettings) {
+          return MaterialPageRoute(
+            builder: (_) => _getInitialPageForIndex(index),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _getInitialPageForIndex(int index) {
+    switch (index) {
+      case 0:
+        return ProfileScreen(user: widget.user);
+      case 1:
+        return GamesScreen(user: widget.user);
+      case 2:
+        return const CreateGameScreen();
+      case 3:
+        return const FriendsScreen();
+      default:
+        return Container();
+    }
+  }
 
   @override
   void initState() {
@@ -76,17 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
     //////////////////////////
     //setup(widget.user);
 
-    _widgetOptions = <Widget>[
-      GestureDetector(
-        onTap: () {
-          Navigator.of(context).pushNamed('/profile', arguments: widget.user);
-        },
-        child: ProfileScreen(user: widget.user),
-      ),
-      GamesScreen(user: widget.user),
-      const CreateGameScreen(),
-      const SettingsScreen(),
-    ];
+    // _widgetOptions = <Widget>[
+    //   ProfileScreen(user: widget.user),
+    //   GamesScreen(user: widget.user),
+    //   const CreateGameScreen(),
+    //   const SettingsScreen(),
+    // ];
   }
 
   void _onItemTapped(int index) {
@@ -95,43 +128,105 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Widget _buildNavItem(String assetPath, int index, String text) {
+    //final isSelected = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: SizedBox(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              assetPath,
+              scale: 2.8
+            ),
+            Text(
+              text,
+              style: GoogleFonts.playfairDisplay(
+                color: Colors.white,
+                fontSize: 16.sp
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _widgetOptions,
+      body: Stack(
+        children: List.generate(
+          4,
+          (index) => _buildOffstageNavigator(index),
+        ),
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: S.of(context).profile,
+      bottomNavigationBar: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        removeBottom: true,
+        child: BottomAppBar(
+          height: 100.h,
+          color: Colors.black,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem('assets/images/icon-profile.png', 0, 'Profile'),
+              _buildNavItem('assets/images/icon-games.png', 1, 'Games'),
+              _buildNavItem('assets/images/icon-create.png', 2, 'Create'),
+              _buildNavItem('assets/images/icon-friends.png', 3, 'Friends'),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.games),
-            label: S.of(context).games,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.add),
-            label: S.of(context).create,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.settings),
-            label: S.of(context).settings,
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: Theme.of(context).primaryColorDark,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        
+        ),
       ),
+
+      
+      // bottomNavigationBar: SizedBox(
+      //   height: 90.h,
+      //   child: BottomNavigationBar(
+      //     items: <BottomNavigationBarItem>[
+      //       BottomNavigationBarItem(
+      //         icon: Image.asset(
+      //           'assets/images/temp-profile-icon.png',
+      //           scale: 3,
+      //         ),
+      //         label: ''
+      //       ),
+      //       BottomNavigationBarItem(
+      //         icon: Image.asset(
+      //           'assets/images/temp-games-icon.png',
+      //           scale: 3,
+      //         ),
+      //         label: ''
+      //       ),
+      //       BottomNavigationBarItem(
+      //         icon: Image.asset(
+      //           'assets/images/temp-create-icon.png',
+      //           scale: 3,
+      //         ),
+      //         label: ''
+      //       ),
+      //       BottomNavigationBarItem(
+      //         icon: Image.asset(
+      //           'assets/images/temp-settings-icon.png',
+      //           scale: 3,
+      //         ),
+      //         label: ''
+      //       ),
+      //     ],
+      //     currentIndex: _selectedIndex,
+      //     onTap: _onItemTapped,
+      //     backgroundColor: Colors.black,
+      //     selectedItemColor: Colors.white,
+      //     unselectedItemColor: Colors.grey,
+      //     type: BottomNavigationBarType.fixed,
+      //   ),
+      // ),
+      
+    
     );
   }
 }

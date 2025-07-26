@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/profile/roles/data/data.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/widgets.dart';
 import 'package:mafia_classic/generated/l10n.dart';
@@ -27,38 +29,43 @@ class _RolesScreenState extends State<RolesScreen> {
     final buttonWidth = deviceWidth * 0.27;
     final buttonTextFontSize = deviceWidth * 0.057;
 
-    return Stack(
-      children: [
-          
-          Positioned.fill(
-            child: Image.asset(
-              "assets/images/roles-${selectedTabIndex == 0 ? "civilians" : "mafias"}-background.png",
-              fit: BoxFit.cover,
-            ),
-          ),
+    //"assets/images/roles-${selectedTabIndex == 0 ? "civilians" : "mafias"}-background.png"
 
-          Scaffold(
-            resizeToAvoidBottomInset: false,
-
-            // appBar: AppBar(
-            //   iconTheme: const IconThemeData(
-            //     color: Colors.white
-            //   ),
-            //   backgroundColor: Colors.transparent,
-            //   //title: Text(S.of(context).roles.toUpperCase(), style: theme.textTheme.bodyMedium)
-            // ),
-            // body: ListView.builder(
-            //   itemCount: roles.length,
-            //   itemBuilder: (context, index) {
-            //     return RoleCard(role: roles[index]);
-            //   }
-            // )
-
-            body: Column(
-              children: [
-                SizedBox(height: deviceHeight * 0.075),
-
-                Row(
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        image: DecorationImage(image: AssetImage("assets/images/roles-${selectedTabIndex == 0 ? "civilians" : "mafias"}-background.png"), fit: BoxFit.cover),
+      ),
+      child: Scaffold(
+      
+        body: Container(
+          padding: EdgeInsets.only(top: 60.h, left: 10.w, right: 10.w, bottom: 10.h),
+          child: Column(
+            children: [
+                
+              //? BUTTON GO HOME
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // BUTTON:    HOME
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Image.asset(
+                      "assets/images/home-icon.png",
+                      width: 30.w,
+                      height: 30.h,
+                    ),
+                  ),
+                
+                  const SizedBox()
+                ],
+              ),
+              
+              //? TABS CHANGER
+              Padding(
+                padding: EdgeInsets.only(top: 10.h),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // BUTTON:    Civilians
@@ -104,17 +111,17 @@ class _RolesScreenState extends State<RolesScreen> {
                         ),
                       ),
                     ),
-
+                
                     const SizedBox(width: 5),
-
+                
                     Image.asset(
                       'assets/images/roles-line.png',
                       width: deviceWidth * 0.32,
                       height: deviceHeight * 0.018,
                     ),
-
+                
                     const SizedBox(width: 5),
-
+                
                     // BUTTON:    Mafias
                     Center(
                       child: Container(
@@ -160,29 +167,19 @@ class _RolesScreenState extends State<RolesScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-
-                // Tab content
-                Expanded(
-                  child: selectedTabIndex == 0 ? const CiviliansTab() : const MafiasTab(),
-                ),
-                SizedBox(height: deviceHeight * 0.15),
-              ],
-            ),
+              ),
+              
+              const SizedBox(height: 20),
+                
+              // Tab content
+              Expanded(
+                child: selectedTabIndex == 0 ? const CiviliansTab() : const MafiasTab(),
+              ),
+              SizedBox(height: deviceHeight * 0.15),
+            ],
           ),
-      ]
-    );
-  }
-
-  Widget _buildFirstTab() {
-    return const Center(
-      child: Text('This is Tab 1', style: TextStyle(fontSize: 24))
-    );
-  }
-
-  Widget _buildSecondTab() {
-    return const Center(
-      child: Text('This is Tab 2', style: TextStyle(fontSize: 24))
+        ),
+      ),
     );
   }
 }
@@ -198,36 +195,41 @@ class CiviliansTab extends StatefulWidget {
 class _CiviliansTabState extends State<CiviliansTab> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    final double deviceHeight = MediaQuery.of(context).size.height;
+    final double deviceWidth = MediaQuery.of(context).size.width;
+    final double cardHeight = deviceHeight * 0.167; // Adjusted height for the cards
+    final double cardWidth = deviceWidth * 0.276; // Adjusted width for the cards
+    
+    return Scaffold(
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleImagePath: 'assets/images/resident-icon.png'),
-              SizedBox(height: 10),
-              RoleCard(roleImagePath: 'assets/images/resident-icon.png'),
+              RoleCard(roleName: 'beauty', width: cardWidth, height: cardHeight),
+              SizedBox(height: 10.h),
+              RoleCard(roleName: 'journalist', width: cardWidth, height: cardHeight),
             ],
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 10.h),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleImagePath: 'assets/images/resident-icon.png'),
-              SizedBox(height: 10),
-              RoleCard(roleImagePath: 'assets/images/resident-icon.png'),
-              SizedBox(height: 10),
-              RoleCard(roleImagePath: 'assets/images/resident-icon.png'),
+              RoleCard(roleName: 'resident', width: cardWidth, height: cardHeight),
+              SizedBox(height: 10.h),
+              RoleCard(roleName: 'sheriff', width: cardWidth, height: cardHeight),
+              SizedBox(height: 10.h),
+              RoleCard(roleName: 'spy', width: cardWidth, height: cardHeight),
             ],
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 10.h),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleImagePath: 'assets/images/resident-icon.png'),
-              SizedBox(height: 10),
-              RoleCard(roleImagePath: 'assets/images/resident-icon.png'),
+              RoleCard(roleName: 'doctor', width: cardWidth, height: cardHeight),
+              SizedBox(height: 10.h),
+              RoleCard(roleName: 'resident', width: cardWidth, height: cardHeight),
             ],
           ),
         ],
@@ -236,33 +238,6 @@ class _CiviliansTabState extends State<CiviliansTab> {
   }
 }
 
-class RoleCard extends StatefulWidget {
-  final String roleImagePath;
-
-  const RoleCard({super.key, required this.roleImagePath});
-
-  @override
-  State<RoleCard> createState() => _RoleCardState();
-}
-
-class _RoleCardState extends State<RoleCard> {
-  @override
-  Widget build(BuildContext context) {
-
-    final double deviceHeight = MediaQuery.of(context).size.height;
-    final double deviceWidth = MediaQuery.of(context).size.width;
-
-    return SizedBox(
-      
-      child: Image.asset(
-        width: deviceWidth * 0.276,
-        height: deviceHeight * 0.167,
-        widget.roleImagePath,
-        fit: BoxFit.scaleDown,
-      ),
-    );
-  }
-}
 
 // NOTE: Mafias Widget
 class MafiasTab extends StatefulWidget {
@@ -275,25 +250,30 @@ class MafiasTab extends StatefulWidget {
 class _MafiasTabState extends State<MafiasTab> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    final double deviceHeight = MediaQuery.of(context).size.height;
+    final double deviceWidth = MediaQuery.of(context).size.width;
+    final double cardHeight = deviceHeight * 0.167; // Adjusted height for the cards
+    final double cardWidth = deviceWidth * 0.276; // Adjusted width for the cards
+
+    return Scaffold(
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleImagePath: 'assets/images/roles-mafia-icon.png'),
-              SizedBox(height: 10),
-              RoleCard(roleImagePath: 'assets/images/roles-mafia-icon.png'),
+              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight),
+              SizedBox(height: 10.h),
+              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight),
             ],
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 10.h),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleImagePath: 'assets/images/roles-mafia-icon.png'),
-              SizedBox(height: 10),
-              RoleCard(roleImagePath: 'assets/images/roles-mafia-icon.png'),
+              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight),
+              SizedBox(height: 10.h),
+              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight),
             ],
           ),
         ],

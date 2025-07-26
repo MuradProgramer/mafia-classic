@@ -62,7 +62,7 @@ class _InGameChatBoxState extends State<InGameChatBox> {
             children: [
               CircleAvatar(
                 backgroundImage: NetworkImage(message.avatarUrl ?? ''), //!!!!!!!!!!!
-                radius: 20,
+                radius: 20.sp,
               ),
               SizedBox(width: 8.w),
               Expanded(
@@ -86,9 +86,9 @@ class _InGameChatBoxState extends State<InGameChatBox> {
                             ? Colors.black 
                             : Colors.white 
                           : ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) 
-                            ? Colors.black.withOpacity(0.7) 
-                            : Colors.white.withOpacity(0.7), 
-                        fontWeight: FontWeight.w400, 
+                            ? Colors.black.withOpacity(0.7)
+                            : Colors.white.withOpacity(0.7),
+                        fontWeight: FontWeight.w400,
                         fontSize: 14.sp,
                         fontFamily: 'CenturyGothic'
                       ),

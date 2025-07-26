@@ -6,14 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:mafia_classic/features/auth/auth.dart';
 import 'package:mafia_classic/features/games/game/game.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
+import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/profile/roles/view/roles_screen.dart';
+import 'package:mafia_classic/features/profile/view/profile_screen.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
 //import 'package:mafia_classic/models/models.dart';
 //import 'package:mafia_classic/features/profile/profile.dart';
 
 List<PlayerRole> players = [
   PlayerRole(
-    nickname: 'Player1111111',
+    nickname: 'Player1001',
     role: 'Doctor'
   ),
   PlayerRole(
@@ -21,7 +24,7 @@ List<PlayerRole> players = [
     role: 'Citizen'
   ),
   PlayerRole(
-    nickname: 'Player3',
+    nickname: 'Player3aaaa',
     role: 'Mafia'
   ),
   PlayerRole(
@@ -29,7 +32,7 @@ List<PlayerRole> players = [
     role: 'Citizen'
   ),
   PlayerRole(
-    nickname: 'Player5',
+    nickname: 'Pl5',
     role: 'Citizen'
   ),
   PlayerRole(
@@ -44,7 +47,7 @@ List<PlayerRole> players = [
 
 List<Player> allPlayers = [
   Player(
-    nickname: 'Player1111111',
+    nickname: 'Player1001',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
@@ -54,7 +57,7 @@ List<Player> allPlayers = [
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
   Player(
-    nickname: 'Player3',
+    nickname: 'Player3aaaa',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
@@ -64,7 +67,7 @@ List<Player> allPlayers = [
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
   Player(
-    nickname: 'Player5',
+    nickname: 'Pl5',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
@@ -96,11 +99,17 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 1), () {
       Navigator.push(context, 
         MaterialPageRoute(
-          //builder: (context) => const SignInScreen()   // TRUEEE
-          builder: (context) => GameScreen(title: 'Room Main', playersRole: players, mafiaCount: 5, citizenCount: 7, role: 'Sheriff', allPlayers: allPlayers, cameBackFromAfk: false, gameIsReadyWidget: true,)
+          fullscreenDialog: true,
+          builder: (context) => const SignInScreen()   // TRUEEE
+          //builder: (context) => GameScreen(title: 'Avengers999', playersRole: players, mafiaCount: 2, citizenCount: 5, role: 'Journalist', allPlayers: allPlayers, cameBackFromAfk: false, gameIsReadyWidget: true,)
           //builder: (context) => GamesScreen(user: authorizedUser)
           //builder: (context) => const CreateGameScreen(),
+          //builder: (context) => HomeScreen(user: authorizedUser),
+          //builder: (context) => const CreateGameScreen(),
+          //builder: (context) => const FilterizationScreen(),
           //builder: (context) => const RolesScreen() // FALSEEE
+          //builder: (context) => const FriendsScreen() // FALSEEE
+          //builder: (context) => GameLobbyScreen(game: Game(extraRoles: ['Bodyguard', 'Beauty', 'Spy', 'Journalist'], hasPassword: false, maxPlayers: 11, minPlayers: 6, players: allPlayers, status: 'Gathering Players', title: 'Avengers999'), password: ''),
         ) 
       );
     });

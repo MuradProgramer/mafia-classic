@@ -2,21 +2,29 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'dart:async';
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/game/game.dart';
+import 'package:mafia_classic/features/profile/roles/widgets/widgets.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/models/player.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
+import 'package:mafia_classic/theme/theme.dart';
 import 'package:signalr_netcore/http_connection_options.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 import 'package:signalr_netcore/itransport.dart';
 
 int stateToJoin = 1;
 
+/*
 List<Game> games = [
+  /*
   Game(
     title: 'Mafia Game 1',
     //currentPlayers: 6,
@@ -33,7 +41,7 @@ List<Game> games = [
     minPlayers: 4,
     maxPlayers: 10,
     status: 'Game Started',
-    hasPassword: false,
+    hasPassword: true,
     players: playersWithMe,
     extraRoles: ['Mafia', 'Doctor', 'Sheriff'],
   ),
@@ -47,11 +55,13 @@ List<Game> games = [
     players: players,
     extraRoles: ['Mafia', 'Doctor', 'Sheriff'],
   )
+  */
 ];
+*/
 
 //!!!!!!!!!!!!!!!!!!!!!!!
-//late User authorizedUser;
-User authorizedUser = User(email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
+late User authorizedUser;
+//User authorizedUser = User(email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
 
 class GamesScreen extends StatefulWidget {
   final User user;
@@ -66,8 +76,12 @@ class GamesScreen extends StatefulWidget {
 }
 
 class _GamesScreenState extends State<GamesScreen> {
+  String text = '';
 
   List<Game>? allGames = [];
+  List<Game>? searchedGames = [];
+
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -80,7 +94,7 @@ class _GamesScreenState extends State<GamesScreen> {
     
     //! BUILD
     apiService.mainHubConnection = HubConnectionBuilder().withUrl(
-      'https://46.32.173.182/mainlobby',
+      'https://31.171.65.145/mainlobby',
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
         skipNegotiation: true,
@@ -89,17 +103,17 @@ class _GamesScreenState extends State<GamesScreen> {
     )
     .build();
 
-
     //! METHODS
 
     // DONE
     apiService.mainHubConnection.on('GameLobbies', (List<Object?>? parameters) {
-      //print('33: $parameters');
+      print('33: $parameters');
       final List<Game>? gamesList = apiService.decodeGamesParameters(parameters);
 
       if (gamesList != null) {
         setState(() {
           allGames = gamesList;
+          searchedGames = allGames;
         });
       }
     });
@@ -111,6 +125,7 @@ class _GamesScreenState extends State<GamesScreen> {
       if (game != null) {
         setState(() {
           allGames?.add(game);
+          searchedGames = allGames;
         });
       }
     });
@@ -123,6 +138,7 @@ class _GamesScreenState extends State<GamesScreen> {
         if (allGames!.any((game) => game.title == title)) {
           setState(() {
             allGames!.removeWhere((game) => game.title == title);
+            searchedGames = allGames;
           });
         }
       }
@@ -141,6 +157,7 @@ class _GamesScreenState extends State<GamesScreen> {
             allGames!
             .firstWhere((game) => game.title == playerJoinedToGame.title)
             .players.add(playerJoinedToGame.player);
+            searchedGames = allGames;
           });
         }
       }
@@ -159,6 +176,7 @@ class _GamesScreenState extends State<GamesScreen> {
             allGames!
             .firstWhere((game) => game.title == playerLeftGame.title)
             .players.removeWhere((player) => player.nickname == playerLeftGame.nickname);
+            searchedGames = allGames;
           });
         }
         else {
@@ -175,16 +193,15 @@ class _GamesScreenState extends State<GamesScreen> {
         if (allGames!.any((game) => game.title == title)) {
           setState(() {
             allGames!.firstWhere((game) => game.title == title).status = 'Game Started';
+            searchedGames = allGames;
           });
         }
       }
     });
 
-
     apiService.mainHubConnection.on('CloseConnection', (List<Object?>? parameters) async {
       await apiService.disconnectMainHub();
     });
-
 
     //! CONNECTION
     if (!apiService.mainHubIsConnected) {
@@ -198,8 +215,6 @@ class _GamesScreenState extends State<GamesScreen> {
       });
     }
 
-
-
     bool temp = false;
     //!!!!!!!!!!!!!!!!!
     for (var game in allGames!) {
@@ -212,7 +227,11 @@ class _GamesScreenState extends State<GamesScreen> {
         }
       }
       if (temp) break;
-    }}
+    }
+
+    //allGames = games;
+    searchedGames = allGames;
+  }
 
   @override
   void dispose() {
@@ -224,17 +243,23 @@ class _GamesScreenState extends State<GamesScreen> {
   void _loadGames() async {
     final fetchedGames = await GetIt.I<ApiService>().getGames();
     setState(() {
-      games = fetchedGames;
+      //games = fetchedGames;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final double ornamentSize = 45.sp;
+    final double ornamentMargin = 12.sp;
+    const String ornament = "assets/images/game-ornament-night.png";
+
     return DecoratedBox(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/modern-tall-buildings-2.png"), fit: BoxFit.cover, opacity: 0.4),
+        image: DecorationImage(image: AssetImage("assets/images/game-phase-night.png"), fit: BoxFit.cover, opacity: 0.8),
       ),
       child: Scaffold(
+
+        /*
         appBar: AppBar(
           title: Text(S.of(context).games),
           automaticallyImplyLeading: false,
@@ -259,6 +284,7 @@ class _GamesScreenState extends State<GamesScreen> {
             ),
           ],
         ),
+        */
 
         //! STREAM
         // body: 
@@ -283,16 +309,245 @@ class _GamesScreenState extends State<GamesScreen> {
         //   },
         // ),
         
-        body: ListView.builder(
-          //! AllGames
-          itemCount: (allGames == null || allGames!.isNotEmpty) ? allGames!.length : 0, 
-          itemBuilder: (context, index) {
-            if (allGames == null || allGames!.isNotEmpty)
-            {
-              return GameCard(game: allGames![index]);
-            }
-          },
-        ),
+        body: Padding(
+          padding: EdgeInsets.only(top: 50.h, right: 20.w, left: 20.w),
+          child: Column(
+            children: [
+
+              // BUTTONS
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // BUTTON:    HOME
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Image.asset(
+                      "assets/images/home-icon.png",
+                      scale: 2.8,
+                    ),
+                  ),
+
+                  // BUTTON:    FILTER
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const FilterizationScreen(),
+                        )
+                      );
+                    },
+                    child: Image.asset(
+                      "assets/images/filter-icon.png",
+                      scale: 3,
+                    ),
+                  ),
+                ],
+              ),
+            
+              //? INFO PART
+              Container(
+                margin: EdgeInsets.only(top: 25.h),
+                width: double.maxFinite,
+                height: 200.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF121212),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: Stack(
+                  children: [
+        
+                    //? ORNAMENTS
+                    Stack(
+                      children: [
+                        // Top-left ornament
+                        Positioned(
+                          top: ornamentMargin,
+                          left: ornamentMargin,
+                          child: Image.asset(
+                            ornament,
+                            width: ornamentSize,
+                            height: ornamentSize,
+                          ),
+                        ),
+                        // Top-right ornament (rotated 90 degrees)
+                        Positioned(
+                          top: ornamentMargin,
+                          right: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                        // Bottom-left ornament (rotated 270 degrees)
+                        Positioned(
+                          bottom: ornamentMargin,
+                          left: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                        // Bottom-right ornament (rotated 180 degrees)
+                        Positioned(
+                          bottom: ornamentMargin,
+                          right: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(),
+
+                        Column(
+                          children: [
+
+                            //? TITLE
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h),
+                              child: Text(
+                                'Lobby',
+                                style: GoogleFonts.playfairDisplay(
+                                  fontSize: 42.sp,
+                                  color: const Color(0xFFFFB000)
+                                ),
+                              ),
+                            ),
+
+                            //? SEARCH
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h, left: 25.w, right: 20.w),
+                              child: Container(
+                                height: 40.h,
+                                width: 290.w,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white, width: 1.5),
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.h),
+                                        child: TextField(
+                                          cursorColor: Colors.white,
+                                          cursorHeight: 20.h,
+                                          onTapOutside: (PointerDownEvent event) {
+                                            FocusScope.of(context).unfocus();
+                                          },
+                                          onChanged: (value) {
+                                            setState(() {
+                                              if (value.isEmpty) {
+                                                searchedGames = allGames;
+                                              }
+                                              else {
+                                                searchedGames = allGames?.where((game) => game.title.toLowerCase().contains(value.toLowerCase())).toList() ?? [];
+                                              }
+                                            });
+                                          },
+                                          controller: _searchController,
+                                          style: TextStyle(color: Colors.white, fontSize: 16.sp, fontFamily: 'CenturyGothic'),
+                                          decoration: const InputDecoration(
+                                            hintText: " Search...",
+                                            hintStyle: TextStyle(color: Color.fromARGB(255, 166, 166, 166), fontFamily: 'CenturyGothic'),
+                                            border: InputBorder.none,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(right: 10.w),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                      
+                                        },
+                                        child: Icon(
+                                          Icons.search,
+                                          color: Colors.white,
+                                          size: 25.sp,
+                                        ),
+                                      ),
+                                    ),
+                                    
+                                  ],
+                                ),
+                              ),
+                            ),
+                          
+                            //? FILTER OFF
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h, left: 25.w, right: 20.w),
+                              child: Text(
+                                'Filter Off',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: Colors.white,
+                                  fontFamily: 'CenturyGothic',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox()
+                      ],
+                    )
+                  ],
+                ),
+              ),
+
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(top: 10.h),
+                  height: 500.h,
+                  width: double.maxFinite,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(12.sp),
+                  ),
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: searchedGames!.length,
+                    itemBuilder: (context, index) {
+                      return GameCard(game: searchedGames![index]);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )
+
+        // ListView.builder(
+        //   //! AllGames
+        //   itemCount: (allGames == null || allGames!.isNotEmpty) ? allGames!.length : 0, 
+        //   itemBuilder: (context, index) {
+        //     if (allGames == null || allGames!.isNotEmpty)
+        //     {
+        //       return GameCard(game: allGames![index]);
+        //     }
+        //   },
+        // ),
       ),
     );
   }
@@ -393,7 +648,7 @@ class GameCard extends StatefulWidget {
 
 class _GameCardState extends State<GameCard> {
   String text = '';
-  
+  bool isCardExpanded = false;
 
   @override
   void initState() {
@@ -409,113 +664,349 @@ class _GameCardState extends State<GameCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        //color: Theme.of(context).cardColor,
-        color: Colors.transparent,
-        margin: const EdgeInsets.all(10),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.game.title,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+    return Container(
+      margin: EdgeInsets.only(top: 5.h, right: 5.h, left: 5.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF141414),
+        borderRadius: BorderRadius.circular(12.sp)
+      ),
+      clipBehavior: Clip.hardEdge,
+      width: double.maxFinite,
+      child: ExpansionTile(
+        // shape: RoundedRectangleBorder(
+        //   side: BorderSide(width: 0, color: Colors.transparent),
+        //   borderRadius: BorderRadius.circular(12.0),
+        // ),
+        backgroundColor: Colors.transparent,
+        textColor: Colors.transparent,
+        clipBehavior: Clip.hardEdge,
+        tilePadding: EdgeInsets.symmetric(horizontal: 10.w),
+        showTrailingIcon: false,
+        onExpansionChanged: (value) => {
+          setState(() {
+            isCardExpanded = value;
+          })
+        },
+        
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            //? TITLE
+            Expanded(
+              child: Text(
+                widget.game.title,
+                overflow: (isCardExpanded) ? TextOverflow.fade : TextOverflow.ellipsis,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 23.sp, 
+                  color: const Color(0xFFFFB000)
+                )
+              ),
+            ),
+                          
+            // BUTTON:    JOIN 
+            //!
+            widget.game.status == 'Game Started'
+            ? Text(
+              'Game Started',
+              style: TextStyle(
+                fontSize: 15.sp,
+                color: Colors.white,
+                fontFamily: 'CenturyGothic'
+              ),
+            )
+            : Row(
+              children: [
+                widget.game.hasPassword 
+                ? Image.asset(
+                  "assets/images/locker.png",
+                  scale: 3.5,
+                )
+                : const SizedBox(),
+        
+                SizedBox(width: 40.w),
+        
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(builder: (context) => 
+                        (text == 'You Are Playing Here' || text == 'You Died Here')
+                        ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, citizenCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false,)
+                        : GameLobbyScreen(
+                          game: widget.game,
+                          //! ------------------- CHANGE -------------------
+                          password: widget.game.hasPassword ? 'password' : '',
+                        )
                       ),
-                      const SizedBox(height: 8),
-                      //////////////////////////////////////////////////////////
-                      /////Text('${S.of(context).players}: ${game.currentPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                      Text('${S.of(context).players}: ${widget.game.players.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                      Text('${S.of(context).min}: ${widget.game.minPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                      Text('${S.of(context).max}: ${widget.game.maxPlayers}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const Spacer(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        widget.game.status == 'Started' ? S.of(context).gameStarted : S.of(context).gatheringPlayers,
+                    );
+                  },
+                  child: Container(
+                    width: 100.w,
+                    height: 35.h,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Join', // NOTE:    Translation L10
                         style: TextStyle(
-                          fontSize: 12,
-                          color: widget.game.status ==  'Started'
-                              ? Colors.red
-                              : Colors.green,
+                          fontSize: 15.sp,
+                          fontFamily: 'CenturyGothic',
+                          color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        //////////////////////////////////////////////////////////
-                        children: ['Mafia', 'Doctor', 'Sheriff'] //game.characters
-                            .map((character) => const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 2.0),
-                                  child: Icon(
-                                    Icons.person, 
-                                    size: 24,
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                      const SizedBox(height: 8),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+                      
+        children: [
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(),
+                                      
+                  Column(
+                    children: [
+                                      
+                      //? MIN AND MAX
                       Row(
                         children: [
-              
-                          // BUTTON:      Players Popup
-                          if ((stateToJoin == 2 && text == 'You Are Playing Here') || (stateToJoin != 2)) SizedBox(
-                            width: 90,
-                            child: ElevatedButton(     
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => PlayersPopup(playersInGame: widget.game.players),
-                                );
-                              },
-                              child: Text(S.of(context).players),
+                                    
+                          //? MIN COUNT
+                          Column(
+                            children: [
+                              Text(
+                                "${widget.game.minPlayers}",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic',
+                                  height: 0
+                                ),
+                              ),
+                                    
+                              Text(
+                                "min",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic',
+                                  height: 0
+                                ),
+                              )
+                            ],
+                          ),
+
+                          //? ACTUAL COUNT
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Column(
+                              children: [
+                                Text(
+                                  "${widget.game.players.length}",
+                                  style: GoogleFonts.playfairDisplay(
+                                    color: const Color(0xFFFFB000),
+                                    fontSize: 32.sp,
+                                  ),
+                                ),
+                                SizedBox(height: 15.h,)
+                              ],
                             ),
                           ),
-              
-                          // BUTTON:      Game Lobby
-                          if ((stateToJoin == 2 && text == 'You Are Playing Here') || (stateToJoin != 2)) SizedBox(
-                            width: 90,
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 15),
-              
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => 
-                                      (text == 'You Are Playing Here' || text == 'You Died Here')
-                                      //!!!!!!!!!!!!!!!! 
-                                      ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, citizenCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false,)
-                                      : GameLobbyScreen(
-                                        game: widget.game,
-                                        //! ------------------- CHANGE -------------------
-                                        password: "",
-                                      )
-                                    ),
-                                  );
-                                },
-                                child: Text(S.of(context).join),
+
+                          //? MAX COUNT
+                          Column(
+                            children: [
+                              Text(
+                                "${widget.game.maxPlayers}",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic',
+                                  height: 0
+                                ),
                               ),
-                            ),
+                                    
+                              Text(
+                                "max",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic',
+                                  height: 0
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  // TEXT:    players in the room            
+                  Text(
+                    'players in the room',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontFamily: 'CenturyGothic'
+                    ),
+                  ),
+                                      
+                  const SizedBox()
+                ],
+              ),
+
+              //? DIVIDER      
+              SizedBox(
+                width: 320.w,
+                child: const Divider(
+                  color: Colors.white,
+                  thickness: 1,
+                ),
+              ),
+            
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+
+                      //? EXTRA ROLES
+                      Container(
+                        width: 140.w,
+                        height: 95.h,
+                        margin: EdgeInsets.only(left: 15.w, top: 5.h),
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: widget.game.extraRoles == null ? 0 : widget.game.extraRoles.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                log('Tapped on card $index');
+                              },
+                              child: Container(
+                                width: 60.w,
+                                height: 100.h,
+                                margin: EdgeInsets.all(5.sp),
+                                child: Stack(
+                                  children: [
+                                    RoleCard(roleName: widget.game.extraRoles[index].toLowerCase(), width: 70.w, height: 93.h)
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        ),
+                      ),
+
+                      // TEXT:    are here
+                      RotatedBox(
+                        quarterTurns: 3, // Rotates the text 90 degrees clockwise
+                        child: Text(
+                          'are here', // Replace with your text
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15.sp,
+                            fontFamily: 'CenturyGothic',
+                          ),
+                        ),
+                      ),
+                    
+                    ],
+                  ),
+                
+                  // BUTTON:    SHOW ALL PLAYERS
+                  Container(
+                    margin: EdgeInsets.only(right: 25.w, bottom: 5.h),
+                    child: GestureDetector(
+                      onTap: () {
+                        //DONE:    DIALOG
+                        showGeneralDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          barrierLabel: "Dismiss",
+                          barrierColor: Colors.black.withOpacity(0.7),
+                          transitionDuration: const Duration(milliseconds: 800),
+                          pageBuilder: (context, animation, secondaryAnimation) {
+                            return PlayersPopup(playersInGame: widget.game.players, gameTitle: widget.game.title,);
+                          },
+                          transitionBuilder: (context, animation, secondaryAnimation, child) {
+                            final curvedAnimation = CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.elasticOut,
+                              reverseCurve: Curves.easeInBack,
+                            );
+
+                            return SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(-1.0, 0.0),
+                                end: Offset.zero,
+                              ).animate(curvedAnimation),
+                              child: child,
+                            );
+                          },
+                        );            
+                      },
+                      child: Column(
+                        children: [
+                          Text(
+                            'Show',
+                            style: GoogleFonts.playfairDisplay(
+                              height: 0,
+                              color: const Color(0xFFFFB000),
+                              fontSize: 20.sp
+                            )
+                          ),
+                      
+                          Text(
+                            'All Players',
+                            style: GoogleFonts.playfairDisplay(
+                              height: 0,
+                              color: const Color(0xFFFFB000),
+                              fontSize: 20.sp
+                            )
                           ),
                         ],
                       ),
-                      
-                    ],
-                  ),
+                    ),
+                  )
                 ],
               ),
-              Text(text, style: const TextStyle(fontSize: 20),)
+            
+              //? DIVIDER
+              Container(
+                margin: EdgeInsets.only(bottom: 10.h),
+                width: 320.w,
+                child: const Divider(
+                  color: Colors.white,
+                  thickness: 1,
+                ),
+              ),
+
+              // TEXT:    USER STATE
+              Padding(
+                padding: EdgeInsets.only(bottom: 20.h),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontFamily: 'CenturyGothic',
+                    color: const Color(0xFF515151)
+                  ),
+                ),
+              )
             ],
-          ),
-        ),
-      );
+          )
+        ],              
+      ),
+    );
   }
 }
 
@@ -543,37 +1034,37 @@ class Player {
 List<Player> players = [
   Player(
     nickname: 'Player1', 
-    avatarUrl: 'https://example.com/avatar1.png', 
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
   Player(
     nickname: 'Player2', 
-    avatarUrl: 'https://example.com/avatar2.png', 
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: false
   ),
   Player(
     nickname: 'Player3', 
-    avatarUrl: 'https://example.com/avatar2.png', 
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
   Player(
     nickname: 'Player4', 
-    avatarUrl: 'https://example.com/avatar2.png', 
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
   Player(
     nickname: 'Player5', 
-    avatarUrl: 'https://example.com/avatar2.png', 
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
   Player(
     nickname: 'Player6', 
-    avatarUrl: 'https://example.com/avatar2.png', 
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: false
   ),
   Player(
     nickname: 'Player7', 
-    avatarUrl: 'https://example.com/avatar2.png', 
+    avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
 ];
@@ -620,10 +1111,12 @@ List<Player> playersWithMe = [
 
 class PlayersPopup extends StatefulWidget {
   final List<Player> playersInGame;
+  final String gameTitle;
   
   const PlayersPopup({
     super.key, 
-    required this.playersInGame
+    required this.playersInGame, 
+    required this.gameTitle
   });
 
   @override
@@ -633,59 +1126,118 @@ class PlayersPopup extends StatefulWidget {
 class _PlayersPopupState extends State<PlayersPopup> {
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(S.of(context).players),
-      content: SizedBox(
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 21.w),
         width: double.maxFinite,
-        child: ListView.builder(
-          shrinkWrap: true,
-          //!!!!!!!!!!!!!!!!!!!!!!!!!
-          itemCount: widget.playersInGame.length,
-          itemBuilder: (context, index) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: Row(
+        height: 350.h,
+        child: Material(
+          borderRadius: BorderRadius.circular(12.sp),
+          color: const Color(0xFF111111),
+          child: Column(
+            children: [
+              //? TITLE AND CLOSE BUTTON
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        //////////////////////////////////////////
-                        //child: Text(widget.playersInGame[index].avatarUrl[0]),
-                        child: Image.network(widget.playersInGame[index].avatarUrl),
+                  SizedBox(width: 25.w),
+        
+                  Padding(
+                    padding: EdgeInsets.all(8.sp),
+                    child: Text(
+                      widget.gameTitle,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 32.sp,
+                        color: const Color(0xFFFFB000)
                       ),
-                      const SizedBox(width: 8),
-                      //!!!!!!!!!!!!!!!!!
-                      //wText(players[index].nickname, style: const TextStyle(fontSize: 12, color: Colors.black)),
-                      Text(widget.playersInGame[index].nickname, style: const TextStyle(fontSize: 12, color: Colors.black)),
-                    ],
+                    ),
                   ),
-                  Text(
-                    //!!!!!!!!!!!!!!!!!
-                    //players[index].isAlive == true ? S.of(context).alive : S.of(context).dead,
-                    widget.playersInGame[index].isAlive == true ? S.of(context).alive : S.of(context).dead,
-                    style: TextStyle(
-                      fontSize: 12,
-                      //!!!!!!!!!!!!!!!!!
-                      color: widget.playersInGame[index].isAlive == true
-                          ? Colors.green
-                          : Colors.red,
+        
+                  // BUTTON:    CLOSE BUTTON
+                  Padding(
+                    padding: EdgeInsets.only(right: 25.w),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Image.asset(
+                        "assets/images/close-white-icon.png",
+                        scale: 2.5,
+                      ),
                     ),
                   )
                 ],
-              )
-            );
-          },
+              ),
+        
+              Container(
+                margin: EdgeInsets.only(top: 10.h),
+                height: 250.h,
+                child: ListView.builder(
+                  padding: EdgeInsets.only(left: 20.w, right: 20.w),
+                  shrinkWrap: true,
+                  itemCount: widget.playersInGame.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: EdgeInsets.only(top: 5.h),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              //? CIRCLE AVATAR AND NICKNAME
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 15,
+                                    backgroundImage: NetworkImage(widget.playersInGame[index].avatarUrl),
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Text(
+                                    widget.playersInGame[index].nickname, 
+                                    style: TextStyle(
+                                      fontSize: 15.sp, 
+                                      fontFamily: 'CenturyGothic',
+                                      color: widget.playersInGame[index].isAlive == true ? const Color(0xFFFFB000) : const Color(0xFF515151)
+                                    )
+                                  ),
+                                ],
+                              ),
+                                          
+                              // TEXT:    DEFEATED OR STILL HERE
+                              Text(
+                                widget.playersInGame[index].isAlive == true ? 'Still here' : 'Defeated',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic',
+                                  color: widget.playersInGame[index].isAlive == true ? const Color(0xFFFFB000) : const Color(0xFF515151),
+                                ),
+                              )
+                            ],
+                          ),
+                        
+                          //? DIVIDER      
+                          Padding(
+                            padding: EdgeInsets.only(top: 5.h),
+                            child: SizedBox(
+                              width: 310.w,
+                              child: const Divider(
+                                color: Colors.white,
+                                thickness: 1,
+                              ),
+                            ),
+                          ),
+            
+                        ],
+                      )
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text(S.of(context).close),
-        ),
-      ],
     );
   }
 }
@@ -796,8 +1348,24 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   String roomName = '';
   int minPlayers = 5;
   int maxPlayers = 7;
+
+  int showedMinPlayers = 5;
+  int showedMaxPlayers = 7;
   
   String password = '';
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool isPasswordVisible = false;
+
+  bool hasDoctor = false;
+  bool hasBodyguard = false;
+  bool hasSpy = false;
+  bool hasJournalist = false;
+  bool hasLover = false;
+
+  bool hasTerrorist = false;
+  bool hasBartender = false;
+  bool hasInformant = false;
   
   late Map<String, bool> rolesL10;
   late Map<String, bool> mainRoles;
@@ -839,135 +1407,926 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/modern-tall-buildings-1.png"), fit: BoxFit.cover, opacity: 0.4),
+        image: DecorationImage(image: AssetImage("assets/images/temp-create-game-background.png"), fit: BoxFit.fill),
       ),
       child: Scaffold(
+
+        /*
         appBar: AppBar(
           title: Text(S.of(context).createGame),
           automaticallyImplyLeading: false,
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: S.of(context).roomName,
-                    hintStyle: const TextStyle(color: Colors.white30)
+        */
+
+        body: Padding(
+          padding: EdgeInsets.only(top: 50.h),
+          child: Column(
+            children: [
+              
+              // BUTTON:   HOME
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 15.w),
+                    child: GestureDetector(
+                      onTap: () {
+                    
+                      },
+                      child: Image.asset(
+                        'assets/images/home-icon.png',
+                        scale: 2.9,
+                      ),
+                    ),
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      roomName = value;
-                    });
-                  },
-                  style: const TextStyle(color: Colors.white)
+                  const SizedBox()
+                ],
+              ),
+            
+              // TEXT:    Create Game
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Create Game',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 38.sp,
+                      color: Colors.white
+                    ),
+                  )
+                ],
+              ),
+            
+              //? TITLE AND PASSWORD
+              Container(
+                height: 160.h,
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.sp),
+                  //border: Border.all(color: Colors.white, width: 1.5),
                 ),
-                const SizedBox(height: 20),
-                Text('${S.of(context).players}: $minPlayers - $maxPlayers'),
-                RangeSlider(
-                  values: RangeValues(minPlayers.toDouble(), maxPlayers.toDouble()),
-                  min: 5,
-                  max: 20,
-                  divisions: 15,
-                  onChanged: (RangeValues values) {
-                    setState(() {
-                      minPlayers = values.start.toInt();
-                      maxPlayers = values.end.toInt();
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  S.of(context).roles,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                Column(
-                  children: rolesL10.keys.map((role) {
-                    return ListTile(
-                      leading: const Icon(Icons.person, color: Colors.white),
-                      title: Text(role, style: const TextStyle(color: Colors.white)),
-                      trailing: Switch(
-                        value: rolesL10[role]!,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                
+                    // TEXTFIELD:    TITLE
+                    Container(
+                      height: 37.h,
+                      width: 230.w,
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD1C3A6),
+                        border: Border.all(color: Colors.white, width: 1.5),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: TextField(
+                        cursorColor: Colors.white,
+                        cursorHeight: 20.h,
+                        textAlign: TextAlign.center,
+                        onTapOutside: (PointerDownEvent event) {
+                          FocusScope.of(context).unfocus();
+                        },
                         onChanged: (value) {
                           setState(() {
-                            rolesL10[role] = value;
-                            for (var i = 0; i < rolesL10.length; i++) {
-                              if (rolesL10.keys.elementAt(i) == role) {
-                                mainRoles[mainRoles.keys.elementAt(i)] = true;
-                              }
-                            }
-                            //print('roles l10: $rolesL10');
-                            //print('main roles: $mainRoles');
+                            
                           });
                         },
+                        controller: _titleController,
+                        style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
+                        decoration: InputDecoration(
+                          hintText: " Enter the name",
+                          hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
+                          border: InputBorder.none,
+                          counterText: '',
+                        ),
+                        maxLength: 12,
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: S.of(context).passwordOptional,
-                    hintStyle: const TextStyle(color: Colors.white30)
-                  ),
-                  obscureText: true,
-                  onChanged: (value) {
-                    setState(() {
-                      password = value;
-                    });
-                  },
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      mainRoles.forEach((mainRole, state) {
-                        if (state) {
-                          roles.add(mainRole);
-                        }
-                      });
-                      CreateGame finalGame = CreateGame(
-                        title: roomName, 
-                        minPlayers: minPlayers, 
-                        maxPlayers: maxPlayers, 
-                        password: (password.isEmpty) ? "" : password, 
-                        extraRoles: roles
-                      );
-                      //print(jsonEncode(finalGame.toJson()));
-                     //bool status = await GetIt.I<ApiService>().createGame(jsonEncode(finalGame.toJson()));
-                     bool status = await GetIt.I<ApiService>().createGame(finalGame);
-
-                      if (status) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => 
-                            GameLobbyScreen(
-                              game: Game(
-                                title: roomName, 
-                                minPlayers: minPlayers, 
-                                maxPlayers: maxPlayers, 
-                                status: 'Gathering Players', 
-                                extraRoles: roles, 
-                                hasPassword: (password.isEmpty) ? false : true, 
-                                players: []
+                    ),
+        
+                    // TEXT:    Password
+                    //? Toggle Password
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(top: 15.h),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Password ${isPasswordVisible ? 'on' : 'off'}',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: const Color(0xFF494239),
+                                  fontFamily: 'CenturyGothic',
+                                ),
                               ),
-                              password: (password.isEmpty) ? "" : password,
-                            )
+                        
+                              Container(
+                                width: 65.w,
+                                height: 27.h,
+                                margin: EdgeInsets.only(left: 15.w),
+                                child: AnimatedToggleSwitch.dual(
+                                  current: isPasswordVisible, 
+                                  first: false, 
+                                  second: true,
+                                  spacing: 10.w,
+                                  height: 30.h,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      isPasswordVisible = value;
+                                    });
+                                  },
+                                  style: const ToggleStyle(
+                                    backgroundColor: Colors.transparent,
+                                    borderColor: Colors.transparent,
+                                  ),
+                                  styleBuilder: (value) => ToggleStyle(
+                                    backgroundColor: value ? const Color(0xFFEBBD57) : const Color(0xFF585755),
+                                    indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF585755),
+                                  ),
+                                  iconBuilder: (value) => value 
+                                    ? Image.asset('assets/images/locker-opened-icon.png', scale: 3.2.sp) 
+                                    : Image.asset('assets/images/locker-closed-icon.png', scale: 3.2.sp),
+                                ),
+                              )
+                            
+                            ],
                           ),
-                        );
-                      }
-                    },
-                    child: Text(S.of(context).createGame),
-                  ),
+                        ),
+                      ],
+                    ),
+                  
+                    isPasswordVisible
+                    ?
+                    // TEXTFIELD:    PASSWORD
+                    Padding(
+                      padding: EdgeInsets.only(top: 15.h),
+                      child: Container(
+                        height: 37.h,
+                        width: 230.w,
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD1C3A6),
+                          border: Border.all(color: Colors.white, width: 1.5),
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: TextField(
+                          cursorColor: Colors.white,
+                          cursorHeight: 20.h,
+                          textAlign: TextAlign.center,
+                          onTapOutside: (PointerDownEvent event) {
+                            FocusScope.of(context).unfocus();
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              
+                            });
+                          },
+                          controller: _passwordController,
+                          style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
+                          decoration: InputDecoration(
+                            hintText: " Enter the password",
+                            hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
+                            border: InputBorder.none,
+                            counterText: '',
+                          ),
+                          maxLength: 12,
+                        ),
+                      ),
+                    )
+                    :
+                    const SizedBox(),
+                  ],
                 ),
-              ],
-            ),
+              ),
+        
+              //? NUMBER OF PLAYERS
+              Container(
+                height: 100.h,
+                width: 280.w,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.sp),
+                  //border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // TEXT:    Number of players
+                    Text(
+                      'Number of players',
+                      style: GoogleFonts.playfairDisplay(
+                        color: Colors.white,
+                        fontSize: 23.sp,
+                        fontWeight: FontWeight.w700
+                      ),
+                    ),
+                    Stack(
+                      children: [
+                        //? SLIDER
+                        SliderTheme(
+                          data: const SliderThemeData(
+                            rangeThumbShape: RoundRangeSliderThumbShape(
+                              enabledThumbRadius: 5
+                            ),
+                          ),
+                          child: RangeSlider(
+                            values: RangeValues(minPlayers.toDouble(), maxPlayers.toDouble()),
+                            min: 5,
+                            max: 20,
+                            divisions: 15,
+                            
+                            activeColor: const Color(0xFFFFB000),
+                            inactiveColor: Colors.white,
+                            onChanged: (RangeValues values) {
+                              setState(() {
+                                minPlayers = values.start.toInt();
+                                maxPlayers = values.end.toInt();
+                                showedMinPlayers = values.start.toInt();
+                                showedMaxPlayers = values.end.toInt();
+                              });
+                            },
+                          ),
+                        ),
+                        
+                        //? TEXT:    MIN AND MAX PLAYERS
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            //? MIN COUNT
+                            Padding(
+                              padding: EdgeInsets.only(top: 30.h, left: 10.h),
+                              child: Text(
+                                '$showedMinPlayers',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              ),
+                            ),
+        
+                            //? MAX COUNT
+                            Padding(
+                              padding: EdgeInsets.only(top: 30.h, right: 10.w),
+                              child: Text(
+                                '$showedMaxPlayers',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+        
+              //? EXTRA ROLES
+              Container(
+                height: 280.h,
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.sp),
+                  //border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                child: Column(
+                  children: [
+                    // TEXT:    EXTRA ROLES
+                    Padding(
+                      padding: EdgeInsets.only(top: 5.h),
+                      child: Text(
+                        'Extra Roles',
+                        style: GoogleFonts.playfairDisplay(
+                          color: const Color(0xFF494239),
+                          fontSize: 23.sp,
+                          fontWeight: FontWeight.w700
+                        ),
+                      ),
+                    ),
+        
+                    //? ROLES
+                    Padding(
+                      padding: EdgeInsets.only(top: 5.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //? CITIZEN ROLES
+                          Padding(
+                            padding: EdgeInsets.only(right: 5.w),
+                            child: Container(
+                              height: 200.h,
+                              width: 190.w,
+                              padding: EdgeInsets.only(top: 10.h),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFDDB98B),
+                                borderRadius: BorderRadius.circular(12.sp),
+                              ),
+                              child: Column(
+                                children: [
+                                  //? Doctor
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // TEXT:
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
+                                        child: Text(
+                                          'Doctor',
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFFFFF),
+                                            fontSize: 19.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+        
+                                      //? TOGGLE:
+                                      Container(
+                                        width: 62.w,
+                                        height: 27.h,
+                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
+                                        child: AnimatedToggleSwitch.dual(
+                                          current: hasDoctor, 
+                                          first: false, 
+                                          second: true,
+                                          spacing: 10.w,
+                                          height: 30.h,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              hasDoctor = value;
+                                            });
+                                          },
+                                          style: const ToggleStyle(
+                                            backgroundColor: Colors.transparent,
+                                            borderColor: Colors.transparent,
+                                          ),
+                                          styleBuilder: (value) => ToggleStyle(
+                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
+                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
+                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
+                                            borderRadius: BorderRadius.circular(10.sp),
+                                            
+                                          ),
+                                          indicatorSize: Size(20.sp, 20.sp),
+                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                                        ),
+                                      )
+                                    
+                                    ],
+                                  ),
+        
+                                  //? BODYGUARD
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // TEXT:
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
+                                        child: Text(
+                                          'Bodyguard',
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFFFFF),
+                                            fontSize: 18.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+        
+                                      //? TOGGLE:
+                                      Container(
+                                        width: 62.w,
+                                        height: 27.h,
+                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
+                                        child: AnimatedToggleSwitch.dual(
+                                          current: hasBodyguard, 
+                                          first: false, 
+                                          second: true,
+                                          spacing: 10.w,
+                                          height: 30.h,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              hasBodyguard = value;
+                                            });
+                                          },
+                                          style: const ToggleStyle(
+                                            backgroundColor: Colors.transparent,
+                                            borderColor: Colors.transparent,
+                                          ),
+                                          styleBuilder: (value) => ToggleStyle(
+                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
+                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
+                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
+                                            borderRadius: BorderRadius.circular(10.sp),
+                                            
+                                          ),
+                                          indicatorSize: Size(20.sp, 20.sp),
+                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                                          
+                                        ),
+                                      )
+                                    ],
+                                  ),
+        
+                                  //? SPY
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // TEXT:
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
+                                        child: Text(
+                                          'Spy',
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFFFFF),
+                                            fontSize: 19.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+        
+                                      //? TOGGLE:
+                                      Container(
+                                        width: 62.w,
+                                        height: 27.h,
+                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
+                                        child: AnimatedToggleSwitch.dual(
+                                          current: hasSpy, 
+                                          first: false, 
+                                          second: true,
+                                          spacing: 10.w,
+                                          height: 30.h,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              hasSpy = value;
+                                            });
+                                          },
+                                          style: const ToggleStyle(
+                                            backgroundColor: Colors.transparent,
+                                            borderColor: Colors.transparent,
+                                          ),
+                                          styleBuilder: (value) => ToggleStyle(
+                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
+                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
+                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
+                                            borderRadius: BorderRadius.circular(10.sp),
+                                            
+                                          ),
+                                          indicatorSize: Size(20.sp, 20.sp),
+                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                                          
+                                        ),
+                                      )
+                                    ],
+                                  ),
+        
+                                  //? JOURNALIST
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // TEXT
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
+                                        child: Text(
+                                          'Journalist',
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFFFFF),
+                                            fontSize: 19.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+        
+                                      //? TOGGLE
+                                      Container(
+                                        width: 62.w,
+                                        height: 27.h,
+                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
+                                        child: AnimatedToggleSwitch.dual(
+                                          current: hasJournalist, 
+                                          first: false, 
+                                          second: true,
+                                          spacing: 10.w,
+                                          height: 30.h,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              hasJournalist = value;
+                                            });
+                                          },
+                                          style: const ToggleStyle(
+                                            backgroundColor: Colors.transparent,
+                                            borderColor: Colors.transparent,
+                                          ),
+                                          styleBuilder: (value) => ToggleStyle(
+                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
+                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
+                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
+                                            borderRadius: BorderRadius.circular(10.sp),
+                                            
+                                          ),
+                                          indicatorSize: Size(20.sp, 20.sp),
+                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                                          
+                                        ),
+                                      )
+                                    ],
+                                  ),
+        
+                                  //? LOVER
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // TEXT:
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
+                                        child: Text(
+                                          'Lover',
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFFFFF),
+                                            fontSize: 19.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+        
+                                      //? TOGGLE:
+                                      Container(
+                                        width: 62.w,
+                                        height: 27.h,
+                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
+                                        child: AnimatedToggleSwitch.dual(
+                                          current: hasLover, 
+                                          first: false, 
+                                          second: true,
+                                          spacing: 10.w,
+                                          height: 30.h,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              hasLover = value;
+                                            });
+                                          },
+                                          style: const ToggleStyle(
+                                            backgroundColor: Colors.transparent,
+                                            borderColor: Colors.transparent,
+                                          ),
+                                          styleBuilder: (value) => ToggleStyle(
+                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
+                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
+                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
+                                            borderRadius: BorderRadius.circular(10.sp),
+                                            
+                                          ),
+                                          indicatorSize: Size(20.sp, 20.sp),
+                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                                          
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            
+                            ),
+                          ),
+                      
+                          //? MAFIA ROLES
+                          Padding(
+                            padding: EdgeInsets.only(left: 5.w),
+                            child: Container(
+                              height: 200.h,
+                              width: 190.w,
+                              padding: EdgeInsets.only(top: 45.h),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF000000),
+                                borderRadius: BorderRadius.circular(12.sp),
+                              ),
+                              child: Column(
+                                children: [
+                                  //? TERRORIST
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // TEXT:
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
+                                        child: Text(
+                                          'Terrorist',
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFFFFF),
+                                            fontSize: 19.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+        
+                                      //? TOGGLE:
+                                      Container(
+                                        width: 62.w,
+                                        height: 27.h,
+                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
+                                        child: AnimatedToggleSwitch.dual(
+                                          current: hasTerrorist, 
+                                          first: false, 
+                                          second: true,
+                                          spacing: 10.w,
+                                          height: 30.h,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              hasTerrorist = value;
+                                            });
+                                          },
+                                          style: const ToggleStyle(
+                                            backgroundColor: Colors.transparent,
+                                            borderColor: Colors.transparent,
+                                          ),
+                                          styleBuilder: (value) => ToggleStyle(
+                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
+                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
+                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
+                                            borderRadius: BorderRadius.circular(10.sp),
+                                            
+                                          ),
+                                          indicatorSize: Size(20.sp, 20.sp),
+                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                                        ),
+                                      )
+                                    
+                                    ],
+                                  ),
+        
+                                  //? BARTENDER
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // TEXT:
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
+                                        child: Text(
+                                          'Bartender',
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFFFFF),
+                                            fontSize: 18.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+        
+                                      //? TOGGLE:
+                                      Container(
+                                        width: 62.w,
+                                        height: 27.h,
+                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
+                                        child: AnimatedToggleSwitch.dual(
+                                          current: hasBartender, 
+                                          first: false, 
+                                          second: true,
+                                          spacing: 10.w,
+                                          height: 30.h,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              hasBartender = value;
+                                            });
+                                          },
+                                          style: const ToggleStyle(
+                                            backgroundColor: Colors.transparent,
+                                            borderColor: Colors.transparent,
+                                          ),
+                                          styleBuilder: (value) => ToggleStyle(
+                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
+                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
+                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
+                                            borderRadius: BorderRadius.circular(10.sp),
+                                            
+                                          ),
+                                          indicatorSize: Size(20.sp, 20.sp),
+                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                                          
+                                        ),
+                                      )
+                                    ],
+                                  ),
+        
+                                  //? INFORMANT
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // TEXT:
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
+                                        child: Text(
+                                          'Informant',
+                                          style: TextStyle(
+                                            color: const Color(0xFFFFFFFF),
+                                            fontSize: 19.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+        
+                                      //? TOGGLE:
+                                      Container(
+                                        width: 62.w,
+                                        height: 27.h,
+                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
+                                        child: AnimatedToggleSwitch.dual(
+                                          current: hasInformant, 
+                                          first: false, 
+                                          second: true,
+                                          spacing: 10.w,
+                                          height: 30.h,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              hasInformant = value;
+                                            });
+                                          },
+                                          style: const ToggleStyle(
+                                            backgroundColor: Colors.transparent,
+                                            borderColor: Colors.transparent,
+                                          ),
+                                          styleBuilder: (value) => ToggleStyle(
+                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
+                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
+                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
+                                            borderRadius: BorderRadius.circular(10.sp),
+                                            
+                                          ),
+                                          indicatorSize: Size(20.sp, 20.sp),
+                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                                          
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+        
+              // BUTTON:    CONFIRM
+              Padding(
+                padding: EdgeInsets.only(top: 15.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                    
+                      },
+                      child: Container(
+                        width: 140.w,
+                        height: 40.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFB000),
+                          borderRadius: BorderRadius.circular(34.sp),
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Confirm',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.sp,
+                              fontFamily: 'CenturyGothic'
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )         
+            ],
           ),
-      
+          
+          /*
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                decoration: InputDecoration(
+                  labelText: S.of(context).roomName,
+                  hintStyle: const TextStyle(color: Colors.white30)
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    roomName = value;
+                  });
+                },
+                style: const TextStyle(color: Colors.white)
+              ),
+              const SizedBox(height: 20),
+              Text('${S.of(context).players}: $minPlayers - $maxPlayers'),
+              RangeSlider(
+                values: RangeValues(minPlayers.toDouble(), maxPlayers.toDouble()),
+                min: 5,
+                max: 20,
+                divisions: 15,
+                onChanged: (RangeValues values) {
+                  setState(() {
+                    minPlayers = values.start.toInt();
+                    maxPlayers = values.end.toInt();
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              Text(
+                S.of(context).roles,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Column(
+                children: rolesL10.keys.map((role) {
+                  return ListTile(
+                    leading: const Icon(Icons.person, color: Colors.white),
+                    title: Text(role, style: const TextStyle(color: Colors.white)),
+                    trailing: Switch(
+                      value: rolesL10[role]!,
+                      onChanged: (value) {
+                        setState(() {
+                          rolesL10[role] = value;
+                          for (var i = 0; i < rolesL10.length; i++) {
+                            if (rolesL10.keys.elementAt(i) == role) {
+                              mainRoles[mainRoles.keys.elementAt(i)] = true;
+                            }
+                          }
+                          //print('roles l10: $rolesL10');
+                          //print('main roles: $mainRoles');
+                        });
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: S.of(context).passwordOptional,
+                  hintStyle: const TextStyle(color: Colors.white30)
+                ),
+                obscureText: true,
+                onChanged: (value) {
+                  setState(() {
+                    password = value;
+                  });
+                },
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    mainRoles.forEach((mainRole, state) {
+                      if (state) {
+                        roles.add(mainRole);
+                      }
+                    });
+                    CreateGame finalGame = CreateGame(
+                      title: roomName, 
+                      minPlayers: minPlayers, 
+                      maxPlayers: maxPlayers, 
+                      password: (password.isEmpty) ? "" : password, 
+                      extraRoles: roles
+                    );
+                    //print(jsonEncode(finalGame.toJson()));
+                   //bool status = await GetIt.I<ApiService>().createGame(jsonEncode(finalGame.toJson()));
+                   bool status = await GetIt.I<ApiService>().createGame(finalGame);
+        
+                    if (status) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => 
+                          GameLobbyScreen(
+                            game: Game(
+                              title: roomName, 
+                              minPlayers: minPlayers, 
+                              maxPlayers: maxPlayers, 
+                              status: 'Gathering Players', 
+                              extraRoles: roles, 
+                              hasPassword: (password.isEmpty) ? false : true, 
+                              players: []
+                            ),
+                            password: (password.isEmpty) ? "" : password,
+                          )
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(S.of(context).createGame),
+                ),
+              ),
+            ],
+          ),
+          */
+        
         )
       ),
     );
@@ -978,6 +2337,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 ////// FILTERIZATION /////////
 
 class FilterizationScreen extends StatefulWidget {
+
   const FilterizationScreen({super.key});
 
   @override
@@ -986,14 +2346,34 @@ class FilterizationScreen extends StatefulWidget {
 
 //// LOGIC ////
 class _FilterizationScreenState extends State<FilterizationScreen> {
+  int minPlayers = 5;
+  int maxPlayers = 7;
+
+  int showedMinPlayers = 5;
+  int showedMaxPlayers = 7;
+
   bool friendsInRoom = false;
   bool roomsWithSpace = false;
-  bool roomsWithoutPassword = false;
-  bool roomsWithPassword = false;
+  // bool roomsWithoutPassword = false;
+  // bool roomsWithPassword = false;
+  int accessState = 0;
   bool noAdditionalRoles = false;
+
+  bool hasBodyguard = false;
+  bool hasLover = false;
+  bool hasSpy = false;
+  bool hasJournalist = false;
+
+  bool hasTerrorist = false;
+  bool hasBartender = false;
+  bool hasInformant = false;
 
   @override
   Widget build(BuildContext context) {
+    final double ornamentSize = 45.sp;
+    final double ornamentMargin = 10.sp;
+    const String ornament = "assets/images/game-ornament-night.png";
+
     Map<String, bool> additionalRoles = {
       //S.of(context).doctor: false,
       //S.of(context).sheriff: false,
@@ -1010,9 +2390,18 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
       setState(() {
         friendsInRoom = false;
         roomsWithSpace = false;
-        roomsWithoutPassword = false;
-        roomsWithPassword = false;
+        // roomsWithoutPassword = false;
+        // roomsWithPassword = false;
+        accessState = 0;
         noAdditionalRoles = false;
+
+        hasBodyguard = false;
+        hasLover = false;
+        hasSpy = false;
+        hasJournalist = false; 
+        hasTerrorist = false;
+        hasBartender = false;
+        hasInformant = false;
 
         additionalRoles.updateAll((key, value) => false);
       });
@@ -1020,140 +2409,833 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
 
     return DecoratedBox(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/modern-tall-buildings-1.png"), fit: BoxFit.cover, opacity: 0.4),
+        image: DecorationImage(image: AssetImage("assets/images/game-phase-night.png"), fit: BoxFit.fill),
       ),
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(S.of(context).filter),
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 10),
-                // reset
-                ElevatedButton(
-                  onPressed: resetFilters,
-                  child: Text(S.of(context).reset, style: const TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(height: 20),
-                // friends in games
-                ListTile(
-                  leading: const Icon(Icons.people, color: Colors.green),
-                  title: Text(
-                    S.of(context).friendInTheRoom, 
-                    style: const TextStyle(color: Colors.white, fontSize: 15)
-                  ),
-                  trailing: Switch(
-                    value: friendsInRoom,
-                    onChanged: (value) {
-                      setState(() {
-                        friendsInRoom = value;
-                      });
+        body: Padding(
+          padding: EdgeInsetsGeometry.only(top: 50.h, left: 15.w, right: 15.w),
+          child: Column(
+            children: [
+              //? GO BACK BUTTON
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(),
+        
+                  // BUTTON:    GO BACK
+                  GestureDetector(
+                    onTap: () {
+                      resetFilters();
+                      Navigator.pop(context);
                     },
-                  ),
-                ),
-                // only where places
-                ListTile(
-                  title: Text(
-                    S.of(context).onlyRoomsWithAvailableSpace, 
-                    style: const TextStyle(color: Colors.white, fontSize: 15)
-                  ),
-                  trailing: Switch(
-                    value: roomsWithSpace,
-                    onChanged: (value) {
-                      setState(() {
-                        roomsWithSpace = value;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // without password
-                ListTile(
-                  title: Text(
-                    S.of(context).roomsWithoutAPassword, 
-                    style: const TextStyle(color: Colors.white, fontSize: 15)
-                  ),
-                  trailing: Switch(
-                    value: roomsWithoutPassword,
-                    onChanged: (value) {
-                      setState(() {
-                        roomsWithoutPassword = value;
-                      });
-                    },
-                  ),
-                ),
-                // with password
-                ListTile(
-                  title: Text(
-                    S.of(context).roomsWithAPassword, 
-                    style: const TextStyle(color: Colors.white, fontSize: 15)
-                  ),
-                  trailing: Switch(
-                    value: roomsWithPassword,
-                    onChanged: (value) {
-                      setState(() {
-                        roomsWithPassword = value;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // roles
-                Text(
-                  S.of(context).additionalRoles,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                Column(
-                  children: additionalRoles.keys.map((role) {
-                    return ListTile(
-                      leading: const Icon(Icons.person, color: Colors.white),
-                      title: Text(role, style: const TextStyle(color: Colors.white, fontSize: 15)),
-                      trailing: Switch(
-                        value: additionalRoles[role]!,
-                        onChanged: (value) {
-                          setState(() {
-                            additionalRoles[role] = value;
-                          });
-                        },
+                    child: Container(
+                      width: 33.w,
+                      height: 33.w,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFB000).withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(8.sp),
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-                // without additional roles
-                ListTile(
-                  title: Text(
-                    S.of(context).roomsWithourAdditionalRoles, 
-                    style: const TextStyle(color: Colors.white, fontSize: 15)
-                  ),
-                  trailing: Switch(
-                    value: noAdditionalRoles,
-                    onChanged: (value) {
-                      setState(() {
-                        noAdditionalRoles = value;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // LOGIC
-                    },
-                    child: Text(
-                      S.of(context).apply,
-                      style: const TextStyle(color: Colors.white)
+                      child: Icon(
+                        Icons.keyboard_double_arrow_left,
+                        color: Colors.white,
+                        size: 33.sp,
+                      ),
                     ),
-                  ),
+                  )
+                ],
+              ),
+        
+              //? INFO PART
+              Container(
+                margin: EdgeInsets.only(top: 20.h),
+                width: double.maxFinite,
+                height: 180.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF141414),
+                  borderRadius: BorderRadius.circular(20.0),
                 ),
-              ],
-            ),
+                child: Stack(
+                  children: [
+        
+                    //? ORNAMENTS
+                    Stack(
+                      children: [
+                        // Top-left ornament
+                        Positioned(
+                          top: ornamentMargin,
+                          left: ornamentMargin,
+                          child: Image.asset(
+                            ornament,
+                            width: ornamentSize,
+                            height: ornamentSize,
+                          ),
+                        ),
+                        // Top-right ornament (rotated 90 degrees)
+                        Positioned(
+                          top: ornamentMargin,
+                          right: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                        // Bottom-left ornament (rotated 270 degrees)
+                        Positioned(
+                          bottom: ornamentMargin,
+                          left: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                        // Bottom-right ornament (rotated 180 degrees)
+                        Positioned(
+                          bottom: ornamentMargin,
+                          right: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // TEXT:    FILTER
+                            Text(
+                              'Filter',
+                              style: GoogleFonts.playfairDisplay(
+                                color: const Color(0xFFFFB000),
+                                fontSize: 42.sp
+                              ),
+                            ),
+        
+                            // BUTTON:    CLOSE
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h),
+                              child: GestureDetector(
+                                onTap: () {
+                                  resetFilters();
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  width: 100.w,
+                                  height: 40.h,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20.sp),
+                                    border: BoxBorder.all(
+                                      color: const Color(0xFFFFFFFF),
+                                      width: 1.5.sp,
+                                    )
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Close',
+                                      style: TextStyle(
+                                        color: const Color(0xFFFFFFFF),
+                                        fontSize: 16.sp,
+                                        fontFamily: 'CenturyGothic',
+                                      )
+                                    )
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    )
+                  
+                  ],
+                ),
+              ),
+            
+              //? NUMBER OF PLAYERS
+              Container(
+                height: 80.h,
+                width: 280.w,
+                margin: EdgeInsets.only(top: 10.h),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.sp),
+                  //border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // TEXT:    Number of players
+                    Text(
+                      'Number of players',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 19.sp,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'CenturyGothic'
+                      ),
+                    ),
+                    Stack(
+                      children: [
+                        //? SLIDER
+                        SliderTheme(
+                          data: const SliderThemeData(
+                            rangeThumbShape: RoundRangeSliderThumbShape(
+                              enabledThumbRadius: 5
+                            ),
+                          ),
+                          child: RangeSlider(
+                            values: RangeValues(minPlayers.toDouble(), maxPlayers.toDouble()),
+                            min: 5,
+                            max: 20,
+                            divisions: 15,
+                            
+                            activeColor: const Color(0xFFFFB000),
+                            inactiveColor: Colors.white,
+                            onChanged: (RangeValues values) {
+                              setState(() {
+                                minPlayers = values.start.toInt();
+                                maxPlayers = values.end.toInt();
+                                showedMinPlayers = values.start.toInt();
+                                showedMaxPlayers = values.end.toInt();
+                              });
+                            },
+                          ),
+                        ),
+                        
+                        //? TEXT:    MIN AND MAX PLAYERS
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            //? MIN COUNT
+                            Padding(
+                              padding: EdgeInsets.only(top: 30.h, left: 10.h),
+                              child: Text(
+                                '$showedMinPlayers',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              ),
+                            ),
+        
+                            //? MAX COUNT
+                            Padding(
+                              padding: EdgeInsets.only(top: 30.h, right: 10.w),
+                              child: Text(
+                                '$showedMaxPlayers',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+                
+              //? ROOMS WITH
+              SizedBox(
+                height: 80.h,
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // TEXT:    ROOMS WITH
+                    Text(
+                      'Rooms with:',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 19.sp,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'CenturyGothic'
+                      ),
+                    ),
+                    
+                    Padding(
+                      padding: EdgeInsets.only(top: 15.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //? WITH AVAILABLE SPOTS
+                          Row(
+                            children: [
+                              //? CHECKBOX
+                              Container(
+                                width: 25.w,
+                                height: 25.h,
+                                decoration: BoxDecoration(
+                                  color: roomsWithSpace ? const Color(0xFFFFB000) : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(6.sp),
+                                  border: Border.all(color: Colors.white, width: 1.5.sp),
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      roomsWithSpace = !roomsWithSpace;
+                                    });
+                                  },
+                                ),
+                              ),
+        
+                              // TEXT:    Available spots
+                              Padding(
+                                padding: EdgeInsets.only(left: 10.w),
+                                child: Text(
+                                  'Available Spots',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.sp,
+                                    fontFamily: 'CenturyGothic'
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+        
+                          SizedBox(width: 40.w),
+                      
+                          //? WITH FRIENDS IN
+                          Row(
+                            children: [
+                              // TEXT:    Friends In
+                              Text(
+                                'Friends In',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              ),
+                              
+                              //? CHECKBOX
+                              Container(
+                                width: 25.w,
+                                height: 25.h,
+                                margin: EdgeInsets.only(left: 10.w),
+                                decoration: BoxDecoration(
+                                  color: friendsInRoom ? const Color(0xFFFFB000) : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(6.sp),
+                                  border: Border.all(color: Colors.white, width: 1.5.sp),
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      friendsInRoom = !friendsInRoom;
+                                    });
+                                  },
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+                
+              //? ROOMS' ACCESS
+              Container(
+                height: 80.h,
+                width: double.maxFinite,
+                margin: EdgeInsets.only(top: 20.h),
+                child: Column(
+                  children: [
+                    // TEXT:    Access
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.h),
+                      child: Text(
+                        'Access',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 19.sp,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'CenturyGothic'
+                        ),
+                      ),
+                    ),
+        
+                    //? ACCESS TYPE
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //? MIXED ROOMS
+                        Container(
+                          height: 34.h,
+                          width: 67.w,
+                          margin: EdgeInsets.only(left: 10.w),
+                          decoration: BoxDecoration(
+                            color: accessState == 0 ? const Color(0xFF4D4D4D) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(47.sp),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                accessState = 0;
+                              });
+                            },
+                            child: Center(
+                              child: Text(
+                                'Mixed',
+                                style: TextStyle(
+                                  color: accessState == 0 ? Colors.white : const Color(0xFFBFBFBF),
+                                  fontSize: 16.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    
+                        //? OPEN ROOMS
+                        Container(
+                          height: 34.h,
+                          width: 67.w,
+                          decoration: BoxDecoration(
+                            color: accessState == 1 ? const Color(0xFF4D4D4D) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(47.sp),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                accessState = 1;
+                              });
+                            },
+                            child: Center(
+                              child: Text(
+                                'Open',
+                                style: TextStyle(
+                                  color: accessState == 1 ? Colors.white : const Color(0xFFBFBFBF),
+                                  fontSize: 16.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    
+                        //? PRIVATE ROOMS
+                        Container(
+                          height: 34.h,
+                          width: 67.w,
+                          margin: EdgeInsets.only(right: 10.w),
+                          decoration: BoxDecoration(
+                            color: accessState == 2 ? const Color(0xFF4D4D4D) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(47.sp),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                accessState = 2;
+                              });
+                            },
+                            child: Center(
+                              child: Text(
+                                'Private',
+                                style: TextStyle(
+                                  color: accessState == 2 ? Colors.white : const Color(0xFFBFBFBF),
+                                  fontSize: 16.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            
+              //? INCLUDED ROLES
+              SizedBox(
+                height: 130.h,
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // TEXT:    Included Roles
+                    Text(
+                      'Included roles:',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 19.sp,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'CenturyGothic'
+                      ),
+                    ),
+
+                    Container(
+                      height: 85.h,
+                      margin: EdgeInsets.only(top: 15.h),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            //? BODYGUARD AND TERRORIST
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                //? HAS BODYGUARD
+                                Row(
+                                  children: [
+                                    //? CHECKBOX:    Bodyguard
+                                    Container(
+                                      width: 25.w,
+                                      height: 25.h,
+                                      margin: EdgeInsets.only(left: 50.w),
+                                      decoration: BoxDecoration(
+                                        color: hasBodyguard ? const Color(0xFFFFB000) : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(6.sp),
+                                        border: Border.all(color: Colors.white, width: 1.5.sp),
+                                      ),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            hasBodyguard = !hasBodyguard;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                              
+                                    // TEXT:    Bodyguard
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 10.w),
+                                      child: Text(
+                                        'Bodyguard',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16.sp,
+                                          fontFamily: 'CenturyGothic'
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            
+                                //? HAS TERRORIST
+                                Row(
+                                  children: [
+                                    // TEXT:    Terrorist
+                                    Text(
+                                      'Terrorist',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.sp,
+                                        fontFamily: 'CenturyGothic'
+                                      ),
+                                    ),
+                                    
+                                    //? CHECKBOX
+                                    Container(
+                                      width: 25.w,
+                                      height: 25.h,
+                                      margin: EdgeInsets.only(right: 50.w, left: 10.w),
+                                      decoration: BoxDecoration(
+                                        color: hasTerrorist ? const Color(0xFFFFB000) : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(6.sp),
+                                        border: Border.all(color: Colors.white, width: 1.5.sp),
+                                      ),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            hasTerrorist = !hasTerrorist;
+                                          });
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                        
+                            //? JOURNALIST AND BARTENDER
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  //? HAS JOURNALIST
+                                  Row(
+                                    children: [
+                                      //? CHECKBOX:    Journalist
+                                      Container(
+                                        width: 25.w,
+                                        height: 25.h,
+                                        margin: EdgeInsets.only(left: 50.w),
+                                        decoration: BoxDecoration(
+                                          color: hasJournalist ? const Color(0xFFFFB000) : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(6.sp),
+                                          border: Border.all(color: Colors.white, width: 1.5.sp),
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              hasJournalist = !hasJournalist;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                
+                                      // TEXT:    Journalist
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 10.w),
+                                        child: Text(
+                                          'Journalist',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.sp,
+                                            fontFamily: 'CenturyGothic'
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              
+                                  //? HAS BARTENDER
+                                  Row(
+                                    children: [
+                                      // TEXT:    Bartender
+                                      Text(
+                                        'Bartender',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16.sp,
+                                          fontFamily: 'CenturyGothic'
+                                        ),
+                                      ),
+                                      
+                                      //? CHECKBOX
+                                      Container(
+                                        width: 25.w,
+                                        height: 25.h,
+                                        margin: EdgeInsets.only(left: 10.w, right: 50.w),
+                                        decoration: BoxDecoration(
+                                          color: hasBartender ? const Color(0xFFFFB000) : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(6.sp),
+                                          border: Border.all(color: Colors.white, width: 1.5.sp),
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              hasBartender = !hasBartender;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+
+                            //? LOVER AND INFORMANT
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  //? HAS LOVER
+                                  Row(
+                                    children: [
+                                      //? CHECKBOX:    Lover
+                                      Container(
+                                        width: 25.w,
+                                        height: 25.h,
+                                        margin: EdgeInsets.only(left: 50.w),
+                                        decoration: BoxDecoration(
+                                          color: hasLover ? const Color(0xFFFFB000) : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(6.sp),
+                                          border: Border.all(color: Colors.white, width: 1.5.sp),
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              hasLover = !hasLover;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                
+                                      // TEXT:    Lover
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 10.w),
+                                        child: Text(
+                                          'Lover',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.sp,
+                                            fontFamily: 'CenturyGothic'
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              
+                                  //? HAS INFORMANT
+                                  Row(
+                                    children: [
+                                      // TEXT:    Informant
+                                      Text(
+                                        'Informant',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16.sp,
+                                          fontFamily: 'CenturyGothic'
+                                        ),
+                                      ),
+                                      
+                                      //? CHECKBOX
+                                      Container(
+                                        width: 25.w,
+                                        height: 25.h,
+                                        margin: EdgeInsets.only(left: 10.w, right: 50.w),
+                                        decoration: BoxDecoration(
+                                          color: hasInformant ? const Color(0xFFFFB000) : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(6.sp),
+                                          border: Border.all(color: Colors.white, width: 1.5.sp),
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              hasInformant = !hasInformant;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+
+                            //? SPY 
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  //? CHECKBOX:    SPY
+                                  Container(
+                                    width: 25.w,
+                                    height: 25.h,
+                                    decoration: BoxDecoration(
+                                      color: hasSpy ? const Color(0xFFFFB000) : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(6.sp),
+                                      border: Border.all(color: Colors.white, width: 1.5.sp),
+                                    ),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          hasSpy = !hasSpy;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                                                  
+                                  // TEXT:    Spy
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 10.w),
+                                    child: Text(
+                                      'Spy',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16.sp,
+                                        fontFamily: 'CenturyGothic'
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+               
+              //? BUTTONS:   APPLY AND RESET
+              Padding(
+                padding: EdgeInsets.only(top: 25.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    // BUTTON:    RESET
+                    GestureDetector(
+                      onTap: () {
+                        resetFilters();
+                      },
+                      child: Container(
+                        width: 110.w,
+                        height: 40.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(71.sp),
+                          border: Border.all(color: Colors.white, width: 1.5)
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Reset',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.white,
+                              fontFamily: 'CenturyGothic'
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                
+                    // BUTTON:    APPLY
+                    GestureDetector(
+                      onTap: () {
+                        
+                      },
+                      child: Container(
+                        width: 110.w,
+                        height: 40.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(71.sp),
+                          border: Border.all(color: const Color(0xFFFFB000), width: 1.5)
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Apply',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: const Color(0xFFFFB000),
+                              fontFamily: 'CenturyGothic'
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1214,14 +3296,16 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     }
 
     // reference lazimdi her defe container nedi istifade elirsen
+    
     var apiService = GetIt.I<ApiService>();
 
     // NOTE:    UNCOMMENT THIS SECTION
 
-    //! ------------------- CHANGE -------------------
+    
+    //! ------------------- CHANGE ------------------- IIIIPPPP
     var connectionUri = (widget.game.hasPassword)
-      ? "https://46.32.173.182/gamelobby?title=${widget.game.title}&password=${widget.password}" // passwordu tapammiram
-      : "https://46.32.173.182/gamelobby?title=${widget.game.title}";
+      ? "https://31.171.65.145/gamelobby?title=${widget.game.title}&password=${widget.password}" // passwordu tapammiram
+      : "https://31.171.65.145/gamelobby?title=${widget.game.title}";
 
     //!   GAME LOBBY HUB
     apiService.gameHubConnection = HubConnectionBuilder().withUrl(
@@ -1417,6 +3501,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         remainingTime = parameters.first as int;
       });
     });
+    
     // GetIt.I<ApiService>().gameHubConnection.onclose((error) {
     //     print('Connection closed by client. Error: ${error?.toString() ?? "No error"}');
     // });
@@ -1431,6 +3516,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         });
       });
     }
+    
 
     // _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
     //   setState(() {
@@ -1443,7 +3529,10 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     //     }
     //   });
     // });
+    
+    //!!!!!!!!!!!!!!!
   }
+  
 
   void startGame(String title, String role, int citizenCount, int mafiaCount, List<PlayerRole> playerRoles) {
     Navigator.push(
@@ -1483,25 +3572,35 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     super.dispose();
   }
 
-  void sendMessage(String text) {
-    if (text.isNotEmpty) {
-      setState(() {
-        gameLobbyChatMessages.add(ChatMessage(
-          nickname: authorizedUser.nickname,
-          avatarUrl: authorizedUser.avatarUrl,
-          text: text,
-        ));
-      });
-    }
+  void sendMessage(String text) async {
+    if (text.trim().isEmpty) return;
+
+    //!!!!!!!!!!!!!!!!!!
+    await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[ 
+      text.trim()
+    ]);
+
+    setState(() {
+      gameLobbyChatMessages.add(ChatMessage(
+        nickname: authorizedUser.nickname,
+        avatarUrl: authorizedUser.avatarUrl,
+        text: text,
+      ));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final double ornamentSize = 35.sp;
+    final double ornamentMargin = 10.sp;
+    const String ornament = "assets/images/game-ornament-night.png";
+
     return DecoratedBox(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/modern-tall-buildings-1.png"), fit: BoxFit.cover, opacity: 0.4),
+        image: DecorationImage(image: AssetImage("assets/images/background-waiting-lobby.png"), fit: BoxFit.cover),
       ),
       child: Scaffold(
+        /*
         appBar: AppBar(
           title: Text(widget.game.title),
           actions: [
@@ -1517,7 +3616,450 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             ),
           ),
         ),
-        body: Column(
+       */
+
+        body: Stack(
+          children: [
+            
+
+            Padding(
+              padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
+              child: Stack(
+                children: [
+                  
+            
+                  //? INFO PART
+                  Container(
+                    margin: EdgeInsets.only(top: 50.h),
+                    width: double.maxFinite,
+                    height: 150.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2C2C2C),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Stack(
+                      children: [
+            
+                        //? ORNAMENTS
+                        Stack(
+                          children: [
+                            // Top-left ornament
+                            Positioned(
+                              top: ornamentMargin,
+                              left: ornamentMargin,
+                              child: Image.asset(
+                                ornament,
+                                width: ornamentSize,
+                                height: ornamentSize,
+                              ),
+                            ),
+                            // Top-right ornament (rotated 90 degrees)
+                            Positioned(
+                              top: ornamentMargin,
+                              right: ornamentMargin,
+                              child: Transform.rotate(
+                                angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                                child: Image.asset(
+                                  ornament,
+                                  width: ornamentSize,
+                                  height: ornamentSize,
+                                ),
+                              ),
+                            ),
+                            // Bottom-left ornament (rotated 270 degrees)
+                            Positioned(
+                              bottom: ornamentMargin,
+                              left: ornamentMargin,
+                              child: Transform.rotate(
+                                angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                                child: Image.asset(
+                                  ornament,
+                                  width: ornamentSize,
+                                  height: ornamentSize,
+                                ),
+                              ),
+                            ),
+                            // Bottom-right ornament (rotated 180 degrees)
+                            Positioned(
+                              bottom: ornamentMargin,
+                              right: ornamentMargin,
+                              child: Transform.rotate(
+                                angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                                child: Image.asset(
+                                  ornament,
+                                  width: ornamentSize,
+                                  height: ornamentSize,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const SizedBox(),
+            
+                            Column(
+                              children: [
+            
+                                //? TITLE
+                                Padding(
+                                  padding: EdgeInsets.only(top: 15.h),
+                                  child: Text(
+                                    widget.game.title, 
+                                    style: GoogleFonts.playfairDisplay(
+                                      fontSize: 32.sp,
+                                      color: const Color(0xFFFFB000)
+                                    ),
+                                  ),
+                                ),
+            
+                                //? MIN AND MAX
+                                Container(
+                                  padding: EdgeInsets.only(top: 8.h),
+                                  child: Row(
+                                    children: [
+            
+                                      //? MIN COUNT
+                                      Column(
+                                        children: [
+                                          Text(
+                                            "${widget.game.minPlayers}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              height: 0
+                                            ),
+                                          ),
+            
+                                          Text(
+                                            "min",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              height: 0
+                                            ),
+                                          )
+                                        ],
+                                      ),
+            
+                                      //? ACTUAL COUNT
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "${widget.game.players.length}",
+                                              style: GoogleFonts.playfairDisplay(
+                                                color: const Color(0xFFFFB000),
+                                                fontSize: 32.sp,
+                                              ),
+                                            ),
+                                            SizedBox(height: 15.h,)
+                                          ],
+                                        ),
+                                      ),
+            
+                                      //? MAX COUNT
+                                      Column(
+                                        children: [
+                                          Text(
+                                            "${widget.game.maxPlayers}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              height: 0
+                                            ),
+                                          ),
+            
+                                          Text(
+                                            "max",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              height: 0
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              
+                              ],
+                            ),
+            
+                            const SizedBox()
+                          ],
+                        )
+                      
+                      ],
+                    ),
+                  ),
+                
+                  //? CARDS PART
+                  Container(
+                    margin: EdgeInsets.only(top: 215.h),
+                    height: 80,
+                    alignment: Alignment.center,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final int count = widget.game.extraRoles.length;
+                        final double cardWidth = 60.w;
+                        const double overlap = 20.0;
+
+                        final double totalWidth = count > 0
+                          ? cardWidth + (count - 1) * (cardWidth - overlap)
+                          : 0;
+
+                        return SizedBox(
+                          height: 80.h,
+                          width: totalWidth,
+                          child: Stack(
+                            children: List.generate(count, (i) {
+                              int index = i; // инверсия: 4, 3, 2, 1, 0
+                              
+                              final leftOffset = index * (cardWidth - overlap);
+                                      
+                              return Positioned(
+                                left: leftOffset,
+                                child: RoleCard(
+                                  roleName: widget.game.extraRoles[index].toLowerCase(), 
+                                  width: cardWidth, 
+                                  height: 80.h
+                                )
+                              );
+                            }),
+                          ),
+                        );
+                      }
+                    ),
+                  ),
+            
+                  //? CHAT, PLAYERS, TIMER
+                  Container(
+                    margin: EdgeInsets.only(top: 260.h),
+                    width: double.maxFinite,
+                    height: 450.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2B2B2B),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            //? PLAYERS
+                            SizedBox(
+                              width: 210.w,
+                              height: 130.h,
+                              child: GridView.builder(
+                                padding: EdgeInsets.zero,
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: 2.5,
+                                  crossAxisSpacing: 5,
+                                  mainAxisSpacing: 5,
+                                ),
+                                itemCount: widget.game.players.length,
+                                itemBuilder: (context, index) {
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      SizedBox(width: 10.w),
+
+                                      //? AVATAR
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(50.sp),
+                                        ),
+                                        child: CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                            widget.game.players[index].avatarUrl
+                                          ),
+                                          radius: 11.sp,
+                                        )
+                                      ),
+                                      SizedBox(width: 4.w),
+
+                                      //? NICKNAME
+                                      Container(
+                                        width: 60.w,
+                                        child: Text(
+                                          widget.game.players[index].nickname,
+                                          softWrap: true,
+                                          overflow: TextOverflow.fade,
+                                          style: TextStyle(
+                                            fontSize: 15.sp,
+                                            fontFamily: 'CenturyGothic',
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+            
+                            //? TIMER
+                            Container(
+                              margin: EdgeInsets.only(top: 10.h, right: 15.w),
+                              width: 130.w,
+                              height: 130.h,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E1E1E),
+                                borderRadius: BorderRadius.circular(12.0),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 1.5.w
+                                )
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  remainingTime != -1
+                                  ? Text(
+                                    "Starting:",
+                                    style: GoogleFonts.playfairDisplay(
+                                      color: const Color(0xFFFFB000),
+                                      fontSize: 22.sp,
+                                      height: 0
+                                    ),
+                                  )
+                                  : const SizedBox(),
+                                  
+            
+                                  Padding(
+                                    padding: remainingTime == -1 ? EdgeInsets.only(bottom: 5.h) : EdgeInsets.only(bottom: 0.h),
+                                    child: Text(
+                                      remainingTime != -1 ? '$remainingTime ${S.of(context).seconds}' : "Waiting...",
+                                      style: GoogleFonts.playfairDisplay(
+                                        color: const Color(0xFFFFB000),
+                                        fontSize: 22.sp,
+                                        height: 0
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        //? CHAT
+                        Container(
+                          margin: EdgeInsets.all(15.sp),
+                          width: double.maxFinite,
+                          height: 280.h,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E1E1E),
+                            borderRadius: BorderRadius.circular(12.0),
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1.5.w
+                            )
+                          ),
+                          child: ChatWidget(messages: gameLobbyChatMessages),
+                        )
+                      ],
+                    ),
+                  ),
+                
+                  //? INPUT FIELD
+                  Container(
+                    margin: EdgeInsets.only(top: 725.h),
+                    width: double.maxFinite,
+                    height: 55.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2B2B2B),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Row(
+                      children: [
+                        //? SMILES
+                        Container(
+                          margin: const EdgeInsets.only(left: 7, right: 7),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: Image.asset(
+                              'assets/images/game-stickers-icon.png',
+                              width: 30.h,
+                              height: 30.h,
+                            ),
+                          ),
+                        ),
+            
+                        //? INPUT
+                        SizedBox(
+                          width: 310.w,
+                          height: 55.h,
+                          child: MessageInputField(onSend: sendMessage),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          
+            IgnorePointer(
+              child: ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  return const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.white,
+                      Colors.transparent
+                    ],
+                    stops: [0.7, 1.0],
+                  ).createShader(bounds);
+                },
+                blendMode: BlendMode.dstIn,
+                child: Image.asset(
+                  "assets/images/light-waiting-lobby.png",
+                  fit: BoxFit.cover,
+                  height: 300.h,
+                  width: double.maxFinite,
+                ),
+              ),
+            ),
+          
+            // BUTTON:    GO BACK
+            Padding(
+              padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(),
+                            
+                  Container(
+                    width: 33.w,
+                    height: 33.w,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFB000).withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(8.sp),
+                    ),
+                    child: Icon(
+                      Icons.keyboard_double_arrow_left,
+                      color: Colors.white,
+                      size: 33.sp,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        )
+        
+        /*
+        Column(
           children: [
             // Тimer: before the game starts
       
@@ -1660,6 +4202,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             ),
           ],
         ),
+        */
       ),
     );
   }
@@ -1745,6 +4288,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      padding: const EdgeInsets.all(0),
       controller: _scrollController,
       itemCount: widget.messages.length,
       itemBuilder: (context, index) {
@@ -1753,13 +4297,27 @@ class _ChatWidgetState extends State<ChatWidget> {
           leading: CircleAvatar(
             backgroundImage: NetworkImage(message.avatarUrl),
           ),
-          title: Text(message.nickname, style: TextStyle(color: Colors.lightBlue[300])),
-          subtitle: Text(message.text, style: const TextStyle(color: Colors.white)),
+          title: Text(
+            message.nickname, 
+            style: TextStyle(
+              color: const Color(0xFFFFB000),
+              fontFamily: 'CenturyGothic',
+              fontSize: 16.sp
+            )
+          ),
+          subtitle: Text(
+            message.text, 
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15.sp
+            )
+          ),
         );
       },
     );
   }
 }
+
 
 class ChatMessage {
   final String nickname;
@@ -1768,6 +4326,7 @@ class ChatMessage {
 
   ChatMessage({required this.nickname, required this.avatarUrl, required this.text});
 }
+
 
 class MessageInputField extends StatefulWidget {
   final Function(String) onSend;
@@ -1786,11 +4345,22 @@ class _MessageInputFieldState extends State<MessageInputField> {
     return Row(
       children: [
         Expanded(
-          child: TextField(
-            style: const TextStyle(color: Colors.white),
-            controller: _controller,
-            decoration: InputDecoration(
-              hintText: '${S.of(context).enterMessage}...',
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 5.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(12.sp),
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(left: 7.w, bottom: 6.h),
+              child: TextField(
+                style: const TextStyle(color: Colors.white),
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: '${S.of(context).enterMessage}...',
+                  border: InputBorder.none
+                ),
+              ),
             ),
           ),
         ),

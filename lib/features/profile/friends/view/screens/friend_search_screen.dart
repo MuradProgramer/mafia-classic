@@ -75,6 +75,7 @@ class _FriendSearchScreenState extends State<FriendSearchScreen> {
                 ],
               ),
             ),
+            
             Expanded(
               child: searchResults == null 
               ? 
@@ -108,8 +109,8 @@ class _FriendSearchScreenState extends State<FriendSearchScreen> {
                           ? IconButton(
                               icon: const Icon(Icons.person_add),
                               onPressed: () {
-                                _sendRequest(user.nickname);
-                                _searchUsers();
+                                //!_sendRequest(user.nickname);
+                                //!_searchUsers();
                               },
                               color: Colors.blueAccent,
                             )

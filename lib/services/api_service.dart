@@ -38,18 +38,18 @@ class ApiService extends TokenAwareService {
   Stream<List<GameLobbyChatPlayer>> get gameLobbyChatStream => _gameLobbyChatController.stream;
 
   ApiService(this._accessToken, this._expiration, this._refreshToken) {
-    //allGames = <Game>[];
+    allGames = <Game>[];
 
     //!!!!!!!!!!!
-    // mainHubConnection = HubConnectionBuilder().withUrl(
-    //   'https://46.32.173.182/mainlobby',
-    //   options: HttpConnectionOptions(
-    //     accessTokenFactory: () => Future.value("$_accessToken"),
-    //     skipNegotiation: true,
-    //     transport: HttpTransportType.WebSockets,
-    //   ),
-    // )
-    // .build();
+    mainHubConnection = HubConnectionBuilder().withUrl(
+      'https://31.171.65.145/mainlobby',
+      options: HttpConnectionOptions(
+        accessTokenFactory: () => Future.value(_accessToken),
+        skipNegotiation: true,
+        transport: HttpTransportType.WebSockets,
+      ),
+    )
+    .build();
   }
 
   Future<void> connectMainHub() async {
@@ -58,7 +58,7 @@ class ApiService extends TokenAwareService {
       return; // Avoid reconnecting if already connected
     }
 
-    /*
+    
     // DONE
     mainHubConnection.on('GameLobbies', (List<Object?>? parameters) {
       //print('33: $parameters');
@@ -155,7 +155,7 @@ class ApiService extends TokenAwareService {
     } catch (e) {
       print("Failed to start HubConnection: $e");
     }
-    */
+    
   }
 
   Future<void> connectGameHub() async {
