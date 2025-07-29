@@ -60,8 +60,8 @@ List<Game> games = [
 */
 
 //!!!!!!!!!!!!!!!!!!!!!!!
-late User authorizedUser;
-//User authorizedUser = User(email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
+//late User authorizedUser;
+User authorizedUser = User(email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
 
 class GamesScreen extends StatefulWidget {
   final User user;
@@ -90,6 +90,7 @@ class _GamesScreenState extends State<GamesScreen> {
 
     // NOTE:    MAIN HUB CONNECTION AND SOCKETS
 
+    /*
     var apiService = GetIt.I<ApiService>();
     
     //! BUILD
@@ -228,6 +229,7 @@ class _GamesScreenState extends State<GamesScreen> {
       }
       if (temp) break;
     }
+    */
 
     //allGames = games;
     searchedGames = allGames;
@@ -258,6 +260,7 @@ class _GamesScreenState extends State<GamesScreen> {
         image: DecorationImage(image: AssetImage("assets/images/game-phase-night.png"), fit: BoxFit.cover, opacity: 0.8),
       ),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
 
         /*
         appBar: AppBar(
@@ -515,7 +518,7 @@ class _GamesScreenState extends State<GamesScreen> {
                 ),
               ),
 
-
+              //? GAMES
               Expanded(
                 child: Container(
                   margin: EdgeInsets.only(top: 10.h),
@@ -1410,13 +1413,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
         image: DecorationImage(image: AssetImage("assets/images/temp-create-game-background.png"), fit: BoxFit.fill),
       ),
       child: Scaffold(
-
-        /*
-        appBar: AppBar(
-          title: Text(S.of(context).createGame),
-          automaticallyImplyLeading: false,
-        ),
-        */
+        resizeToAvoidBottomInset: false,
 
         body: Padding(
           padding: EdgeInsets.only(top: 50.h),
@@ -1499,7 +1496,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                           border: InputBorder.none,
                           counterText: '',
                         ),
-                        maxLength: 12,
+                        maxLength: 14,
                       ),
                     ),
         
@@ -2330,6 +2327,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
         )
       ),
     );
+  
   }
 }
 
@@ -3297,6 +3295,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // reference lazimdi her defe container nedi istifade elirsen
     
+    /*
     var apiService = GetIt.I<ApiService>();
 
     // NOTE:    UNCOMMENT THIS SECTION
@@ -3516,6 +3515,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         });
       });
     }
+    */
     
 
     // _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -3600,6 +3600,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         image: DecorationImage(image: AssetImage("assets/images/background-waiting-lobby.png"), fit: BoxFit.cover),
       ),
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         /*
         appBar: AppBar(
           title: Text(widget.game.title),
@@ -3618,444 +3619,446 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         ),
        */
 
-        body: Stack(
-          children: [
-            
-
-            Padding(
-              padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
-              child: Stack(
-                children: [
-                  
-            
-                  //? INFO PART
-                  Container(
-                    margin: EdgeInsets.only(top: 50.h),
-                    width: double.maxFinite,
-                    height: 150.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2C2C2C),
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Stack(
-                      children: [
-            
-                        //? ORNAMENTS
-                        Stack(
-                          children: [
-                            // Top-left ornament
-                            Positioned(
-                              top: ornamentMargin,
-                              left: ornamentMargin,
-                              child: Image.asset(
-                                ornament,
-                                width: ornamentSize,
-                                height: ornamentSize,
-                              ),
-                            ),
-                            // Top-right ornament (rotated 90 degrees)
-                            Positioned(
-                              top: ornamentMargin,
-                              right: ornamentMargin,
-                              child: Transform.rotate(
-                                angle: 90 * 3.14159 / 180, // 90 degrees in radians
+        body: SingleChildScrollView(
+          child: Stack(
+            children: [
+              
+          
+              Padding(
+                padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
+                child: Stack(
+                  children: [
+                    
+              
+                    //? INFO PART
+                    Container(
+                      margin: EdgeInsets.only(top: 50.h),
+                      width: double.maxFinite,
+                      height: 150.h,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2C2C2C),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Stack(
+                        children: [
+              
+                          //? ORNAMENTS
+                          Stack(
+                            children: [
+                              // Top-left ornament
+                              Positioned(
+                                top: ornamentMargin,
+                                left: ornamentMargin,
                                 child: Image.asset(
                                   ornament,
                                   width: ornamentSize,
                                   height: ornamentSize,
                                 ),
                               ),
-                            ),
-                            // Bottom-left ornament (rotated 270 degrees)
-                            Positioned(
-                              bottom: ornamentMargin,
-                              left: ornamentMargin,
-                              child: Transform.rotate(
-                                angle: 270 * 3.14159 / 180, // 270 degrees in radians
-                                child: Image.asset(
-                                  ornament,
-                                  width: ornamentSize,
-                                  height: ornamentSize,
-                                ),
-                              ),
-                            ),
-                            // Bottom-right ornament (rotated 180 degrees)
-                            Positioned(
-                              bottom: ornamentMargin,
-                              right: ornamentMargin,
-                              child: Transform.rotate(
-                                angle: 180 * 3.14159 / 180, // 180 degrees in radians
-                                child: Image.asset(
-                                  ornament,
-                                  width: ornamentSize,
-                                  height: ornamentSize,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const SizedBox(),
-            
-                            Column(
-                              children: [
-            
-                                //? TITLE
-                                Padding(
-                                  padding: EdgeInsets.only(top: 15.h),
-                                  child: Text(
-                                    widget.game.title, 
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 32.sp,
-                                      color: const Color(0xFFFFB000)
-                                    ),
+                              // Top-right ornament (rotated 90 degrees)
+                              Positioned(
+                                top: ornamentMargin,
+                                right: ornamentMargin,
+                                child: Transform.rotate(
+                                  angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                                  child: Image.asset(
+                                    ornament,
+                                    width: ornamentSize,
+                                    height: ornamentSize,
                                   ),
                                 ),
-            
-                                //? MIN AND MAX
-                                Container(
-                                  padding: EdgeInsets.only(top: 8.h),
-                                  child: Row(
-                                    children: [
-            
-                                      //? MIN COUNT
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "${widget.game.minPlayers}",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.sp,
-                                              fontFamily: 'CenturyGothic',
-                                              height: 0
-                                            ),
-                                          ),
-            
-                                          Text(
-                                            "min",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.sp,
-                                              fontFamily: 'CenturyGothic',
-                                              height: 0
-                                            ),
-                                          )
-                                        ],
+                              ),
+                              // Bottom-left ornament (rotated 270 degrees)
+                              Positioned(
+                                bottom: ornamentMargin,
+                                left: ornamentMargin,
+                                child: Transform.rotate(
+                                  angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                                  child: Image.asset(
+                                    ornament,
+                                    width: ornamentSize,
+                                    height: ornamentSize,
+                                  ),
+                                ),
+                              ),
+                              // Bottom-right ornament (rotated 180 degrees)
+                              Positioned(
+                                bottom: ornamentMargin,
+                                right: ornamentMargin,
+                                child: Transform.rotate(
+                                  angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                                  child: Image.asset(
+                                    ornament,
+                                    width: ornamentSize,
+                                    height: ornamentSize,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const SizedBox(),
+              
+                              Column(
+                                children: [
+              
+                                  //? TITLE
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 15.h),
+                                    child: Text(
+                                      widget.game.title, 
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 32.sp,
+                                        color: const Color(0xFFFFB000)
                                       ),
-            
-                                      //? ACTUAL COUNT
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                                        child: Column(
+                                    ),
+                                  ),
+              
+                                  //? MIN AND MAX
+                                  Container(
+                                    padding: EdgeInsets.only(top: 8.h),
+                                    child: Row(
+                                      children: [
+              
+                                        //? MIN COUNT
+                                        Column(
                                           children: [
                                             Text(
-                                              "${widget.game.players.length}",
-                                              style: GoogleFonts.playfairDisplay(
-                                                color: const Color(0xFFFFB000),
-                                                fontSize: 32.sp,
+                                              "${widget.game.minPlayers}",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                height: 0
                                               ),
                                             ),
-                                            SizedBox(height: 15.h,)
+              
+                                            Text(
+                                              "min",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                height: 0
+                                              ),
+                                            )
                                           ],
                                         ),
-                                      ),
-            
-                                      //? MAX COUNT
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "${widget.game.maxPlayers}",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.sp,
-                                              fontFamily: 'CenturyGothic',
-                                              height: 0
-                                            ),
+              
+                                        //? ACTUAL COUNT
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                                "${widget.game.players.length}",
+                                                style: GoogleFonts.playfairDisplay(
+                                                  color: const Color(0xFFFFB000),
+                                                  fontSize: 32.sp,
+                                                ),
+                                              ),
+                                              SizedBox(height: 15.h,)
+                                            ],
                                           ),
-            
-                                          Text(
-                                            "max",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.sp,
-                                              fontFamily: 'CenturyGothic',
-                                              height: 0
-                                            ),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              
-                              ],
-                            ),
-            
-                            const SizedBox()
-                          ],
-                        )
-                      
-                      ],
-                    ),
-                  ),
-                
-                  //? CARDS PART
-                  Container(
-                    margin: EdgeInsets.only(top: 215.h),
-                    height: 80,
-                    alignment: Alignment.center,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final int count = widget.game.extraRoles.length;
-                        final double cardWidth = 60.w;
-                        const double overlap = 20.0;
-
-                        final double totalWidth = count > 0
-                          ? cardWidth + (count - 1) * (cardWidth - overlap)
-                          : 0;
-
-                        return SizedBox(
-                          height: 80.h,
-                          width: totalWidth,
-                          child: Stack(
-                            children: List.generate(count, (i) {
-                              int index = i; // инверсия: 4, 3, 2, 1, 0
-                              
-                              final leftOffset = index * (cardWidth - overlap);
-                                      
-                              return Positioned(
-                                left: leftOffset,
-                                child: RoleCard(
-                                  roleName: widget.game.extraRoles[index].toLowerCase(), 
-                                  width: cardWidth, 
-                                  height: 80.h
-                                )
-                              );
-                            }),
-                          ),
-                        );
-                      }
-                    ),
-                  ),
-            
-                  //? CHAT, PLAYERS, TIMER
-                  Container(
-                    margin: EdgeInsets.only(top: 260.h),
-                    width: double.maxFinite,
-                    height: 450.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2B2B2B),
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            //? PLAYERS
-                            SizedBox(
-                              width: 210.w,
-                              height: 130.h,
-                              child: GridView.builder(
-                                padding: EdgeInsets.zero,
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  childAspectRatio: 2.5,
-                                  crossAxisSpacing: 5,
-                                  mainAxisSpacing: 5,
-                                ),
-                                itemCount: widget.game.players.length,
-                                itemBuilder: (context, index) {
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      SizedBox(width: 10.w),
-
-                                      //? AVATAR
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(50.sp),
                                         ),
-                                        child: CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                            widget.game.players[index].avatarUrl
-                                          ),
-                                          radius: 11.sp,
+              
+                                        //? MAX COUNT
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "${widget.game.maxPlayers}",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                height: 0
+                                              ),
+                                            ),
+              
+                                            Text(
+                                              "max",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                height: 0
+                                              ),
+                                            )
+                                          ],
                                         )
-                                      ),
-                                      SizedBox(width: 4.w),
-
-                                      //? NICKNAME
-                                      Container(
-                                        width: 60.w,
-                                        child: Text(
-                                          widget.game.players[index].nickname,
-                                          softWrap: true,
-                                          overflow: TextOverflow.fade,
-                                          style: TextStyle(
-                                            fontSize: 15.sp,
-                                            fontFamily: 'CenturyGothic',
+                                      ],
+                                    ),
+                                  ),
+                                
+                                ],
+                              ),
+              
+                              const SizedBox()
+                            ],
+                          )
+                        
+                        ],
+                      ),
+                    ),
+                  
+                    //? CARDS PART
+                    Container(
+                      margin: EdgeInsets.only(top: 215.h),
+                      height: 80,
+                      alignment: Alignment.center,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final int count = widget.game.extraRoles.length;
+                          final double cardWidth = 60.w;
+                          const double overlap = 20.0;
+          
+                          final double totalWidth = count > 0
+                            ? cardWidth + (count - 1) * (cardWidth - overlap)
+                            : 0;
+          
+                          return SizedBox(
+                            height: 80.h,
+                            width: totalWidth,
+                            child: Stack(
+                              children: List.generate(count, (i) {
+                                int index = i; // инверсия: 4, 3, 2, 1, 0
+                                
+                                final leftOffset = index * (cardWidth - overlap);
+                                        
+                                return Positioned(
+                                  left: leftOffset,
+                                  child: RoleCard(
+                                    roleName: widget.game.extraRoles[index].toLowerCase(), 
+                                    width: cardWidth, 
+                                    height: 80.h
+                                  )
+                                );
+                              }),
+                            ),
+                          );
+                        }
+                      ),
+                    ),
+              
+                    //? CHAT, PLAYERS, TIMER
+                    Container(
+                      margin: EdgeInsets.only(top: 260.h),
+                      width: double.maxFinite,
+                      height: 450.h,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2B2B2B),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              //? PLAYERS
+                              SizedBox(
+                                width: 210.w,
+                                height: 130.h,
+                                child: GridView.builder(
+                                  padding: EdgeInsets.zero,
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 2.5,
+                                    crossAxisSpacing: 5,
+                                    mainAxisSpacing: 5,
+                                  ),
+                                  itemCount: widget.game.players.length,
+                                  itemBuilder: (context, index) {
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        SizedBox(width: 10.w),
+          
+                                        //? AVATAR
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(50.sp),
+                                          ),
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              widget.game.players[index].avatarUrl
+                                            ),
+                                            radius: 11.sp,
+                                          )
+                                        ),
+                                        SizedBox(width: 4.w),
+          
+                                        //? NICKNAME
+                                        Container(
+                                          width: 60.w,
+                                          child: Text(
+                                            widget.game.players[index].nickname,
+                                            softWrap: true,
+                                            overflow: TextOverflow.fade,
+                                            style: TextStyle(
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                },
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
-            
-                            //? TIMER
-                            Container(
-                              margin: EdgeInsets.only(top: 10.h, right: 15.w),
-                              width: 130.w,
-                              height: 130.h,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E1E1E),
-                                borderRadius: BorderRadius.circular(12.0),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 1.5.w
-                                )
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  remainingTime != -1
-                                  ? Text(
-                                    "Starting:",
-                                    style: GoogleFonts.playfairDisplay(
-                                      color: const Color(0xFFFFB000),
-                                      fontSize: 22.sp,
-                                      height: 0
-                                    ),
+              
+                              //? TIMER
+                              Container(
+                                margin: EdgeInsets.only(top: 10.h, right: 15.w),
+                                width: 130.w,
+                                height: 130.h,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E1E1E),
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 1.5.w
                                   )
-                                  : const SizedBox(),
-                                  
-            
-                                  Padding(
-                                    padding: remainingTime == -1 ? EdgeInsets.only(bottom: 5.h) : EdgeInsets.only(bottom: 0.h),
-                                    child: Text(
-                                      remainingTime != -1 ? '$remainingTime ${S.of(context).seconds}' : "Waiting...",
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    remainingTime != -1
+                                    ? Text(
+                                      "Starting:",
                                       style: GoogleFonts.playfairDisplay(
                                         color: const Color(0xFFFFB000),
                                         fontSize: 22.sp,
                                         height: 0
                                       ),
-                                    ),
-                                  )
-                                ],
+                                    )
+                                    : const SizedBox(),
+                                    
+              
+                                    Padding(
+                                      padding: remainingTime == -1 ? EdgeInsets.only(bottom: 5.h) : EdgeInsets.only(bottom: 0.h),
+                                      child: Text(
+                                        remainingTime != -1 ? '$remainingTime ${S.of(context).seconds}' : "Waiting...",
+                                        style: GoogleFonts.playfairDisplay(
+                                          color: const Color(0xFFFFB000),
+                                          fontSize: 22.sp,
+                                          height: 0
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          
+                          //? CHAT
+                          Container(
+                            margin: EdgeInsets.all(15.sp),
+                            width: double.maxFinite,
+                            height: 280.h,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E1E1E),
+                              borderRadius: BorderRadius.circular(12.0),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1.5.w
+                              )
+                            ),
+                            child: ChatWidget(messages: gameLobbyChatMessages),
+                          )
+                        ],
+                      ),
+                    ),
+                  
+                    //? INPUT FIELD
+                    Container(
+                      margin: EdgeInsets.only(top: 725.h),
+                      width: double.maxFinite,
+                      height: 55.h,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2B2B2B),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Row(
+                        children: [
+                          //? SMILES
+                          Container(
+                            margin: const EdgeInsets.only(left: 7, right: 7),
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: Image.asset(
+                                'assets/images/game-stickers-icon.png',
+                                width: 30.h,
+                                height: 30.h,
                               ),
                             ),
-                          ],
-                        ),
-                        
-                        //? CHAT
-                        Container(
-                          margin: EdgeInsets.all(15.sp),
-                          width: double.maxFinite,
-                          height: 280.h,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1E1E1E),
-                            borderRadius: BorderRadius.circular(12.0),
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 1.5.w
-                            )
                           ),
-                          child: ChatWidget(messages: gameLobbyChatMessages),
-                        )
-                      ],
+              
+                          //? INPUT
+                          SizedBox(
+                            width: 310.w,
+                            height: 55.h,
+                            child: MessageInputField(onSend: sendMessage),
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                
-                  //? INPUT FIELD
-                  Container(
-                    margin: EdgeInsets.only(top: 725.h),
-                    width: double.maxFinite,
-                    height: 55.h,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2B2B2B),
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Row(
-                      children: [
-                        //? SMILES
-                        Container(
-                          margin: const EdgeInsets.only(left: 7, right: 7),
-                          child: GestureDetector(
-                            onTap: () {},
-                            child: Image.asset(
-                              'assets/images/game-stickers-icon.png',
-                              width: 30.h,
-                              height: 30.h,
-                            ),
-                          ),
-                        ),
-            
-                        //? INPUT
-                        SizedBox(
-                          width: 310.w,
-                          height: 55.h,
-                          child: MessageInputField(onSend: sendMessage),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          
-            IgnorePointer(
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white,
-                      Colors.transparent
-                    ],
-                    stops: [0.7, 1.0],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.dstIn,
-                child: Image.asset(
-                  "assets/images/light-waiting-lobby.png",
-                  fit: BoxFit.cover,
-                  height: 300.h,
-                  width: double.maxFinite,
+                  ],
                 ),
               ),
-            ),
-          
-            // BUTTON:    GO BACK
-            Padding(
-              padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(),
-                            
-                  Container(
-                    width: 33.w,
-                    height: 33.w,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFB000).withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(8.sp),
-                    ),
-                    child: Icon(
-                      Icons.keyboard_double_arrow_left,
-                      color: Colors.white,
-                      size: 33.sp,
-                    ),
-                  )
-                ],
+            
+              IgnorePointer(
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white,
+                        Colors.transparent
+                      ],
+                      stops: [0.7, 1.0],
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.dstIn,
+                  child: Image.asset(
+                    "assets/images/light-waiting-lobby.png",
+                    fit: BoxFit.cover,
+                    height: 300.h,
+                    width: double.maxFinite,
+                  ),
+                ),
               ),
-            ),
-          ],
+            
+              // BUTTON:    GO BACK
+              Padding(
+                padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(),
+                              
+                    Container(
+                      width: 33.w,
+                      height: 33.w,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFB000).withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(8.sp),
+                      ),
+                      child: Icon(
+                        Icons.keyboard_double_arrow_left,
+                        color: Colors.white,
+                        size: 33.sp,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
         )
         
         /*

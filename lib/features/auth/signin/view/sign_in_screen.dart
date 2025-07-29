@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -155,6 +156,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         textAlignVertical: TextAlignVertical.bottom,
                         
                         cursorColor: const Color(0xFFFFB000),
+                        cursorHeight: 18.h,
         
                         decoration: InputDecoration(
                           hintText: _isEmailFocused ? null : S.of(context).email,
@@ -196,6 +198,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         textAlignVertical: TextAlignVertical.bottom,
         
                         cursorColor: const Color(0xFFFFB000),
+                        cursorHeight: 18.h,
         
                         decoration: InputDecoration(
                           hintText: _isPasswordFocused ? null : S.of(context).password,

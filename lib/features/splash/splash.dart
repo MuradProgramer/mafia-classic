@@ -101,6 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
         MaterialPageRoute(
           fullscreenDialog: true,
           builder: (context) => const SignInScreen()   // TRUEEE
+          //builder: (context) => const SignUpScreen()   // TRUEEE
           //builder: (context) => GameScreen(title: 'Avengers999', playersRole: players, mafiaCount: 2, citizenCount: 5, role: 'Journalist', allPlayers: allPlayers, cameBackFromAfk: false, gameIsReadyWidget: true,)
           //builder: (context) => GamesScreen(user: authorizedUser)
           //builder: (context) => const CreateGameScreen(),

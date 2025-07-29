@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
@@ -174,6 +175,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         textAlignVertical: TextAlignVertical.bottom,
                         
                         cursorColor: const Color(0xFF494239),
+                        cursorHeight: 18.h,
         
                         decoration: InputDecoration(
                           
@@ -182,8 +184,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             fontSize: 19,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'CenturyGothic',
-                            color: Color(0xFF494239)
+                            color: Color(0xFF494239),
                           ),
+                          counterText: '',
         
                           contentPadding: const EdgeInsets.symmetric(vertical: 5),
         
@@ -191,6 +194,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             borderSide: BorderSide(color: Color(0xFF494239)),
                           )
                         ),
+
+                        maxLength: 14,
         
                         style: const TextStyle(
                           fontSize: 18,
@@ -216,6 +221,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         textAlignVertical: TextAlignVertical.bottom,
                         
                         cursorColor: const Color(0xFF494239),
+                        cursorHeight: 18.h,
         
                         decoration: InputDecoration(
                           border: const UnderlineInputBorder(
@@ -260,6 +266,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         textAlignVertical: TextAlignVertical.bottom,
         
                         cursorColor: const Color(0xFF494239),
+                        cursorHeight: 18.h,
         
                         decoration: InputDecoration(
                           hintText: _isPasswordFocused ? null : S.of(context).password,
@@ -324,6 +331,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         textAlignVertical: TextAlignVertical.bottom,
         
                         cursorColor: const Color(0xFF494239),
+                        cursorHeight: 18.h,
         
                         decoration: InputDecoration(
                           hintText: _isConfirmPasswordFocused ? null : S.of(context).password,

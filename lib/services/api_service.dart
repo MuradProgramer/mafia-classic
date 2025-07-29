@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -543,7 +544,7 @@ class ApiService extends TokenAwareService {
 
   // ++++++
   
-  Future<List<FindFriend>?> findFriend(String pattern) async {
+  Future<List<FindFriend>?> findFriend(String? pattern) async {
     List<FindFriend>? userList = [];
     await executeWithTokenCheck((accessToken) async {
       final formDataObject = FormData.fromMap({'pattern': pattern});
@@ -551,6 +552,33 @@ class ApiService extends TokenAwareService {
       final response = await GetIt.I<DioService>().dio.get(
         'Friend/Find',
         data: formDataObject,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = response.data as List<dynamic>;
+        
+        userList = jsonData.isEmpty ? null : jsonData.map((item) {
+          return FindFriend.fromJson(item as Map<String, dynamic>);
+        }).toList();
+      } else if (response.statusCode == 404) {
+        throw Exception('No user found');
+      } else {
+        throw Exception('Failed to send POST request');
+      }
+    });
+    return userList;
+  }
+
+  Future<List<FindFriend>?> possibleFriends() async {
+    List<FindFriend>? userList = [];
+    await executeWithTokenCheck((accessToken) async {
+      final response = await GetIt.I<DioService>().dio.get(
+        'Friend/PossibleFriends',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',

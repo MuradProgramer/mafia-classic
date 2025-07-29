@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 
@@ -49,6 +51,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
         image: DecorationImage(image: AssetImage("assets/images/friends-background.png"), fit: BoxFit.fill),
       ),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
+
         body: Container(
           padding: EdgeInsets.only(top: 60.h, left: 10.w, right: 10.w, bottom: 10.h),
           child: Column(
@@ -461,41 +465,45 @@ class FriendsTab extends StatefulWidget {
 
 class _FriendsTabState extends State<FriendsTab> {
   final TextEditingController searchController = TextEditingController();
-  List<Friendship>? friends = [
-    Friendship(
-      nickname: 'Player1', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
-      isOnline: true, 
-      lastSeen: DateTime.now().subtract(const Duration(minutes: 5)),
-    ),
-    Friendship(
-      nickname: 'Player2', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
-      isOnline: false, 
-      lastSeen: DateTime.now().subtract(const Duration(hours: 1)),
-    ),
-    Friendship(
-      nickname: 'Player3', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
-      isOnline: true, 
-      lastSeen: DateTime.now().subtract(const Duration(minutes: 2)),
-    ),
-    Friendship(
-      nickname: 'Player4', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
-      isOnline: false, 
-      lastSeen: DateTime.now().subtract(const Duration(hours: 3)),
-    ),
-  ];
+  List<Friendship>? friends = [];
+  // List<Friendship>? friends = [
+  //   Friendship(
+  //     nickname: 'Player1', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
+  //     isOnline: true, 
+  //     lastSeen: DateTime.now().subtract(const Duration(minutes: 5)),
+  //   ),
+  //   Friendship(
+  //     nickname: 'Player2', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
+  //     isOnline: false, 
+  //     lastSeen: DateTime.now().subtract(const Duration(hours: 1)),
+  //   ),
+  //   Friendship(
+  //     nickname: 'Player3', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
+  //     isOnline: true, 
+  //     lastSeen: DateTime.now().subtract(const Duration(minutes: 2)),
+  //   ),
+  //   Friendship(
+  //     nickname: 'Player4', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
+  //     isOnline: false, 
+  //     lastSeen: DateTime.now().subtract(const Duration(hours: 3)),
+  //   ),
+  // ];
 
   @override
   void initState() {
     super.initState();
-    //!_loadFriends();
+    _loadFriends();
   }
 
   void _loadFriends() async {
     final updatedFriends = await GetIt.I<ApiService>().getFriends();
+
+    if (!mounted) return;
+
     setState(() {
       friends = updatedFriends;
     });
@@ -564,6 +572,11 @@ class _FriendsTabState extends State<FriendsTab> {
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.h),
                     child: TextField(
+                      cursorColor: const Color(0xFF3E3E3E),
+                      cursorHeight: 20.h,
+                      onTapOutside: (PointerDownEvent event) {
+                        FocusScope.of(context).unfocus();
+                      },
                       controller: searchController,
                       style: TextStyle(color: const Color(0xFF3E3E3E), fontSize: 16.sp),
                       decoration: const InputDecoration(
@@ -662,17 +675,15 @@ class _FriendsTabState extends State<FriendsTab> {
                           ),
                 
                           //BUTTON:    DELETE
-                          //!
                           SizedBox(
                             width: 85.w,
                             height: 35.h,
                             child: ElevatedButton(
                               onPressed: () {
-                                //! CHECK
                                 _deleteFriend(friend.nickname);
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white, //! DYNAMIC
+                                backgroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
@@ -714,31 +725,32 @@ class RequestsTab extends StatefulWidget {
 }
 
 class _RequestsTabState extends State<RequestsTab> {
-  //List<FriendRequest>? requests = [];
-  List<FriendRequest>? requests = [
-    FriendRequest(
-      nickname: 'Player1', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
-    ),
-    FriendRequest(
-      nickname: 'Player2', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
-    ),
-    FriendRequest(
-      nickname: 'Player3', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
-    ),
+  List<FriendRequest>? requests = [];
+  // List<FriendRequest>? requests = [
+  //   FriendRequest(
+  //     nickname: 'Player1', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  //   ),
+  //   FriendRequest(
+  //     nickname: 'Player2', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  //   ),
+  //   FriendRequest(
+  //     nickname: 'Player3', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
+  //   ),
 
-  ];
+  // ];
 
   @override
   void initState() {
     super.initState();
-    //!_getRequests();
+    _getRequests();
   }
 
   void _getRequests() async {
     requests = await GetIt.I<ApiService>().getRequests();
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -859,16 +871,26 @@ class _RequestsTabState extends State<RequestsTab> {
                           //? BUTTONS:     REJECT AND ACCEPT
                           Row(
                             children: [
-                              Icon(
-                                Icons.remove_circle_outline,
-                                color: Colors.red,
-                                size: 25.sp,
+                              GestureDetector(
+                                onTap: () {
+                                  _approveFriend(request.nickname, false);
+                                },
+                                child: Icon(
+                                  Icons.remove_circle_outline,
+                                  color: Colors.red,
+                                  size: 25.sp,
+                                ),
                               ),
                               SizedBox(width: 5.w),
-                              Icon(
-                                Icons.add_circle_outline,
-                                color: Colors.green,
-                                size: 25.sp,
+                              GestureDetector(
+                                onTap: () {
+                                  _approveFriend(request.nickname, true);
+                                },
+                                child: Icon(
+                                  Icons.add_circle_outline,
+                                  color: Colors.green,
+                                  size: 25.sp,
+                                ),
                               ),
                             ],
                           )
@@ -896,36 +918,50 @@ class SearchTab extends StatefulWidget {
 }
 
 class _SearchTabState extends State<SearchTab> {
+  int count = 1;
   final TextEditingController _searchController = TextEditingController();
-  bool requestSent = false;
-  List<FindFriend>? searchResults = [
-    FindFriend(
-      nickname: 'Player1', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
-      friendshipStatus: 'None',
-      createdDateTime: DateTime.now().subtract(const Duration(days: 1))
-    ),
-    FindFriend(
-      nickname: 'Player2', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
-      friendshipStatus: '',
-      createdDateTime: DateTime.now().subtract(const Duration(days: 2))
-    ),
-    FindFriend(
-      nickname: 'Player3', 
-      avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
-      friendshipStatus: 'Pending',
-      createdDateTime: DateTime.now().subtract(const Duration(days: 3))
-    ),
-  ];
+  //bool requestSent = false;
+  List<FindFriend>? searchResults = [];
+  // List<FindFriend>? searchResults = [
+  //   FindFriend(
+  //     nickname: 'Player1', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
+  //     friendshipStatus: 'None',
+  //     createdDateTime: DateTime.now().subtract(const Duration(days: 1))
+  //   ),
+  //   FindFriend(
+  //     nickname: 'Player2', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
+  //     friendshipStatus: '',
+  //     createdDateTime: DateTime.now().subtract(const Duration(days: 2))
+  //   ),
+  //   FindFriend(
+  //     nickname: 'Player3', 
+  //     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
+  //     friendshipStatus: 'Pending',
+  //     createdDateTime: DateTime.now().subtract(const Duration(days: 3))
+  //   ),
+  // ];
 
   @override
   void initState() {
     super.initState();
+    getPossibleFriends();
+  }
+
+  void getPossibleFriends() async {
+    searchResults = await GetIt.I<ApiService>().possibleFriends();
+    if (!mounted) return;
+    setState(() {});
   }
 
   void _searchUsers() async {
-    searchResults = await GetIt.I<ApiService>().findFriend(_searchController.text);
+    if (_searchController.text.isEmpty) {
+      searchResults = await GetIt.I<ApiService>().possibleFriends();
+    } else {
+      searchResults = await GetIt.I<ApiService>().findFriend(_searchController.text);
+    }
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -934,16 +970,25 @@ class _SearchTabState extends State<SearchTab> {
     setState(() {});
   }
 
+  void changeFriendshipStatus(String nickname) {
+    setState(() {
+      if (searchResults != null) {
+        searchResults!.firstWhere((e) => e.nickname == nickname).friendshipStatus = '';
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // TEXT:    TRUSTED INDIVIDUALS
+        // TEXT:    WANTED:
         Padding(
           padding: EdgeInsets.only(top: 30.h),
           child: Text(
-            'TRUSTED INDIVIDUALS',
+            'WANTED:',
             style: GoogleFonts.playfairDisplay(
+              height: 1,
               fontSize: 22.sp,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF2A2723),
@@ -951,11 +996,21 @@ class _SearchTabState extends State<SearchTab> {
           ),
         ),
 
-        // TEXT:    Justice rides with us.
+        // TEXT:    GOOD COMPANY
+        Text(
+          'GOOD COMPANY',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 22.sp,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF2A2723),
+          ),
+        ),
+
+        // TEXT:    Riding solo ain’t the way.
         Padding(
           padding: EdgeInsets.only(top: 3.h),
           child: Text(
-            'Justice rides with us.',
+            'Riding solo ain\'t the way.',
             style: GoogleFonts.playfairDisplay(
               fontSize: 14.sp,
               color: const Color(0xFF2A2723),
@@ -983,11 +1038,19 @@ class _SearchTabState extends State<SearchTab> {
             ),
             child: Row(
               children: [
-                // TEXTFIELD:    Search...
+                // INPUT:    Search...
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.h),
                     child: TextField(
+                      cursorColor: const Color(0xFF3E3E3E),
+                      cursorHeight: 20.h,
+                      onTapOutside: (PointerDownEvent event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      onChanged: (value) => {
+                        _searchUsers()
+                      },
                       controller: _searchController,
                       style: TextStyle(color: const Color(0xFF3E3E3E), fontSize: 16.sp),
                       decoration: const InputDecoration(
@@ -1019,17 +1082,22 @@ class _SearchTabState extends State<SearchTab> {
           ),
         ),
       
+        //? RESULTS
         Expanded(
-          child: searchResults == null 
+          child: searchResults == null
           ? 
-          const Center(
-            child: Text(
-              'No users found',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 15
-              ),
-            )
+          Padding(
+            padding: EdgeInsets.only(top: 20.h),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Text(
+                'No users found',
+                style: GoogleFonts.playfairDisplay(
+                  color: Colors.black,
+                  fontSize: 18
+                ),
+              )
+            ),
           )
           :
           Padding(
@@ -1075,9 +1143,18 @@ class _SearchTabState extends State<SearchTab> {
                           ),
                 
                           //BUTTON:    DELETE
-                          user.friendshipStatus == 'Pending'
+                          user.friendshipStatus == 'RequestPending'
                           ? Text(
-                              "Request Sent", // NOTE:    Translation L10
+                              "Request Pending", // NOTE:    Translation L10
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 15.sp,
+                                fontFamily: 'CenturyGothic'
+                              ),
+                            )
+                          : user.friendshipStatus == 'ApprovePending'
+                          ? Text(
+                              "Approve Pending", // NOTE:    Translation L10
                               style: TextStyle(
                                 color: Colors.green,
                                 fontSize: 15.sp,
@@ -1092,7 +1169,9 @@ class _SearchTabState extends State<SearchTab> {
                               onPressed: () {
                                 //! CHECK
                                 _sendRequest(user.nickname);
-                                _searchUsers();
+                                setState(() {
+
+                                });
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white, //! DYNAMIC

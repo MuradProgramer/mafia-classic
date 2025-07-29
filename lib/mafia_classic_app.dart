@@ -157,6 +157,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
 
+      resizeToAvoidBottomInset: false,
+
       body: Stack(
         children: List.generate(
           4,
