@@ -972,9 +972,9 @@ class _SearchTabState extends State<SearchTab> {
 
   void changeFriendshipStatus(String nickname) {
     setState(() {
-      if (searchResults != null) {
-        searchResults!.firstWhere((e) => e.nickname == nickname).friendshipStatus = '';
-      }
+      // if (searchResults != null) {
+      //   searchResults!.firstWhere((e) => e.nickname == nickname).friendshipStatus = '';
+      // }
     });
   }
 

@@ -235,7 +235,7 @@ class _GameScreenState extends State<GameScreen> {
     //!!!!!!!!!!!!!!
     //checkIfEligibleToUseSkill();
     
-    /*
+    
     var apiService = GetIt.I<ApiService>();
 
     //
@@ -761,7 +761,7 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
-    */
+    
   }
 
   @override

@@ -90,7 +90,7 @@ class _GamesScreenState extends State<GamesScreen> {
 
     // NOTE:    MAIN HUB CONNECTION AND SOCKETS
 
-    /*
+    
     var apiService = GetIt.I<ApiService>();
     
     //! BUILD
@@ -229,7 +229,7 @@ class _GamesScreenState extends State<GamesScreen> {
       }
       if (temp) break;
     }
-    */
+    
 
     //allGames = games;
     searchedGames = allGames;
@@ -3295,7 +3295,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // reference lazimdi her defe container nedi istifade elirsen
     
-    /*
+    
     var apiService = GetIt.I<ApiService>();
 
     // NOTE:    UNCOMMENT THIS SECTION
@@ -3515,7 +3515,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         });
       });
     }
-    */
+    
     
 
     // _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
