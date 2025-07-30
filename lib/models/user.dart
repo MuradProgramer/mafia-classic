@@ -42,7 +42,7 @@ class Friendship {
 class FindFriend {
   final String nickname;
   final String avatarUrl;
-  final String friendshipStatus;
+  String friendshipStatus;
   final DateTime createdDateTime;
 
   FindFriend({

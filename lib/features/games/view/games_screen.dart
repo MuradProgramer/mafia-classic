@@ -730,6 +730,13 @@ class _GameCardState extends State<GameCard> {
         
                 GestureDetector(
                   onTap: () {
+                    widget.game.players.add(
+                      Player(
+                        nickname: authorizedUser.nickname, 
+                        avatarUrl: authorizedUser.avatarUrl, 
+                        isAlive: true
+                      )
+                    );
                     Navigator.of(context, rootNavigator: true).push(
                       MaterialPageRoute(builder: (context) => 
                         (text == 'You Are Playing Here' || text == 'You Died Here')
@@ -1377,7 +1384,6 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize an empty map or placeholder here
     rolesL10 = {};
   }
 
@@ -1396,14 +1402,67 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     };
 
     mainRoles = {
-      "mistress": false,
-      "journalist": false,
-      "bodyguard": false,
-      "spy": false,
-      "terrorist": false,
-      "barman": false,
-      "informant": false,
+      "Mistress": false,
+      "Journalist": false,
+      "Bodyguard": false,
+      "Spy": false,
+      "Terrorist": false,
+      "Barman": false,
+      "Informant": false,
     };
+  }
+
+  void createGameLobby() async {
+    final roleFlags = {
+      'Spy': hasSpy,
+      'Barman': hasBartender,
+      'Bodyguard': hasBodyguard,
+      'Doctor': hasDoctor,
+      'Informant': hasInformant,
+      'Journalist': hasJournalist,
+      'Beauty': hasLover,
+      'Terrorist': hasTerrorist,
+    };
+
+    final extras = roleFlags.entries
+      .where((entry) => entry.value)
+      .map((entry) => entry.key)
+      .toList();
+
+    bool status = await GetIt.I<ApiService>().createGame(
+      CreateGame(
+        title: roomName, 
+        minPlayers: minPlayers, 
+        maxPlayers: maxPlayers, 
+        password: password, 
+        extraRoles: extras
+      )
+    );
+
+    if (status) {
+      Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute(builder: (context) => GameLobbyScreen(
+            game: Game(
+              title: roomName, 
+              minPlayers: minPlayers,
+              maxPlayers: maxPlayers,
+              status: 'Waiting',
+              extraRoles: extras, 
+              hasPassword: false, 
+              players: [
+                Player(
+                  nickname: authorizedUser.nickname, 
+                  avatarUrl: authorizedUser.avatarUrl, 
+                  isAlive: true
+                )
+              ]
+            ),
+            //!!!!!!!!! CHANGE
+            password: '',
+          )
+        ),
+      );
+    }
   }
 
   @override
@@ -1485,7 +1544,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         },
                         onChanged: (value) {
                           setState(() {
-                            
+                            roomName = value;
                           });
                         },
                         controller: _titleController,
@@ -1576,7 +1635,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                           },
                           onChanged: (value) {
                             setState(() {
-                              
+                              password = value;
                             });
                           },
                           controller: _passwordController,
@@ -1717,65 +1776,13 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                             child: Container(
                               height: 200.h,
                               width: 190.w,
-                              padding: EdgeInsets.only(top: 10.h),
+                              padding: EdgeInsets.only(top: 25.h),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFDDB98B),
                                 borderRadius: BorderRadius.circular(12.sp),
                               ),
                               child: Column(
                                 children: [
-                                  //? Doctor
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      // TEXT:
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 8.w, top: 8.h),
-                                        child: Text(
-                                          'Doctor',
-                                          style: TextStyle(
-                                            color: const Color(0xFFFFFFFF),
-                                            fontSize: 19.sp,
-                                            fontFamily: 'CenturyGothic',
-                                          ),
-                                        ),
-                                      ),
-        
-                                      //? TOGGLE:
-                                      Container(
-                                        width: 62.w,
-                                        height: 27.h,
-                                        margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
-                                        child: AnimatedToggleSwitch.dual(
-                                          current: hasDoctor, 
-                                          first: false, 
-                                          second: true,
-                                          spacing: 10.w,
-                                          height: 30.h,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              hasDoctor = value;
-                                            });
-                                          },
-                                          style: const ToggleStyle(
-                                            backgroundColor: Colors.transparent,
-                                            borderColor: Colors.transparent,
-                                          ),
-                                          styleBuilder: (value) => ToggleStyle(
-                                            backgroundColor: value ? const Color(0xFFFFFFFF) : const Color(0xFF4F4F4F),
-                                            indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF000000),
-                                            indicatorBorderRadius: BorderRadius.circular(50.sp),
-                                            borderRadius: BorderRadius.circular(10.sp),
-                                            
-                                          ),
-                                          indicatorSize: Size(20.sp, 20.sp),
-                                          padding: EdgeInsets.only(left: 5.w, right: 5.w),
-                                        ),
-                                      )
-                                    
-                                    ],
-                                  ),
-        
                                   //? BODYGUARD
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1932,7 +1939,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                     ],
                                   ),
         
-                                  //? LOVER
+                                  //? BEAUTY
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
@@ -1940,7 +1947,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          'Lover',
+                                          'Beauty',
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -1995,7 +2002,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                             child: Container(
                               height: 200.h,
                               width: 190.w,
-                              padding: EdgeInsets.only(top: 45.h),
+                              padding: EdgeInsets.only(top: 40.h),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF000000),
                                 borderRadius: BorderRadius.circular(12.sp),
@@ -2176,7 +2183,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                    
+                        createGameLobby();
                       },
                       child: Container(
                         width: 140.w,
@@ -3316,6 +3323,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       ),
     )
     .build();
+    print('---------------- CONNECTION --------------');
 
     // DONE - TIMER HERE
     apiService.gameHubConnection.on('GameLobbyData', (List<Object?>? parameters) {
@@ -3401,9 +3409,8 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // DONE - TIMER HERE
     apiService.gameHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
-      log('1');
+      print('----------- PLAYER JOINED -----------');
       if (parameters == null || parameters.isEmpty) {
-        log('2');
         return;
       }
 
@@ -3415,7 +3422,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       LobbyPlayer player = LobbyPlayer.fromJson(data);
 
       setState(() {
+        log('---------- PLAYER INFO: ----------');
+        log('Nickname: ${player.nickname}');
         gameLobbyPlayers.add(player);
+        log('---------- GAME LOBBY PLAYERS: ----------');
+        for (var element in gameLobbyPlayers) {
+          log('${gameLobbyPlayers.indexOf(element)}: NICKNAME: ${element.nickname}');
+        }
       });
 
       // DONE:    EVENT TIME
@@ -3466,7 +3479,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // DONE
     apiService.gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
-      log('PERVIN');
+      log('SORTUVU SIKIJM FLUTTER');
       if (parameters == null || parameters.isEmpty) return;
 
       var data = json.decode(parameters.first as String);
@@ -3476,11 +3489,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       final nickname = message.nickname;
       final content = message.content; 
+      log('------------MELUMATLAR BLYAD:--------------');
+      log('NICKNAME: $nickname');
+      log('CONTENT: $content');
 
       setState(() {
         gameLobbyChatMessages.add(ChatMessage(
           nickname: nickname, 
-          avatarUrl: widget.game.players.firstWhere((player) => player.nickname == message.nickname).avatarUrl, 
+          avatarUrl: gameLobbyPlayers.firstWhere((player) => player.nickname == message.nickname).avatarUrl, 
           text: content
         ));
       });
@@ -3754,7 +3770,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                           child: Column(
                                             children: [
                                               Text(
-                                                "${widget.game.players.length}",
+                                                "${gameLobbyPlayers.length}",
                                                 style: GoogleFonts.playfairDisplay(
                                                   color: const Color(0xFFFFB000),
                                                   fontSize: 32.sp,
@@ -3869,7 +3885,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                     crossAxisSpacing: 5,
                                     mainAxisSpacing: 5,
                                   ),
-                                  itemCount: widget.game.players.length,
+                                  itemCount: gameLobbyPlayers.length,
                                   itemBuilder: (context, index) {
                                     return Row(
                                       mainAxisAlignment: MainAxisAlignment.start,
@@ -3883,7 +3899,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                           ),
                                           child: CircleAvatar(
                                             backgroundImage: NetworkImage(
-                                              widget.game.players[index].avatarUrl
+                                              gameLobbyPlayers[index].avatarUrl
                                             ),
                                             radius: 11.sp,
                                           )
@@ -3894,7 +3910,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                         Container(
                                           width: 60.w,
                                           child: Text(
-                                            widget.game.players[index].nickname,
+                                            gameLobbyPlayers[index].nickname,
                                             softWrap: true,
                                             overflow: TextOverflow.fade,
                                             style: TextStyle(

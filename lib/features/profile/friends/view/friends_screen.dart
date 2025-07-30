@@ -609,7 +609,22 @@ class _FriendsTabState extends State<FriendsTab> {
         ),
       
         //? FRIENDS LIST
-        Expanded(
+        (friends == null)
+        ? 
+        Padding(
+          padding: EdgeInsets.only(top: 20.h),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Text(
+              'No users found',
+              style: GoogleFonts.playfairDisplay(
+                color: Colors.black,
+                fontSize: 18
+              ),
+            )
+          ),
+        )
+        : Expanded(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
             child: ListView.builder(
@@ -813,6 +828,22 @@ class _RequestsTabState extends State<RequestsTab> {
         ),
       
         //? REQUESTS
+        (requests == null)
+        ?
+        Padding(
+          padding: EdgeInsets.only(top: 20.h),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Text(
+              'No users found',
+              style: GoogleFonts.playfairDisplay(
+                color: Colors.black,
+                fontSize: 18
+              ),
+            )
+          ),
+        )
+        : 
         Expanded(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
@@ -970,11 +1001,11 @@ class _SearchTabState extends State<SearchTab> {
     setState(() {});
   }
 
-  void changeFriendshipStatus(String nickname) {
+  void changeFriendshipStatus(String nickname, String status) {
     setState(() {
-      // if (searchResults != null) {
-      //   searchResults!.firstWhere((e) => e.nickname == nickname).friendshipStatus = '';
-      // }
+      if (searchResults != null) {
+        searchResults!.firstWhere((e) => e.nickname == nickname).friendshipStatus = status;
+      }
     });
   }
 
@@ -1169,9 +1200,7 @@ class _SearchTabState extends State<SearchTab> {
                               onPressed: () {
                                 //! CHECK
                                 _sendRequest(user.nickname);
-                                setState(() {
-
-                                });
+                                changeFriendshipStatus(user.nickname, 'RequestPending');
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white, //! DYNAMIC

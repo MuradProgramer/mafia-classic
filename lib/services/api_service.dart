@@ -433,6 +433,7 @@ class ApiService extends TokenAwareService {
     await executeWithTokenCheck((accessToken) async {
 
       final dataJson = jsonEncode(game);
+      print(dataJson);
 
       final response = await GetIt.I<DioService>().dio.post(
         'GameLobby/CreateLobby',
