@@ -7,8 +7,15 @@ class RoleCard extends StatefulWidget {
   final String roleName;
   final double width;
   final double height;
+  final bool isMini;
 
-  const RoleCard({super.key, required this.roleName, required this.width, required this.height});
+  const RoleCard({
+    super.key, 
+    required this.roleName, 
+    required this.width, 
+    required this.height, 
+    required this.isMini
+  });
 
   @override
   State<RoleCard> createState() => _RoleCardState();
@@ -44,13 +51,17 @@ class _RoleCardState extends State<RoleCard> {
                 child: child,
               );
             },
-          )
+          ).then((value) {
+            FocusScope.of(context).unfocus();
+          })
                                           
         },
         child: Image.asset(
           width: widget.width,
           height: widget.height,
-          'assets/images/role-card-${widget.roleName}.png',
+          (widget.isMini) 
+          ? 'assets/images/role-card-mark-${widget.roleName.toLowerCase()}.png'
+          : 'assets/images/role-card-${widget.roleName.toLowerCase()}.png',
           fit: BoxFit.scaleDown,
         ),
       ),

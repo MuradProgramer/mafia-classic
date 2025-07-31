@@ -51,7 +51,7 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateMixin {
   String gamePhase = 'Night'; // +
   int dayNumber = 0;
   int mafiaAlive = 0; // +
@@ -86,6 +86,9 @@ class _GameScreenState extends State<GameScreen> {
 
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
+
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
 
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -207,24 +210,34 @@ class _GameScreenState extends State<GameScreen> {
     citizenAlive = widget.citizenCount;
     gameIsReady = widget.gameIsReadyWidget;
 
-    Map<String, String> roleMap = {};
-    if (widget.playersRole != null) {
-      for (var element in widget.playersRole!) {
-      roleMap[element.nickname] = element.role;
-      }
-    }
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
 
-    for (var player in widget.allPlayers) {
-      if (player.nickname == authorizedUser.nickname) continue;
-      inGamePlayers.value.add(InGamePlayer(
-      nickname: player.nickname,
-      isAlive: true,
-      isRevealed: false,
-      role: roleMap[player.nickname] ?? 'undef',
-      avatarUrl: player.avatarUrl,
-      votesOfPlayer: [],
-      ));
-    }
+    _fadeAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    // Map<String, String> roleMap = {};
+    // if (widget.playersRole != null) {
+    //   for (var element in widget.playersRole!) {
+    //   roleMap[element.nickname] = element.role;
+    //   }
+    // }
+
+    // for (var player in widget.allPlayers) {
+    //   if (player.nickname == authorizedUser.nickname) continue;
+    //   inGamePlayers.value.add(InGamePlayer(
+    //   nickname: player.nickname,
+    //   isAlive: true,
+    //   isRevealed: false,
+    //   role: roleMap[player.nickname] ?? 'undef',
+    //   avatarUrl: player.avatarUrl,
+    //   votesOfPlayer: [],
+    //   ));
+    // }
 
     //inGamePlayers.value.firstWhere((el) => el.nickname == 'Player2' || el.nickname == 'Player4').isAlive = false;
 
@@ -435,6 +448,10 @@ class _GameScreenState extends State<GameScreen> {
         final String phase = parameters.first as String;
         
         setState(() {
+          if (inGamePlayers.value[0].nickname == authorizedUser.nickname) {
+            inGamePlayers.value.removeAt(0);
+          }
+
           gamePhase = phase;
         
           if (widget.role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
@@ -468,10 +485,17 @@ class _GameScreenState extends State<GameScreen> {
         
           checkIfEligibleToUseSkill();
           checkIfEligibleToSendMessage();
+
+          Map<String, String> phaseMessages = {
+            'Day': 'The silence of night is over. Now speak.',
+            'DayVoting': 'Choose the imposter of the day',
+            'Night': 'The night begins. All must rest in silence',
+            'NightVoting': 'The Mafia cast their deadly vote.'
+          };
         
           inGameMessages.add(InGameMessage(
             nickname: authorizedUser.nickname,
-            content: 'Phase: $gamePhase',
+            content: phaseMessages[phase] ?? '',
             avatarUrl: authorizedUser.avatarUrl,
             type: 'System'
           ));
@@ -759,9 +783,8 @@ class _GameScreenState extends State<GameScreen> {
         });
       });
     }
-
-    //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
     
+    //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
   }
 
   @override
@@ -770,6 +793,7 @@ class _GameScreenState extends State<GameScreen> {
     print("Disonnected to SignalR! 600 games screen");
     GetIt.I<ApiService>().disconnectGameHub();
     GetIt.I<ApiService>().gameHubIsConnected = false;
+    _controller.dispose();
     super.dispose();
   }
 
@@ -1280,30 +1304,35 @@ class _GameScreenState extends State<GameScreen> {
                                               ],
                                             ),
                                           
-                                            SizedBox(width: deviceWidth * 0.08),
+                                            SizedBox(width: deviceWidth * 0.05),
                     
                                             //? AFFECTED BY 
                                             //!!!!!!!!!!!!!!
-                                            SizedBox(
-                                              width: deviceWidth * 0.25,
-                                              height: deviceHeight * 0.05,
-                                              child: ListView.builder(
-                                                itemCount: markNames.isEmpty ? 0 : markNames.length,
-                                                scrollDirection: Axis.horizontal,
-                                                itemBuilder: (context, index) {
-                                                  return Row(
-                                                    children: [
-                                                      Image.asset(
-                                                        //'assets/images/roles-${markNames[index].toString().toLowerCase()}-icon-small.png', //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                                        'assets/images/roles-sheriff-icon-small.png',
-                                                        fit: BoxFit.scaleDown,
-                                                        width: deviceWidth * 0.05,
-                                                        height: deviceHeight * 0.03,
-                                                      ),
-                                                      SizedBox(width: 2.w),
-                                                    ],
-                                                  );
-                                                }
+                                            FadeTransition(
+                                              opacity: _fadeAnimation,
+                                              child: Container(
+                                                width: deviceWidth * 0.23,
+                                                height: deviceHeight * 0.05,
+                                                margin: EdgeInsets.only(right: 20.w),
+                                                child: ListView.builder(
+                                                  itemCount: markNames.isEmpty ? 0 : markNames.length,
+                                                  scrollDirection: Axis.horizontal,
+                                                  itemBuilder: (context, index) {
+                                                    return Row(
+                                                      children: [
+                                                        Padding(
+                                                          padding: EdgeInsets.only(right: 2.w),
+                                                          child: RoleCard(
+                                                            roleName: markNames[index], 
+                                                            width: deviceWidth * 0.05, 
+                                                            height: deviceHeight * 0.03, 
+                                                            isMini: true
+                                                          ),
+                                                        )
+                                                      ],
+                                                    );
+                                                  }
+                                                ),
                                               ),
                                             ),
                     
@@ -1336,7 +1365,7 @@ class _GameScreenState extends State<GameScreen> {
                                 Container(
                                   margin: EdgeInsets.only(left: 15.w),
                                   child: Text(
-                                    (dayNumber == 0) ? 'Prologue' : 'Day $dayNumber',
+                                    (dayNumber == 0) ? 'Day' : 'Day $dayNumber',
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
@@ -1383,9 +1412,20 @@ class _GameScreenState extends State<GameScreen> {
                                     SizedBox(width: 8.w),
                                 
                                     //! CHANGE
+                                    
+                                    /*
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
+                                          markNames.add('Intoxicated');
+                                          markNames.add('Satisfied');
+                                          markNames.add('Cured');
+                                          markNames.add('Protected');
+                                          markNames.add('Investigated');
+                                          markNames.add('Revealed');
+                                          markNames.add('Interviewed');
+                                          //'Intoxicated', 'Satisfied', 'Cured', 'Protected', 'Investigated', 'Revealed', 'Interviewed'
+                                          /*
                                           final phases = ['NightVoting', 'Day', 'DayVoting', 'Night'];
                                           gamePhase = phases[index];
                                           index += 1;
@@ -1443,8 +1483,8 @@ class _GameScreenState extends State<GameScreen> {
                                                 );
                                               },
                                             );
-                                            
                                           }
+                                          */
                                         });
                                       },
                                       
@@ -1454,6 +1494,7 @@ class _GameScreenState extends State<GameScreen> {
                                         size: 20.sp,
                                       ),
                                     ),
+                                    */
                                   ],
                                 ),
                     
@@ -1571,7 +1612,8 @@ class _GameScreenState extends State<GameScreen> {
                                     RoleCard(
                                       roleName: widget.role.toLowerCase(), 
                                       width: deviceWidth * 0.174, 
-                                      height: deviceHeight * 0.106
+                                      height: deviceHeight * 0.106,
+                                      isMini: false
                                     ),
                     
                                     SizedBox(height: 10.h),
@@ -2561,6 +2603,8 @@ class _VotePopupState extends State<VotePopup> {
   bool canIVotePopup(InGamePlayer player) {
     if (!widget.isAliveMyself) return false;
 
+    if (widget.role == 'Terrorist') return false;
+
     if (widget.inGamePlayers.value[0].nickname == player.nickname) return false;
 
     if (widget.gamePhase == 'Night' && (player.role == 'Terrorist' || player.role == 'Mafia') && widget.role == 'Mafia') return false;
@@ -2580,10 +2624,6 @@ class _VotePopupState extends State<VotePopup> {
     }
 
     return true;
-  }
-
-  void closePopup() {
-    Navigator.pop(context);
   }
 
   bool delayStarted = false;
@@ -2889,7 +2929,8 @@ class _VotePopupState extends State<VotePopup> {
                                                           RoleCard(
                                                             roleName: player.isRevealed ? player.role!.toLowerCase() : 'noname',
                                                             width: 30.w, 
-                                                            height: 30.h
+                                                            height: 30.h, 
+                                                            isMini: false
                                                           ),
 
                                                           SizedBox(width: 5.w),
@@ -3481,6 +3522,8 @@ class _SkillPopupState extends State<SkillPopup> {
                                                   });
                                                 }
                                               }
+                                              
+                                              Navigator.of(context).pop();
 
                                               // print('---------------------------');
                                               // for (var nick in toWhomIVotedNow) {

@@ -207,29 +207,29 @@ class _CiviliansTabState extends State<CiviliansTab> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleName: 'beauty', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'beauty', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
-              RoleCard(roleName: 'journalist', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'journalist', width: cardWidth, height: cardHeight, isMini: false),
             ],
           ),
           SizedBox(width: 10.h),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleName: 'resident', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'resident', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
-              RoleCard(roleName: 'sheriff', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'sheriff', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
-              RoleCard(roleName: 'spy', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'spy', width: cardWidth, height: cardHeight, isMini: false),
             ],
           ),
           SizedBox(width: 10.h),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleName: 'doctor', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'doctor', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
-              RoleCard(roleName: 'resident', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'bodyguard', width: cardWidth, height: cardHeight, isMini: false),
             ],
           ),
         ],
@@ -262,18 +262,18 @@ class _MafiasTabState extends State<MafiasTab> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'terrorist', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
-              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight, isMini: false),
             ],
           ),
           SizedBox(width: 10.h),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'barman', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
-              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight),
+              RoleCard(roleName: 'informant', width: cardWidth, height: cardHeight, isMini: false),
             ],
           ),
         ],

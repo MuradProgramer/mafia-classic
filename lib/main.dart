@@ -23,6 +23,11 @@ void main() async {
   GetIt.I.registerSingleton(AuthRepository());
   GetIt.I.registerSingleton(DioService());
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(
     ScreenUtilInit(

@@ -200,6 +200,28 @@ class _GamesScreenState extends State<GamesScreen> {
       }
     });
 
+    apiService.mainHubConnection.on('PlayerDead', (List<Object?>? parameters) {
+      try {
+        if (parameters == null || parameters.isEmpty) {
+          return; 
+        }
+        
+        var data = json.decode(parameters.first as String);
+        
+        final String nickname = data['nickname'];
+        final String title = data['title'];
+        
+        setState(() {
+          allGames!
+            .firstWhere((e) => e.title == title).players
+            .firstWhere((e) => e.nickname == nickname).isAlive = false;
+          searchedGames = allGames;
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     PLAYER DEAD EVENT - GAMES SCREEN: ${e.toString()}');
+      }
+    });
+
     apiService.mainHubConnection.on('CloseConnection', (List<Object?>? parameters) async {
       await apiService.disconnectMainHub();
     });
@@ -257,7 +279,7 @@ class _GamesScreenState extends State<GamesScreen> {
 
     return DecoratedBox(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/images/game-phase-night.png"), fit: BoxFit.cover, opacity: 0.8),
+        image: DecorationImage(image: AssetImage("assets/images/background-games&filter.png"), fit: BoxFit.fill),
       ),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -448,6 +470,7 @@ class _GamesScreenState extends State<GamesScreen> {
                                 ),
                                 child: Row(
                                   children: [
+                                    // INPUT:    SEARCH
                                     Expanded(
                                       child: Padding(
                                         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.h),
@@ -477,6 +500,8 @@ class _GamesScreenState extends State<GamesScreen> {
                                         ),
                                       ),
                                     ),
+
+                                    // BUTTON:    SEARCH
                                     Padding(
                                       padding: EdgeInsets.only(right: 10.w),
                                       child: GestureDetector(
@@ -520,7 +545,8 @@ class _GamesScreenState extends State<GamesScreen> {
 
               //? GAMES
               Expanded(
-                child: Container(
+                child: 
+                Container(
                   margin: EdgeInsets.only(top: 10.h),
                   height: 500.h,
                   width: double.maxFinite,
@@ -528,13 +554,27 @@ class _GamesScreenState extends State<GamesScreen> {
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(12.sp),
                   ),
-                  child: ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: searchedGames!.length,
-                    itemBuilder: (context, index) {
-                      return GameCard(game: searchedGames![index]);
-                    },
-                  ),
+                  child: (searchedGames!.isEmpty)
+                  ? Padding(
+                      padding: EdgeInsets.only(top: 40.h),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Text(
+                          'No available games..',
+                          style: GoogleFonts.playfairDisplay(
+                            color: Colors.white,
+                            fontSize: 22
+                          ),
+                        )
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: searchedGames!.length,
+                      itemBuilder: (context, index) {
+                        return GameCard(game: searchedGames![index]);
+                      },
+                    ),
                 ),
               ),
             ],
@@ -907,7 +947,7 @@ class _GameCardState extends State<GameCard> {
                                 margin: EdgeInsets.all(5.sp),
                                 child: Stack(
                                   children: [
-                                    RoleCard(roleName: widget.game.extraRoles[index].toLowerCase(), width: 70.w, height: 93.h)
+                                    RoleCard(roleName: widget.game.extraRoles[index].toLowerCase(), width: 70.w, height: 93.h, isMini: false)
                                   ],
                                 ),
                               ),
@@ -1024,7 +1064,7 @@ class _GameCardState extends State<GameCard> {
 class Player {
   final String nickname;
   final String avatarUrl;
-  final bool isAlive;
+  bool isAlive;
 
   Player({
     required this.nickname, 
@@ -1601,8 +1641,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                     indicatorColor: value ? const Color(0xFFEBBD57) : const Color(0xFF585755),
                                   ),
                                   iconBuilder: (value) => value 
-                                    ? Image.asset('assets/images/locker-opened-icon.png', scale: 3.2.sp) 
-                                    : Image.asset('assets/images/locker-closed-icon.png', scale: 3.2.sp),
+                                    ? Image.asset('assets/images/locker-closed-icon.png', scale: 3.2.sp)
+                                    : Image.asset('assets/images/locker-opened-icon.png', scale: 3.2.sp) 
                                 ),
                               )
                             
@@ -1616,7 +1656,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     ?
                     // TEXTFIELD:    PASSWORD
                     Padding(
-                      padding: EdgeInsets.only(top: 15.h),
+                      padding: EdgeInsets.only(top: 15.h, bottom: 8.h),
                       child: Container(
                         height: 37.h,
                         width: 230.w,
@@ -2414,42 +2454,13 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
 
     return DecoratedBox(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/images/game-phase-night.png"), fit: BoxFit.fill),
+        image: DecorationImage(image: AssetImage("assets/images/background-games&filter.png"), fit: BoxFit.fill),
       ),
       child: Scaffold(
         body: Padding(
           padding: EdgeInsetsGeometry.only(top: 50.h, left: 15.w, right: 15.w),
           child: Column(
             children: [
-              //? GO BACK BUTTON
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(),
-        
-                  // BUTTON:    GO BACK
-                  GestureDetector(
-                    onTap: () {
-                      resetFilters();
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: 33.w,
-                      height: 33.w,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFB000).withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(8.sp),
-                      ),
-                      child: Icon(
-                        Icons.keyboard_double_arrow_left,
-                        color: Colors.white,
-                        size: 33.sp,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-        
               //? INFO PART
               Container(
                 margin: EdgeInsets.only(top: 20.h),
@@ -2563,6 +2574,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                 ),
                               ),
                             )
+                          
                           ],
                         )
                       ],
@@ -2875,7 +2887,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
             
               //? INCLUDED ROLES
               SizedBox(
-                height: 130.h,
+                height: 150.h,
                 width: double.maxFinite,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -2892,7 +2904,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                     ),
 
                     Container(
-                      height: 85.h,
+                      height: 100.h,
                       margin: EdgeInsets.only(top: 15.h),
                       child: SingleChildScrollView(
                         child: Column(
@@ -3479,7 +3491,6 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     // DONE
     apiService.gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
-      log('SORTUVU SIKIJM FLUTTER');
       if (parameters == null || parameters.isEmpty) return;
 
       var data = json.decode(parameters.first as String);
@@ -3551,6 +3562,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   
 
   void startGame(String title, String role, int citizenCount, int mafiaCount, List<PlayerRole> playerRoles) {
+    widget.game.players.removeWhere((e) => e.nickname == authorizedUser.nickname);
     Navigator.push(
       context,
       // NOTE:  MATERIAL PAGE ROUTE ---- ANDROID: HER YERDE shupheli
@@ -3849,7 +3861,8 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                   child: RoleCard(
                                     roleName: widget.game.extraRoles[index].toLowerCase(), 
                                     width: cardWidth, 
-                                    height: 80.h
+                                    height: 80.h, 
+                                    isMini: false
                                   )
                                 );
                               }),
@@ -3877,14 +3890,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                               SizedBox(
                                 width: 210.w,
                                 height: 130.h,
-                                child: GridView.builder(
+                                child: ListView.builder(
                                   padding: EdgeInsets.zero,
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    childAspectRatio: 2.5,
-                                    crossAxisSpacing: 5,
-                                    mainAxisSpacing: 5,
-                                  ),
+                                  // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  //   crossAxisCount: 2,
+                                  //   childAspectRatio: 2.5,
+                                  //   crossAxisSpacing: 5,
+                                  //   mainAxisSpacing: 5,
+                                  // ),
                                   itemCount: gameLobbyPlayers.length,
                                   itemBuilder: (context, index) {
                                     return Row(
@@ -3901,20 +3914,19 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             backgroundImage: NetworkImage(
                                               gameLobbyPlayers[index].avatarUrl
                                             ),
-                                            radius: 11.sp,
+                                            radius: 18.sp,
                                           )
                                         ),
                                         SizedBox(width: 4.w),
           
                                         //? NICKNAME
                                         Container(
-                                          width: 60.w,
                                           child: Text(
                                             gameLobbyPlayers[index].nickname,
                                             softWrap: true,
                                             overflow: TextOverflow.fade,
                                             style: TextStyle(
-                                              fontSize: 15.sp,
+                                              fontSize: 18.sp,
                                               fontFamily: 'CenturyGothic',
                                             ),
                                           ),

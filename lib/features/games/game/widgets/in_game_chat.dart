@@ -48,6 +48,7 @@ class _InGameChatBoxState extends State<InGameChatBox> {
             child: Center(
               child: Text(
                 message.content,
+                textAlign: TextAlign.center,
                 style: TextStyle(color: const Color(0xFFFFB000), fontSize: 14.sp, fontWeight: FontWeight.bold),
               ),
             ),
