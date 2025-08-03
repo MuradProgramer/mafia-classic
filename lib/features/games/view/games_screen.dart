@@ -780,7 +780,7 @@ class _GameCardState extends State<GameCard> {
                     Navigator.of(context, rootNavigator: true).push(
                       MaterialPageRoute(builder: (context) => 
                         (text == 'You Are Playing Here' || text == 'You Died Here')
-                        ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, citizenCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false,)
+                        ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false,)
                         : GameLobbyScreen(
                           game: widget.game,
                           //! ------------------- CHANGE -------------------
@@ -3410,13 +3410,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       var data = json.decode(parameters.first as String);
 
       String role = data['role'] ?? '';
-      int citizenCount = data['citizenCount'] ?? 0;
+      int civilianCount = data['civilianCount'] ?? 0;
       int mafiaCount = data['mafiaCount'] ?? 0;
 
       List<dynamic> playerRolesJson = data['playerRoles'] ?? [];
       List<PlayerRole> playerRoles = playerRolesJson.map((json) => PlayerRole.fromJson(json)).toList();
 
-      startGame(widget.game.title, role, citizenCount, mafiaCount, playerRoles);
+      startGame(widget.game.title, role, civilianCount, mafiaCount, playerRoles);
     });
 
     // DONE - TIMER HERE
@@ -3561,7 +3561,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   }
   
 
-  void startGame(String title, String role, int citizenCount, int mafiaCount, List<PlayerRole> playerRoles) {
+  void startGame(String title, String role, int civilianCount, int mafiaCount, List<PlayerRole> playerRoles) {
     widget.game.players.removeWhere((e) => e.nickname == authorizedUser.nickname);
     Navigator.push(
       context,
@@ -3570,7 +3570,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         GameScreen(
           title: title,
           role: role,
-          citizenCount: citizenCount,
+          civilianCount: civilianCount,
           mafiaCount: mafiaCount,
           playersRole: playerRoles,
           allPlayers: widget.game.players,

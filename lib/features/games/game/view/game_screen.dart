@@ -28,7 +28,7 @@ class GameScreen extends StatefulWidget {
   final String title;
   String role;
   int mafiaCount;
-  int citizenCount;
+  int civilianCount;
   final List<PlayerRole>? playersRole;
   final List<Player> allPlayers;
   final bool gameIsReadyWidget;
@@ -41,7 +41,7 @@ class GameScreen extends StatefulWidget {
     required this.playersRole, 
     required this.role, 
     required this.mafiaCount, 
-    required this.citizenCount, 
+    required this.civilianCount, 
     required this.allPlayers, 
     required this.cameBackFromAfk,
     required this.gameIsReadyWidget
@@ -55,7 +55,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   String gamePhase = 'Night'; // +
   int dayNumber = 0;
   int mafiaAlive = 0; // +
-  int citizenAlive = 0; // +
+  int civilianAlive = 0; // +
   ValueNotifier<List<InGamePlayer>> inGamePlayers = ValueNotifier<List<InGamePlayer>>([]); // +
 
   List<String> markNames = []; // + //!
@@ -67,6 +67,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   bool canIVote = false;
   bool iVoted = false;
   bool votesAreVisibleToMe = false;
+  bool canNightVote = false; // NOTE: Informant
 
   // DEF:    SKILLS VARIABLES
   bool canIUseSkill = false;
@@ -132,7 +133,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     }
     else if (gamePhase == 'Night') {
       if ('Mafia' != widget.role) {
-        return;
+        if ((widget.role.toLowerCase() == 'informant') && canNightVote) {
+          
+        } else {
+          return;
+        }
       }
     }
 
@@ -159,7 +164,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     // NOTE:    CHECKING ROLES
 
-    if (widget.role == 'Mafia' || widget.role == 'Citizen' || widget.role == 'Spy') {
+    if (widget.role == 'Mafia' || widget.role == 'Civilian' || widget.role == 'Spy') {
       return;
     }
 
@@ -207,7 +212,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     super.initState();
 
     mafiaAlive = widget.mafiaCount;
-    citizenAlive = widget.citizenCount;
+    civilianAlive = widget.civilianCount;
     gameIsReady = widget.gameIsReadyWidget;
 
     _controller = AnimationController(
@@ -288,11 +293,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           log('03');
           final mafiaCount = data['mafiaCount'] as int;
           log('04');
-          final citizenCount = data['citizenCount'] as int;
+          final civilianCount = data['civilianCount'] as int;
           log('05');
           final aliveMafiaCount = data['aliveMafiaCount'] as int;
           log('06');
-          final aliveCitizenCount = data['aliveCitizenCount'] as int;
+          final aliveCivilianCount = data['aliveCivilianCount'] as int;
           log('07');
 
           //log((data['messages'] as List<dynamic>)[0]['nickname'].toString());
@@ -332,9 +337,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             gamePhase = phase;
             isAliveMyself = isAlive;
             widget.mafiaCount = mafiaCount;
-            widget.citizenCount = citizenCount;
+            widget.civilianCount = civilianCount;
             mafiaAlive = aliveMafiaCount;
-            citizenAlive = aliveCitizenCount;
+            civilianAlive = aliveCivilianCount;
             
             for (InGameMessage message in messages) {
               
@@ -434,14 +439,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     checkIfEligibleToSendMessage();
     intoxicationEffect();
 
-    printInGamePlayers();
+    //printInGamePlayers();
  
     
     // DONE
     apiService.gameHubConnection.on('Phase', (List<Object?>? parameters) {
-      log('-------------------- PHASE EVENT --------------------: ${DateTime.now().toIso8601String()}');
+      //log('-------------------- PHASE EVENT --------------------: ${DateTime.now().toIso8601String()}');
       try {
-        print('-------------------- PHASE EVENT: TRY CATCH --------------------: ${DateTime.now().toIso8601String()}');
+        //print('-------------------- PHASE EVENT: TRY CATCH --------------------: ${DateTime.now().toIso8601String()}');
         if (parameters == null || parameters.isEmpty) return; 
         
         //log(parameters.first as String);
@@ -504,7 +509,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             dayNumber += 1;
           }
 
-          if ((gamePhase == 'NightVoting' && widget.role == 'Mafia') || gamePhase == 'DayVoting') {
+          if ((gamePhase == 'NightVoting' && (widget.role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
             inGamePlayers.value.insert(0, InGamePlayer(
               nickname: authorizedUser.nickname,
               isAlive: isAliveMyself,
@@ -523,16 +528,18 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                 return VotePopup(
                   role: widget.role,
                   canIVote: canIVote,
+                  useSkill: useSkill,
                   dayCount: dayNumber,
                   title: widget.title,
                   gamePhase: gamePhase,
                   markNames: markNames,
                   votePlayer: votePlayer,
+                  canNightVote: canNightVote,
                   isAliveMyself: isAliveMyself,
                   inGamePlayers: inGamePlayers,
                   changeVoteState: changeVoteState,
                   timerNotifier: phaseTimeNotifier,
-                  aliveCount: mafiaAlive + citizenAlive,
+                  aliveCount: mafiaAlive + civilianAlive,
                   votesAreVisibleToMe: votesAreVisibleToMe,
                   checkSecondIfEligibleToVote: checkSecondIfEligibleToVote,
                 );
@@ -560,7 +567,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       } on Exception catch (e) {
         log('EXCEPTION IN:     PHASE EVENT - GAME SCREEN: ${e.toString()}');
       }
-      log('---------------------------------------');
+      //log('---------------------------------------');
     });
 
     // DONE
@@ -635,7 +642,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             if (['Mafia', 'Terrorist', 'Beauty', 'Barman'].any((e) => e == playerDead.role)) {
               mafiaAlive -= 1;
             } else {
-              citizenAlive -= 1;
+              civilianAlive -= 1;
             }
             isAliveMyself = false;
             checkIfEligibleToSendMessage();
@@ -645,17 +652,19 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
           inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).role = playerDead.role;
           inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isRevealed = true;
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).votesOfPlayer = [];
+          inGamePlayers.notifyListeners();
           namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
         
           if (['Mafia', 'Terrorist', 'Barman', 'Informant'].any((s) => s == playerDead.role)) {
             mafiaAlive -= 1;
           } else {
-            citizenAlive -= 1;
+            civilianAlive -= 1;
           }
           
         });
         
-        printInGamePlayers();
+        //printInGamePlayers();
       } on Exception catch (e) {
         log('EXCEPTION IN:     PLAYER DEAD EVENT - GAME SCREEN: ${e.toString()}');
       }
@@ -684,7 +693,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       try {
         if (parameters == null || parameters.isEmpty) return;
         
-        print(parameters.first);
+        //print(parameters.first);
         var data = json.decode(parameters.first as String);
         
         final String nickname = data['nickname'];
@@ -712,20 +721,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     apiService.gameHubConnection.on('Voted', (List<Object?>? parameters) {
       try {
         if (parameters == null || parameters.isEmpty) return;
-
         var data = json.decode(parameters.first.toString());
         
         final String from = data['from'];
         final String target = data['target'];
-        
         setState(() {
-          if (target == authorizedUser.nickname) {
-            votesOnMe += 1;
-            return;
-          }
           inGamePlayers.value.firstWhere((el) => el.nickname == target).votesOfPlayer!.add(from);
           inGamePlayers.notifyListeners();
-          print('Voted: $from -> $target');
+          //print('Voted: $from -> $target');
         });
       } catch (e) {
         log('EXCEPTION IN:     VOTED EVENT - GAME SCREEN: ${e.toString()}');
@@ -749,6 +752,18 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         setState(() {
           phaseTimeNotifier.value = parameters.first as int;
           //print(phaseTimeNotifier.value);
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // INCOMPLETE
+    apiService.gameHubConnection.on('CanNightVote', (List<Object?>? parameters) {
+      try {
+        setState(() {
+          canNightVote = true;
+          log('CAN NIGHT VOTE METHOD: ${DateTime.now().toIso8601String()}');
         });
       } on Exception catch (e) {
         log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
@@ -895,7 +910,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       return;
     }
 
-    if (widget.role == 'Mafia' || widget.role == 'Citizen' || widget.role == 'Spy') {
+    if (widget.role == 'Mafia' || widget.role == 'Civilian' || widget.role == 'Spy') {
       changeSkillState(false);
       return;
     }
@@ -1117,7 +1132,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                 if (sizes.maxWidth < 360) {
                   return const Spacer();
                 } else if (sizes.maxWidth < 600) {
-                  int playersCount = widget.citizenCount + widget.mafiaCount;
+                  int playersCount = widget.civilianCount + widget.mafiaCount;
                   return SingleChildScrollView(
                     child: Container(
                       alignment: Alignment.center,
@@ -1290,7 +1305,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                       )
                                                     ),
                                                     Text(
-                                                      '$citizenAlive|${widget.citizenCount}',
+                                                      '$civilianAlive|${widget.civilianCount}',
                                                       style: TextStyle(
                                                         height: 1,
                                                         color: const Color(0xFFFFB000),
@@ -1662,9 +1677,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                     aliveMafiaCount: mafiaAlive,
                                                     inGamePlayers: inGamePlayers,
                                                     mafiaCount: widget.mafiaCount,
-                                                    aliveCitizenCount: citizenAlive,
+                                                    aliveCivilianCount: civilianAlive,
                                                     timerNotifier: phaseTimeNotifier,
-                                                    citizenCount: widget.citizenCount,
+                                                    civilianCount: widget.civilianCount,
                                                     toWhomIUsedSkill: toWhomIUsedSkill,
                                                   );
                                                 },
@@ -2540,11 +2555,13 @@ class VotePopup extends StatefulWidget {
   final String title;
   final int aliveCount;
   final String gamePhase;
+  final bool canNightVote;
   final bool isAliveMyself;
   final List<String> markNames;
   final ValueNotifier<int> timerNotifier;
   final ValueNotifier<List<InGamePlayer>> inGamePlayers;
   final void Function(String votedPlayerNickname) votePlayer;
+  final void Function(List<String> toWhomIUsedSkill, bool state) useSkill;
 
   const VotePopup({
     super.key, 
@@ -2552,6 +2569,7 @@ class VotePopup extends StatefulWidget {
     required this.title,
     required this.dayCount, 
     required this.canIVote, 
+    required this.useSkill, 
     required this.markNames, 
     required this.gamePhase, 
     required this.aliveCount, 
@@ -2562,6 +2580,7 @@ class VotePopup extends StatefulWidget {
     required this.changeVoteState, 
     required this.votesAreVisibleToMe, 
     required this.checkSecondIfEligibleToVote, 
+    required this.canNightVote, 
   });
   
   @override
@@ -2603,21 +2622,17 @@ class _VotePopupState extends State<VotePopup> {
   bool canIVotePopup(InGamePlayer player) {
     if (!widget.isAliveMyself) return false;
 
-    if (widget.role == 'Terrorist') return false;
-
     if (widget.inGamePlayers.value[0].nickname == player.nickname) return false;
 
-    if (widget.gamePhase == 'Night' && (player.role == 'Terrorist' || player.role == 'Mafia') && widget.role == 'Mafia') return false;
-
     if (!player.isAlive) return false;
-
-    for (var element in widget.markNames) {
-      log(element);
-    }
 
     if (widget.markNames.contains('Satisfied') || widget.markNames.contains('Intoxicated')) return false;
 
     if (iVotedCompletely) return false;
+    
+    if (widget.role.toLowerCase() == 'informant' && widget.canNightVote) return true; 
+
+    if (widget.gamePhase == 'Night' && (player.role == 'Terrorist' || player.role == 'Mafia') && widget.role == 'Mafia') return false;
 
     if (checkIfItIsMafiaAndNight(player.role!, widget.role, widget.gamePhase)) {
       return false;
@@ -2631,6 +2646,20 @@ class _VotePopupState extends State<VotePopup> {
   @override
   void initState() {
     super.initState();
+    widget.timerNotifier.addListener(() {
+      if (!mounted) return;
+
+      if (widget.timerNotifier.value == 1 && !delayStarted) {
+        delayStarted = true;
+
+        Future.delayed(const Duration(milliseconds: 700), () {
+          if (!mounted) return;
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        });
+      }
+    });
     //widget.timerNotifier.addListener(handleTimerChange);
   }
 
@@ -2860,19 +2889,19 @@ class _VotePopupState extends State<VotePopup> {
                                     final minutes = value ~/ 60;
                                     final seconds = value % 60;
                                 
-                                    if (value == 1 && !delayStarted) {
-                                      delayStarted = true;
+                                    // if (value == 1 && !delayStarted) {
+                                    //   delayStarted = true;
                                 
-                                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                                        Future.delayed(const Duration(milliseconds: 700), () {
-                                          if (!mounted) return;
-                                          if (Navigator.of(context).canPop()) {
-                                            widget.inGamePlayers.value.removeAt(0);
-                                            Navigator.of(context).pop();
-                                          }
-                                        });
-                                      });
-                                    }
+                                    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    //     Future.delayed(const Duration(milliseconds: 700), () {
+                                    //       if (!mounted) return;
+                                    //       if (Navigator.of(context).canPop()) {
+                                    //         widget.inGamePlayers.value.removeAt(0);
+                                    //         Navigator.of(context).pop();
+                                    //       }
+                                    //     });
+                                    //   });
+                                    // }
                                 
                                     return Text(
                                       '${['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? 'Time for decision - ' : 'Pick your target - '}$minutes:${seconds.toString().padLeft(2, '0')}',
@@ -3000,7 +3029,7 @@ class _VotePopupState extends State<VotePopup> {
                                                               ),
                                                               
                                                               child: Text(
-                                                                'Vote', // NOTE:    Translation L10 
+                                                                widget.role.toLowerCase() == 'terrorist' ? 'Bombard' : 'Vote', // NOTE:    Translation L10 
                                                                 //! DYNAMIC
                                                                 style: TextStyle(
                                                                   fontSize: 15.sp,
@@ -3012,6 +3041,7 @@ class _VotePopupState extends State<VotePopup> {
                                                               ),
                                                             ),
                                                           ),
+                                                        
                                                         ],
                                                       )
                                                     ],
@@ -3058,6 +3088,7 @@ class _VotePopupState extends State<VotePopup> {
                                     );
                                   }
                                 ),
+                              
                               ),
                             ),
 
@@ -3089,7 +3120,11 @@ class _VotePopupState extends State<VotePopup> {
                                           iVotedCompletely = true;
                                           iVotedPartially = false;
                                         });
-                                    
+
+                                        if (widget.role.toLowerCase() == 'terrorist') {
+                                          widget.useSkill([toWhomIVoted], true);
+                                          return;
+                                        }
                                         widget.votePlayer(toWhomIVoted);
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -3154,9 +3189,9 @@ class _VotePopupState extends State<VotePopup> {
 
 class SkillPopup extends StatefulWidget {
   final int mafiaCount;
-  final int citizenCount;
+  final int civilianCount;
   final int aliveMafiaCount;
-  final int aliveCitizenCount;
+  final int aliveCivilianCount;
 
   final String title;
   final String gamePhase;
@@ -3181,12 +3216,12 @@ class SkillPopup extends StatefulWidget {
     required this.iUsedSkill,
     required this.mafiaCount,
     required this.canIUseSkill,
-    required this.citizenCount,
+    required this.civilianCount,
     required this.timerNotifier,
     required this.inGamePlayers,
     required this.aliveMafiaCount,
     required this.toWhomIUsedSkill,
-    required this.aliveCitizenCount
+    required this.aliveCivilianCount
   });
 
   @override
@@ -3196,6 +3231,16 @@ class SkillPopup extends StatefulWidget {
 class _SkillPopupState extends State<SkillPopup> {
   List<String> toWhomIVotedNow = [];
   bool tempStateIUsedSkill = false;
+
+  Map<String, String> rolesSkills = {
+    'doctor': 'Cure',
+    'beauty': 'Satisfy',
+    'bodyguard': 'Protect',
+    'barman': 'Intoxicate',
+    'informant': 'Reveale',
+    'sheriff': 'Investigate',
+    'journalist': 'Interview',
+  };
 
   bool isPopupClosed = false;
 
@@ -3347,7 +3392,7 @@ class _SkillPopupState extends State<SkillPopup> {
 
                             // TEXT:    Citizens Alive
                             Text(
-                              '${widget.aliveCitizenCount} of ${widget.citizenCount} civilians',
+                              '${widget.aliveCivilianCount} of ${widget.civilianCount} civilians',
                               style: TextStyle(
                                 fontSize: 15.sp,
                                 fontFamily: 'CenturyGothic',
@@ -3546,7 +3591,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                             ),
                                             
                                             child: Text(
-                                              'Choose', // NOTE:    Translation L10 
+                                              rolesSkills[widget.role.toLowerCase()] ?? 'Choose', // NOTE:    Translation L10 
                                               //! DYNAMIC
                                               style: TextStyle(
                                                 fontSize: 15.sp,
