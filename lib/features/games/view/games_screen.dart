@@ -86,6 +86,13 @@ class _GamesScreenState extends State<GamesScreen> {
   @override
   void initState() {
     super.initState();
+    
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
     authorizedUser = widget.user;
 
     // NOTE:    MAIN HUB CONNECTION AND SOCKETS
@@ -94,7 +101,7 @@ class _GamesScreenState extends State<GamesScreen> {
     var apiService = GetIt.I<ApiService>();
     
     //! BUILD
-    apiService.mainHubConnection = HubConnectionBuilder().withUrl(
+    apiService.mainHubConnection = HubConnectionBuilder().withAutomaticReconnect().withUrl(
       'https://31.171.65.145/mainlobby',
       options: HttpConnectionOptions(
         accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
@@ -228,13 +235,14 @@ class _GamesScreenState extends State<GamesScreen> {
 
     //! CONNECTION
     if (!apiService.mainHubIsConnected) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        apiService.mainHubConnection.start()?.then((_) {
+      Future.microtask(() async {
+        try {
+          await apiService.mainHubConnection.start();
           apiService.mainHubIsConnected = true;
-          print("Connected to SignalR!");
-        }).catchError((e) {
-          print("Connection error: $e");
-        });
+          log("Connected to SignalR! MainHubSocket");
+        } catch (e) {
+          log("MainHubSocket | Connection error: $e");
+        }
       });
     }
 

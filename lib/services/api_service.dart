@@ -42,15 +42,15 @@ class ApiService extends TokenAwareService {
     allGames = <Game>[];
 
     //!!!!!!!!!!!
-    mainHubConnection = HubConnectionBuilder().withUrl(
-      'https://31.171.65.145/mainlobby',
-      options: HttpConnectionOptions(
-        accessTokenFactory: () => Future.value(_accessToken),
-        skipNegotiation: true,
-        transport: HttpTransportType.WebSockets,
-      ),
-    )
-    .build();
+    // mainHubConnection = HubConnectionBuilder().withUrl(
+    //   'https://31.171.65.145/mainlobby',
+    //   options: HttpConnectionOptions(
+    //     accessTokenFactory: () => Future.value(_accessToken),
+    //     skipNegotiation: true,
+    //     transport: HttpTransportType.WebSockets,
+    //   ),
+    // )
+    // .build();
   }
 
   Future<void> connectMainHub() async {
@@ -368,18 +368,18 @@ class ApiService extends TokenAwareService {
   Future<void> disconnectMainHub() async {
     mainHubConnection.stop().then((_) {
       mainHubIsConnected = false;
-      print('Main Hub connection stopped');
+      log('Main Hub connection stopped');
     }).catchError((error) {
-      print('Error stopping hub connection: $error');
+      log('Error stopping MAIN hub connection: $error');
     });
   }
 
   Future<void> disconnectGameHub() async {
     gameHubConnection.stop().then((_) {
       gameHubIsConnected = false;
-      print('Game Hub connection stopped');
+      log('Game Hub connection stopped');
     }).catchError((error) {
-      print('Error stopping hub connection: $error');
+      log('Error stopping hub connection: $error');
     });
   }
   

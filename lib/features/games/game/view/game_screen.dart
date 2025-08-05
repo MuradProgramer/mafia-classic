@@ -268,7 +268,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (!apiService.gameHubIsConnected) {
       print("187 games screen - creating connection");
       apiService.gameHubConnection = HubConnectionBuilder().withUrl(
-        'https://46.32.173.182/gamelobby?title=${widget.title}',
+        'https://31.171.65.145/gamelobby?title=${widget.title}',
         options: HttpConnectionOptions(
           accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
           // skipNegotiation: true,
@@ -280,6 +280,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     
     if (widget.cameBackFromAfk) {
       //!!!!!!!!!!!!
+
+      log('----------- CAME BACK FROM AFK ----------');
+
       
       apiService.gameHubConnection.on('ReconnectGameData', (List<Object?>? parameters) {
         try {
@@ -344,7 +347,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             civilianAlive = aliveCivilianCount;
             
             for (InGameMessage message in messages) {
-              
               if (message.type == 'Default') {
                 if (players.any((el) => el.nickname == message.nickname)) {
                   message.avatarUrl = players.firstWhere((el) => el.nickname == message.nickname).avatarUrl;
@@ -364,11 +366,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
             markNames = marksOfPlayer;
 
-            for (Vote vote in votes) {
-              if (vote.target == authorizedUser.nickname) {
-                votesOnMe += 1;
-              }
-            } 
+            // for (Vote vote in votes) {
+            //   if (vote.target == authorizedUser.nickname) {
+            //     votesOnMe += 1;
+            //   }
+            // } 
 
             for (PlayersFromAfk el in players) {
               List<String> playerVotesTEMP = [];
@@ -386,7 +388,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                   nickname: el.nickname,
                   isAlive: el.isAlive,
                   avatarUrl: el.avatarUrl,
-                  isRevealed: ((role == 'Sheriff' || role == 'Informant') && el.isMarked == true) ? true : false,
+                  isRevealed: ((role == 'Sheriff' || role == 'Informant') && el.isMarked == true || !el.isAlive) ? true : false,
                   votesOfPlayer: playerVotesTEMP,
                   role: el.role
                 )
@@ -408,7 +410,39 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               }
             }
 
-
+            if ((gamePhase == 'NightVoting' && (widget.role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
+              inGamePlayers.value.insert(0, InGamePlayer(
+                nickname: authorizedUser.nickname,
+                isAlive: isAliveMyself,
+                isRevealed: true,
+                role: widget.role.toLowerCase(),
+                avatarUrl: authorizedUser.avatarUrl,
+                votesOfPlayer: []
+              ));
+              
+              PopupManager().show(
+                context: context,
+                id: 'votePopup',
+                builder: (_) => VotePopup(
+                  role: widget.role,
+                    canIVote: canIVote,
+                    useSkill: useSkill,
+                    dayCount: dayNumber,
+                    title: widget.title,
+                    gamePhase: gamePhase,
+                    markNames: markNames,
+                    votePlayer: votePlayer,
+                    canNightVote: canNightVote,
+                    isAliveMyself: isAliveMyself,
+                    inGamePlayers: inGamePlayers,
+                    changeVoteState: changeVoteState,
+                    timerNotifier: phaseTimeNotifier,
+                    aliveCount: mafiaAlive + civilianAlive,
+                    votesAreVisibleToMe: votesAreVisibleToMe,
+                    checkSecondIfEligibleToVote: checkSecondIfEligibleToVote,
+                ),
+              );
+            }
           });
         } on Exception catch (e) {
           log('EXCEPTION IN:     ReconnectGameData EVENT - GAME SCREEN: ${e.toString()}');
