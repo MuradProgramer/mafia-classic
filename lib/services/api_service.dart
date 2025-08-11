@@ -470,7 +470,7 @@ class ApiService extends TokenAwareService {
   @override
   Future<void> refreshToken() async {
     final response = await GetIt.I<DioService>().dio.post(
-      'Account/UpdateSession',
+      'Account/UpdateRefreshToken',
       options: Options(
         headers: {
           'Authorization': 'Bearer $_refreshToken'

@@ -15,6 +15,7 @@ import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/models/player.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
+import 'package:mafia_classic/services/signalr_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
 import 'package:signalr_netcore/http_connection_options.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
@@ -81,12 +82,71 @@ class _GamesScreenState extends State<GamesScreen> {
   List<Game>? allGames = [];
   List<Game>? searchedGames = [];
 
+  GameFilters currentFilters = GameFilters(
+    accessState: 0,
+
+    minPlayers: 5,
+    maxPlayers: 8,
+
+    hasSpy: false,
+    hasLover: false,
+    hasBodyguard: false,
+    hasJournalist: false,
+    hasTerrorist: false,
+    hasBartender: false,
+    hasInformant: false,
+
+    roomsWithSpace: false,
+  );
+
+  void applyFilters(GameFilters filters) {
+    setState(() {
+      currentFilters = filters;
+      if (allGames != null) {
+        searchedGames = allGames!.where((game) {
+          if (game.players.length < filters.minPlayers || game.players.length > filters.maxPlayers) return false;
+          if (game.players.length == filters.maxPlayers) return false; // || OR GAME IS STARTED
+          if (filters.accessState == 1 && game.hasPassword) return false;
+          if (filters.accessState == 2 && !game.hasPassword) return false;
+
+          List<String> requiredRoles = [];
+          if (filters.hasBodyguard) requiredRoles.add('Bodyguard');
+          if (filters.hasLover) requiredRoles.add('Beauty');
+          if (filters.hasTerrorist) requiredRoles.add('Journalist');
+          if (filters.hasTerrorist) requiredRoles.add('Spy');
+
+          if (filters.hasTerrorist) requiredRoles.add('Terrorist');
+          if (filters.hasTerrorist) requiredRoles.add('Informant');
+          if (filters.hasTerrorist) requiredRoles.add('Barman');
+
+          if (requiredRoles.isNotEmpty) {
+            for (final role in requiredRoles) {
+              if (!game.extraRoles.contains(role)) return false;
+            }
+          }
+
+          return true;
+        }).toList();
+      }
+    });
+  }
+
+  Future<void> openFilterizationScreen() async {
+    final filters = await Navigator.push<GameFilters>(
+      context,
+      MaterialPageRoute(builder: (_) => FilterizationScreen(filters: currentFilters)),
+    );
+
+    if (filters != null) {
+      applyFilters(filters);
+    }
+  }
+
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    
   }
 
   @override
@@ -97,49 +157,76 @@ class _GamesScreenState extends State<GamesScreen> {
 
     // NOTE:    MAIN HUB CONNECTION AND SOCKETS
 
+    final connection = SignalRService().mainHubConnection;
+    //var apiService = GetIt.I<ApiService>();
     
-    var apiService = GetIt.I<ApiService>();
-    
-    //! BUILD
-    apiService.mainHubConnection = HubConnectionBuilder().withAutomaticReconnect().withUrl(
-      'https://31.171.65.145/mainlobby',
-      options: HttpConnectionOptions(
-        accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
-        skipNegotiation: true,
-        transport: HttpTransportType.WebSockets,
-      ),
-    )
-    .build();
+    // //! BUILD
+    // apiService.mainHubConnection = HubConnectionBuilder().withAutomaticReconnect().withUrl(
+    //   'https://31.171.65.145/mainlobby',
+    //   options: HttpConnectionOptions(
+    //     accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
+    //     skipNegotiation: true,
+    //     transport: HttpTransportType.WebSockets,
+    //   ),
+    // )
+    // .build();
 
     //! METHODS
 
     // DONE
-    apiService.mainHubConnection.on('GameLobbies', (List<Object?>? parameters) {
-      print('33: $parameters');
-      final List<Game>? gamesList = apiService.decodeGamesParameters(parameters);
-
-      if (gamesList != null) {
-        setState(() {
-          allGames = gamesList;
-          searchedGames = allGames;
-        });
+    connection.on('GameLobbies', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty || parameters.first == null) {
+        log("HUB: MAIN | EVENT: GameLobbies -> No data received.");
+        return;
       }
+
+      try {
+        final List<dynamic> jsonData = json.decode(parameters.first as String);
+
+        final games = jsonData.map((gameJson) {
+          return Game.fromJson(gameJson as Map<String, dynamic>);
+        }).toList();
+
+        final List<Game>? gamesList = games;
+
+        if (gamesList != null) {
+          setState(() {
+            allGames = gamesList;
+            searchedGames = allGames;
+          });
+        }
+      } catch (e) {
+        log("HUB: MAIN | EVENT: GameLobbies -> Error decoding parameters: $e");
+        return ;
+      }
+      
     });
 
     // INCOMPLETE
-    apiService.mainHubConnection.on('GameLobbyCreated', (List<Object?>? parameters) {
-      final Game? game = apiService.decodeGameParameters(parameters);
+    connection.on('GameLobbyCreated', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty || parameters.first == null) {
+        log("HUB: MAIN | EVENT: GameLobbyCreated -> No data received.");
+        return;
+      }
 
-      if (game != null) {
+      try {
+        final Map<String, dynamic> jsonData = json.decode(parameters.first as String);
+
+        final Game? game = Game.fromJson(jsonData);
+        if (game != null) {
         setState(() {
           allGames?.add(game);
           searchedGames = allGames;
         });
       }
+      } catch (e) {
+        log("HUB: MAIN | EVENT: GameLobbyCreated -> Error decoding parameters: $e");
+        return;
+      }
     });
 
     // INCOMPLETE
-    apiService.mainHubConnection.on('GameLobbyClosed', (List<Object?>? parameters) {
+    connection.on('GameLobbyClosed', (List<Object?>? parameters) {
       final String? title = parameters?.first as String;
 
       if (title != null && allGames != null) {
@@ -153,48 +240,72 @@ class _GamesScreenState extends State<GamesScreen> {
     });
 
     // INCOMPLETE
-    apiService.mainHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
-      final PlayerJoinedGame? playerJoinedToGame = apiService.decodePlayerJoinedGameParameters(parameters);
+    connection.on('PlayerJoined', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty || parameters.first == null) {
+        log("HUB: MAIN | EVENT: PlayerJoined -> No data received.");
+        return;
+      }
 
-      if (playerJoinedToGame != null && allGames != null) {
-        if (!allGames!
-          .firstWhere((game) => game.title == playerJoinedToGame.title)
-          .players.any((player) => player.nickname == playerJoinedToGame.player.nickname)) {
+      try {
+        final dynamic jsonData = json.decode(parameters.first as String);
 
-          setState(() {
-            allGames!
+        final PlayerJoinedGame? playerJoinedToGame = PlayerJoinedGame.fromJson(jsonData as Map<String, dynamic>);
+
+        if (playerJoinedToGame != null && allGames != null) {
+          if (!allGames!
             .firstWhere((game) => game.title == playerJoinedToGame.title)
-            .players.add(playerJoinedToGame.player);
-            searchedGames = allGames;
-          });
+            .players.any((player) => player.nickname == playerJoinedToGame.player.nickname)) {
+            log('HUB: MAIN | EVENT: PlayerJoined -> Joined Player Nickname: ${playerJoinedToGame.player.nickname}');
+            setState(() {
+              allGames!
+              .firstWhere((game) => game.title == playerJoinedToGame.title)
+              .players.add(playerJoinedToGame.player);
+              searchedGames = allGames;
+            });
+          }
         }
+      } catch (e) {
+        log("HUB: MAIN | EVENT: PlayerJoined -> Error decoding parameters: $e");
+        return;
       }
     });
 
     // INCOMPLETE
-    apiService.mainHubConnection.on('PlayerLeft', (List<Object?>? parameters) {
-      final PlayerLeftGame? playerLeftGame = apiService.decodePlayerLeftGameParameters(parameters);
+    connection.on('PlayerLeft', (List<Object?>? parameters) {
+      if (parameters == null || parameters.isEmpty || parameters.first == null) {
+        log("HUB: MAIN | EVENT: PlayerLeft -> No data received.");
+        return;
+      }
 
-      if (playerLeftGame != null && allGames != null) {
-        if (allGames!
-          .firstWhere((game) => game.title == playerLeftGame.title)
-          .players.any((player) => player.nickname == playerLeftGame.nickname)) {
+      try {
+        final dynamic jsonData = json.decode(parameters.first as String);
 
-          setState(() {
-            allGames!
+        final PlayerLeftGame? playerLeftGame = PlayerLeftGame.fromJson(jsonData as Map<String, dynamic>);
+
+        if (playerLeftGame != null && allGames != null) {
+          if (allGames!
             .firstWhere((game) => game.title == playerLeftGame.title)
-            .players.removeWhere((player) => player.nickname == playerLeftGame.nickname);
-            searchedGames = allGames;
-          });
+            .players.any((player) => player.nickname == playerLeftGame.nickname)) {
+
+            setState(() {
+              allGames!
+              .firstWhere((game) => game.title == playerLeftGame.title)
+              .players.removeWhere((player) => player.nickname == playerLeftGame.nickname);
+              searchedGames = allGames;
+            });
+          }
+          else {
+            log('HUB: MAIN | EVENT: PlayerLeft -> There is no player with this nickname');
+          }
         }
-        else {
-          print('There is no player with this nickname');
-        }
+      } catch (e) {
+        log("HUB: MAIN | EVENT: PlayerLeft -> Error decoding parameters: $e");
+        return;
       }
     });
 
     // INCOMPLETE
-    apiService.mainHubConnection.on('GameStarted', (List<Object?>? parameters) {
+    connection.on('GameStarted', (List<Object?>? parameters) {
       final String? title = parameters?.first as String;
 
       if (title != null && allGames != null) {
@@ -207,7 +318,7 @@ class _GamesScreenState extends State<GamesScreen> {
       }
     });
 
-    apiService.mainHubConnection.on('PlayerDead', (List<Object?>? parameters) {
+    connection.on('PlayerDead', (List<Object?>? parameters) {
       try {
         if (parameters == null || parameters.isEmpty) {
           return; 
@@ -229,22 +340,22 @@ class _GamesScreenState extends State<GamesScreen> {
       }
     });
 
-    apiService.mainHubConnection.on('CloseConnection', (List<Object?>? parameters) async {
-      await apiService.disconnectMainHub();
+    connection.on('CloseConnection', (List<Object?>? parameters) async {
+      await SignalRService().stopConnection();
     });
 
-    //! CONNECTION
-    if (!apiService.mainHubIsConnected) {
-      Future.microtask(() async {
-        try {
-          await apiService.mainHubConnection.start();
-          apiService.mainHubIsConnected = true;
-          log("Connected to SignalR! MainHubSocket");
-        } catch (e) {
-          log("MainHubSocket | Connection error: $e");
-        }
-      });
-    }
+    // //! CONNECTION
+    // if (!apiService.mainHubIsConnected) {
+    //   Future.microtask(() async {
+    //     try {
+    //       await apiService.mainHubConnection.start();
+    //       apiService.mainHubIsConnected = true;
+    //       log("Connected to SignalR! MainHubSocket");
+    //     } catch (e) {
+    //       log("MainHubSocket | Connection error: $e");
+    //     }
+    //   });
+    // }
 
     bool temp = false;
     //!!!!!!!!!!!!!!!!!
@@ -260,15 +371,20 @@ class _GamesScreenState extends State<GamesScreen> {
       if (temp) break;
     }
     
+    connectMainHubConnection();
 
     //allGames = games;
     searchedGames = allGames;
   }
 
+  void connectMainHubConnection() async {
+    await SignalRService().startConnection();
+  }
+
   @override
   void dispose() {
     // Dispose of the hub connection when the screen is closed
-    GetIt.I<ApiService>().disconnectMainHub();
+    SignalRService().stopConnection();
     super.dispose();
   }
 
@@ -365,11 +481,12 @@ class _GamesScreenState extends State<GamesScreen> {
                   // BUTTON:    FILTER
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const FilterizationScreen(),
-                        )
-                      );
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (_) => FilterizationScreen(filters: currentFilters),
+                      //   )
+                      // );
+                      openFilterizationScreen();
                     },
                     child: Image.asset(
                       "assets/images/filter-icon.png",
@@ -1487,6 +1604,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       )
     );
 
+    /*
     if (status) {
       Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(builder: (context) => GameLobbyScreen(
@@ -1511,6 +1629,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
         ),
       );
     }
+    */
   }
 
   @override
@@ -1573,7 +1692,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                 
-                    // TEXTFIELD:    TITLE
+                    // INPUT:    TITLE
                     Container(
                       height: 37.h,
                       width: 230.w,
@@ -1662,7 +1781,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   
                     isPasswordVisible
                     ?
-                    // TEXTFIELD:    PASSWORD
+                    // INPUT:    PASSWORD
                     Padding(
                       padding: EdgeInsets.only(top: 15.h, bottom: 8.h),
                       child: Container(
@@ -2390,8 +2509,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 ////// FILTERIZATION /////////
 
 class FilterizationScreen extends StatefulWidget {
+  final GameFilters filters;
 
-  const FilterizationScreen({super.key});
+  const FilterizationScreen({super.key, required this.filters});
 
   @override
   State<FilterizationScreen> createState() => _FilterizationScreenState();
@@ -2402,15 +2522,12 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
   int minPlayers = 5;
   int maxPlayers = 7;
 
-  int showedMinPlayers = 5;
-  int showedMaxPlayers = 7;
-
   bool friendsInRoom = false;
   bool roomsWithSpace = false;
   // bool roomsWithoutPassword = false;
   // bool roomsWithPassword = false;
   int accessState = 0;
-  bool noAdditionalRoles = false;
+  //bool noAdditionalRoles = false;
 
   bool hasBodyguard = false;
   bool hasLover = false;
@@ -2420,6 +2537,45 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
   bool hasTerrorist = false;
   bool hasBartender = false;
   bool hasInformant = false;
+
+  bool isReseted = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    minPlayers = widget.filters.minPlayers;
+    maxPlayers = widget.filters.maxPlayers;
+    friendsInRoom = widget.filters.friendsInRoom;
+    roomsWithSpace = widget.filters.roomsWithSpace;
+    accessState = widget.filters.accessState;
+
+    hasBodyguard = widget.filters.hasBodyguard;
+    hasLover = widget.filters.hasLover;
+    hasSpy = widget.filters.hasSpy;
+    hasJournalist = widget.filters.hasJournalist; 
+    hasTerrorist = widget.filters.hasTerrorist;
+    hasBartender = widget.filters.hasBartender;
+    hasInformant = widget.filters.hasInformant;
+  }
+
+  void confirmFilters() {
+    Navigator.pop(
+      context,
+      GameFilters(
+        accessState: accessState, 
+        minPlayers: minPlayers, 
+        maxPlayers: maxPlayers, 
+        roomsWithSpace: roomsWithSpace, 
+        hasBodyguard: hasBodyguard, 
+        hasLover: hasLover, 
+        hasSpy: hasSpy, 
+        hasJournalist: hasJournalist, 
+        hasTerrorist: hasTerrorist, 
+        hasBartender: hasBartender, 
+        hasInformant: hasInformant
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2441,12 +2597,15 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
 
     void resetFilters() {
       setState(() {
+        isReseted = true;
+        minPlayers = 5;
+        maxPlayers = 8;
         friendsInRoom = false;
         roomsWithSpace = false;
         // roomsWithoutPassword = false;
         // roomsWithPassword = false;
         accessState = 0;
-        noAdditionalRoles = false;
+        //noAdditionalRoles = false;
 
         hasBodyguard = false;
         hasLover = false;
@@ -2556,8 +2715,9 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                               padding: EdgeInsets.only(top: 15.h),
                               child: GestureDetector(
                                 onTap: () {
-                                  resetFilters();
-                                  Navigator.pop(context);
+                                  //resetFilters();
+                                  //confirmFilters();
+                                  !isReseted ? Navigator.of(context).pop() : confirmFilters();
                                 },
                                 child: Container(
                                   width: 100.w,
@@ -2635,8 +2795,6 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                               setState(() {
                                 minPlayers = values.start.toInt();
                                 maxPlayers = values.end.toInt();
-                                showedMinPlayers = values.start.toInt();
-                                showedMaxPlayers = values.end.toInt();
                               });
                             },
                           ),
@@ -2650,7 +2808,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             Padding(
                               padding: EdgeInsets.only(top: 30.h, left: 10.h),
                               child: Text(
-                                '$showedMinPlayers',
+                                '$minPlayers',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15.sp,
@@ -2663,7 +2821,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             Padding(
                               padding: EdgeInsets.only(top: 30.h, right: 10.w),
                               child: Text(
-                                '$showedMaxPlayers',
+                                '$maxPlayers',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15.sp,
@@ -2747,7 +2905,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                               Text(
                                 'Friends In',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.white.withOpacity(0.6),
                                   fontSize: 16.sp,
                                   fontFamily: 'CenturyGothic'
                                 ),
@@ -2761,13 +2919,13 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                 decoration: BoxDecoration(
                                   color: friendsInRoom ? const Color(0xFFFFB000) : Colors.transparent,
                                   borderRadius: BorderRadius.circular(6.sp),
-                                  border: Border.all(color: Colors.white, width: 1.5.sp),
+                                  border: Border.all(color: Colors.white.withOpacity(0.6), width: 1.5.sp),
                                 ),
                                 child: GestureDetector(
                                   onTap: () {
-                                    setState(() {
-                                      friendsInRoom = !friendsInRoom;
-                                    });
+                                    // setState(() {
+                                    //   friendsInRoom = !friendsInRoom;
+                                    // });
                                   },
                                 ),
                               )
@@ -3236,7 +3394,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                     // BUTTON:    APPLY
                     GestureDetector(
                       onTap: () {
-                        
+                        confirmFilters();
                       },
                       child: Container(
                         width: 110.w,
@@ -3268,6 +3426,40 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
   }
 }
 
+
+class GameFilters {
+  int accessState;
+  int minPlayers;
+  int maxPlayers;
+
+  bool friendsInRoom;
+  bool roomsWithSpace;
+
+  bool hasBodyguard;
+  bool hasLover;
+  bool hasSpy;
+  bool hasJournalist;
+
+  bool hasTerrorist;
+  bool hasBartender;
+  bool hasInformant;
+
+  GameFilters({
+    required this.accessState,
+    required this.minPlayers,
+    required this.maxPlayers,
+    required this.roomsWithSpace,
+    required this.hasBodyguard,
+    required this.hasLover,
+    required this.hasSpy,
+    required this.hasJournalist,
+    required this.hasTerrorist,
+    required this.hasBartender,
+    required this.hasInformant,
+
+    this.friendsInRoom = false
+  });
+}
 
 ///////////// GAMESSSS LOBBY SCRENNN ////////////////
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3571,7 +3763,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
   void startGame(String title, String role, int civilianCount, int mafiaCount, List<PlayerRole> playerRoles) {
     widget.game.players.removeWhere((e) => e.nickname == authorizedUser.nickname);
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       // NOTE:  MATERIAL PAGE ROUTE ---- ANDROID: HER YERDE shupheli
       MaterialPageRoute(builder: (context) => 

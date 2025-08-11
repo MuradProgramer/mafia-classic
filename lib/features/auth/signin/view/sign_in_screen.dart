@@ -4,11 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mafia_classic/features/widgets/validation_popup.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/blocs/sign_in/sign_in_bloc.dart';
 import 'package:mafia_classic/features/auth/signup/signup.dart';
+import 'package:mafia_classic/utils/popup_utils.dart';
 
 class SignInScreen extends StatefulWidget {
 
@@ -24,12 +26,60 @@ class _SignInScreenState extends State<SignInScreen> {
 
   final FocusNode _emailFocusNode = FocusNode();
   bool _isEmailFocused = false;
+  bool _emailError = false;
 
   final FocusNode _passwordFocusNode = FocusNode();
   bool _isPasswordFocused = false;
+  bool _passwordError = false;
 
   bool _isPasswordVisible = false;
 
+  final formKey = GlobalKey<FormState>();
+  int popupCount = 0;
+
+  void showValidationPopup(String content, String formField) {
+    switch (formField) {
+      case 'email':
+        setState(() {
+          _emailError = true;
+        });
+        break;
+      case 'password':
+        setState(() {
+          _passwordError = true;
+        });
+        break;
+      default:
+    }
+
+    if (popupCount == 0) {
+      showBouncingPopupFromTop(
+        context, 
+        ValidationPopup(
+          height: 105.h, 
+          width: 295.w, 
+          popupType: 1, 
+          statusCode: 111, 
+          content: content
+        )
+      );
+
+      popupCount = 1;
+    }
+  }
+
+  void showExceptionPopup(String content) {
+    showBouncingPopupFromTop(
+      context, 
+      ValidationPopup(
+        height: 170.h, 
+        width: 270.w, 
+        popupType: 2, 
+        statusCode: 111, 
+        content: content
+      )
+    );
+  }
 
   @override
   void initState() {
@@ -84,242 +134,352 @@ class _SignInScreenState extends State<SignInScreen> {
                   (Route<dynamic> route) => false,
                 );
               } else if (state is SignInFailure) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.error)),              
-                );
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(content: Text(state.error)),              
+                // );
+                if (state.error.contains('connection timeout')) {
+                  showExceptionPopup('Sorry, connection with server timeouted...');
+                } else if (state.error.contains('400') || state.error.contains('401')) {
+                  showExceptionPopup('Email or Password is invalid');
+                } else if (state.error.contains('404')) {
+                  showExceptionPopup('User with this email does not exist');
+                } else {
+                  showExceptionPopup('Sorry, Something bad happened...');
+                }
                 debugPrint(state.error);
               }
             },
             
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-        
-                  // TEXT:    Sign In
-                  Center(
-                    child: Text(
-                      S.of(context).signIn,
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 43,
-                        color: const Color(0xFFFFB000),
-                      ),
-                    ),
-                  ),
-        
-                  const SizedBox(height: 40),
-        
-                  // TEXT:    Dont Have Account?
-                  const Center(
-                    child: Text(
-                      'Don\'t have an account?', // NOTE:    Translation L10
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'CenturyGothic',
-                        color: Color(0xFFAAAAAA),
-                      ),
-                    ),
-                  ),
-                  
-                  // BUTTON:    Sign Up
-                  Center(
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const SignUpScreen()),
-                        );
-                      },
-                      child: Text(
-                        S.of(context).signUp, 
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'CenturyGothic',
-                          color: Color(0xFFFFB000),
-                        ),
-                      )
-                    ),
-                  ),
-        
-                  const SizedBox(height: 30),
-        
-                  // INPUT:    Email
-                  Center(
-                    child: SizedBox(
-                      width: 250,
-                      child: TextFormField(
-                        focusNode: _emailFocusNode,
-                        controller: _emailController,
-        
-                        textAlign: TextAlign.center,
-                        textAlignVertical: TextAlignVertical.bottom,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                         
-                        cursorColor: const Color(0xFFFFB000),
-                        cursorHeight: 18.h,
-        
-                        decoration: InputDecoration(
-                          hintText: _isEmailFocused ? null : S.of(context).email,
-                          hintStyle: const TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'CenturyGothic',
-                            color: Color(0xFFAAAAAA),
-                          ),
-        
-                          contentPadding: const EdgeInsets.symmetric(vertical: 5),
-        
-                          focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFFFFB000)),
-                          )
-                        ),
-        
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'CenturyGothic',
-                          color: Colors.white,
+                    // TEXT:    Sign In
+                    Center(
+                      child: Text(
+                        S.of(context).signIn,
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 43,
+                          color: const Color(0xFFFFB000),
                         ),
                       ),
                     ),
-                  ),
-        
-                  const SizedBox(height: 10),
-        
-                  // INPUT: Password
-                  Center(
-                    child: SizedBox(
-                      width: 250,
-                      child: TextFormField(
-                        focusNode: _passwordFocusNode,
-                        controller: _passwordController,
-        
-                        textAlign: TextAlign.center,
-                        textAlignVertical: TextAlignVertical.bottom,
-        
-                        cursorColor: const Color(0xFFFFB000),
-                        cursorHeight: 18.h,
-        
-                        decoration: InputDecoration(
-                          hintText: _isPasswordFocused ? null : S.of(context).password,
-                          hintStyle: const TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'CenturyGothic',
-                            color: Color(0xFFAAAAAA),
-                          ),
-                          focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFFFFB000)),
-                          ),
-        
-                          // DEF:    DOING CENTERED TEXT DESPITE ICON 
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 50.0),
-        
-                          // BUTTON:    Visibility ON OFF
-                          suffixIcon: GestureDetector(
-                            child: SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: Transform.translate(
-                                offset: const Offset(10, 14),
-                                child: Image.asset(
-                                  _isPasswordVisible
-                                    ? 'assets/images/visibility-on.png'
-                                    : 'assets/images/visibility-off.png',
-                                ),
-                              ),
-                            ),
-                            onTap: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
-                        ),
-        
-                        obscureText: !_isPasswordVisible,
-        
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'CenturyGothic',
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  // BUTTON:    Forgot Password
-                  Center(
-                    child: TextButton(
-                      onPressed: () {
-                        // NOTE:    Logic
-                      },
-                      child: const Text(
-                        'Forgot Password', // NOTE:    Translation L10
+                        
+                    const SizedBox(height: 40),
+                        
+                    // TEXT:    Dont Have Account?
+                    const Center(
+                      child: Text(
+                        'Don\'t have an account?', // NOTE:    Translation L10
                         style: TextStyle(
                           fontSize: 16,
                           fontFamily: 'CenturyGothic',
                           color: Color(0xFFAAAAAA),
                         ),
-                      )
-                    ),
-                  ),
-        
-                  const SizedBox(height: 50),
-        
-                  // BUTTON:    Confirm
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF3D3D3D),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(16.0),
                       ),
+                    ),
+                    
+                    // BUTTON:    Sign Up
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                          );
+                        },
+                        child: Text(
+                          S.of(context).signUp, 
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'CenturyGothic',
+                            color: Color(0xFFFFB000),
+                          ),
+                        )
+                      ),
+                    ),
+                        
+                    const SizedBox(height: 30),
+                        
+                    // INPUT:    Email
+                    Center(
                       child: SizedBox(
-                        width: 150,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            context.read<SignInBloc>().add(
+                        width: 250.w,
+                        child: TextFormField(
+                          focusNode: _emailFocusNode,
+                          controller: _emailController,
+
+                          onTapOutside: (PointerDownEvent event) {
+                            FocusScope.of(context).unfocus();
+                          },
+                        
+                          textAlign: TextAlign.center,
+                          textAlignVertical: TextAlignVertical.bottom,
+                          
+                          cursorColor: _emailError ? const Color(0xFFBC4434) : const Color(0xFFFFB000),
+                          cursorHeight: 18.h,
+                        
+                          decoration: InputDecoration(
+                            hintText: _isEmailFocused ? null : S.of(context).email,
+                            hintStyle: const TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'CenturyGothic',
+                              color: Color(0xFFAAAAAA),
+                            ),
+                            errorStyle: const TextStyle(height: 0),
+                        
+                            contentPadding: const EdgeInsets.symmetric(vertical: 5),
+
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: _emailError ? const Color(0xFFBC4434) : const Color(0xFFFFFFFF))
+                            ),
+                        
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: _emailError ? const Color(0xFFBC4434) : const Color(0xFFFFB000)),
+                            )
+                          ),
+                        
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'CenturyGothic',
+                            color: Colors.white,
+                          ),
+
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              //return 'You must write your email';
+                              showValidationPopup('You must write your email', 'email');
+                              return null;
+                            } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                              //return 'Enter valid Email';
+                              showValidationPopup('Enter valid email', 'email');
+                              return null;
+                            } else {
+                              setState(() {
+                                _emailError = false;
+                              });
+                              return null;
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                        
+                    const SizedBox(height: 10),
+                        
+                    // INPUT: Password
+                    Center(
+                      child: Stack(
+                        children: [
+                          SizedBox(
+                            width: 250.w,
+                            child: TextFormField(
+                              focusNode: _passwordFocusNode,
+                              controller: _passwordController,
+
+                              onTapOutside: (PointerDownEvent event) {
+                                FocusScope.of(context).unfocus();
+                              },
+
+                              maxLength: 14,
+                            
+                              textAlign: TextAlign.center,
+                              textAlignVertical: TextAlignVertical.bottom,
+                            
+                              cursorColor: _passwordError ? const Color(0xFFBC4434) : const Color(0xFFFFB000),
+                              cursorHeight: 18.h,
+                            
+                              decoration: InputDecoration(
+                                hintText: _isPasswordFocused ? null : S.of(context).password,
+                                hintStyle: const TextStyle(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'CenturyGothic',
+                                  color: Color(0xFFAAAAAA),
+                                ),
+                                errorStyle: const TextStyle(height: 0),
+                                counterText: '',
+
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: _passwordError ? const Color(0xFFBC4434) : const Color(0xFFFFFFFF))
+                                ),
+
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: _passwordError ? const Color(0xFFBC4434) : const Color(0xFFFFB000)),
+                                ),
+                            
+                                // DEF:    DOING CENTERED TEXT DESPITE ICON 
+                                contentPadding: EdgeInsets.symmetric(vertical: 5.h),
+                              ),
+                            
+                              obscureText: !_isPasswordVisible,
+                            
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'CenturyGothic',
+                                color: Colors.white,
+                              ),
+                          
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  //return 'You must write your password';
+                                  showValidationPopup('You must write your password', 'password');
+                                  return null;
+                                } else {
+                                  setState(() {
+                                    _passwordError = false;
+                                  });
+                                  return null;
+                                }
+                              },
+                            ),
+                          ),
+
+                          // BUTTON:    Visibility ON OFF
+                          SizedBox(
+                            width: 250.w,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const SizedBox(),
+                                
+                                GestureDetector(
+                                  child: SizedBox(
+                                    height: 45.h,
+                                    width: 45.w,
+                                    child: Transform.translate(
+                                      offset: const Offset(10, 14),
+                                      child: Image.asset(
+                                        _isPasswordVisible
+                                          ? 'assets/images/visibility-on.png'
+                                          : 'assets/images/visibility-off.png',
+                                      ),
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                        ],
+                      ),
+                    ),
+                
+                    const SizedBox(height: 15),
+                
+                    // BUTTON:    Forgot Password
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          // NOTE:    Logic
+                        },
+                        child: const Text(
+                          'Forgot Password', // NOTE:    Translation L10
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'CenturyGothic',
+                            color: Color(0xFFAAAAAA),
+                          ),
+                        )
+                      ),
+                    ),
+                        
+                    const SizedBox(height: 40),
+                        
+                    // BUTTON:    Confirm
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF3D3D3D),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        child: SizedBox(
+                          width: 150.w,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              //!!!!!!!!!!!!!!
+
+                              // showBouncingPopupFromTop(
+                              //   context, 
+                              //   ValidationPopup(
+                              //     height: 170.h, 
+                              //     width: 238.w, 
+                              //     popupType: 2, 
+                              //     statusCode: 111, 
+                              //     content: 'Sorry, connection with server timeouted...'
+                              //   )
+                              // );
+
+                              popupCount = 0;
+
+                              if (formKey.currentState!.validate()) {
+                                if (!_emailError && !_passwordError) {
+                                  context.read<SignInBloc>().add(
                                     SignInRequested(
                                       _emailController.text,
                                       _passwordController.text,
                                     ),
                                   );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3D3D3D),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              side: const BorderSide(
-                                color: Colors.white,
-                                width: 1,
+                                }
+                                //return;
+                              }
+                              
+                              // showBouncingPopupFromTop(
+                              //   context, 
+                              //   ValidationPopup(
+                              //     height: 105.h, 
+                              //     width: 295.h, 
+                              //     popupType: 1, 
+                              //     statusCode: 401, 
+                              //     content: 'Password Must be more than 8 character'
+                              //   )
+                              // );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF3D3D3D),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                side: const BorderSide(
+                                  color: Colors.white,
+                                  width: 1,
+                                ),
                               ),
                             ),
-                          ),
-                          
-                          child: const Text(
-                            'Confirm', // NOTE:    Translation L10
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'CenturyGothic',
-                              color: Colors.white,
+                            
+                            child: const Text(
+                              'Confirm', // NOTE:    Translation L10
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'CenturyGothic',
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-        
-                  const SizedBox(height: 30),
-                ],
+                        
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
           ),

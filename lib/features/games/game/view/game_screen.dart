@@ -82,7 +82,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   List<PlayerRole> namesOfDead = []; // +
 
   int index = 0;
-  ValueNotifier<int> phaseTimeNotifier = ValueNotifier<int>(150);
+  ValueNotifier<int> phaseTimeNotifier = ValueNotifier<int>(0);
   Timer? _intoxicationTimer;
 
   bool gameIsReady = false;
@@ -304,6 +304,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           log('06');
           final aliveCivilianCount = data['aliveCivilianCount'] as int;
           log('07');
+          final canNightVoteData = data['canNightVote'] as bool;
+          final day = data['day'] as int;
 
           //log((data['messages'] as List<dynamic>)[0]['nickname'].toString());
           final players = (data['players'] as List<dynamic>?)
@@ -345,6 +347,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             widget.civilianCount = civilianCount;
             mafiaAlive = aliveMafiaCount;
             civilianAlive = aliveCivilianCount;
+            dayNumber = day;
+            canNightVote = canNightVoteData;
             
             for (InGameMessage message in messages) {
               if (message.type == 'Default') {

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/api_service.dart';
@@ -55,13 +57,44 @@ class AuthRepository {
       'nickname': nickname
     });
 
-    final response = await GetIt.I<DioService>().dio.post(
-      'Account/SignUp',
-      data: dataObject,
-    );
+    log('-------------- FLAG1 --------------');
 
-    if (response.statusCode == 200) {
-      final data = response.data as Map<String, dynamic>;
+    Response<dynamic>? response;
+    int? statusCodeOfResponse;
+    String? responseData = '';
+
+    try {
+      response = await GetIt.I<DioService>().dio.post(
+        'Account/SignUp',
+        data: dataObject,
+      );
+      statusCodeOfResponse = 200;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        
+        statusCodeOfResponse = e.response?.statusCode;
+        final statusMessage = e.response?.statusMessage;
+
+        log('HTTP Error: $statusCodeOfResponse - $statusMessage');
+        log('Response data: ${e.response?.data}');
+        responseData = e.response?.data.toString();
+
+        if (statusCodeOfResponse == 400) {
+          log('Unauthorized');
+        } else if (statusCodeOfResponse == 404) {
+          log('Not found');
+        } else if (statusCodeOfResponse == 500) {
+          log('Server error');
+        }
+      }
+    }
+
+    // log('DATA: ${response!.data}');
+    // log('STATUS MESSAGE: ${response.statusMessage}');
+    // log('HEADERS: ${response.headers}');
+
+    if (statusCodeOfResponse == 200) {
+      final data = response!.data as Map<String, dynamic>;
       User user = User(
         email: data['email'], 
         nickname: data['nickname'], 
@@ -72,10 +105,15 @@ class AuthRepository {
       );
       setup(user);
       return user;
-    } else if (response.statusCode == 404) {
-      throw Exception('No user found');
+    } else if (statusCodeOfResponse == 400) {
+      if (responseData!.contains('Exists') && responseData.contains('nickname')) {
+        throw Exception('400 - User with this nickname already exist');
+      } else if (responseData.contains('Exists') && responseData.contains('email')) {
+        throw Exception('400 - User with this email already exist');
+      }
     } else {
       throw Exception('Failed to sign up');
     }
+    return User(email: email, nickname: nickname, avatarUrl: '', accessToken: '', refreshToken: '', expirationDate: DateTime.now());
   }
 }
