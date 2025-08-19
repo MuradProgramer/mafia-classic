@@ -62,21 +62,17 @@
   "passwordsDoNotMatch": "Passwords do not match",
   "signUp": "Sign Up",
   "alreadyHaveAccauntSigIn": "Alredy have an accaunt? Sign In",
-
   "players": "Players",
   "min": "Min",
   "max": "Max",
   "join": "Join",
   "gameStarted": "Game Started",
   "gatheringPlayers": "Gathering Players",
-
   "alive": "Alive",
   "dead": "Dead",
-
   "createGame": "Create Game",
   "passwordOptional": "Password (Optional)",
   "roomName": "Room Name",
-
   "reset": "Reset",
   "filter": "Filter",
   "friendInTheRoom": "Friends in the room",
@@ -86,11 +82,24 @@
   "additionalRoles": "Additional Roles",
   "roomsWithourAdditionalRoles": "Rooms without additional roles",
   "apply": "Apply",
-
   "close": "Close",
-
   "remainingTime": "Remaining time",
   "seconds": "Seconds",
   "playersInRoom": "Players in the Room",
-  "enterMessage": "Enter message"
+  "enterMessage": "Enter message",
+  "alreadyHaveAnAccount": "Already have an account?",
+  "youMustWriteYourNickname": "You must write your nickname",
+  "yourNicknameMustContainAtLeast3Characters": "Your nickname must contain at least 3 characters",
+  "yourNicknameCanContainLettersNumbersAnd": "Your nickname can contain, letters, numbers and . _ -",
+  "youMustWriteYourEmail": "You must write your email",
+  "enterValidEmail": "Enter valid email",
+  "youMustWriteYourPassword": "You must write your password",
+  "yourPasswordMustContainAtLeast6Characters": "Your password must contain at least 6 characters",
+  "youMustConfirmYourPassword": "You must confirm your password",
+  "passwordsAreNotMatching": "Passwords are not matching",
+  "confirm": "Confirm",
+  "sorryConnectionWithServerTimeouted": "Sorry, connection with server timeouted...",
+  "playerWithThisEmailAlreadyExist": "Player with this email already exist",
+  "playerWithThisNicknameAlreadyExist": "Player with this nickname already exist",
+  "sorrySomethingBadHappened": "Sorry, Something bad happened..."
 }

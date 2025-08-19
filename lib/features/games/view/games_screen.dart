@@ -1604,7 +1604,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       )
     );
 
-    /*
+    
     if (status) {
       Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(builder: (context) => GameLobbyScreen(
@@ -1629,7 +1629,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
         ),
       );
     }
-    */
+    
   }
 
   @override
@@ -2621,7 +2621,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
 
     return DecoratedBox(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/images/background-games&filter.png"), fit: BoxFit.fill),
+        image: DecorationImage(image: AssetImage("assets/images/background-filter.png"), fit: BoxFit.fill),
       ),
       child: Scaffold(
         body: Padding(
@@ -3551,6 +3551,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
           log('4');
           for (var message in messages) {
             gameLobbyChatMessages.add(ChatMessage(
+              isSystemMessage: false,
               nickname: message.nickname, 
               avatarUrl: widget.game.players.firstWhere((player) => player.nickname == message.nickname).avatarUrl, 
               text: message.content
@@ -3637,6 +3638,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         log('---------- PLAYER INFO: ----------');
         log('Nickname: ${player.nickname}');
         gameLobbyPlayers.add(player);
+        gameLobbyChatMessages.add(
+          ChatMessage(
+            isSystemMessage: true, 
+            nickname: player.nickname, 
+            avatarUrl: player.avatarUrl,
+            text: '${player.nickname} has joined'
+          )
+        );
         log('---------- GAME LOBBY PLAYERS: ----------');
         for (var element in gameLobbyPlayers) {
           log('${gameLobbyPlayers.indexOf(element)}: NICKNAME: ${element.nickname}');
@@ -3674,6 +3683,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       setState(() {
         gameLobbyPlayers.removeWhere((player) => player.nickname == nickname);
+        gameLobbyChatMessages.add(
+          ChatMessage(
+            isSystemMessage: true, 
+            nickname: nickname, 
+            avatarUrl: gameLobbyPlayers[0].avatarUrl,
+            text: '$nickname has left'
+          )
+        );
         if (gameLobbyPlayers.length < widget.game.minPlayers) {
           remainingTime = -1;
         }
@@ -3706,6 +3723,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
       setState(() {
         gameLobbyChatMessages.add(ChatMessage(
+          isSystemMessage: false,
           nickname: nickname, 
           avatarUrl: gameLobbyPlayers.firstWhere((player) => player.nickname == message.nickname).avatarUrl, 
           text: content
@@ -3810,6 +3828,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     setState(() {
       gameLobbyChatMessages.add(ChatMessage(
+        isSystemMessage: false,
         nickname: authorizedUser.nickname,
         avatarUrl: authorizedUser.avatarUrl,
         text: text,
@@ -4524,6 +4543,20 @@ class _ChatWidgetState extends State<ChatWidget> {
       itemCount: widget.messages.length,
       itemBuilder: (context, index) {
         final message = widget.messages[index];
+    
+        if (message.isSystemMessage) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            child: Center(
+              child: Text(
+                message.text,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: const Color(0xFFFFB000), fontSize: 14.sp, fontWeight: FontWeight.bold),
+              ),
+            ),
+          );
+        }
+
         return ListTile(
           leading: CircleAvatar(
             backgroundImage: NetworkImage(message.avatarUrl),
@@ -4553,9 +4586,10 @@ class _ChatWidgetState extends State<ChatWidget> {
 class ChatMessage {
   final String nickname;
   final String avatarUrl;
+  final bool isSystemMessage;
   final String text;
 
-  ChatMessage({required this.nickname, required this.avatarUrl, required this.text});
+  ChatMessage({required this.nickname, required this.avatarUrl, required this.text, required this.isSystemMessage});
 }
 
 

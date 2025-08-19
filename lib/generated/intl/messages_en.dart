@@ -28,6 +28,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "allTime": MessageLookupByLibrary.simpleMessage("All Time"),
         "alreadyHaveAccauntSigIn": MessageLookupByLibrary.simpleMessage(
             "Alredy have an accaunt? Sign In"),
+        "alreadyHaveAnAccount":
+            MessageLookupByLibrary.simpleMessage("Already have an account?"),
         "apply": MessageLookupByLibrary.simpleMessage("Apply"),
         "barman": MessageLookupByLibrary.simpleMessage("Barman"),
         "bodyguard": MessageLookupByLibrary.simpleMessage("Bodyguard"),
@@ -39,6 +41,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Change password"),
         "citizen": MessageLookupByLibrary.simpleMessage("Citizen"),
         "close": MessageLookupByLibrary.simpleMessage("Close"),
+        "confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
         "confirmPassword":
             MessageLookupByLibrary.simpleMessage("Confirm Password"),
         "create": MessageLookupByLibrary.simpleMessage("Create"),
@@ -51,6 +54,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "email": MessageLookupByLibrary.simpleMessage("Email"),
         "enterMessage": MessageLookupByLibrary.simpleMessage("Enter message"),
         "enterUsername": MessageLookupByLibrary.simpleMessage("Enter username"),
+        "enterValidEmail":
+            MessageLookupByLibrary.simpleMessage("Enter valid email"),
         "experience": MessageLookupByLibrary.simpleMessage("Experience"),
         "filter": MessageLookupByLibrary.simpleMessage("Filter"),
         "friendInTheRoom":
@@ -70,7 +75,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "mafia": MessageLookupByLibrary.simpleMessage("Mafia"),
         "max": MessageLookupByLibrary.simpleMessage("Max"),
         "min": MessageLookupByLibrary.simpleMessage("Min"),
-        "mistress": MessageLookupByLibrary.simpleMessage("Mistress"),
+        "mistress": MessageLookupByLibrary.simpleMessage("Beauty"),
         "newPassword": MessageLookupByLibrary.simpleMessage("New password"),
         "nickname": MessageLookupByLibrary.simpleMessage("Nickname"),
         "oldPassword": MessageLookupByLibrary.simpleMessage("Old password"),
@@ -80,8 +85,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "password": MessageLookupByLibrary.simpleMessage("Password"),
         "passwordOptional":
             MessageLookupByLibrary.simpleMessage("Password (Optional)"),
+        "passwordsAreNotMatching":
+            MessageLookupByLibrary.simpleMessage("Passwords are not matching"),
         "passwordsDoNotMatch":
             MessageLookupByLibrary.simpleMessage("Passwords do not match"),
+        "playerWithThisEmailAlreadyExist": MessageLookupByLibrary.simpleMessage(
+            "Player with this email already exist"),
+        "playerWithThisNicknameAlreadyExist":
+            MessageLookupByLibrary.simpleMessage(
+                "Player with this nickname already exist"),
         "players": MessageLookupByLibrary.simpleMessage("Players"),
         "playersInRoom":
             MessageLookupByLibrary.simpleMessage("Players in the Room"),
@@ -133,10 +145,32 @@ class MessageLookup extends MessageLookupByLibrary {
         "sheriff": MessageLookupByLibrary.simpleMessage("Sheriff"),
         "signIn": MessageLookupByLibrary.simpleMessage("Sign In"),
         "signUp": MessageLookupByLibrary.simpleMessage("Sign Up"),
+        "sorryConnectionWithServerTimeouted":
+            MessageLookupByLibrary.simpleMessage(
+                "Sorry, connection with server timeouted..."),
+        "sorrySomethingBadHappened": MessageLookupByLibrary.simpleMessage(
+            "Sorry, Something bad happened..."),
         "spy": MessageLookupByLibrary.simpleMessage("Spy"),
         "terrorist": MessageLookupByLibrary.simpleMessage("Terrorist"),
         "today": MessageLookupByLibrary.simpleMessage("Today"),
         "writeNewNickname":
-            MessageLookupByLibrary.simpleMessage("Write new nickname")
+            MessageLookupByLibrary.simpleMessage("Write new nickname"),
+        "youMustConfirmYourPassword": MessageLookupByLibrary.simpleMessage(
+            "You must confirm your password"),
+        "youMustWriteYourEmail":
+            MessageLookupByLibrary.simpleMessage("You must write your email"),
+        "youMustWriteYourNickname": MessageLookupByLibrary.simpleMessage(
+            "You must write your nickname"),
+        "youMustWriteYourPassword": MessageLookupByLibrary.simpleMessage(
+            "You must write your password"),
+        "yourNicknameCanContainLettersNumbersAnd":
+            MessageLookupByLibrary.simpleMessage(
+                "Your nickname can contain, letters, numbers and . _ -"),
+        "yourNicknameMustContainAtLeast3Characters":
+            MessageLookupByLibrary.simpleMessage(
+                "Your nickname must contain at least 3 characters"),
+        "yourPasswordMustContainAtLeast6Characters":
+            MessageLookupByLibrary.simpleMessage(
+                "Your password must contain at least 6 characters")
       };
 }

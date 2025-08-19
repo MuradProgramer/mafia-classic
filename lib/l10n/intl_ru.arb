@@ -62,21 +62,17 @@
   "passwordsDoNotMatch": "Пороли не совпадают",
   "signUp": "Регистрация",
   "alreadyHaveAccauntSigIn": "Уже есть аккаунт? Войти",
-
   "players": "Игроки",
   "min": "Мин",
   "max": "Макс",
   "join": "Войти",
   "gameStarted": "Игра Началась",
   "gatheringPlayers": "Збор Игроков",
-
   "alive": "Живой",
   "dead": "Мертвый",
-
   "createGame": "Создать Игру",
   "passwordOptional": "Пароль (Необязательно)",
   "roomName": "Название Комнаты",
-
   "reset": "сбросить",
   "filter": "Фильтр",
   "friendInTheRoom": "Друзья в комнате",
@@ -86,11 +82,24 @@
   "additionalRoles": "Дополнительные роли",
   "roomsWithourAdditionalRoles": "Комнаты без дополнительных ролей",
   "apply": "Применить",
-
   "close": "Закрыть",
-
   "remainingTime": "Оставшееся время",
   "seconds": "секунд",
   "playersInRoom": "Игроки в комнате",
-  "enterMessage": "Введите сообщение"
+  "enterMessage": "Введите сообщение",
+  "alreadyHaveAnAccount": "Already have an account?",
+  "youMustWriteYourNickname": "You must write your nickname",
+  "yourNicknameMustContainAtLeast3Characters": "Your nickname must contain at least 3 characters",
+  "yourNicknameCanContainLettersNumbersAnd": "Your nickname can contain, letters, numbers and . _ -",
+  "youMustWriteYourEmail": "You must write your email",
+  "enterValidEmail": "Enter valid email",
+  "youMustWriteYourPassword": "You must write your password",
+  "yourPasswordMustContainAtLeast6Characters": "Your password must contain at least 6 characters",
+  "youMustConfirmYourPassword": "You must confirm your password",
+  "passwordsAreNotMatching": "Passwords are not matching",
+  "confirm": "Confirm",
+  "sorryConnectionWithServerTimeouted": "Sorry, connection with server timeouted...",
+  "playerWithThisEmailAlreadyExist": "Player with this email already exist",
+  "playerWithThisNicknameAlreadyExist": "Player with this nickname already exist",
+  "sorrySomethingBadHappened": "Sorry, Something bad happened..."
 }

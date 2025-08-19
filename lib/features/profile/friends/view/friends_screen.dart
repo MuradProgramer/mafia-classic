@@ -333,7 +333,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               color: const Color(0xFF2A2723),
                               width: 2,
                             ),
-                            borderRadius: BorderRadius.circular(100.0),
+                            borderRadius: BorderRadius.circular(100.sp),
                           ),
 
                           child: (selectedTabIndex == 0) 
@@ -345,6 +345,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       ],
                     ),
                   )
+                
                 ),
               )
             ]

@@ -216,7 +216,7 @@ class _CiviliansTabState extends State<CiviliansTab> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleName: 'resident', width: cardWidth, height: cardHeight, isMini: false),
+              RoleCard(roleName: 'civilian', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
               RoleCard(roleName: 'sheriff', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
@@ -264,14 +264,14 @@ class _MafiasTabState extends State<MafiasTab> {
             children: [
               RoleCard(roleName: 'terrorist', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
-              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight, isMini: false),
+              RoleCard(roleName: 'barman', width: cardWidth, height: cardHeight, isMini: false),
             ],
           ),
           SizedBox(width: 10.h),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleName: 'barman', width: cardWidth, height: cardHeight, isMini: false),
+              RoleCard(roleName: 'mafia', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
               RoleCard(roleName: 'informant', width: cardWidth, height: cardHeight, isMini: false),
             ],

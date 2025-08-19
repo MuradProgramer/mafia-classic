@@ -28,6 +28,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "allTime": MessageLookupByLibrary.simpleMessage("За Всё Время"),
         "alreadyHaveAccauntSigIn":
             MessageLookupByLibrary.simpleMessage("Уже есть аккаунт? Войти"),
+        "alreadyHaveAnAccount":
+            MessageLookupByLibrary.simpleMessage("Already have an account?"),
         "apply": MessageLookupByLibrary.simpleMessage("Применить"),
         "barman": MessageLookupByLibrary.simpleMessage("Бармен"),
         "bodyguard": MessageLookupByLibrary.simpleMessage("Телохранитель"),
@@ -40,6 +42,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Изменить пароль"),
         "citizen": MessageLookupByLibrary.simpleMessage("Мирный"),
         "close": MessageLookupByLibrary.simpleMessage("Закрыть"),
+        "confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
         "confirmPassword":
             MessageLookupByLibrary.simpleMessage("Повторите пароль"),
         "create": MessageLookupByLibrary.simpleMessage("Создать"),
@@ -55,6 +58,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Введите сообщение"),
         "enterUsername":
             MessageLookupByLibrary.simpleMessage("Введите имя пользователя"),
+        "enterValidEmail":
+            MessageLookupByLibrary.simpleMessage("Enter valid email"),
         "experience": MessageLookupByLibrary.simpleMessage("Опыт"),
         "filter": MessageLookupByLibrary.simpleMessage("Фильтр"),
         "friendInTheRoom":
@@ -85,8 +90,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "password": MessageLookupByLibrary.simpleMessage("Пароль"),
         "passwordOptional":
             MessageLookupByLibrary.simpleMessage("Пароль (Необязательно)"),
+        "passwordsAreNotMatching":
+            MessageLookupByLibrary.simpleMessage("Passwords are not matching"),
         "passwordsDoNotMatch":
             MessageLookupByLibrary.simpleMessage("Пороли не совпадают"),
+        "playerWithThisEmailAlreadyExist": MessageLookupByLibrary.simpleMessage(
+            "Player with this email already exist"),
+        "playerWithThisNicknameAlreadyExist":
+            MessageLookupByLibrary.simpleMessage(
+                "Player with this nickname already exist"),
         "players": MessageLookupByLibrary.simpleMessage("Игроки"),
         "playersInRoom":
             MessageLookupByLibrary.simpleMessage("Игроки в комнате"),
@@ -139,10 +151,32 @@ class MessageLookup extends MessageLookupByLibrary {
         "sheriff": MessageLookupByLibrary.simpleMessage("Шериф"),
         "signIn": MessageLookupByLibrary.simpleMessage("Войти"),
         "signUp": MessageLookupByLibrary.simpleMessage("Регистрация"),
+        "sorryConnectionWithServerTimeouted":
+            MessageLookupByLibrary.simpleMessage(
+                "Sorry, connection with server timeouted..."),
+        "sorrySomethingBadHappened": MessageLookupByLibrary.simpleMessage(
+            "Sorry, Something bad happened..."),
         "spy": MessageLookupByLibrary.simpleMessage("Шпион"),
         "terrorist": MessageLookupByLibrary.simpleMessage("Террорист"),
         "today": MessageLookupByLibrary.simpleMessage("За Сегодня"),
         "writeNewNickname":
-            MessageLookupByLibrary.simpleMessage("Введите новый никнейм")
+            MessageLookupByLibrary.simpleMessage("Введите новый никнейм"),
+        "youMustConfirmYourPassword": MessageLookupByLibrary.simpleMessage(
+            "You must confirm your password"),
+        "youMustWriteYourEmail":
+            MessageLookupByLibrary.simpleMessage("You must write your email"),
+        "youMustWriteYourNickname": MessageLookupByLibrary.simpleMessage(
+            "You must write your nickname"),
+        "youMustWriteYourPassword": MessageLookupByLibrary.simpleMessage(
+            "You must write your password"),
+        "yourNicknameCanContainLettersNumbersAnd":
+            MessageLookupByLibrary.simpleMessage(
+                "Your nickname can contain, letters, numbers and . _ -"),
+        "yourNicknameMustContainAtLeast3Characters":
+            MessageLookupByLibrary.simpleMessage(
+                "Your nickname must contain at least 3 characters"),
+        "yourPasswordMustContainAtLeast6Characters":
+            MessageLookupByLibrary.simpleMessage(
+                "Your password must contain at least 6 characters")
       };
 }

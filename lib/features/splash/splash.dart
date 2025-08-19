@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
 //import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/features/auth/auth.dart';
@@ -9,7 +10,9 @@ import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/profile/roles/view/roles_screen.dart';
 import 'package:mafia_classic/features/profile/view/profile_screen.dart';
+import 'package:mafia_classic/features/widgets/widgets.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/utils/popup_utils.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
 //import 'package:mafia_classic/models/models.dart';
 //import 'package:mafia_classic/features/profile/profile.dart';
@@ -127,14 +130,56 @@ class _SplashScreenState extends State<SplashScreen> {
             Container(
               margin: EdgeInsets.symmetric(vertical: height * 0.2),
               
-              child: const Align(
+              child: Align(
                 alignment: Alignment.topCenter,
-                child: Text(
-                  'MAFIA CLASSIC', 
-                  style: TextStyle(
-                    fontSize: 40, 
-                    color: Colors.white, 
-                    fontWeight: FontWeight.w700,
+                child: TextButton(
+                  onPressed: () {
+                    showBouncingPopupFromLeft(
+                      context, 
+                      PlayerInfoPopup(
+                        height: 727.h, 
+                        width: 405.w, 
+                        playerInfo: PlayerInfo(
+                          nickname: 'Tony Stark', 
+                          avatarUrl: 'assets/avatar.jpg', 
+                          isOnline: false, 
+                          lastSeen: DateTime(2025, 8, 15, 17, 36),
+                          joinDate: DateTime.now(), 
+                          friendshipStatus: 'None',
+                          inGameLobby: false, 
+                          
+                          overall: 2429 + 1230, 
+                          wins: 2429, 
+                          loses: 1230, 
+                          mafiaWins: 1120, 
+                          civilianWins: 1309,
+                          playedRoles: {
+                            "Civilian": 177,
+                            "Mafia": 54,
+                            "Doctor": 682,
+                            "Sheriff": 254,
+                            "Bodyguard": 365,
+                            "Beauty": 45,
+                            "Journalist": 24,
+                            "Spy": 76,
+                            "Terrorist": 245,
+                            "Informant": 343,
+                            "Barman": 543
+                          }, 
+                          gameLobbyTitle: null, 
+                          gameLobbyStatus: null, 
+                          gameLobbyPlayerCount: null
+                        ),
+                      )
+                    );
+                  }, 
+                  child: Text(
+                    'MAFIA CLASSIC', 
+                    style: TextStyle(
+                      fontSize: 40.sp, 
+                      color: Colors.white, 
+                      fontWeight: FontWeight.w700,
+                    )
                   )
                 )
               )

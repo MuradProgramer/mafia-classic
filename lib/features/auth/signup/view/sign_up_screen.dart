@@ -175,13 +175,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 //   SnackBar(content: Text(state.error)),
                 // );
                 if (state.error.contains('connection timeout')) {
-                  showExceptionPopup('Sorry, connection with server timeouted...');
+                  showExceptionPopup(S.of(context).sorryConnectionWithServerTimeouted);
                 } else if (state.error.contains('400') && state.error.contains('email')) {
-                  showExceptionPopup('Player with this email already exist');
+                  showExceptionPopup(S.of(context).playerWithThisEmailAlreadyExist);
                 } else if (state.error.contains('400') && state.error.contains('nickname')) {
-                  showExceptionPopup('Player with this nickname already exist');
+                  showExceptionPopup(S.of(context).playerWithThisNicknameAlreadyExist);
                 } else {
-                  showExceptionPopup('Sorry, Something bad happened...');
+                  showExceptionPopup(S.of(context).sorrySomethingBadHappened);
                 }
                 debugPrint(state.error);
               }
@@ -209,10 +209,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     const SizedBox(height: 30),
                 
                     // TEXT:    Already have an account?
-                    const Center(
+                    Center(
                       child: Text(
-                        'Already have an account?', // NOTE:    Translation L10
-                        style: TextStyle(
+                        S.of(context).alreadyHaveAnAccount,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontFamily: 'CenturyGothic',
                           color: Color(0xFF494239),
@@ -292,15 +292,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               //return 'You must write your nickname';
-                              showValidationPopup('You must write your nickname', 'nickname');
+                              showValidationPopup(S.of(context).youMustWriteYourNickname, 'nickname');
                               //return '';
                             } else if (value.length < 3) {
                               //return 'Your nickname must contain at least 3 characters';
-                              showValidationPopup('Your nickname must contain at least 3 characters', 'nickname');
+                              showValidationPopup(S.of(context).yourNicknameMustContainAtLeast3Characters, 'nickname');
                               //return '';
                             } else if (!RegExp(r'^[a-zA-Z0-9._-]*$').hasMatch(value)) {
                               //return 'Your nickname can contain, letters, numbers and . _ -';
-                              showValidationPopup('Your nickname can contain, letters, numbers and . _ -', 'nickname');
+                              showValidationPopup(S.of(context).yourNicknameCanContainLettersNumbersAnd, 'nickname');
                               //return '';
                             } else {
                               setState(() {
@@ -366,10 +366,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               //return 'You must write your email';
-                              showValidationPopup('You must write your email', 'email');
+                              showValidationPopup(S.of(context).youMustWriteYourEmail, 'email');
                             } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                               //return 'Enter valid Email';
-                              showValidationPopup('Enter valid email', 'email');
+                              showValidationPopup(S.of(context).enterValidEmail, 'email');
                             } else {
                               setState(() {
                                 _emailError = false;
@@ -460,11 +460,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               //return 'You must write your password';
-                              showValidationPopup('You must write your password', 'password');
+                              showValidationPopup(S.of(context).youMustWriteYourPassword, 'password');
                               return null;
                             } else if (value.length < 6) {
                               //return 'Your password must contain at least 8 characters';
-                              showValidationPopup('Your password must contain at least 6 characters', 'password');
+                              showValidationPopup(S.of(context).yourPasswordMustContainAtLeast6Characters, 'password');
                               return null;
                             } else {
                               setState(() {
@@ -518,13 +518,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                         
                             // DEF:    DOING CENTERED TEXT DESPITE ICON 
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 50.0),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 50.0.w),
                         
                             // BUTTON:    Visibility ON OFF
                             suffixIcon: GestureDetector(
                               child: SizedBox(
-                                height: 20,
-                                width: 20,
+                                height: 20.h,
+                                width: 20.w,
                                 child: Transform.translate(
                                   offset: const Offset(10, 14),
                                   child: Image.asset(
@@ -544,8 +544,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         
                           obscureText: !_isConfirmPasswordVisible,
                         
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: TextStyle(
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'CenturyGothic',
                             color: Colors.white,
@@ -554,11 +554,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               //return 'You must confirm your password';
-                              showValidationPopup('You must confirm your password', 'confirm password');
+                              showValidationPopup(S.of(context).youMustConfirmYourPassword, 'confirm password');
                               return null;
                             } else if (value != _passwordController.text) {
                               //return 'Passwords are not matching';
-                              showValidationPopup('Passwords are not matching', 'confirm password');
+                              showValidationPopup(S.of(context).passwordsAreNotMatching, 'confirm password');
                               return null;
                             } else {
                               setState(() {
@@ -571,7 +571,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                 
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40.h),
                 
                     // BUTTON:    Confirm
                     Center(
@@ -632,10 +632,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                             ),
                             
-                            child: const Text(
-                              'Confirm', // NOTE:    Translation L10
+                            child: Text(
+                              S.of(context).confirm, // NOTE:    Translation L10
                               style: TextStyle(
-                                fontSize: 25,
+                                fontSize: 25.sp,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'CenturyGothic',
                                 color: Colors.white,
@@ -646,7 +646,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                 
-                    const SizedBox(height: 20)
+                    SizedBox(height: 20.h)
                   ],
                 ),
               ),

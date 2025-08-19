@@ -320,7 +320,7 @@ class S {
     );
   }
 
-  /// `The Mistress is a civilian. At night, she comes to the player and distracts him from the action. The player to whom the Mistress came cannot use his ability at night, and also will not be able to vote the next day. The Mistress's love spell wears off only on next night.`
+  /// `The Beauty is a civilian. At night, she comes to the player and distracts him from the action. The player to whom the Beauty came cannot use his ability at night, and also will not be able to vote the next day. The Beauty's love spell wears off only on next night.`
   String get roleMistressDescription {
     return Intl.message(
       'The Beauty is a civilian. At night, she comes to the player and distracts him from the action. The player to whom the Beauty came cannot use his ability at night, and also will not be able to vote the next day. The Beauty\'s love spell wears off only on next night.',
@@ -915,6 +915,156 @@ class S {
     return Intl.message(
       'Enter message',
       name: 'enterMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Already have an account?`
+  String get alreadyHaveAnAccount {
+    return Intl.message(
+      'Already have an account?',
+      name: 'alreadyHaveAnAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must write your nickname`
+  String get youMustWriteYourNickname {
+    return Intl.message(
+      'You must write your nickname',
+      name: 'youMustWriteYourNickname',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your nickname must contain at least 3 characters`
+  String get yourNicknameMustContainAtLeast3Characters {
+    return Intl.message(
+      'Your nickname must contain at least 3 characters',
+      name: 'yourNicknameMustContainAtLeast3Characters',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your nickname can contain, letters, numbers and . _ -`
+  String get yourNicknameCanContainLettersNumbersAnd {
+    return Intl.message(
+      'Your nickname can contain, letters, numbers and . _ -',
+      name: 'yourNicknameCanContainLettersNumbersAnd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must write your email`
+  String get youMustWriteYourEmail {
+    return Intl.message(
+      'You must write your email',
+      name: 'youMustWriteYourEmail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter valid email`
+  String get enterValidEmail {
+    return Intl.message(
+      'Enter valid email',
+      name: 'enterValidEmail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must write your password`
+  String get youMustWriteYourPassword {
+    return Intl.message(
+      'You must write your password',
+      name: 'youMustWriteYourPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your password must contain at least 6 characters`
+  String get yourPasswordMustContainAtLeast6Characters {
+    return Intl.message(
+      'Your password must contain at least 6 characters',
+      name: 'yourPasswordMustContainAtLeast6Characters',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must confirm your password`
+  String get youMustConfirmYourPassword {
+    return Intl.message(
+      'You must confirm your password',
+      name: 'youMustConfirmYourPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Passwords are not matching`
+  String get passwordsAreNotMatching {
+    return Intl.message(
+      'Passwords are not matching',
+      name: 'passwordsAreNotMatching',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm`
+  String get confirm {
+    return Intl.message(
+      'Confirm',
+      name: 'confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sorry, connection with server timeouted...`
+  String get sorryConnectionWithServerTimeouted {
+    return Intl.message(
+      'Sorry, connection with server timeouted...',
+      name: 'sorryConnectionWithServerTimeouted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Player with this email already exist`
+  String get playerWithThisEmailAlreadyExist {
+    return Intl.message(
+      'Player with this email already exist',
+      name: 'playerWithThisEmailAlreadyExist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Player with this nickname already exist`
+  String get playerWithThisNicknameAlreadyExist {
+    return Intl.message(
+      'Player with this nickname already exist',
+      name: 'playerWithThisNicknameAlreadyExist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sorry, Something bad happened...`
+  String get sorrySomethingBadHappened {
+    return Intl.message(
+      'Sorry, Something bad happened...',
+      name: 'sorrySomethingBadHappened',
       desc: '',
       args: [],
     );

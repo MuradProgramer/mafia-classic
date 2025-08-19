@@ -5,8 +5,10 @@ import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart'
 import 'package:mafia_classic/features/profile/ratings/view/ratings_screen.dart';
 import 'package:mafia_classic/features/profile/roles/view/roles_screen.dart';
 import 'package:mafia_classic/features/settings/view/settings_screen.dart';
+import 'package:mafia_classic/features/widgets/player_info_popup.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/models/models.dart';
+import 'package:mafia_classic/utils/popup_utils.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
@@ -305,7 +307,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               //!
                               GestureDetector(
                                 onTap: () {
-                                  //Navigator.of(context).pushNamed('/profile/share');
+                                  showBouncingPopupFromLeft(
+                                    context, 
+                                    PlayerInfoPopup(
+                                      height: 727.h, 
+                                      width: 405.w, 
+                                      playerInfo: PlayerInfo(
+                                        nickname: 'Tony Stark', 
+                                        avatarUrl: 'assets/avatar.jpg', 
+                                        isOnline: false, 
+                                        lastSeen: DateTime(2025, 8, 15, 17, 36),
+                                        joinDate: DateTime.now(), 
+                                        friendshipStatus: 'None',
+                                        inGameLobby: false, 
+                                        
+                                        overall: 2429 + 1230, 
+                                        wins: 2429, 
+                                        loses: 1230, 
+                                        mafiaWins: 1120, 
+                                        civilianWins: 1309,
+                                        playedRoles: {
+                                          "Civilian": 177,
+                                          "Mafia": 54,
+                                          "Doctor": 682,
+                                          "Sheriff": 254,
+                                          "Bodyguard": 365,
+                                          "Beauty": 45,
+                                          "Journalist": 24,
+                                          "Spy": 76,
+                                          "Terrorist": 245,
+                                          "Informant": 343,
+                                          "Barman": 543
+                                        }, 
+                                        gameLobbyTitle: null, 
+                                        gameLobbyStatus: null, 
+                                        gameLobbyPlayerCount: null
+                                      ),
+                                    )
+                                  );
                                 },
                                 child: Container(
                                   width: 110.w,

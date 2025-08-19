@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/features/games/view/view.dart';
+import 'package:mafia_classic/features/widgets/widgets.dart';
 import 'package:mafia_classic/generated/intl/messages_en.dart';
 import 'package:mafia_classic/main.dart';
 import 'package:mafia_classic/models/models.dart';
@@ -13,6 +14,20 @@ import 'package:signalr_netcore/ihub_protocol.dart';
 import 'package:signalr_netcore/signalr_client.dart';
  
 import 'token_aware_service.dart';
+import 'package:intl/intl.dart';
+
+DateTime? parseDate(String? dateStr) {
+  if (dateStr == null || dateStr.isEmpty) return null;
+  try {
+    return DateFormat("M/d/yyyy h:mm:ss a").parse(dateStr);
+  } catch (_) {
+    try {
+      return DateFormat("M/d/yyyy").parse(dateStr);
+    } catch (_) {
+      return null;
+    }
+  }
+}
 
 class ApiService extends TokenAwareService {
   String _accessToken;
@@ -516,6 +531,52 @@ class ApiService extends TokenAwareService {
     return friendList;
   }
 
+  Future<PlayerInfo> getPlayerInfo(String nickname) async {
+    PlayerInfo? playerInfo;
+    await executeWithTokenCheck((accessToken) async {
+      final formDataObject = FormData.fromMap({'nickname': nickname});
+
+      final response = await GetIt.I<DioService>().dio.get(
+        'Friend/PlayerInfo',
+        data: formDataObject,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken'
+          }
+        )
+      );
+
+      if (response.statusCode == 200) {
+        log(response.data.toString());
+        final data = response.data as Map<String, dynamic>;
+
+        playerInfo = PlayerInfo(
+          nickname: data['nickname'] ?? '',
+          avatarUrl: data['avatarUrl'] ?? '',
+          isOnline: data['isOnline'] ?? false,
+          lastSeen: data['lastSeen'] != null && data['lastSeen'].toString().isNotEmpty
+              ? DateFormat("M/d/yyyy h:mm:ss a").parse(data['lastSeen'])
+              : null,
+          joinDate: DateFormat("M/d/yyyy").parse(data['joinDate']),
+          friendshipStatus: data['friendshipStatus'] ?? '',
+          inGameLobby: data['inGameLobby'] ?? false,
+          overall: data['overall'] ?? 0,
+          wins: data['wins'] ?? 0,
+          loses: data['loses'] ?? 0,
+          mafiaWins: data['mafiaWins'] ?? 0,
+          civilianWins: data['civilianWins'] ?? 0,
+          playedRoles: Map<String, int>.from(data['playedRoles'] ?? {}),
+          gameLobbyTitle: data['gameLobbyTitle'],
+          gameLobbyStatus: data['gameLobbyStatus'],
+          gameLobbyPlayerCount: data['gameLobbyPlayerCount'],
+        );
+      } else {
+        throw Exception('Failed to load friends');
+      }
+    });
+    return playerInfo!;
+  }
+
   // ++++++
   Future<bool> deleteFriend(String nickname) async {
     bool status = false;
@@ -679,7 +740,6 @@ class ApiService extends TokenAwareService {
     });
     return status;
   }
-
 
   // CHAAAAAAAAAAAAAAAAAAATTT
 
