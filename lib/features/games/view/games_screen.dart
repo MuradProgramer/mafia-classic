@@ -575,7 +575,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             Padding(
                               padding: EdgeInsets.only(top: 15.h),
                               child: Text(
-                                'Lobby',
+                                S.of(context).lobby,
                                 style: GoogleFonts.playfairDisplay(
                                   fontSize: 42.sp,
                                   color: const Color(0xFFFFB000)
@@ -617,9 +617,9 @@ class _GamesScreenState extends State<GamesScreen> {
                                           },
                                           controller: _searchController,
                                           style: TextStyle(color: Colors.white, fontSize: 16.sp, fontFamily: 'CenturyGothic'),
-                                          decoration: const InputDecoration(
-                                            hintText: " Search...",
-                                            hintStyle: TextStyle(color: Color.fromARGB(255, 166, 166, 166), fontFamily: 'CenturyGothic'),
+                                          decoration: InputDecoration(
+                                            hintText: ' ${S.of(context).search}',
+                                            hintStyle: const TextStyle(color: Color.fromARGB(255, 166, 166, 166), fontFamily: 'CenturyGothic'),
                                             border: InputBorder.none,
                                           ),
                                         ),
@@ -650,7 +650,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             Padding(
                               padding: EdgeInsets.only(top: 15.h, left: 25.w, right: 20.w),
                               child: Text(
-                                'Filter Off',
+                                S.of(context).filterOff,
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: Colors.white,
@@ -685,7 +685,7 @@ class _GamesScreenState extends State<GamesScreen> {
                       child: Align(
                         alignment: Alignment.topCenter,
                         child: Text(
-                          'No available games..',
+                          S.of(context).noAvailableGames,
                           style: GoogleFonts.playfairDisplay(
                             color: Colors.white,
                             fontSize: 22
@@ -923,7 +923,7 @@ class _GameCardState extends State<GameCard> {
                     ),
                     child: Center(
                       child: Text(
-                        'Join', // NOTE:    Translation L10
+                        S.of(context).join,
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontFamily: 'CenturyGothic',
@@ -967,7 +967,7 @@ class _GameCardState extends State<GameCard> {
                               ),
                                     
                               Text(
-                                "min",
+                                S.of(context).min,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15.sp,
@@ -1009,7 +1009,7 @@ class _GameCardState extends State<GameCard> {
                               ),
                                     
                               Text(
-                                "max",
+                                S.of(context).max,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15.sp,
@@ -1026,7 +1026,7 @@ class _GameCardState extends State<GameCard> {
 
                   // TEXT:    players in the room            
                   Text(
-                    'players in the room',
+                    S.of(context).playersInTheRoom,
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontFamily: 'CenturyGothic'
@@ -1085,7 +1085,7 @@ class _GameCardState extends State<GameCard> {
                       RotatedBox(
                         quarterTurns: 3, // Rotates the text 90 degrees clockwise
                         child: Text(
-                          'are here', // Replace with your text
+                          S.of(context).areHere, // Replace with your text
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15.sp,
@@ -1132,7 +1132,7 @@ class _GameCardState extends State<GameCard> {
                       child: Column(
                         children: [
                           Text(
-                            'Show',
+                            S.of(context).show,
                             style: GoogleFonts.playfairDisplay(
                               height: 0,
                               color: const Color(0xFFFFB000),
@@ -1141,7 +1141,7 @@ class _GameCardState extends State<GameCard> {
                           ),
                       
                           Text(
-                            'All Players',
+                            S.of(context).allPlayers,
                             style: GoogleFonts.playfairDisplay(
                               height: 0,
                               color: const Color(0xFFFFB000),
@@ -1169,7 +1169,11 @@ class _GameCardState extends State<GameCard> {
               Padding(
                 padding: EdgeInsets.only(bottom: 20.h),
                 child: Text(
-                  text,
+                  text == 'You Are Playing Here'
+                  ? S.of(context).youArePlayingHere
+                  : text == 'You Died Here'
+                  ? S.of(context).youDiedHere
+                  : '',
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontFamily: 'CenturyGothic',
@@ -1381,7 +1385,7 @@ class _PlayersPopupState extends State<PlayersPopup> {
                                           
                               // TEXT:    DEFEATED OR STILL HERE
                               Text(
-                                widget.playersInGame[index].isAlive == true ? 'Still here' : 'Defeated',
+                                widget.playersInGame[index].isAlive == true ? S.of(context).stillHere : S.of(context).defeated,
                                 style: TextStyle(
                                   fontSize: 15.sp,
                                   fontFamily: 'CenturyGothic',
@@ -1671,7 +1675,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Create Game',
+                    S.of(context).createGame,
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 38.sp,
                       color: Colors.white
@@ -1717,7 +1721,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         controller: _titleController,
                         style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
                         decoration: InputDecoration(
-                          hintText: " Enter the name",
+                          hintText: ' ${S.of(context).enterTheName}',
                           hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
                           border: InputBorder.none,
                           counterText: '',
@@ -1736,7 +1740,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                           child: Row(
                             children: [
                               Text(
-                                'Password ${isPasswordVisible ? 'on' : 'off'}',
+                                '${S.of(context).password} ${isPasswordVisible ? S.of(context).on : S.of(context).off}',
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: const Color(0xFF494239),
@@ -1808,7 +1812,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                           controller: _passwordController,
                           style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
                           decoration: InputDecoration(
-                            hintText: " Enter the password",
+                            hintText: ' ${S.of(context).enterThePassword}',
                             hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
                             border: InputBorder.none,
                             counterText: '',
@@ -1836,7 +1840,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   children: [
                     // TEXT:    Number of players
                     Text(
-                      'Number of players',
+                      S.of(context).numberOfPlayers,
                       style: GoogleFonts.playfairDisplay(
                         color: Colors.white,
                         fontSize: 23.sp,
@@ -1922,7 +1926,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     Padding(
                       padding: EdgeInsets.only(top: 5.h),
                       child: Text(
-                        'Extra Roles',
+                        S.of(context).extraRoles,
                         style: GoogleFonts.playfairDisplay(
                           color: const Color(0xFF494239),
                           fontSize: 23.sp,
@@ -1958,12 +1962,14 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          'Bodyguard',
+                                          S.of(context).bodyguard,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 18.sp,
                                             fontFamily: 'CenturyGothic',
                                           ),
+                                          softWrap: true,
+                                          maxLines: 2,
                                         ),
                                       ),
         
@@ -2010,7 +2016,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          'Spy',
+                                          S.of(context).spy,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2062,7 +2068,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          'Journalist',
+                                          S.of(context).journalist,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2114,7 +2120,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          'Beauty',
+                                          S.of(context).beauty,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2184,7 +2190,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          'Terrorist',
+                                          S.of(context).terrorist,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2236,7 +2242,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          'Bartender',
+                                          S.of(context).bartender,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 18.sp,
@@ -2288,7 +2294,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          'Informant',
+                                          S.of(context).informant,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2362,7 +2368,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Confirm',
+                            S.of(context).confirm,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20.sp,
@@ -2703,7 +2709,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                           children: [
                             // TEXT:    FILTER
                             Text(
-                              'Filter',
+                              S.of(context).filter,
                               style: GoogleFonts.playfairDisplay(
                                 color: const Color(0xFFFFB000),
                                 fontSize: 42.sp
@@ -2731,7 +2737,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Close',
+                                      S.of(context).close,
                                       style: TextStyle(
                                         color: const Color(0xFFFFFFFF),
                                         fontSize: 16.sp,
@@ -2766,7 +2772,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                   children: [
                     // TEXT:    Number of players
                     Text(
-                      'Number of players',
+                      S.of(context).numberOfPlayers,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 19.sp,
@@ -2846,7 +2852,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                   children: [
                     // TEXT:    ROOMS WITH
                     Text(
-                      'Rooms with:',
+                      S.of(context).roomsWith,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 19.sp,
@@ -2885,7 +2891,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                               Padding(
                                 padding: EdgeInsets.only(left: 10.w),
                                 child: Text(
-                                  'Available Spots',
+                                  S.of(context).availableSpots,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.sp,
@@ -2903,7 +2909,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             children: [
                               // TEXT:    Friends In
                               Text(
-                                'Friends In',
+                                S.of(context).friendsIn,
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.6),
                                   fontSize: 16.sp,
@@ -2949,7 +2955,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                     Padding(
                       padding: EdgeInsets.only(bottom: 8.h),
                       child: Text(
-                        'Access',
+                        S.of(context).access,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 19.sp,
@@ -2980,7 +2986,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             },
                             child: Center(
                               child: Text(
-                                'Mixed',
+                                S.of(context).mixed,
                                 style: TextStyle(
                                   color: accessState == 0 ? Colors.white : const Color(0xFFBFBFBF),
                                   fontSize: 16.sp,
@@ -2994,7 +3000,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                         //? OPEN ROOMS
                         Container(
                           height: 34.h,
-                          width: 67.w,
+                          width: 90.w,
                           decoration: BoxDecoration(
                             color: accessState == 1 ? const Color(0xFF4D4D4D) : Colors.transparent,
                             borderRadius: BorderRadius.circular(47.sp),
@@ -3007,7 +3013,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             },
                             child: Center(
                               child: Text(
-                                'Open',
+                                S.of(context).open,
                                 style: TextStyle(
                                   color: accessState == 1 ? Colors.white : const Color(0xFFBFBFBF),
                                   fontSize: 16.sp,
@@ -3035,7 +3041,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             },
                             child: Center(
                               child: Text(
-                                'Private',
+                                S.of(context).private,
                                 style: TextStyle(
                                   color: accessState == 2 ? Colors.white : const Color(0xFFBFBFBF),
                                   fontSize: 16.sp,
@@ -3060,7 +3066,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                   children: [
                     // TEXT:    Included Roles
                     Text(
-                      'Included roles:',
+                      S.of(context).includedRoles,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 19.sp,
@@ -3086,7 +3092,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                     Container(
                                       width: 25.w,
                                       height: 25.h,
-                                      margin: EdgeInsets.only(left: 50.w),
+                                      margin: EdgeInsets.only(left: 30.w),
                                       decoration: BoxDecoration(
                                         color: hasBodyguard ? const Color(0xFFFFB000) : Colors.transparent,
                                         borderRadius: BorderRadius.circular(6.sp),
@@ -3105,7 +3111,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                     Padding(
                                       padding: EdgeInsets.only(left: 10.w),
                                       child: Text(
-                                        'Bodyguard',
+                                        S.of(context).bodyguard,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.sp,
@@ -3121,7 +3127,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                   children: [
                                     // TEXT:    Terrorist
                                     Text(
-                                      'Terrorist',
+                                      S.of(context).terrorist,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16.sp,
@@ -3133,7 +3139,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                     Container(
                                       width: 25.w,
                                       height: 25.h,
-                                      margin: EdgeInsets.only(right: 50.w, left: 10.w),
+                                      margin: EdgeInsets.only(right: 30.w, left: 10.w),
                                       decoration: BoxDecoration(
                                         color: hasTerrorist ? const Color(0xFFFFB000) : Colors.transparent,
                                         borderRadius: BorderRadius.circular(6.sp),
@@ -3165,7 +3171,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       Container(
                                         width: 25.w,
                                         height: 25.h,
-                                        margin: EdgeInsets.only(left: 50.w),
+                                        margin: EdgeInsets.only(left: 30.w),
                                         decoration: BoxDecoration(
                                           color: hasJournalist ? const Color(0xFFFFB000) : Colors.transparent,
                                           borderRadius: BorderRadius.circular(6.sp),
@@ -3184,7 +3190,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 10.w),
                                         child: Text(
-                                          'Journalist',
+                                          S.of(context).journalist,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 16.sp,
@@ -3200,7 +3206,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                     children: [
                                       // TEXT:    Bartender
                                       Text(
-                                        'Bartender',
+                                        S.of(context).bartender,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.sp,
@@ -3212,7 +3218,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       Container(
                                         width: 25.w,
                                         height: 25.h,
-                                        margin: EdgeInsets.only(left: 10.w, right: 50.w),
+                                        margin: EdgeInsets.only(left: 10.w, right: 30.w),
                                         decoration: BoxDecoration(
                                           color: hasBartender ? const Color(0xFFFFB000) : Colors.transparent,
                                           borderRadius: BorderRadius.circular(6.sp),
@@ -3245,7 +3251,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       Container(
                                         width: 25.w,
                                         height: 25.h,
-                                        margin: EdgeInsets.only(left: 50.w),
+                                        margin: EdgeInsets.only(left: 30.w),
                                         decoration: BoxDecoration(
                                           color: hasLover ? const Color(0xFFFFB000) : Colors.transparent,
                                           borderRadius: BorderRadius.circular(6.sp),
@@ -3264,7 +3270,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 10.w),
                                         child: Text(
-                                          'Lover',
+                                          S.of(context).beauty,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 16.sp,
@@ -3280,7 +3286,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                     children: [
                                       // TEXT:    Informant
                                       Text(
-                                        'Informant',
+                                        S.of(context).informant,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.sp,
@@ -3292,7 +3298,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       Container(
                                         width: 25.w,
                                         height: 25.h,
-                                        margin: EdgeInsets.only(left: 10.w, right: 50.w),
+                                        margin: EdgeInsets.only(left: 10.w, right: 30.w),
                                         decoration: BoxDecoration(
                                           color: hasInformant ? const Color(0xFFFFB000) : Colors.transparent,
                                           borderRadius: BorderRadius.circular(6.sp),
@@ -3340,7 +3346,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                   Padding(
                                     padding: EdgeInsets.only(left: 10.w),
                                     child: Text(
-                                      'Spy',
+                                      S.of(context).spy,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16.sp,
@@ -3380,7 +3386,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Reset',
+                            S.of(context).reset,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.white,
@@ -3405,7 +3411,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Apply',
+                            S.of(context).apply,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: const Color(0xFFFFB000),
@@ -3984,7 +3990,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             ),
               
                                             Text(
-                                              "min",
+                                              S.of(context).min,
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15.sp,
@@ -4026,7 +4032,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             ),
               
                                             Text(
-                                              "max",
+                                              S.of(context).max,
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15.sp,
@@ -4174,7 +4180,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                   children: [
                                     remainingTime != -1
                                     ? Text(
-                                      "Starting:",
+                                      S.of(context).starting,
                                       style: GoogleFonts.playfairDisplay(
                                         color: const Color(0xFFFFB000),
                                         fontSize: 22.sp,
@@ -4187,7 +4193,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                     Padding(
                                       padding: remainingTime == -1 ? EdgeInsets.only(bottom: 5.h) : EdgeInsets.only(bottom: 0.h),
                                       child: Text(
-                                        remainingTime != -1 ? '$remainingTime ${S.of(context).seconds}' : "Waiting...",
+                                        remainingTime != -1 ? '$remainingTime ${S.of(context).seconds}' : S.of(context).waiting,
                                         style: GoogleFonts.playfairDisplay(
                                           color: const Color(0xFFFFB000),
                                           fontSize: 22.sp,

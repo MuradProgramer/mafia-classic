@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a en locale. All the
+// This is a library that provides messages for a az locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,7 +18,7 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'en';
+  String get localeName => 'az';
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -137,7 +137,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "isYourDestiny":
             MessageLookupByLibrary.simpleMessage("is your destiny"),
         "iveChosenNoRegrets":
-            MessageLookupByLibrary.simpleMessage("I\'ve chosen. No regrets"),
+            MessageLookupByLibrary.simpleMessage("I\\\'ve chosen. No regrets"),
         "join": MessageLookupByLibrary.simpleMessage("Join"),
         "joinDate": MessageLookupByLibrary.simpleMessage("Join Date"),
         "journalist": MessageLookupByLibrary.simpleMessage("Journalist"),
@@ -173,11 +173,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "ofChoosenOnes":
             MessageLookupByLibrary.simpleMessage("OF CHOOSEN ONES"),
         "off": MessageLookupByLibrary.simpleMessage("off"),
-        "offOff": MessageLookupByLibrary.simpleMessage("Off"),
         "offline": MessageLookupByLibrary.simpleMessage("Offline"),
         "oldPassword": MessageLookupByLibrary.simpleMessage("Old password"),
         "on": MessageLookupByLibrary.simpleMessage("on"),
-        "onOn": MessageLookupByLibrary.simpleMessage("On"),
         "online": MessageLookupByLibrary.simpleMessage("online"),
         "onlyRoomsWithAvailableSpace": MessageLookupByLibrary.simpleMessage(
             "Only rooms with available space"),
@@ -222,8 +220,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "requests": MessageLookupByLibrary.simpleMessage("Requests"),
         "reset": MessageLookupByLibrary.simpleMessage("Reset"),
         "reveale": MessageLookupByLibrary.simpleMessage("Reveale"),
-        "ridingSoloAintTheWay":
-            MessageLookupByLibrary.simpleMessage("Riding solo ain\'t the way."),
+        "ridingSoloAintTheWay": MessageLookupByLibrary.simpleMessage(
+            "Riding solo ain\\\'t the way."),
         "roleBarmanDescription": MessageLookupByLibrary.simpleMessage(
             "Barman - plays on the side of the mafia team. At night, he can make any player drunk. Thus, a drunk player will write illegible text in the chat, and will also not be able to vote during the day. The player will sober up only the next night."),
         "roleBodyguardDescription": MessageLookupByLibrary.simpleMessage(

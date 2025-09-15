@@ -110,6 +110,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String confirmationText = S.of(context).confirm;
+    
     return Stack(
       children: [
 
@@ -138,20 +140,20 @@ class _SignInScreenState extends State<SignInScreen> {
                 //   SnackBar(content: Text(state.error)),              
                 // );
                 if (state.error.contains('connection timeout')) {
-                  showExceptionPopup('Sorry, connection with server timeouted...');
+                  showExceptionPopup(S.of(context).sorryConnectionWithServerTimeouted);
                 } else if (state.error.contains('400') || state.error.contains('401')) {
-                  showExceptionPopup('Email or Password is invalid');
+                  showExceptionPopup(S.of(context).emailOrPasswordIsInvalid);
                 } else if (state.error.contains('404')) {
-                  showExceptionPopup('User with this email does not exist');
+                  showExceptionPopup(S.of(context).userWithThisEmailDoesNotExist);
                 } else {
-                  showExceptionPopup('Sorry, Something bad happened...');
+                  showExceptionPopup(S.of(context).sorrySomethingBadHappened);
                 }
                 debugPrint(state.error);
               }
             },
             
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.sp),
               child: Form(
                 key: formKey,
                 child: Column(
@@ -163,22 +165,22 @@ class _SignInScreenState extends State<SignInScreen> {
                       child: Text(
                         S.of(context).signIn,
                         style: GoogleFonts.playfairDisplay(
-                          fontSize: 43,
+                          fontSize: 43.sp,
                           color: const Color(0xFFFFB000),
                         ),
                       ),
                     ),
                         
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40.h),
                         
                     // TEXT:    Dont Have Account?
-                    const Center(
+                    Center(
                       child: Text(
-                        'Don\'t have an account?', // NOTE:    Translation L10
+                        S.of(context).dontHaveAnAccount,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontFamily: 'CenturyGothic',
-                          color: Color(0xFFAAAAAA),
+                          color: const Color(0xFFAAAAAA),
                         ),
                       ),
                     ),
@@ -194,16 +196,16 @@ class _SignInScreenState extends State<SignInScreen> {
                         },
                         child: Text(
                           S.of(context).signUp, 
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: TextStyle(
+                            fontSize: 16.sp,
                             fontFamily: 'CenturyGothic',
-                            color: Color(0xFFFFB000),
+                            color: const Color(0xFFFFB000),
                           ),
                         )
                       ),
                     ),
                         
-                    const SizedBox(height: 30),
+                    SizedBox(height: 30.h),
                         
                     // INPUT:    Email
                     Center(
@@ -225,15 +227,15 @@ class _SignInScreenState extends State<SignInScreen> {
                         
                           decoration: InputDecoration(
                             hintText: _isEmailFocused ? null : S.of(context).email,
-                            hintStyle: const TextStyle(
-                              fontSize: 19,
+                            hintStyle: TextStyle(
+                              fontSize: 19.sp,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'CenturyGothic',
-                              color: Color(0xFFAAAAAA),
+                              color: const Color(0xFFAAAAAA),
                             ),
                             errorStyle: const TextStyle(height: 0),
                         
-                            contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                            contentPadding: EdgeInsets.symmetric(vertical: 5.h),
 
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: _emailError ? const Color(0xFFBC4434) : const Color(0xFFFFFFFF))
@@ -244,8 +246,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             )
                           ),
                         
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: TextStyle(
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'CenturyGothic',
                             color: Colors.white,
@@ -254,11 +256,11 @@ class _SignInScreenState extends State<SignInScreen> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               //return 'You must write your email';
-                              showValidationPopup('You must write your email', 'email');
+                              showValidationPopup(S.of(context).youMustWriteYourEmail, 'email');
                               return null;
                             } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                               //return 'Enter valid Email';
-                              showValidationPopup('Enter valid email', 'email');
+                              showValidationPopup(S.of(context).enterValidEmail, 'email');
                               return null;
                             } else {
                               setState(() {
@@ -297,11 +299,11 @@ class _SignInScreenState extends State<SignInScreen> {
                             
                               decoration: InputDecoration(
                                 hintText: _isPasswordFocused ? null : S.of(context).password,
-                                hintStyle: const TextStyle(
-                                  fontSize: 19,
+                                hintStyle: TextStyle(
+                                  fontSize: 19.sp,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'CenturyGothic',
-                                  color: Color(0xFFAAAAAA),
+                                  color: const Color(0xFFAAAAAA),
                                 ),
                                 errorStyle: const TextStyle(height: 0),
                                 counterText: '',
@@ -320,8 +322,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             
                               obscureText: !_isPasswordVisible,
                             
-                              style: const TextStyle(
-                                fontSize: 18,
+                              style: TextStyle(
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'CenturyGothic',
                                 color: Colors.white,
@@ -330,7 +332,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               validator: (value) {
                                 if (value!.isEmpty) {
                                   //return 'You must write your password';
-                                  showValidationPopup('You must write your password', 'password');
+                                  showValidationPopup(S.of(context).youMustWriteYourPassword, 'password');
                                   return null;
                                 } else {
                                   setState(() {
@@ -377,26 +379,30 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                 
-                    const SizedBox(height: 15),
+                    SizedBox(height: 15.h),
                 
                     // BUTTON:    Forgot Password
                     Center(
                       child: TextButton(
                         onPressed: () {
                           // NOTE:    Logic
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                          );
                         },
-                        child: const Text(
-                          'Forgot Password', // NOTE:    Translation L10
+                        child: Text(
+                          S.of(context).forgotPassword,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontFamily: 'CenturyGothic',
-                            color: Color(0xFFAAAAAA),
+                            color: const Color(0xFFAAAAAA),
                           ),
                         )
                       ),
                     ),
                         
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40.h),
                         
                     // BUTTON:    Confirm
                     Center(
@@ -408,10 +414,10 @@ class _SignInScreenState extends State<SignInScreen> {
                             color: Colors.white,
                             width: 1,
                           ),
-                          borderRadius: BorderRadius.circular(16.0),
+                          borderRadius: BorderRadius.circular(16.sp),
                         ),
                         child: SizedBox(
-                          width: 150.w,
+                          width: confirmationText.length > 8 ? 175.w : 150.w,
                           child: ElevatedButton(
                             onPressed: () {
                               //!!!!!!!!!!!!!!
@@ -463,10 +469,10 @@ class _SignInScreenState extends State<SignInScreen> {
                               ),
                             ),
                             
-                            child: const Text(
-                              'Confirm', // NOTE:    Translation L10
+                            child: Text(
+                             confirmationText,
                               style: TextStyle(
-                                fontSize: 25,
+                                fontSize: 25.sp,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'CenturyGothic',
                                 color: Colors.white,
@@ -477,7 +483,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                         
-                    const SizedBox(height: 30),
+                    SizedBox(height: 30.h),
                   ],
                 ),
               ),

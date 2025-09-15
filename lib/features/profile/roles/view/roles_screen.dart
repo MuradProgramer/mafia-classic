@@ -99,7 +99,7 @@ class _RolesScreenState extends State<RolesScreen> {
                             ),
                             
                             child: Text(
-                              'Civilians', // NOTE:    Translation L10
+                              S.of(context).civilians,
                               style: TextStyle(
                                 fontSize: buttonTextFontSize,
                                 fontWeight: FontWeight.w600,
@@ -112,7 +112,7 @@ class _RolesScreenState extends State<RolesScreen> {
                       ),
                     ),
                 
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5.w),
                 
                     Image.asset(
                       'assets/images/roles-line.png',
@@ -120,7 +120,7 @@ class _RolesScreenState extends State<RolesScreen> {
                       height: deviceHeight * 0.018,
                     ),
                 
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5.w),
                 
                     // BUTTON:    Mafias
                     Center(
@@ -153,7 +153,7 @@ class _RolesScreenState extends State<RolesScreen> {
                             ),
                             
                             child: Text(
-                              'Mafias', // NOTE:    Translation L10
+                              S.of(context).mafias,
                               style: TextStyle(
                                 fontSize: buttonTextFontSize,
                                 fontWeight: FontWeight.w600,
@@ -169,8 +169,8 @@ class _RolesScreenState extends State<RolesScreen> {
                 ),
               ),
               
-              const SizedBox(height: 20),
-                
+              SizedBox(height: 20.h),
+              
               // Tab content
               Expanded(
                 child: selectedTabIndex == 0 ? const CiviliansTab() : const MafiasTab(),

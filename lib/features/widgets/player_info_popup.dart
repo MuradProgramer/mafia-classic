@@ -1,21 +1,24 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/services/api_service.dart';
 
 // ignore: must_be_immutable
 class PlayerInfoPopup extends StatefulWidget {
   final double height;
   final double width;
-  PlayerInfo playerInfo;
+  //PlayerInfo playerInfo;
 
   PlayerInfoPopup({
     super.key, 
     required this.height, 
     required this.width, 
-    required this.playerInfo,
+    //required this.playerInfo,
   });
 
   @override
@@ -23,6 +26,7 @@ class PlayerInfoPopup extends StatefulWidget {
 }
 
 class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
+  PlayerInfo? playerInfo;
   final double ornamentSize = 50.sp;
   final double ornamentMargin = 5.sp;
 
@@ -53,14 +57,20 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
     final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo('musayev');
     print(playerInfoData.toString());
     setState(() {
-      widget.playerInfo = PlayerInfo.from(playerInfoData);
+      playerInfo = PlayerInfo.from(playerInfoData);
     });
     print('-----------------');
-    print(widget.playerInfo.toString());
+    print(playerInfo.toString());
   }
 
   @override
   Widget build(BuildContext context) {
+    if (playerInfo == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Align(
       alignment: Alignment.center,
       child: Container(
@@ -159,7 +169,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                       children: [
                         // TEXT:    Profile
                         Text(
-                          'Profile',
+                          S.of(context).profile,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 32.sp,
                             color: const Color(0xFF000000)
@@ -183,9 +193,9 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         width: 20.w,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: widget.playerInfo.isOnline ? const Color(0xFF896A44) : const Color(0xFF9D9D9D),
+                                          color: playerInfo!.isOnline ? const Color(0xFF896A44) : const Color(0xFF9D9D9D),
                                           border: Border.all(
-                                            color: widget.playerInfo.isOnline ? const Color(0xFFB98744) : const Color(0xFFD6D6D6),
+                                            color: playerInfo!.isOnline ? const Color(0xFFB98744) : const Color(0xFFD6D6D6),
                                             width: 2.sp
                                           )
                                         ),
@@ -202,7 +212,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   
                                       // TEXT:    IS ONLINE
                                       Text(
-                                        widget.playerInfo.isOnline ? 'Online' : 'Offline',
+                                        playerInfo!.isOnline ? S.of(context).online : S.of(context).offline,
                                         style: TextStyle(
                                           fontSize: 14.sp,
                                           fontFamily: 'CenturyGothic',
@@ -213,10 +223,10 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   ),
                                 
                                   //? LAST SEEN
-                                  widget.playerInfo.isOnline
+                                  playerInfo!.isOnline
                                   ? const SizedBox()
                                   : Text(
-                                    formatLastSeen(widget.playerInfo.lastSeen!),
+                                    formatLastSeen(playerInfo!.lastSeen!),
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontFamily: 'CenturyGothic',
@@ -234,7 +244,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 ),
                                 child: CircleAvatar(
                                   backgroundImage: NetworkImage(
-                                    widget.playerInfo.avatarUrl
+                                    playerInfo!.avatarUrl
                                   ),
                                   radius: 35.sp,
                                 )
@@ -245,7 +255,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 children: [
                                   // TEXT:    JOIN DATE
                                   Text(
-                                    'Join Date',
+                                    S.of(context).joinDate,
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontFamily: 'CenturyGothic',
@@ -256,7 +266,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   
                                   //? JOIN DATE
                                   Text(
-                                    DateFormat('dd.MM.yyyy').format(widget.playerInfo.joinDate),
+                                    DateFormat('dd.MM.yyyy').format(playerInfo!.joinDate),
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontFamily: 'CenturyGothic',
@@ -274,7 +284,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         Padding(
                           padding: EdgeInsets.only(top: 8.h),
                           child: Text(
-                            widget.playerInfo.nickname,
+                            playerInfo!.nickname,
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 20.sp,
                               color: Colors.black
@@ -303,7 +313,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Report',
+                                      S.of(context).report,
                                       style: TextStyle(
                                         fontSize: 15.sp,
                                         fontFamily: 'CenturyGothic',
@@ -315,7 +325,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                               ),
                           
                               //? FRIENDSHIP STATUS
-                              widget.playerInfo.friendshipStatus == 'None'
+                              playerInfo!.friendshipStatus == 'None'
                               ? GestureDetector(
                                 child: Container(
                                   height: 35.h,
@@ -331,7 +341,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 8.w),
                                       child: Text(
-                                        'Add To Friends',
+                                        S.of(context).addToFriends,
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -343,7 +353,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 ),
                               )
                               : Text(
-                                widget.playerInfo.friendshipStatus,
+                                playerInfo!.friendshipStatus,
                                 style: TextStyle(
                                   fontSize: 15.sp,
                                   fontFamily: 'CenturyGothic',
@@ -366,7 +376,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Chat',
+                                      S.of(context).chat,
                                       style: TextStyle(
                                         fontSize: 15.sp,
                                         fontFamily: 'CenturyGothic',
@@ -390,11 +400,11 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         ),
                       
                         //? CURRENT GAME
-                        !widget.playerInfo.inGameLobby
+                        !playerInfo!.inGameLobby
                         ? Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.h),
                           child: Text(
-                            widget.playerInfo.isOnline ? 'Currently are not playing' : 'Currently Offline',
+                            playerInfo!.isOnline ? S.of(context).currentlyAreNotPlaying : S.of(context).currentlyOffline,
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 20.sp,
                               color: const Color(0xFF4F4F4F)
@@ -406,7 +416,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             Padding(
                               padding: EdgeInsets.only(top: 8.h),
                               child: Text(
-                                'Currently are playing in:',
+                                "${S.of(context).currentlyArePlayingIn}:",
                                 style: GoogleFonts.playfairDisplay(
                                   fontSize: 20.sp,
                                   color: const Color(0xFF4F4F4F)
@@ -434,7 +444,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         child: Align(
                                           alignment: Alignment.topCenter,
                                           child: Text(
-                                            widget.playerInfo.gameLobbyTitle!,
+                                            playerInfo!.gameLobbyTitle!,
                                             style: GoogleFonts.playfairDisplay(
                                               fontSize: 20.sp,
                                               color: Colors.black
@@ -455,7 +465,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            widget.playerInfo.gameLobbyStatus!,
+                                            playerInfo!.gameLobbyStatus!,
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontFamily: 'CenturyGothic',
@@ -473,7 +483,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                       children: [
                                         //? PLAYER COUNT
                                         Text(
-                                          widget.playerInfo.gameLobbyPlayerCount!.toString(),
+                                          playerInfo!.gameLobbyPlayerCount!.toString(),
                                           style: GoogleFonts.playfairDisplay(
                                             fontSize: 20.sp,
                                             color: Colors.black
@@ -482,7 +492,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     
                                         // TEXT:    Players in total
                                         Text(
-                                          'Players in total',
+                                          S.of(context).playersInTotal,
                                           style: TextStyle(
                                             fontSize: 13.sp,
                                             fontFamily: 'CenturyGothic',
@@ -511,7 +521,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         ////? STATS
                         // TEXT:    STATS
                         Text(
-                          'Stats',
+                          S.of(context).stats,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 20.sp,
                             color: Colors.black
@@ -531,7 +541,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             children: [
                               // TEXT:    OVERALL
                               Text(
-                                'Overall',
+                                S.of(context).overall,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontFamily: 'CenturyGothic',
@@ -543,7 +553,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
 
                               //? OVERALL STATS
                               Text(
-                                widget.playerInfo.overall.toString(),
+                                playerInfo!.overall.toString(),
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontFamily: 'CenturyGothic',
@@ -569,7 +579,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     children: [
                                       // TEXT:    WINS
                                       Text(
-                                        'Wins',
+                                        S.of(context).wins,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -581,7 +591,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                                         
                                       // TEXT:    WINS
                                       Text(
-                                        'Loses',
+                                        S.of(context).loses,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -615,7 +625,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     children: [
                                       //? WINS
                                       Text(
-                                        widget.playerInfo.wins.toString(),
+                                        playerInfo!.wins.toString(),
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -627,7 +637,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                                         
                                       //? LOSES
                                       Text(
-                                        widget.playerInfo.loses.toString(),
+                                        playerInfo!.loses.toString(),
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -648,7 +658,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     children: [
                                       // TEXT:    MAFIA WINS
                                       Text(
-                                        'Mafia Wins',
+                                        S.of(context).mafiaWins,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -660,7 +670,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                                         
                                       // TEXT:    CIVILIAN WINS
                                       Text(
-                                        'Civilian Wins',
+                                        S.of(context).civilianWins,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -694,7 +704,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     children: [
                                       //? MAFIA WINS
                                       Text(
-                                        widget.playerInfo.mafiaWins.toString(),
+                                        playerInfo!.mafiaWins.toString(),
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -706,7 +716,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                                         
                                       //? CIVILIAN WINS
                                       Text(
-                                        widget.playerInfo.civilianWins.toString(),
+                                        playerInfo!.civilianWins.toString(),
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -732,7 +742,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                       
                         // TEXT:    PLAYED ROLES
                         Text(
-                          'Played Roles',
+                          S.of(context).playedRoles,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 20.sp,
                             color: Colors.black
@@ -746,31 +756,31 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             //? CIVILIAN
-                            WinRole(role: 'Civilian', winCount: widget.playerInfo.playedRoles[('Civillian')]!),
+                            WinRole(role: 'Civillian', winCount: playerInfo!.playedRoles[('Civillian')]!),
                             SizedBox(width: cardsMargin),
 
                             //? DOCTOR
-                            WinRole(role: 'Doctor', winCount: widget.playerInfo.playedRoles[('Doctor')]!),
+                            WinRole(role: 'Doctor', winCount: playerInfo!.playedRoles[('Doctor')]!),
                             SizedBox(width: cardsMargin),
 
                             //? SHERIFF
-                            WinRole(role: 'Sheriff', winCount: widget.playerInfo.playedRoles[('Sheriff')]!),
+                            WinRole(role: 'Sheriff', winCount: playerInfo!.playedRoles[('Sheriff')]!),
                             SizedBox(width: cardsMargin),
 
                             //? BODYGUARD
-                            WinRole(role: 'Bodyguard', winCount: widget.playerInfo.playedRoles[('Bodyguard')]!),
+                            WinRole(role: 'Bodyguard', winCount: playerInfo!.playedRoles[('Bodyguard')]!),
                             SizedBox(width: cardsMargin),
 
                             //? BEAUTY
-                            WinRole(role: 'Beauty', winCount: widget.playerInfo.playedRoles[('Beauty')]!),
+                            WinRole(role: 'Beauty', winCount: playerInfo!.playedRoles[('Beauty')]!),
                             SizedBox(width: cardsMargin),
 
                             //? JOURNALIST
-                            WinRole(role: 'Journalist', winCount: widget.playerInfo.playedRoles[('Journalist')]!),
+                            WinRole(role: 'Journalist', winCount: playerInfo!.playedRoles[('Journalist')]!),
                             SizedBox(width: cardsMargin),
 
                             //? SPY
-                            WinRole(role: 'Spy', winCount: widget.playerInfo.playedRoles[('Spy')]!),
+                            WinRole(role: 'Spy', winCount: playerInfo!.playedRoles[('Spy')]!),
                           ],
                         ),
                       
@@ -781,19 +791,19 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             //? MAFIA
-                            WinRole(role: 'Mafia', winCount: widget.playerInfo.playedRoles[('Mafia')]!),
+                            WinRole(role: 'Mafia', winCount: playerInfo!.playedRoles[('Mafia')]!),
                             SizedBox(width: cardsMargin),
 
                             //? TERRORIST
-                            WinRole(role: 'Terrorist', winCount: widget.playerInfo.playedRoles[('Terrorist')]!),
+                            WinRole(role: 'Terrorist', winCount: playerInfo!.playedRoles[('Terrorist')]!),
                             SizedBox(width: cardsMargin),
 
                             //? INFORMANT
-                            WinRole(role: 'Informant', winCount: widget.playerInfo.playedRoles[('Informant')]!),
+                            WinRole(role: 'Informant', winCount: playerInfo!.playedRoles[('Informant')]!),
                             SizedBox(width: cardsMargin),
 
                             //? BARMAN
-                            WinRole(role: 'Barman', winCount: widget.playerInfo.playedRoles[('Barman')]!)
+                            WinRole(role: 'Barman', winCount: playerInfo!.playedRoles[('Barman')]!)
                           ],
                         )
                       

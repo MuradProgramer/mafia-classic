@@ -6,6 +6,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
+import 'package:mafia_classic/l10n/l10n.dart';
+import 'package:mafia_classic/streams/general_stream.dart';
 
 import 'package:mafia_classic/theme/theme.dart';
 import 'package:mafia_classic/router/router.dart';
@@ -22,9 +25,29 @@ void buildApiService(accessToken, refreshToken, expirationDate) {
   GetIt.I.registerSingleton(ApiService(accessToken, accessToken, accessToken));
 }
 
-class MafiaClassicApp extends StatelessWidget {
-  
+class MafiaClassicApp extends StatefulWidget {
   const MafiaClassicApp({super.key});
+
+  static final GlobalKey<_MafiaClassicAppState> globalKey =
+      GlobalKey<_MafiaClassicAppState>();
+
+  @override
+  State<MafiaClassicApp> createState() => _MafiaClassicAppState();
+}
+
+class _MafiaClassicAppState extends State<MafiaClassicApp> {
+
+  @override
+  void initState() {
+    GeneralStreams.languageStream.add(const Locale("en"));
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    GeneralStreams.languageStream.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +60,26 @@ class MafiaClassicApp extends StatelessWidget {
           create: (context) => SignUpBloc(authRepository: GetIt.I<AuthRepository>()),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: const [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        //locale: const Locale("ru"),
-        supportedLocales: S.delegate.supportedLocales,
-        title: 'Flutter Demo',
-        theme: theme,
-        routes: routes,
+      child: StreamBuilder<Locale>(
+        stream: GeneralStreams.languageStream.stream,
+        builder: (context, snapshot) {
+          return MaterialApp(
+            key: MafiaClassicApp.globalKey,
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              AppLocalizations.delegate,
+            ],
+            locale: snapshot.data,
+            supportedLocales: L10n.locals,
+            //title: 'Flutter Demo',
+            theme: theme,
+            routes: routes,
+          );
+        }
       )
     );
   }
@@ -176,10 +206,10 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem('assets/images/icon-profile.png', 0, 'Profile'),
-              _buildNavItem('assets/images/icon-games.png', 1, 'Games'),
-              _buildNavItem('assets/images/icon-create.png', 2, 'Create'),
-              _buildNavItem('assets/images/icon-friends.png', 3, 'Friends'),
+              _buildNavItem('assets/images/icon-profile.png', 0, S.of(context).profile),
+              _buildNavItem('assets/images/icon-games.png', 1, S.of(context).games),
+              _buildNavItem('assets/images/icon-create.png', 2, S.of(context).create),
+              _buildNavItem('assets/images/icon-friends.png', 3, S.of(context).friends),
             ],
           ),
         ),

@@ -23,6 +23,9 @@ dependencies:
   flutter_svg_provider: ^1.0.7
   flutter_screenutil: ^5.9.3
   animated_toggle_switch: ^0.8.5
+  image_picker: ^1.2.0
+  dropdown_button2: ^2.3.9
+  easy_localization: ^3.0.8
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +37,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
+
+  
+
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/2-moons-night-buildings.png

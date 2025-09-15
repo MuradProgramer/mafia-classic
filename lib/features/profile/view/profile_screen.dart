@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
-import 'package:mafia_classic/features/profile/ratings/view/ratings_screen.dart';
+import 'package:mafia_classic/features/profile/ratings-/view/ratings_screen.dart';
+//import 'package:mafia_classic/features/profile/ratings/view/ratings_screen.dart';
 import 'package:mafia_classic/features/profile/roles/view/roles_screen.dart';
 import 'package:mafia_classic/features/settings/view/settings_screen.dart';
 import 'package:mafia_classic/features/widgets/player_info_popup.dart';
@@ -72,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Mafia',
+                                S.of(context).mafia,
                                 style: GoogleFonts.playfairDisplay(
                                   fontSize: 55.sp,
                                   height: 0,
@@ -89,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Padding(
                                 padding: EdgeInsets.only(top: 70.h),
                                 child: Text(
-                                  'classic',
+                                  S.of(context).classic,
                                   style: TextStyle(
                                     fontSize: 26.sp,
                                     height: 0,
@@ -161,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Welcome,',
+                                    "${S.of(context).welcome},",
                                     style: GoogleFonts.playfairDisplay(
                                       fontSize: 32.sp,
                                       height: 0,
@@ -228,7 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Rating',
+                                      S.of(context).ratings,
                                       style: TextStyle(
                                         fontSize: 23.sp,
                                         color: Colors.white,
@@ -258,7 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Settings',
+                                      S.of(context).settings,
                                       style: TextStyle(
                                         fontSize: 23.sp,
                                         color: Colors.white,
@@ -292,7 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Roles',
+                                      S.of(context).roles,
                                       style: TextStyle(
                                         fontSize: 23.sp,
                                         color: Colors.white,
@@ -304,7 +305,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
 
                               // BUTTON:    CHAT
-                              //!
+                              //!!!!!!!!!!!!!!!!
                               GestureDetector(
                                 onTap: () {
                                   showBouncingPopupFromLeft(
@@ -312,9 +313,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     PlayerInfoPopup(
                                       height: 727.h, 
                                       width: 405.w, 
+                                      /*
                                       playerInfo: PlayerInfo(
                                         nickname: 'Tony Stark', 
-                                        avatarUrl: 'assets/avatar.jpg', 
+                                        avatarUrl: 'https://img.freepik.com/premium-vector/mafia-logo_74829-29.jpg', 
                                         isOnline: false, 
                                         lastSeen: DateTime(2025, 8, 15, 17, 36),
                                         joinDate: DateTime.now(), 
@@ -343,6 +345,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         gameLobbyStatus: null, 
                                         gameLobbyPlayerCount: null
                                       ),
+                                      */
                                     )
                                   );
                                 },
@@ -356,7 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Chat',
+                                      S.of(context).chat,
                                       style: TextStyle(
                                         fontSize: 23.sp,
                                         color: Colors.white,

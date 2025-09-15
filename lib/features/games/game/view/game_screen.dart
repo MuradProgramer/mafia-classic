@@ -1161,67 +1161,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: Colors.transparent,
-        /*
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          automaticallyImplyLeading: false,
-          title: TextButton(
-            onPressed: () {
-              setState(() {
-                final phases = ['NightVoting', 'Day', 'DayVoting', 'Night'];
-                gamePhase = phases[index];
-                index += 1;
-                if (index > 3) {
-                  index = 0;
-                }
-
-                // NOTE:   VOTE
-                if (widget.role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
-                  votesAreVisibleToMe = false;
-                }
-                else if (gamePhase == 'DayVoting') {
-                  if (markNames.any((e) => e == 'Intoxicated')) {
-                    votesAreVisibleToMe = false;
-                  }
-                  else {
-                    votesAreVisibleToMe = true;
-                  }
-                }
-                else if ((widget.role != 'Mafia' && gamePhase == 'Night')) {
-                  votesAreVisibleToMe = false;
-                }
-                else {
-                  votesAreVisibleToMe = true;
-                }
-
-                for (var element in inGamePlayers) {
-                  element.votesOfPlayer = [];
-                }
-
-                iVoted = false;
-                
-                checkIfEligibleToVote();
-
-                // NOTE:    SKILL
-                //!!!!!!!!!!!!!!
-
-                iUsedSkill = false;
-                toWhomIUsedSkill = [];
-
-                checkIfEligibleToUseSkill();
-                checkIfEligibleToSendMessage();
-
-                inGameMessages.add(InGameMessage(
-                  nickname: authorizedUser.nickname,
-                  content: 'Phase: $gamePhase',
-                  avatarUrl: authorizedUser.avatarUrl,
-                  type: 'System'
-                ));
-              });
-            },
-            child: Text(widget.title, style: const TextStyle(fontSize: 30, color: Colors.white)))
-        ),
-        */
 
         body: Stack(
           children: [
@@ -1347,8 +1286,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                       ),
                                                     ),
                                                     
+                                                    // TEXT    Players in the room
                                                     Text(
-                                                      'Players in the room',
+                                                      S.of(context).playersInTheRoom,
                                                       style: TextStyle(
                                                         height: 1,
                                                         color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
@@ -1374,8 +1314,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                     
                                                 Row(
                                                   children: [
+                                                    // TEXT    Mafia
                                                     Text(
-                                                      'Mafia ',
+                                                      "${S.of(context).mafia} ",
                                                       style: TextStyle(
                                                         height: 1,
                                                         color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
@@ -1393,8 +1334,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                       ),
                                                     ),
                                                     SizedBox(width: width10),
+
+                                                    // TEXT    Civilian
                                                     Text(
-                                                      'Civilian ',
+                                                      "${S.of(context).civilian} ",
                                                       style: TextStyle(
                                                         height: 1,
                                                         color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
@@ -1478,7 +1421,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                 Container(
                                   margin: EdgeInsets.only(left: 15.w),
                                   child: Text(
-                                    (dayNumber == 0) ? 'Day' : 'Day $dayNumber',
+                                    (dayNumber == 0) ? S.of(context).day : '${S.of(context).day} $dayNumber',
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
@@ -1707,9 +1650,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                       ),
                                     ),
                                     
-                                    //? TEXT:    is your destiny
+                                    // TEXT:    is your destiny
                                     Text(
-                                      'is your destiny', // NOTE:    Translation L10
+                                      S.of(context).isYourDestiny,
                                       style: TextStyle(
                                         height: 1,
                                         fontSize: 14.sp,
@@ -1811,7 +1754,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                             ),
                     
                                             child: Text(
-                                              'Use Skill', // NOTE:    Translation L10
+                                              S.of(context).useSkill,
                                               style: TextStyle(
                                                 fontSize: 15.sp,
                                                 fontWeight: FontWeight.w600,
@@ -2861,7 +2804,7 @@ class _VotePopupState extends State<VotePopup> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                'Day ${widget.dayCount}', 
+                                '${S.of(context).day} ${widget.dayCount}', 
                                 style: GoogleFonts.playfairDisplay(
                                   height: 0,
                                   fontSize: 30.sp, 
@@ -2881,7 +2824,7 @@ class _VotePopupState extends State<VotePopup> {
                             children: [
                               SizedBox(height: 5.h),
                               Text(
-                                '${widget.aliveCount} of ${widget.inGamePlayers.value.length}',
+                                '${widget.aliveCount} | ${widget.inGamePlayers.value.length}',
                                 style: TextStyle(
                                   height: 0,
                                   fontSize: 15.sp,
@@ -2892,7 +2835,7 @@ class _VotePopupState extends State<VotePopup> {
                                 )
                               ),
                               Text(
-                                'civilians are with us', //! DO DYNAMICALLY
+                                S.of(context).civiliansAreWithUs,
                                 style: TextStyle(
                                   height: 0,
                                   fontSize: 15.sp,
@@ -3169,7 +3112,7 @@ class _VotePopupState extends State<VotePopup> {
                                                                   ),
                                                                   
                                                                   child: Text(
-                                                                    widget.role.toLowerCase() == 'terrorist' ? 'Bombard' : 'Vote', // NOTE:    Translation L10 
+                                                                    widget.role.toLowerCase() == 'terrorist' ? S.of(context).bombard : S.of(context).vote,
                                                                     //! DYNAMIC
                                                                     style: TextStyle(
                                                                       fontSize: 15.sp,
@@ -3204,8 +3147,8 @@ class _VotePopupState extends State<VotePopup> {
                                                   Row(
                                                     children: [
                                                       CircleAvatar(
-                                                        //backgroundImage: NetworkImage(widget.inGamePlayers.value.firstWhere((e) => e.nickname == player.votesOfPlayer?[0]).avatarUrl!),
-                                                        backgroundImage: NetworkImage("https://www.w3schools.com/w3images/avatar6.png"),
+                                                        backgroundImage: NetworkImage(widget.inGamePlayers.value.firstWhere((e) => e.nickname == player.votesOfPlayer?[0]).avatarUrl!),
+                                                        //backgroundImage: NetworkImage("https://www.w3schools.com/w3images/avatar6.png"),
                                                         radius: 15,
                                                       ),
                                                       SizedBox(width: 5.w),
@@ -3281,7 +3224,7 @@ class _VotePopupState extends State<VotePopup> {
                                           ),
                                           
                                           child: Text(
-                                            'My move is made', // NOTE:    Translation L10
+                                            S.of(context).myMoveIsMade,
                                             //! DYNAMIC
                                             style: TextStyle(
                                               fontSize: 15.sp,
@@ -3299,7 +3242,7 @@ class _VotePopupState extends State<VotePopup> {
                                 Padding(
                                   padding: EdgeInsets.only(bottom: 30.h),
                                   child: Text(
-                                    'I accept the weight of my choice', // NOTE:    Translation L10
+                                    S.of(context).iAcceptTheWeightOfMyChoice,
                                     style: TextStyle(
                                       fontSize: 18.sp,
                                       fontStyle: FontStyle.italic,
@@ -3374,16 +3317,6 @@ class _SkillPopupState extends State<SkillPopup> {
   List<String> toWhomIVotedNow = [];
   bool tempStateIUsedSkill = false;
 
-  Map<String, String> rolesSkills = {
-    'doctor': 'Cure',
-    'beauty': 'Satisfy',
-    'bodyguard': 'Protect',
-    'barman': 'Intoxicate',
-    'informant': 'Reveale',
-    'sheriff': 'Investigate',
-    'journalist': 'Interview',
-  };
-
   bool isPopupClosed = false;
 
   void sleep(int seconds) async {
@@ -3422,6 +3355,17 @@ class _SkillPopupState extends State<SkillPopup> {
 
   @override
   Widget build(BuildContext context) {
+
+    Map<String, String> rolesSkills = {
+    'doctor': S.of(context).cure,
+    'beauty': S.of(context).satisfy,
+    'bodyguard': S.of(context).protect,
+    'barman': S.of(context).intoxicate,
+    'informant': S.of(context).reveale,
+    'sheriff': S.of(context).investigate,
+    'journalist': S.of(context).interview,
+  };
+
     bool fromMafiaTeam = ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.role.toLowerCase());
 
     return Align(
@@ -3524,7 +3468,7 @@ class _SkillPopupState extends State<SkillPopup> {
                           children: [
                             // TEXT:    Mafia Alive
                             Text(
-                              '${widget.aliveMafiaCount} of ${widget.mafiaCount} mafias',
+                              '${widget.aliveMafiaCount} | ${widget.mafiaCount} ${S.of(context).mafias}',
                               style: TextStyle(
                                 fontSize: 15.sp,
                                 fontFamily: 'CenturyGothic',
@@ -3534,7 +3478,7 @@ class _SkillPopupState extends State<SkillPopup> {
 
                             // TEXT:    Citizens Alive
                             Text(
-                              '${widget.aliveCivilianCount} of ${widget.civilianCount} civilians',
+                              '${widget.aliveCivilianCount} | ${widget.civilianCount} ${S.of(context).civilians}',
                               style: TextStyle(
                                 fontSize: 15.sp,
                                 fontFamily: 'CenturyGothic',
@@ -3563,7 +3507,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                 }
 
                                 return Text(
-                                  'Pick your target - $minutes:${seconds.toString().padLeft(2, '0')}',
+                                  '${S.of(context).pickYourTarget} - $minutes:${seconds.toString().padLeft(2, '0')}',
                                   style: TextStyle(
                                     fontSize: 15.sp,
                                     fontFamily: 'CenturyGothic',
@@ -3591,7 +3535,7 @@ class _SkillPopupState extends State<SkillPopup> {
                     
                       //? TEXT
                       Text(
-                        'I\'ve chosen. No regrets',
+                        S.of(context).iveChosenNoRegrets,
                         style: TextStyle(
                           fontSize: 20.sp,
                           fontFamily: 'CommercialScriptBT',
@@ -3733,7 +3677,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                             ),
                                             
                                             child: Text(
-                                              rolesSkills[widget.role.toLowerCase()] ?? 'Choose', // NOTE:    Translation L10 
+                                              rolesSkills[widget.role.toLowerCase()] ?? S.of(context).choose,
                                               //! DYNAMIC
                                               style: TextStyle(
                                                 fontSize: 15.sp,

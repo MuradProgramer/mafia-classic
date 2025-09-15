@@ -5,11 +5,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 //import 'package:mafia_classic/features/games/view/games_screen.dart';
 //import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/features/auth/auth.dart';
+import 'package:mafia_classic/features/auth/signin/view/forgot_password.dart';
 import 'package:mafia_classic/features/games/game/game.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
+import 'package:mafia_classic/features/profile/ratings-/view/ratings_screen.dart';
 import 'package:mafia_classic/features/profile/roles/view/roles_screen.dart';
 import 'package:mafia_classic/features/profile/view/profile_screen.dart';
+import 'package:mafia_classic/features/settings/view/settings_screen.dart';
 import 'package:mafia_classic/features/widgets/widgets.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/utils/popup_utils.dart';
@@ -103,8 +106,11 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           fullscreenDialog: true,
-          builder: (context) => const SignInScreen()   // TRUEEE
-          //builder: (context) => const SignUpScreen()   // TRUEEE
+          //builder: (context) => const SignInScreen()   // TRUEEE
+          //builder: (context) => const SignUpScreen()
+          //builder: (context) => const SettingsScreen(),
+          builder: (context) => const ForgotPasswordScreen(),
+          //builder: (context) => const RatingsScreen(),
           //builder: (context) => GameScreen(title: 'Avengers999', playersRole: players, mafiaCount: 2, citizenCount: 5, role: 'Journalist', allPlayers: allPlayers, cameBackFromAfk: false, gameIsReadyWidget: true,)
           //builder: (context) => GamesScreen(user: authorizedUser)
           //builder: (context) => const CreateGameScreen(),
@@ -139,6 +145,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       PlayerInfoPopup(
                         height: 727.h, 
                         width: 405.w, 
+                        /*
                         playerInfo: PlayerInfo(
                           nickname: 'Tony Stark', 
                           avatarUrl: 'assets/avatar.jpg', 
@@ -170,6 +177,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           gameLobbyStatus: null, 
                           gameLobbyPlayerCount: null
                         ),
+                        */
                       )
                     );
                   }, 

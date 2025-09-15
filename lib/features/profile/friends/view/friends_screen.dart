@@ -118,7 +118,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             
                             // TEXT:    Friends
                             child: Text(
-                              'Friends', // NOTE:    Translation L10
+                              S.of(context).friends,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
@@ -168,7 +168,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             
                             // TEXT:    Reuqests
                             child: Text(
-                              'Requests', // NOTE:    Translation L10
+                              S.of(context).requests,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
@@ -218,7 +218,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             
                             // TEXT:    Search
                             child: Text(
-                              'Search', // NOTE:    Translation L10
+                              S.of(context).search,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
@@ -527,7 +527,7 @@ class _FriendsTabState extends State<FriendsTab> {
         Padding(
           padding: EdgeInsets.only(top: 30.h),
           child: Text(
-            'TRUSTED INDIVIDUALS',
+            S.of(context).trustedIndividuals,
             style: GoogleFonts.playfairDisplay(
               fontSize: 22.sp,
               fontWeight: FontWeight.w600,
@@ -540,7 +540,7 @@ class _FriendsTabState extends State<FriendsTab> {
         Padding(
           padding: EdgeInsets.only(top: 3.h),
           child: Text(
-            'Justice rides with us.',
+            S.of(context).justiceRidesWithUs,
             style: GoogleFonts.playfairDisplay(
               fontSize: 14.sp,
               color: const Color(0xFF2A2723),
@@ -580,9 +580,9 @@ class _FriendsTabState extends State<FriendsTab> {
                       },
                       controller: searchController,
                       style: TextStyle(color: const Color(0xFF3E3E3E), fontSize: 16.sp),
-                      decoration: const InputDecoration(
-                        hintText: " Search...",
-                        hintStyle: TextStyle(color: Color(0xFF3E3E3E)),
+                      decoration: InputDecoration(
+                        hintText: ' ${S.of(context).search}...',
+                        hintStyle: const TextStyle(color: Color(0xFF3E3E3E)),
                         border: InputBorder.none,
                       ),
                     ),
@@ -617,7 +617,7 @@ class _FriendsTabState extends State<FriendsTab> {
           child: Align(
             alignment: Alignment.topCenter,
             child: Text(
-              'No users found',
+              S.of(context).noUsersFound,
               style: GoogleFonts.playfairDisplay(
                 color: Colors.black,
                 fontSize: 18
@@ -635,7 +635,7 @@ class _FriendsTabState extends State<FriendsTab> {
                 if (friends == null) {
                   return Center(
                     child: Text(
-                      'No friends found', //NOTE:   Translation L10
+                      S.of(context).noFriendsFound,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 25.sp,
@@ -678,7 +678,7 @@ class _FriendsTabState extends State<FriendsTab> {
 
                                   // TEXT:    STATUS
                                   Text(
-                                    friend.isOnline ? 'Online' : DateFormat('yyyy.MM.dd HH:mm').format(friend.lastSeen), //! DYNAMIC
+                                    friend.isOnline ? S.of(context).online : DateFormat('yyyy.MM.dd HH:mm').format(friend.lastSeen), //! DYNAMIC
                                     style: TextStyle(
                                       fontSize: 15.sp, 
                                       color: Colors.black,
@@ -706,7 +706,7 @@ class _FriendsTabState extends State<FriendsTab> {
                               ),
                               
                               child: Text(
-                                'Delete', // NOTE:    Translation L10 
+                                S.of(context).delete,
                                 //! DYNAMIC
                                 style: TextStyle(
                                   fontSize: 15.sp,
@@ -787,7 +787,7 @@ class _RequestsTabState extends State<RequestsTab> {
         Padding(
           padding: EdgeInsets.only(top: 30.h),
           child: Text(
-            'REGISTRY',
+            S.of(context).registry,
             style: GoogleFonts.playfairDisplay(
               height: 1,
               fontSize: 22.sp,
@@ -799,7 +799,7 @@ class _RequestsTabState extends State<RequestsTab> {
 
         // TEXT:    OF CHOOSEN ONES
         Text(
-          'OF CHOOSEN ONES',
+          S.of(context).ofChoosenOnes,
           style: GoogleFonts.playfairDisplay(
             fontSize: 22.sp,
             fontWeight: FontWeight.w600,
@@ -811,7 +811,7 @@ class _RequestsTabState extends State<RequestsTab> {
         Padding(
           padding: EdgeInsets.only(top: 3.h),
           child: Text(
-            'Only the truest ride together.',
+            S.of(context).onlyTheTruestRideTogether,
             style: GoogleFonts.playfairDisplay(
               fontSize: 14.sp,
               color: const Color(0xFF2A2723),
@@ -836,7 +836,7 @@ class _RequestsTabState extends State<RequestsTab> {
           child: Align(
             alignment: Alignment.topCenter,
             child: Text(
-              'No users found',
+              S.of(context).noPlayersFound,
               style: GoogleFonts.playfairDisplay(
                 color: Colors.black,
                 fontSize: 18
@@ -855,7 +855,7 @@ class _RequestsTabState extends State<RequestsTab> {
                 if (requests == null) {
                   return Center(
                     child: Text(
-                      'No requests found', //NOTE:   Translation L10
+                      S.of(context).noRequestsFound,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 25.sp,
@@ -1018,7 +1018,7 @@ class _SearchTabState extends State<SearchTab> {
         Padding(
           padding: EdgeInsets.only(top: 30.h),
           child: Text(
-            'WANTED:',
+            S.of(context).wanted,
             style: GoogleFonts.playfairDisplay(
               height: 1,
               fontSize: 22.sp,
@@ -1030,7 +1030,7 @@ class _SearchTabState extends State<SearchTab> {
 
         // TEXT:    GOOD COMPANY
         Text(
-          'GOOD COMPANY',
+          S.of(context).goodCompany,
           style: GoogleFonts.playfairDisplay(
             fontSize: 22.sp,
             fontWeight: FontWeight.w600,
@@ -1042,7 +1042,7 @@ class _SearchTabState extends State<SearchTab> {
         Padding(
           padding: EdgeInsets.only(top: 3.h),
           child: Text(
-            'Riding solo ain\'t the way.',
+            S.of(context).ridingSoloAintTheWay,
             style: GoogleFonts.playfairDisplay(
               fontSize: 14.sp,
               color: const Color(0xFF2A2723),
@@ -1085,9 +1085,9 @@ class _SearchTabState extends State<SearchTab> {
                       },
                       controller: _searchController,
                       style: TextStyle(color: const Color(0xFF3E3E3E), fontSize: 16.sp),
-                      decoration: const InputDecoration(
-                        hintText: " Search...",
-                        hintStyle: TextStyle(color: Color(0xFF3E3E3E)),
+                      decoration: InputDecoration(
+                        hintText: " ${S.of(context).search}...",
+                        hintStyle: const TextStyle(color: Color(0xFF3E3E3E)),
                         border: InputBorder.none,
                       ),
                     ),
@@ -1123,7 +1123,7 @@ class _SearchTabState extends State<SearchTab> {
             child: Align(
               alignment: Alignment.topCenter,
               child: Text(
-                'No users found',
+                S.of(context).noPlayersFound,
                 style: GoogleFonts.playfairDisplay(
                   color: Colors.black,
                   fontSize: 18
@@ -1177,7 +1177,7 @@ class _SearchTabState extends State<SearchTab> {
                           //BUTTON:    DELETE
                           user.friendshipStatus == 'RequestPending'
                           ? Text(
-                              "Request Pending", // NOTE:    Translation L10
+                              S.of(context).requestPending,
                               style: TextStyle(
                                 color: Colors.green,
                                 fontSize: 15.sp,
@@ -1186,7 +1186,7 @@ class _SearchTabState extends State<SearchTab> {
                             )
                           : user.friendshipStatus == 'ApprovePending'
                           ? Text(
-                              "Approve Pending", // NOTE:    Translation L10
+                              S.of(context).approvePending,
                               style: TextStyle(
                                 color: Colors.green,
                                 fontSize: 15.sp,
@@ -1211,7 +1211,7 @@ class _SearchTabState extends State<SearchTab> {
                               ),
                               
                               child: Text(
-                                'Send Request', // NOTE:    Translation L10 
+                                S.of(context).sendRequest,
                                 //! DYNAMIC
                                 style: TextStyle(
                                   fontSize: 15.sp,

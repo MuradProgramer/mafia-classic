@@ -1069,6 +1069,1136 @@ class S {
       args: [],
     );
   }
+
+  /// `User with this email does not exist`
+  String get userWithThisEmailDoesNotExist {
+    return Intl.message(
+      'User with this email does not exist',
+      name: 'userWithThisEmailDoesNotExist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email or Password is invalid`
+  String get emailOrPasswordIsInvalid {
+    return Intl.message(
+      'Email or Password is invalid',
+      name: 'emailOrPasswordIsInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Don't have an account?`
+  String get dontHaveAnAccount {
+    return Intl.message(
+      'Don\'t have an account?',
+      name: 'dontHaveAnAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Forgot Password`
+  String get forgotPassword {
+    return Intl.message(
+      'Forgot Password',
+      name: 'forgotPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Players in the room`
+  String get playersInTheRoom {
+    return Intl.message(
+      'Players in the room',
+      name: 'playersInTheRoom',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Civilian `
+  String get civilian {
+    return Intl.message(
+      'Civilian ',
+      name: 'civilian',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day`
+  String get day {
+    return Intl.message(
+      'Day',
+      name: 'day',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `is your destiny`
+  String get isYourDestiny {
+    return Intl.message(
+      'is your destiny',
+      name: 'isYourDestiny',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use Skill`
+  String get useSkill {
+    return Intl.message(
+      'Use Skill',
+      name: 'useSkill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `civilians are with us`
+  String get civiliansAreWithUs {
+    return Intl.message(
+      'civilians are with us',
+      name: 'civiliansAreWithUs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bombard`
+  String get bombard {
+    return Intl.message(
+      'Bombard',
+      name: 'bombard',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vote`
+  String get vote {
+    return Intl.message(
+      'Vote',
+      name: 'vote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My move is made`
+  String get myMoveIsMade {
+    return Intl.message(
+      'My move is made',
+      name: 'myMoveIsMade',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I accept the weight of my choice`
+  String get iAcceptTheWeightOfMyChoice {
+    return Intl.message(
+      'I accept the weight of my choice',
+      name: 'iAcceptTheWeightOfMyChoice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cure`
+  String get cure {
+    return Intl.message(
+      'Cure',
+      name: 'cure',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Satisfy`
+  String get satisfy {
+    return Intl.message(
+      'Satisfy',
+      name: 'satisfy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Protect`
+  String get protect {
+    return Intl.message(
+      'Protect',
+      name: 'protect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Intoxicate`
+  String get intoxicate {
+    return Intl.message(
+      'Intoxicate',
+      name: 'intoxicate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reveale`
+  String get reveale {
+    return Intl.message(
+      'Reveale',
+      name: 'reveale',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Investigate`
+  String get investigate {
+    return Intl.message(
+      'Investigate',
+      name: 'investigate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Interview`
+  String get interview {
+    return Intl.message(
+      'Interview',
+      name: 'interview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `mafias`
+  String get mafias {
+    return Intl.message(
+      'mafias',
+      name: 'mafias',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `civilians`
+  String get civilians {
+    return Intl.message(
+      'civilians',
+      name: 'civilians',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick your target`
+  String get pickYourTarget {
+    return Intl.message(
+      'Pick your target',
+      name: 'pickYourTarget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I've chosen. No regrets`
+  String get iveChosenNoRegrets {
+    return Intl.message(
+      'I\'ve chosen. No regrets',
+      name: 'iveChosenNoRegrets',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose`
+  String get choose {
+    return Intl.message(
+      'Choose',
+      name: 'choose',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter the message...`
+  String get enterTheMessage {
+    return Intl.message(
+      'Enter the message...',
+      name: 'enterTheMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lobby`
+  String get lobby {
+    return Intl.message(
+      'Lobby',
+      name: 'lobby',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` Search...`
+  String get search {
+    return Intl.message(
+      ' Search...',
+      name: 'search',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Filter Off`
+  String get filterOff {
+    return Intl.message(
+      'Filter Off',
+      name: 'filterOff',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No available games..`
+  String get noAvailableGames {
+    return Intl.message(
+      'No available games..',
+      name: 'noAvailableGames',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You Are Playing Here`
+  String get youArePlayingHere {
+    return Intl.message(
+      'You Are Playing Here',
+      name: 'youArePlayingHere',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You Died Here`
+  String get youDiedHere {
+    return Intl.message(
+      'You Died Here',
+      name: 'youDiedHere',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show`
+  String get show {
+    return Intl.message(
+      'Show',
+      name: 'show',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All Players`
+  String get allPlayers {
+    return Intl.message(
+      'All Players',
+      name: 'allPlayers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `are here`
+  String get areHere {
+    return Intl.message(
+      'are here',
+      name: 'areHere',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Defeated`
+  String get defeated {
+    return Intl.message(
+      'Defeated',
+      name: 'defeated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Still here`
+  String get stillHere {
+    return Intl.message(
+      'Still here',
+      name: 'stillHere',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` Enter the name`
+  String get enterTheName {
+    return Intl.message(
+      ' Enter the name',
+      name: 'enterTheName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `on`
+  String get on {
+    return Intl.message(
+      'on',
+      name: 'on',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `off`
+  String get off {
+    return Intl.message(
+      'off',
+      name: 'off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` Enter the password`
+  String get enterThePassword {
+    return Intl.message(
+      ' Enter the password',
+      name: 'enterThePassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Number of players`
+  String get numberOfPlayers {
+    return Intl.message(
+      'Number of players',
+      name: 'numberOfPlayers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Extra Roles`
+  String get extraRoles {
+    return Intl.message(
+      'Extra Roles',
+      name: 'extraRoles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Beauty`
+  String get beauty {
+    return Intl.message(
+      'Beauty',
+      name: 'beauty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bartender`
+  String get bartender {
+    return Intl.message(
+      'Bartender',
+      name: 'bartender',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rooms with:`
+  String get roomsWith {
+    return Intl.message(
+      'Rooms with:',
+      name: 'roomsWith',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Available Spots`
+  String get availableSpots {
+    return Intl.message(
+      'Available Spots',
+      name: 'availableSpots',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Friends In`
+  String get friendsIn {
+    return Intl.message(
+      'Friends In',
+      name: 'friendsIn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Access`
+  String get access {
+    return Intl.message(
+      'Access',
+      name: 'access',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mixed`
+  String get mixed {
+    return Intl.message(
+      'Mixed',
+      name: 'mixed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open`
+  String get open {
+    return Intl.message(
+      'Open',
+      name: 'open',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Private`
+  String get private {
+    return Intl.message(
+      'Private',
+      name: 'private',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Included roles:`
+  String get includedRoles {
+    return Intl.message(
+      'Included roles:',
+      name: 'includedRoles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lover`
+  String get lover {
+    return Intl.message(
+      'Lover',
+      name: 'lover',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Starting:`
+  String get starting {
+    return Intl.message(
+      'Starting:',
+      name: 'starting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting...`
+  String get waiting {
+    return Intl.message(
+      'Waiting...',
+      name: 'waiting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `TRUSTED INDIVIDUALS`
+  String get trustedIndividuals {
+    return Intl.message(
+      'TRUSTED INDIVIDUALS',
+      name: 'trustedIndividuals',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Justice rides with us.`
+  String get justiceRidesWithUs {
+    return Intl.message(
+      'Justice rides with us.',
+      name: 'justiceRidesWithUs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No users found`
+  String get noUsersFound {
+    return Intl.message(
+      'No users found',
+      name: 'noUsersFound',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No friends found`
+  String get noFriendsFound {
+    return Intl.message(
+      'No friends found',
+      name: 'noFriendsFound',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get delete {
+    return Intl.message(
+      'Delete',
+      name: 'delete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `REGISTRY`
+  String get registry {
+    return Intl.message(
+      'REGISTRY',
+      name: 'registry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `OF CHOOSEN ONES`
+  String get ofChoosenOnes {
+    return Intl.message(
+      'OF CHOOSEN ONES',
+      name: 'ofChoosenOnes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only the truest ride together.`
+  String get onlyTheTruestRideTogether {
+    return Intl.message(
+      'Only the truest ride together.',
+      name: 'onlyTheTruestRideTogether',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No players found`
+  String get noPlayersFound {
+    return Intl.message(
+      'No players found',
+      name: 'noPlayersFound',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No requests found`
+  String get noRequestsFound {
+    return Intl.message(
+      'No requests found',
+      name: 'noRequestsFound',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `WANTED:`
+  String get wanted {
+    return Intl.message(
+      'WANTED:',
+      name: 'wanted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `GOOD COMPANY`
+  String get goodCompany {
+    return Intl.message(
+      'GOOD COMPANY',
+      name: 'goodCompany',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Riding solo ain't the way.`
+  String get ridingSoloAintTheWay {
+    return Intl.message(
+      'Riding solo ain\'t the way.',
+      name: 'ridingSoloAintTheWay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Request Pending`
+  String get requestPending {
+    return Intl.message(
+      'Request Pending',
+      name: 'requestPending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Approve Pending`
+  String get approvePending {
+    return Intl.message(
+      'Approve Pending',
+      name: 'approvePending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `classic`
+  String get classic {
+    return Intl.message(
+      'classic',
+      name: 'classic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Welcome,`
+  String get welcome {
+    return Intl.message(
+      'Welcome,',
+      name: 'welcome',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chat`
+  String get chat {
+    return Intl.message(
+      'Chat',
+      name: 'chat',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offline`
+  String get offline {
+    return Intl.message(
+      'Offline',
+      name: 'offline',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Join Date`
+  String get joinDate {
+    return Intl.message(
+      'Join Date',
+      name: 'joinDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Report`
+  String get report {
+    return Intl.message(
+      'Report',
+      name: 'report',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add To Friends`
+  String get addToFriends {
+    return Intl.message(
+      'Add To Friends',
+      name: 'addToFriends',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Currently Offline`
+  String get currentlyOffline {
+    return Intl.message(
+      'Currently Offline',
+      name: 'currentlyOffline',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Currently are not playing`
+  String get currentlyAreNotPlaying {
+    return Intl.message(
+      'Currently are not playing',
+      name: 'currentlyAreNotPlaying',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Currently are playing in:`
+  String get currentlyArePlayingIn {
+    return Intl.message(
+      'Currently are playing in:',
+      name: 'currentlyArePlayingIn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Players in total`
+  String get playersInTotal {
+    return Intl.message(
+      'Players in total',
+      name: 'playersInTotal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stats`
+  String get stats {
+    return Intl.message(
+      'Stats',
+      name: 'stats',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Overall`
+  String get overall {
+    return Intl.message(
+      'Overall',
+      name: 'overall',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wins`
+  String get wins {
+    return Intl.message(
+      'Wins',
+      name: 'wins',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loses`
+  String get loses {
+    return Intl.message(
+      'Loses',
+      name: 'loses',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mafia Wins`
+  String get mafiaWins {
+    return Intl.message(
+      'Mafia Wins',
+      name: 'mafiaWins',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Civilian Wins`
+  String get civilianWins {
+    return Intl.message(
+      'Civilian Wins',
+      name: 'civilianWins',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Played Roles`
+  String get playedRoles {
+    return Intl.message(
+      'Played Roles',
+      name: 'playedRoles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Avatar`
+  String get avatar {
+    return Intl.message(
+      'Avatar',
+      name: 'avatar',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload`
+  String get upload {
+    return Intl.message(
+      'Upload',
+      name: 'upload',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sound Effects`
+  String get soundEffects {
+    return Intl.message(
+      'Sound Effects',
+      name: 'soundEffects',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On`
+  String get onOn {
+    return Intl.message(
+      'On',
+      name: 'onOn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off`
+  String get offOff {
+    return Intl.message(
+      'Off',
+      name: 'offOff',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete Account`
+  String get deleteAccount {
+    return Intl.message(
+      'Delete Account',
+      name: 'deleteAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current Avatar`
+  String get currentAvatar {
+    return Intl.message(
+      'Current Avatar',
+      name: 'currentAvatar',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload New`
+  String get uploadNew {
+    return Intl.message(
+      'Upload New',
+      name: 'uploadNew',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload Another`
+  String get uploadAnother {
+    return Intl.message(
+      'Upload Another',
+      name: 'uploadAnother',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current Nickname`
+  String get currentNickname {
+    return Intl.message(
+      'Current Nickname',
+      name: 'currentNickname',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current Password`
+  String get currentPassword {
+    return Intl.message(
+      'Current Password',
+      name: 'currentPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Title`
+  String get title {
+    return Intl.message(
+      'Title',
+      name: 'title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must write a title of the report`
+  String get youMustWriteATitleOfTheReport {
+    return Intl.message(
+      'You must write a title of the report',
+      name: 'youMustWriteATitleOfTheReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type here`
+  String get typeHere {
+    return Intl.message(
+      'Type here',
+      name: 'typeHere',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `In case of any problem, please notify us`
+  String get inCaseOfAnyProblemPleaseNotifyUs {
+    return Intl.message(
+      'In case of any problem, please notify us',
+      name: 'inCaseOfAnyProblemPleaseNotifyUs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recover`
+  String get recover {
+    return Intl.message(
+      'Recover',
+      name: 'recover',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Write down the email to get a code`
+  String get writeDownTheEmailToGetACode {
+    return Intl.message(
+      'Write down the email to get a code',
+      name: 'writeDownTheEmailToGetACode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next`
+  String get next {
+    return Intl.message(
+      'Next',
+      name: 'next',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back`
+  String get back {
+    return Intl.message(
+      'Back',
+      name: 'back',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must write the SMS code`
+  String get youMustWriteTheSmsCode {
+    return Intl.message(
+      'You must write the SMS code',
+      name: 'youMustWriteTheSmsCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `SMS`
+  String get sms {
+    return Intl.message(
+      'SMS',
+      name: 'sms',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Code must be numeric`
+  String get codeMustBeNumeric {
+    return Intl.message(
+      'Code must be numeric',
+      name: 'codeMustBeNumeric',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Code must be 6 charactes`
+  String get codeMustBe6Charactes {
+    return Intl.message(
+      'Code must be 6 charactes',
+      name: 'codeMustBe6Charactes',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
@@ -1077,7 +2207,9 @@ class AppLocalizationDelegate extends LocalizationsDelegate<S> {
   List<Locale> get supportedLocales {
     return const <Locale>[
       Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'az'),
       Locale.fromSubtags(languageCode: 'ru'),
+      Locale.fromSubtags(languageCode: 'tr'),
     ];
   }
 

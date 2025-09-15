@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
+import 'package:mafia_classic/generated/l10n.dart';
 
 class EnterMessage extends StatefulWidget {
   final TextEditingController messageController;
@@ -39,9 +40,9 @@ class _EnterMessageState extends State<EnterMessage> {
               child: TextField(
                 controller: widget.messageController,
                 style: TextStyle(color: ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white, fontSize: 15.sp),
-                decoration: const InputDecoration(
-                  hintText: " Введите сообщение...",
-                  hintStyle: TextStyle(color: Colors.grey),
+                decoration: InputDecoration(
+                  hintText: '${S.of(context).enterMessage}...',
+                  hintStyle: const TextStyle(color: Colors.grey),
                   border: InputBorder.none,
                 ),
               ),

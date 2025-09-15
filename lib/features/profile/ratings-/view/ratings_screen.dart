@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mafia_classic/features/profile/ratings-/data/players_data.dart';
+import 'package:mafia_classic/features/profile/ratings-/widgets/player_ratings_card.dart';
+import 'package:mafia_classic/features/profile/ratings-/widgets/ratings_filter_dropdown.dart';
 
-import 'package:mafia_classic/features/profile/ratings/data/data.dart';
-import 'package:mafia_classic/features/profile/ratings/widgets/widgets.dart';
+//import 'package:mafia_classic/features/profile/ratings/data/data.dart';
+//import 'package:mafia_classic/features/profile/ratings/widgets/widgets.dart';
 import 'package:mafia_classic/models/models.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';

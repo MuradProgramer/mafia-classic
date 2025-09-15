@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -147,6 +145,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String confirmationText = S.of(context).confirm;
+
     return Stack(
       children: [
 
@@ -308,6 +308,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               });
                               return null;
                             }
+                            return '';
                           },
                         ),
                       ),
@@ -586,7 +587,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderRadius: BorderRadius.circular(16.0),
                         ),
                         child: SizedBox(
-                          width: 150,
+                          width: confirmationText.length > 8 ? 175.w : 150.w,
                           child: ElevatedButton(
                             onPressed: () {
                               popupCount = 0;
@@ -633,7 +634,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             
                             child: Text(
-                              S.of(context).confirm, // NOTE:    Translation L10
+                              confirmationText,
                               style: TextStyle(
                                 fontSize: 25.sp,
                                 fontWeight: FontWeight.w600,

@@ -11,7 +11,7 @@ final routes = {
   },
   '/profile/friends': (context) => const FriendsScreen(),
   '/profile/roles': (context) => const RolesScreen(),
-  '/profile/ratings': (context) => const RatingsScreen(),
+  //'/profile/ratings': (context) => const RatingsScreen(),
   '/games': (context) => const GamesPage(),
   '/create': (context) => const CreatePage(),
   '/settings': (context) => const SettingsScreen(),

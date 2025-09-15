@@ -549,7 +549,7 @@ class ApiService extends TokenAwareService {
       if (response.statusCode == 200) {
         log(response.data.toString());
         final data = response.data as Map<String, dynamic>;
-
+        
         playerInfo = PlayerInfo(
           nickname: data['nickname'] ?? '',
           avatarUrl: data['avatarUrl'] ?? '',
