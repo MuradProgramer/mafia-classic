@@ -675,4 +675,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get codeMustBe6Charactes => 'Code must be 6 charactes';
+
+  @override
+  String gameTerroristExplosion(String playerNickname) {
+    return 'Terrorist tried to bomb [\$playerNickname], but bodyguard saved him/her';
+  }
 }

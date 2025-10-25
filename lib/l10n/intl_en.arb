@@ -214,5 +214,13 @@
   "youMustWriteTheSmsCode": "You must write the SMS code",
   "sms": "SMS",
   "codeMustBeNumeric": "Code must be numeric",
-  "codeMustBe6Charactes": "Code must be 6 charactes"
+  "codeMustBe6Charactes": "Code must be 6 charactes",
+  "gameTerroristExplosion": "Terrorist tried to bomb [{playerNickname}], but bodyguard saved him/her",
+  "@gameTerroristExplosion": {
+    "placeholders": {
+      "playerNickname": {
+        "type": "String"
+      }
+    }
+  }
 }

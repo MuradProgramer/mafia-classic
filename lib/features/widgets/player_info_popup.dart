@@ -54,10 +54,10 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
   }
 
   void _loadPlayerInfo() async {
-    final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo('musayev');
-    print(playerInfoData.toString());
+    //!final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo('musayev');
+    //!print(playerInfoData.toString());
     setState(() {
-      playerInfo = PlayerInfo.from(playerInfoData);
+      //!playerInfo = PlayerInfo.from(playerInfoData);
     });
     print('-----------------');
     print(playerInfo.toString());

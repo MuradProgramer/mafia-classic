@@ -26,6 +26,8 @@ dependencies:
   image_picker: ^1.2.0
   dropdown_button2: ^2.3.9
   easy_localization: ^3.0.8
+  audioplayers: ^6.5.1
+  just_audio: ^0.10.5
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +56,7 @@ flutter:
     - assets/mafia-icon-2.png
     - assets/butter.png
     - assets/images/
+    - assets/sounds/
   fonts:
     - family: CenturyGothic
       fonts:

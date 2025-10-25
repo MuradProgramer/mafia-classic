@@ -36,6 +36,7 @@ class ApiService extends TokenAwareService {
 
   FutureOr<String>? get accessToken => _accessToken;
 
+  /*
   late List<Game>? allGames;
 
   ///////// SIGNAL R ///////////
@@ -472,6 +473,11 @@ class ApiService extends TokenAwareService {
     return status;
   }
 
+  */
+
+  //? constructor
+  ApiService(this._accessToken, this._expiration, this._refreshToken);
+
   @override
   Future<String> getAccessToken() async {
     return _accessToken;
@@ -505,29 +511,32 @@ class ApiService extends TokenAwareService {
     }
   }
 
+
+
   // ++++++
   Future<List<Friendship>?> getFriends() async {
     List<Friendship>? friendList = [];
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.get(
-        'Friend/All',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
-      );
+    //!!!!!!!!!!
+    // await executeWithTokenCheck((accessToken) async {
+    //   final response = await GetIt.I<DioService>().dio.get(
+    //     'Friend/All',
+    //     options: Options(
+    //       headers: {
+    //         'Authorization': 'Bearer $accessToken'
+    //       }
+    //     )
+    //   );
 
-      if (response.statusCode == 200) {
-        List<dynamic> jsonData = response.data as List<dynamic>;
+    //   if (response.statusCode == 200) {
+    //     List<dynamic> jsonData = response.data as List<dynamic>;
     
-        friendList = jsonData.isEmpty ? null : jsonData.map((item) {
-          return Friendship.fromJson(item as Map<String, dynamic>);
-        }).toList();
-      } else {
-        throw Exception('Failed to load friends');
-      }
-    });
+    //     friendList = jsonData.isEmpty ? null : jsonData.map((item) {
+    //       return Friendship.fromJson(item as Map<String, dynamic>);
+    //     }).toList();
+    //   } else {
+    //     throw Exception('Failed to load friends');
+    //   }
+    // });
     return friendList;
   }
 
@@ -775,7 +784,6 @@ class ApiService extends TokenAwareService {
 
 
   // sendMessage (token, nickname, date, )
-
 
   ///////// SIGNAL R ///////////
   

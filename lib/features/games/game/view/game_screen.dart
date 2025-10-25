@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mafia_classic/features/games/game/models/in_game_player.dart';
 import 'package:mafia_classic/features/games/games.dart';
 import 'package:mafia_classic/features/games/game/models/models.dart';
@@ -21,6 +22,9 @@ import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/main.dart';
 import 'package:mafia_classic/services/api_service.dart';
+import 'package:mafia_classic/services/tcp/enums.dart';
+import 'package:mafia_classic/services/tcp/event_router_service.dart';
+import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
@@ -34,6 +38,7 @@ class GameScreen extends StatefulWidget {
   final List<PlayerRole>? playersRole;
   final List<Player> allPlayers;
   final bool gameIsReadyWidget;
+  String phase;
 
   final bool cameBackFromAfk;
 
@@ -46,7 +51,8 @@ class GameScreen extends StatefulWidget {
     required this.civilianCount, 
     required this.allPlayers, 
     required this.cameBackFromAfk,
-    required this.gameIsReadyWidget
+    required this.gameIsReadyWidget,
+    required this.phase
   });
 
   @override
@@ -54,7 +60,8 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateMixin {
-  String gamePhase = 'Night'; // +
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  String gamePhase = ""; // +
   int dayNumber = 0;
   int mafiaAlive = 0; // +
   int civilianAlive = 0; // +
@@ -103,9 +110,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (_messageController.text.trim().isEmpty) return;
 
     //!!!!!!!!!!!!!!!!!!
+
+    TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, json.encode({'message': _messageController.text.trim()}));
+    /*
     await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[ 
       _messageController.text.trim()
     ]);
+    */
 
     setState(() {
       inGameMessages.add(InGameMessage(
@@ -145,9 +156,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     try {
+
+      TcpClientService().sendMessage(ClientCommand.submitGameVote.value, json.encode({'target': votedPlayerNickname}));
+      /*
       await GetIt.I<ApiService>().gameHubConnection.invoke('Vote', args: <Object>[
         votedPlayerNickname
       ]).then((value) => log('vote playeer method suucesfully'));
+      */
     } on Exception catch (e) {
       log('Vote Player: $e');
     }
@@ -196,9 +211,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     
 
     //!!!!!!!!!!!!!!!
-    await GetIt.I<ApiService>().gameHubConnection.invoke('Skill', args:
-      [influencedBySkillPlayersNickname]
-    );
+    
+    TcpClientService().sendMessage(ClientCommand.useGameAbility.value, json.encode({'targets': influencedBySkillPlayersNickname}));
   }
 
   // NOTE:    TESTING
@@ -209,13 +223,50 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     }
   }
 
+  late StreamSubscription<String> gameStateData;
+  late StreamSubscription<String> gamePhaseChanged;
+  late StreamSubscription<String> gameTimerUpdate;
+  late StreamSubscription<String> gameNewMessage;
+  late StreamSubscription<String> gameVoteRegistered;
+  late StreamSubscription<String> gamePlayerEliminated;
+  late StreamSubscription<String> gameTerroristExplosion;
+  late StreamSubscription<String> gameJournalistInterview;
+  late StreamSubscription<String> gameEffectApplied;
+  late StreamSubscription<String> gameEffectRemoved;
+  late StreamSubscription<String> gamePersonalFeedback;
+  late StreamSubscription<String> gameNightActionPrompt;
+  late StreamSubscription<String> gameOver;
+
+  void _handlePhaseChange(String newPhase) async {
+    //print('Phase changed to: $newPhase');
+    if (newPhase == "NightVoting") {
+      await _audioPlayer.play();
+      //print('🔊 Music started/resumed.');
+    } else {
+      await _audioPlayer.pause();
+      //print('🔇 Music paused.');
+    }
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
+    _audioPlayer.setAsset('assets/sounds/sawtrack.m4a');
+
+    _audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        setState(() {
+          _audioPlayer.seek(Duration.zero);
+        });
+      }
+    });
 
     mafiaAlive = widget.mafiaCount;
     civilianAlive = widget.civilianCount;
     gameIsReady = widget.gameIsReadyWidget;
+
+    gamePhase = widget.phase;
 
     _controller = AnimationController(
       duration: const Duration(seconds: 1),
@@ -248,6 +299,576 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     //inGamePlayers.value.firstWhere((el) => el.nickname == 'Player2' || el.nickname == 'Player4').isAlive = false;
 
+    // INCOMPLETE
+    gameStateData = EventRouterService()
+        .subscribe(ServerEvent.gameInitialStateData)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+
+        var data = json.decode(payload);
+
+        final role = data['role'];
+        final phase = data['gamePhase'];
+        final isAlive = data['isAlive'] as bool;
+        final mafiaCount = data['mafiaCount'] as int;
+        final civilianCount = data['civilianCount'] as int;
+        final aliveMafiaCount = data['aliveMafiaCount'] as int;
+        final aliveCivilianCount = data['aliveCivilianCount'] as int;
+        final canNightVoteData = data['canNightVote'] as bool;
+        final day = data['day'] as int;
+
+        final players = (data['players'] as List<dynamic>?)
+            ?.map((e) => PlayersFromAfk.fromJson(e))
+            .toList() ?? [];
+
+        final marksOfPlayer = (data['playerMarks'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ?? [];
+
+        final votes = (data['votes'] as List<dynamic>?)
+            ?.map((e) => Vote.fromJson(e))
+            .toList() ?? [];
+
+        setState(() {
+          gameIsReady = true;
+          widget.role = role;
+          gamePhase = phase;
+          isAliveMyself = isAlive;
+          widget.mafiaCount = mafiaCount;
+          widget.civilianCount = civilianCount;
+          mafiaAlive = aliveMafiaCount;
+          civilianAlive = aliveCivilianCount;
+          dayNumber = day;
+          canNightVote = canNightVoteData;
+
+          checkIfEligibleToVote();
+          checkIfEligibleToUseSkill();
+          checkIfEligibleToSendMessage();
+          intoxicationEffect();
+
+          markNames = marksOfPlayer;
+
+          // for (Vote vote in votes) {
+          //   if (vote.target == authorizedUser.nickname) {
+          //     votesOnMe += 1;
+          //   }
+          // } 
+
+          for (PlayersFromAfk el in players) {
+            List<String> playerVotesTEMP = [];
+
+            for (Vote vote in votes) {
+              if (vote.target == el.nickname) {
+                playerVotesTEMP.add(vote.from);
+              }
+            }
+
+            if (el.nickname == authorizedUser.nickname) continue;
+
+            inGamePlayers.value.add(
+              InGamePlayer(
+                nickname: el.nickname,
+                isAlive: el.isAlive,
+                avatarUrl: el.avatarUrl,
+                isRevealed: ((role == 'Sheriff' || role == 'Informant') && el.isMarked == true || !el.isAlive) ? true : false,
+                votesOfPlayer: playerVotesTEMP,
+                role: el.role
+              )
+            );
+
+            if ((role == 'Sheriff' || role == 'Informant') && el.isMarked == true) {
+              namesOfRevealed.add(PlayerRole(nickname: el.nickname, role: el.role!));
+            }
+
+            if (!el.isAlive) {
+              namesOfDead.add(PlayerRole(nickname: el.nickname, role: el.role!));
+            }
+
+            if (el.isMarked == true) {
+              toWhomIUsedSkill.add(el.nickname);
+              if (role == 'Journalist') {
+                specialForJournalist.add(el.nickname);
+              }
+            }
+          }
+
+          if ((gamePhase == 'NightVoting' && (widget.role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
+            inGamePlayers.value.insert(0, InGamePlayer(
+              nickname: authorizedUser.nickname,
+              isAlive: isAliveMyself,
+              isRevealed: true,
+              role: widget.role.toLowerCase(),
+              avatarUrl: authorizedUser.avatarUrl,
+              votesOfPlayer: []
+            ));
+            
+            PopupManager().show(
+              context: context,
+              id: 'votePopup',
+              builder: (_) => VotePopup(
+                role: widget.role,
+                  canIVote: canIVote,
+                  useSkill: useSkill,
+                  dayCount: dayNumber,
+                  title: widget.title,
+                  gamePhase: gamePhase,
+                  markNames: markNames,
+                  votePlayer: votePlayer,
+                  canNightVote: canNightVote,
+                  isAliveMyself: isAliveMyself,
+                  inGamePlayers: inGamePlayers,
+                  changeVoteState: changeVoteState,
+                  timerNotifier: phaseTimeNotifier,
+                  aliveCount: mafiaAlive + civilianAlive,
+                  votesAreVisibleToMe: votesAreVisibleToMe,
+                  checkSecondIfEligibleToVote: checkSecondIfEligibleToVote,
+              ),
+            );
+          }
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     ReconnectGameData EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // DONE
+    gamePhaseChanged = EventRouterService()
+        .subscribe(ServerEvent.gamePhaseChanged)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+        
+        final String phase = json.decode(payload)['phase'];
+        
+        setState(() {
+          if (inGamePlayers.value[0].nickname == authorizedUser.nickname) {
+            inGamePlayers.value.removeAt(0);
+          }
+
+          gamePhase = phase;
+        
+          if (widget.role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
+            votesAreVisibleToMe = false;
+          }
+          else if (gamePhase == 'DayVoting') {
+            if (markNames.any((e) => e == 'Intoxicated')) {
+                  votesAreVisibleToMe = false;
+                }
+                else {
+                  votesAreVisibleToMe = true;
+                }
+          }
+          else if ((widget.role != 'Mafia' && gamePhase == 'Night')) {
+            votesAreVisibleToMe = false;
+          }
+          else {
+            votesAreVisibleToMe = true;
+          }
+        
+          for (var element in inGamePlayers.value) {
+            element.votesOfPlayer = [];
+          }
+        
+          iVoted = false;
+          
+          checkIfEligibleToVote();
+        
+          iUsedSkill = false;
+          //toWhomIUsedSkill = [];
+        
+          checkIfEligibleToUseSkill();
+          checkIfEligibleToSendMessage();
+
+          Map<String, String> phaseMessages = {
+            'Day': 'The silence of night is over. Now speak.',
+            'DayVoting': 'Choose the imposter of the day',
+            'Night': 'The night begins. All must rest in silence',
+            'NightVoting': 'The Mafia cast their deadly vote.'
+          };
+        
+          inGameMessages.add(InGameMessage(
+            nickname: authorizedUser.nickname,
+            content: phaseMessages[phase] ?? '',
+            avatarUrl: authorizedUser.avatarUrl,
+            type: 'System'
+          ));
+
+          if (gamePhase == 'Day') {
+            dayNumber += 1;
+          }
+
+          if ((gamePhase == 'NightVoting' && (widget.role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
+            inGamePlayers.value.insert(0, InGamePlayer(
+              nickname: authorizedUser.nickname,
+              isAlive: isAliveMyself,
+              isRevealed: true,
+              role: widget.role.toLowerCase(),
+              avatarUrl: authorizedUser.avatarUrl,
+              votesOfPlayer: []
+            ));
+            /*
+            showGeneralDialog(
+              context: context,
+              barrierDismissible: false,
+              barrierLabel: "Dismiss",
+              barrierColor: Colors.black.withOpacity(0.7),
+              transitionDuration: const Duration(milliseconds: 800),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return Builder(
+                  builder: (innerContext) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      popupContexts['votePopupId'] = innerContext;
+                    });
+                    return VotePopup(
+                      role: widget.role,
+                      canIVote: canIVote,
+                      useSkill: useSkill,
+                      dayCount: dayNumber,
+                      title: widget.title,
+                      gamePhase: gamePhase,
+                      markNames: markNames,
+                      votePlayer: votePlayer,
+                      canNightVote: canNightVote,
+                      isAliveMyself: isAliveMyself,
+                      inGamePlayers: inGamePlayers,
+                      changeVoteState: changeVoteState,
+                      timerNotifier: phaseTimeNotifier,
+                      aliveCount: mafiaAlive + civilianAlive,
+                      votesAreVisibleToMe: votesAreVisibleToMe,
+                      checkSecondIfEligibleToVote: checkSecondIfEligibleToVote,
+                    );
+                  }
+                );
+              },
+              transitionBuilder: (context, animation, secondaryAnimation, child) {
+                final curvedAnimation = CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.elasticOut,
+                  reverseCurve: Curves.easeInBack,
+                );
+
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(-1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(curvedAnimation),
+                  child: child,
+                );
+              },
+            ).then((value) {
+              popupContexts.remove('votePopupId');
+            });
+            */
+            
+            PopupManager().show(
+              context: context,
+              id: 'votePopup',
+              builder: (_) => VotePopup(
+                role: widget.role,
+                  canIVote: canIVote,
+                  useSkill: useSkill,
+                  dayCount: dayNumber,
+                  title: widget.title,
+                  gamePhase: gamePhase,
+                  markNames: markNames,
+                  votePlayer: votePlayer,
+                  canNightVote: canNightVote,
+                  isAliveMyself: isAliveMyself,
+                  inGamePlayers: inGamePlayers,
+                  changeVoteState: changeVoteState,
+                  timerNotifier: phaseTimeNotifier,
+                  aliveCount: mafiaAlive + civilianAlive,
+                  votesAreVisibleToMe: votesAreVisibleToMe,
+                  checkSecondIfEligibleToVote: checkSecondIfEligibleToVote,
+              ),
+            );
+          }
+          //log('game phase: $gamePhase');
+        });
+        _handlePhaseChange(phase);
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     PHASE EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // DONE
+    gameTimerUpdate = EventRouterService()
+        .subscribe(ServerEvent.gameTimerUpdate)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+        
+        setState(() {
+          phaseTimeNotifier.value = json.decode(payload)['timer'];
+          //print(phaseTimeNotifier.value);
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // DONE
+    gameNewMessage = EventRouterService()
+        .subscribe(ServerEvent.gameNewMessage)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+        
+        var data = json.decode(payload);
+        
+        setState(() {
+          inGameMessages.add(InGameMessage(
+            nickname: data['nickname'], 
+            content: data['content'], 
+            avatarUrl: data['avatarUrl'],
+            type: 'User'
+          ));
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     RECIEVE MESSAGE EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // DONE
+    gameVoteRegistered = EventRouterService()
+        .subscribe(ServerEvent.gameVoteRegistered)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+        var data = json.decode(payload);
+        
+        final String from = data['from'];
+        final String target = data['target'];
+        setState(() {
+          inGamePlayers.value.firstWhere((el) => el.nickname == target).votesOfPlayer!.add(from);
+          inGamePlayers.notifyListeners();
+          //print('Voted: $from -> $target');
+        });
+      } catch (e) {
+        log('EXCEPTION IN:     VOTED EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    void playerDeadEvent(PlayerRole playerDead) {
+      setState(() {
+        if (playerDead.nickname == authorizedUser.nickname) {
+          youAreDead();
+          if (['Mafia', 'Terrorist', 'Beauty', 'Barman'].any((e) => e == playerDead.role)) {
+            mafiaAlive -= 1;
+          } else {
+            civilianAlive -= 1;
+          }
+          isAliveMyself = false;
+          checkIfEligibleToSendMessage();
+          return;
+        }
+      
+        inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
+        inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).role = playerDead.role;
+        inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isRevealed = true;
+        inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).votesOfPlayer = [];
+        inGamePlayers.notifyListeners();
+        namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
+      
+        if (['Mafia', 'Terrorist', 'Barman', 'Informant'].any((s) => s == playerDead.role)) {
+          mafiaAlive -= 1;
+        } else {
+          civilianAlive -= 1;
+        }
+      });
+    }
+
+    // DONE -
+    gamePlayerEliminated = EventRouterService()
+        .subscribe(ServerEvent.gamePlayerEliminated)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) {
+          return; 
+        }
+        
+        var data = json.decode(payload);
+        final String nickname = data['nickname'];
+        final String role = data['role'];
+        final String phaseCheck = data['phase'];
+        log('------------- $phaseCheck --------------');
+        log('------------- ${phaseCheck == 'NightVoting'} --------------');
+        
+        playerDeadEvent(PlayerRole(nickname: nickname, role: role));
+
+        setState(() {
+          inGameMessages.add(InGameMessage(
+            nickname: '', 
+            content: phaseCheck == 'NightVoting'
+              ? '[$nickname] did not survive the night..'
+              : '[$nickname] was eliminated by the town\'s decision',
+            avatarUrl: '',
+            type: 'System'
+          ));
+        });
+        
+        //printInGamePlayers();
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     PLAYER DEAD EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // INCOMPLETE
+    gameTerroristExplosion = EventRouterService()
+        .subscribe(ServerEvent.gameTerroristExplosion)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+
+        var data = json.decode(payload);
+
+        final String terroristNickname = data['terroristNickname'];
+        PlayerRole targetPlayer = PlayerRole.fromJson(data['targetPlayer'] as Map<String, dynamic>);
+        final bool isProtected = data['targetProtected'] as bool;
+        
+        String content = 'Terrorist tried to bomb [${targetPlayer.nickname}], but bodyguard saved him/her';
+        if (!isProtected) {
+          content = 'Terrorist bombarded [${targetPlayer.nickname}]';
+          playerDeadEvent(targetPlayer);
+        }
+        playerDeadEvent(PlayerRole(nickname: terroristNickname, role: 'Terrorist'));
+        
+        setState(() {
+          inGameMessages.add(InGameMessage(
+            nickname: '', 
+            content: content, 
+            avatarUrl: '',
+            type: 'System'
+          ));
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     gameTerroristExplosion - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // INCOMPLETE
+    gameJournalistInterview = EventRouterService()
+        .subscribe(ServerEvent.gameJournalistInterview)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+
+        var data = json.decode(payload);
+
+        final String firstPlayerNickname = data['firstPlayerNickname'];
+        final String secondPlayerNickname = data['secondPlayerNickname'];
+        final bool areSameTeam = data['areSameTeam'] as bool;
+
+        String content = '[$firstPlayerNickname] and [$secondPlayerNickname] are on different teams';
+        if (areSameTeam) {
+          content = '[$firstPlayerNickname] and [$secondPlayerNickname] are on same teams';
+        }
+        
+        setState(() {
+          inGameMessages.add(InGameMessage(
+            nickname: '', 
+            content: content, 
+            avatarUrl: '',
+            type: 'System'
+          ));
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     gameJournalistInterview - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    
+    // DONE
+    gameEffectApplied = EventRouterService()
+        .subscribe(ServerEvent.gameEffectApplied)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+        
+        final String mark = json.decode(payload)['effectType'];
+
+        setState(() {
+          markNames.add(mark);
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     MARK EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // DONE
+    gameEffectRemoved = EventRouterService()
+        .subscribe(ServerEvent.gameEffectRemoved)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+        
+        final String unmark = json.decode(payload)['effectType'];
+        
+        setState(() {
+          markNames.remove(unmark);
+          //markNames.remove('sheriff');
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     UNMARK EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // DONE
+    gamePersonalFeedback = EventRouterService()
+        .subscribe(ServerEvent.gamePersonalFeedback)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+        
+        var data = json.decode(payload);
+        var playerDto = data as Map<String, dynamic>;
+        
+        PlayerRole player = PlayerRole.fromJson(playerDto);
+        
+        setState(() {
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == player.nickname).isRevealed = true;
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == player.nickname).role = player.role.toLowerCase();
+          namesOfRevealed.add(PlayerRole(nickname: player.nickname, role: player.role.toLowerCase()));
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     MYSTERY EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // PARTIAL
+    gameNightActionPrompt = EventRouterService()
+        .subscribe(ServerEvent.gameNightActionPrompt)
+        .listen((payload) {
+      try {
+        setState(() {
+          canNightVote = true;
+          log('CAN NIGHT VOTE METHOD: ${DateTime.now().toIso8601String()}');
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    // PARTIAL
+    gameOver = EventRouterService()
+        .subscribe(ServerEvent.gameOver)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) return;
+        
+        var data = json.decode(payload);
+        
+        final String winner = data['winner'];
+        final int points = data['points'];
+        
+        log('WINNER: $winner    |    POINTS: $points');
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     GAME OVER EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+  
     
     // !!!!!!!!!!!!!!!!!!!
     
@@ -256,7 +877,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     //checkIfEligibleToUseSkill();
     
     
-    var apiService = GetIt.I<ApiService>();
+    //var apiService = GetIt.I<ApiService>();
 
     //
     //toWhomIUsedSkill.add('Player7');
@@ -265,6 +886,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     // }
 
     //!!!!!!!!!!!!
+    /*
     if (!apiService.gameHubIsConnected) {
       print("187 games screen - creating connection");
       apiService.gameHubConnection = HubConnectionBuilder().withUrl(
@@ -277,13 +899,18 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       )
       .build();
     }
+    */
     
+
+    
+
+
     if (widget.cameBackFromAfk) {
       //!!!!!!!!!!!!
 
       log('----------- CAME BACK FROM AFK ----------');
 
-      
+      /*
       apiService.gameHubConnection.on('ReconnectGameData', (List<Object?>? parameters) {
         try {
           if (parameters == null || parameters.isEmpty) return;
@@ -452,7 +1079,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           log('EXCEPTION IN:     ReconnectGameData EVENT - GAME SCREEN: ${e.toString()}');
         }
       });
-      
+      */
     } else {
       Map<String, String> roleMap = {};
       if (widget.playersRole != null) {
@@ -481,7 +1108,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     //printInGamePlayers();
  
-    
+    //!SIGNALR EVENTS
+    /*
     // DONE
     apiService.gameHubConnection.on('Phase', (List<Object?>? parameters) {
       //log('-------------------- PHASE EVENT --------------------: ${DateTime.now().toIso8601String()}');
@@ -642,6 +1270,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       }
       //log('---------------------------------------');
     });
+    
+
 
     // DONE
     apiService.gameHubConnection.on('Mark', (List<Object?>? parameters) {
@@ -871,17 +1501,23 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         });
       });
     }
+    */
     
     //await GetIt.I<ApiService>().gameHubConnection.invoke("TriggerPhaseEvent", args: <Object>[]);
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     _intoxicationTimer?.cancel();
     print("Disonnected to SignalR! 600 games screen");
+    //!!!!!
+    /*
     GetIt.I<ApiService>().disconnectGameHub();
     GetIt.I<ApiService>().gameHubIsConnected = false;
+    */
     _controller.dispose();
+    _audioPlayer.stop();
+    _audioPlayer.dispose();
     super.dispose();
   }
 

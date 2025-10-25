@@ -106,10 +106,10 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           fullscreenDialog: true,
-          //builder: (context) => const SignInScreen()   // TRUEEE
+          builder: (context) => const SignInScreen()   // TRUEEE
           //builder: (context) => const SignUpScreen()
           //builder: (context) => const SettingsScreen(),
-          builder: (context) => const ForgotPasswordScreen(),
+          //builder: (context) => const ForgotPasswordScreen(),
           //builder: (context) => const RatingsScreen(),
           //builder: (context) => GameScreen(title: 'Avengers999', playersRole: players, mafiaCount: 2, citizenCount: 5, role: 'Journalist', allPlayers: allPlayers, cameBackFromAfk: false, gameIsReadyWidget: true,)
           //builder: (context) => GamesScreen(user: authorizedUser)

@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
+import 'package:mafia_classic/services/tcp/general_service.dart';
 
 class AuthRepository {
   Future<User> signIn(String email, String password) async {
@@ -32,6 +33,7 @@ class AuthRepository {
           expirationDate: DateTime.parse(data['expiration'])
         );
         setup(user);
+        await GeneralService(user).init();
         return user;
       case 400:
         throw Exception('Invalid Type');
@@ -104,6 +106,7 @@ class AuthRepository {
         expirationDate: DateTime.parse(data['expiration'])
       );
       setup(user);
+      await GeneralService(user).init();
       return user;
     } else if (statusCodeOfResponse == 400) {
       if (responseData!.contains('Exists') && responseData.contains('nickname')) {

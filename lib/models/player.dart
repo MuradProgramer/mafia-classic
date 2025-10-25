@@ -76,7 +76,7 @@ class LobbyPlayer {
     return LobbyPlayer(
       nickname: json['nickname'],
       avatarUrl: json['avatarUrl'],
-      isAlive: json['isAlive'] as bool
+      isAlive: json['isAlive'] == null ? true : json['isAlive'] as bool
     );
   }
 }

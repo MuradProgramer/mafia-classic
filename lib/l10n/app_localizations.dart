@@ -1391,6 +1391,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Code must be 6 charactes'**
   String get codeMustBe6Charactes;
+
+  /// No description provided for @gameTerroristExplosion.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrorist tried to bomb [{playerNickname}], but bodyguard saved him/her'**
+  String gameTerroristExplosion(String playerNickname);
 }
 
 class _AppLocalizationsDelegate

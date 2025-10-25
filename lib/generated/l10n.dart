@@ -2199,6 +2199,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Terrorist tried to bomb [{playerNickname}], but bodyguard saved him/her`
+  String gameTerroristExplosion(String playerNickname) {
+    return Intl.message(
+      'Terrorist tried to bomb [$playerNickname], but bodyguard saved him/her',
+      name: 'gameTerroristExplosion',
+      desc: '',
+      args: [playerNickname],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

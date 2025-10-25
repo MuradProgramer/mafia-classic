@@ -401,8 +401,47 @@ class _SignInScreenState extends State<SignInScreen> {
                         )
                       ),
                     ),
+
+                    //! TEST:    AUTH 1
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          // NOTE:    Logic
+                          _emailController.text = "admin@gmail.com";
+                          _passwordController.text = "admin123";
+                        },
+                        child: Text(
+                          "admin",
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontFamily: 'CenturyGothic',
+                            color: Colors.blue,
+                          ),
+                        )
+                      ),
+                    ),
+
+                    //! TEST:    AUTH 2
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          // NOTE:    Logic
+                          _emailController.text = "murad@gmail.com";
+                          _passwordController.text = "admin123";
+                        },
+                        child: Text(
+                          "murad",
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontFamily: 'CenturyGothic',
+                            color: Colors.red,
+                          ),
+                        )
+                      ),
+                    ),
                         
-                    SizedBox(height: 40.h),
+                    //SizedBox(height: 40.h),
+                    SizedBox(height: 20.h),
                         
                     // BUTTON:    Confirm
                     Center(

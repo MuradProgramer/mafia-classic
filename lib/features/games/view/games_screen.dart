@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'dart:async';
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,6 +15,9 @@ import 'package:mafia_classic/models/player.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/signalr_service.dart';
+import 'package:mafia_classic/services/tcp/enums.dart';
+import 'package:mafia_classic/services/tcp/event_router_service.dart';
+import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
 import 'package:signalr_netcore/http_connection_options.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
@@ -144,6 +146,17 @@ class _GamesScreenState extends State<GamesScreen> {
 
   final TextEditingController _searchController = TextEditingController();
 
+
+  //? STREAMS
+  late StreamSubscription<String> lobbyRooms;
+  late StreamSubscription<String> lobbyRoomCreated;
+  late StreamSubscription<String> lobbyPlayerEnteredRoom;
+  late StreamSubscription<String> lobbyPlayerExitedRoom;
+  late StreamSubscription<String> lobbyPlayerGameStarted;
+  late StreamSubscription<String> lobbyPlayerEliminated;
+  late StreamSubscription<String> lobbyGameOver;
+  late StreamSubscription<String> lobbyRoomClosed;
+
   @override
   void initState() {
     super.initState();
@@ -153,36 +166,14 @@ class _GamesScreenState extends State<GamesScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    authorizedUser = widget.user;
+    TcpClientService().sendMessage(ClientCommand.getRooms.value, ""); //? lobbyRooms
 
-    // NOTE:    MAIN HUB CONNECTION AND SOCKETS
-
-    final connection = SignalRService().mainHubConnection;
-    //var apiService = GetIt.I<ApiService>();
-    
-    // //! BUILD
-    // apiService.mainHubConnection = HubConnectionBuilder().withAutomaticReconnect().withUrl(
-    //   'https://31.171.65.145/mainlobby',
-    //   options: HttpConnectionOptions(
-    //     accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
-    //     skipNegotiation: true,
-    //     transport: HttpTransportType.WebSockets,
-    //   ),
-    // )
-    // .build();
-
-    //! METHODS
-
-    // DONE
-    connection.on('GameLobbies', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty || parameters.first == null) {
-        log("HUB: MAIN | EVENT: GameLobbies -> No data received.");
-        return;
-      }
-
-      try {
-        final List<dynamic> jsonData = json.decode(parameters.first as String);
-
+    // DONE +
+    lobbyRooms = EventRouterService()
+        .subscribe(ServerEvent.lobbyRooms)
+        .listen((payload) {
+      final List<dynamic> jsonData = json.decode(payload)['rooms'];
+      setState(() {
         final games = jsonData.map((gameJson) {
           return Game.fromJson(gameJson as Map<String, dynamic>);
         }).toList();
@@ -195,22 +186,15 @@ class _GamesScreenState extends State<GamesScreen> {
             searchedGames = allGames;
           });
         }
-      } catch (e) {
-        log("HUB: MAIN | EVENT: GameLobbies -> Error decoding parameters: $e");
-        return ;
-      }
-      
+      });
     });
 
-    // INCOMPLETE
-    connection.on('GameLobbyCreated', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty || parameters.first == null) {
-        log("HUB: MAIN | EVENT: GameLobbyCreated -> No data received.");
-        return;
-      }
-
+    // DONE +
+    lobbyRoomCreated = EventRouterService()
+        .subscribe(ServerEvent.lobbyRoomCreated)
+        .listen((payload) {
       try {
-        final Map<String, dynamic> jsonData = json.decode(parameters.first as String);
+        final Map<String, dynamic> jsonData = json.decode(payload);
 
         final Game? game = Game.fromJson(jsonData);
         if (game != null) {
@@ -220,34 +204,22 @@ class _GamesScreenState extends State<GamesScreen> {
         });
       }
       } catch (e) {
-        log("HUB: MAIN | EVENT: GameLobbyCreated -> Error decoding parameters: $e");
+        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\n$e");
         return;
       }
     });
 
-    // INCOMPLETE
-    connection.on('GameLobbyClosed', (List<Object?>? parameters) {
-      final String? title = parameters?.first as String;
-
-      if (title != null && allGames != null) {
-        if (allGames!.any((game) => game.title == title)) {
-          setState(() {
-            allGames!.removeWhere((game) => game.title == title);
-            searchedGames = allGames;
-          });
-        }
-      }
-    });
-
-    // INCOMPLETE
-    connection.on('PlayerJoined', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty || parameters.first == null) {
-        log("HUB: MAIN | EVENT: PlayerJoined -> No data received.");
+    // DONE +
+    lobbyPlayerEnteredRoom = EventRouterService()
+        .subscribe(ServerEvent.lobbyPlayerEnteredRoom)
+        .listen((payload) {
+      if (payload.isEmpty) {
+        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\nNo data received.");
         return;
       }
 
       try {
-        final dynamic jsonData = json.decode(parameters.first as String);
+        final dynamic jsonData = json.decode(payload);
 
         final PlayerJoinedGame? playerJoinedToGame = PlayerJoinedGame.fromJson(jsonData as Map<String, dynamic>);
 
@@ -255,7 +227,6 @@ class _GamesScreenState extends State<GamesScreen> {
           if (!allGames!
             .firstWhere((game) => game.title == playerJoinedToGame.title)
             .players.any((player) => player.nickname == playerJoinedToGame.player.nickname)) {
-            log('HUB: MAIN | EVENT: PlayerJoined -> Joined Player Nickname: ${playerJoinedToGame.player.nickname}');
             setState(() {
               allGames!
               .firstWhere((game) => game.title == playerJoinedToGame.title)
@@ -265,20 +236,22 @@ class _GamesScreenState extends State<GamesScreen> {
           }
         }
       } catch (e) {
-        log("HUB: MAIN | EVENT: PlayerJoined -> Error decoding parameters: $e");
+        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\n$e");
         return;
       }
     });
 
-    // INCOMPLETE
-    connection.on('PlayerLeft', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty || parameters.first == null) {
-        log("HUB: MAIN | EVENT: PlayerLeft -> No data received.");
+    // DONE +
+    lobbyPlayerExitedRoom = EventRouterService()
+        .subscribe(ServerEvent.lobbyPlayerExitedRoom)
+        .listen((payload) {
+      if (payload.isEmpty) {
+        log("Event Router Service Error: GAMES SCREEN | LOBBY PLAYER EXITED ROOM\nNo data received.");
         return;
       }
 
       try {
-        final dynamic jsonData = json.decode(parameters.first as String);
+        final dynamic jsonData = json.decode(payload);
 
         final PlayerLeftGame? playerLeftGame = PlayerLeftGame.fromJson(jsonData as Map<String, dynamic>);
 
@@ -295,36 +268,42 @@ class _GamesScreenState extends State<GamesScreen> {
             });
           }
           else {
-            log('HUB: MAIN | EVENT: PlayerLeft -> There is no player with this nickname');
+            log('Event Router Service Info: GAMES SCREEN | LOBBY PLAYER EXITED ROOM -> There is no player with this nickname');
           }
         }
       } catch (e) {
-        log("HUB: MAIN | EVENT: PlayerLeft -> Error decoding parameters: $e");
+        log("Event Router Service Error: GAMES SCREEN | LOBBY PLAYER EXITED ROOM\n$e");
         return;
       }
     });
-
-    // INCOMPLETE
-    connection.on('GameStarted', (List<Object?>? parameters) {
-      final String? title = parameters?.first as String;
+    
+    // DONE +
+    lobbyPlayerGameStarted = EventRouterService()
+        .subscribe(ServerEvent.lobbyGameStarted)
+        .listen((payload) {
+      final String? title = json.decode(payload)['title'];
 
       if (title != null && allGames != null) {
         if (allGames!.any((game) => game.title == title)) {
           setState(() {
-            allGames!.firstWhere((game) => game.title == title).status = 'Game Started';
+            allGames!.firstWhere((game) => game.title == title).status = 'Started';
             searchedGames = allGames;
           });
         }
       }
     });
 
-    connection.on('PlayerDead', (List<Object?>? parameters) {
+    // PARTIALLY DONE +
+    lobbyPlayerEliminated = EventRouterService()
+        .subscribe(ServerEvent.lobbyPlayerEliminated)
+        .listen((payload) {
       try {
-        if (parameters == null || parameters.isEmpty) {
-          return; 
+        if (payload.isEmpty) {
+          log("Event Router Service Error: GAMES SCREEN | LOBBY PLAYER ELIMINATED\nNo data received.");
+          return;
         }
         
-        var data = json.decode(parameters.first as String);
+        var data = json.decode(payload);
         
         final String nickname = data['nickname'];
         final String title = data['title'];
@@ -336,63 +315,57 @@ class _GamesScreenState extends State<GamesScreen> {
           searchedGames = allGames;
         });
       } on Exception catch (e) {
-        log('EXCEPTION IN:     PLAYER DEAD EVENT - GAMES SCREEN: ${e.toString()}');
+        log('Event Router Service Error: GAMES SCREEN | LOBBY PLAYER ELIMINATED\n${e.toString()}');
       }
     });
 
-    connection.on('CloseConnection', (List<Object?>? parameters) async {
-      await SignalRService().stopConnection();
-    });
+    // DONE +
+    lobbyGameOver = EventRouterService()
+        .subscribe(ServerEvent.lobbyGameOver)
+        .listen((payload) {
+      final String? title = json.decode(payload)['title'];
 
-    // //! CONNECTION
-    // if (!apiService.mainHubIsConnected) {
-    //   Future.microtask(() async {
-    //     try {
-    //       await apiService.mainHubConnection.start();
-    //       apiService.mainHubIsConnected = true;
-    //       log("Connected to SignalR! MainHubSocket");
-    //     } catch (e) {
-    //       log("MainHubSocket | Connection error: $e");
-    //     }
-    //   });
-    // }
-
-    bool temp = false;
-    //!!!!!!!!!!!!!!!!!
-    for (var game in allGames!) {
-      for (var player in game.players) {
-        if (player.nickname == authorizedUser.nickname) {
-          log('message: ${player.nickname} is in the game ${game.title}');
-          stateToJoin = (player.isAlive) ? 2 : 3;
-          temp = true;
-          break;
+      if (title != null && allGames != null) {
+        if (allGames!.any((game) => game.title == title)) {
+          setState(() {
+            allGames!.firstWhere((game) => game.title == title).status = 'Wating';
+            searchedGames = allGames;
+          });
         }
       }
-      if (temp) break;
-    }
-    
-    connectMainHubConnection();
+    });
 
+    // DONE +
+    lobbyRoomClosed = EventRouterService()
+        .subscribe(ServerEvent.lobbyRoomClosed)
+        .listen((payload) {
+      final String? title = json.decode(payload)['title'];
+
+      if (title != null && allGames != null) {
+        if (allGames!.any((game) => game.title == title)) {
+          setState(() {
+            allGames!.removeWhere((game) => game.title == title);
+            searchedGames = allGames;
+          });
+        }
+      }
+    });
+
+    authorizedUser = widget.user;
     //allGames = games;
     searchedGames = allGames;
   }
 
-  void connectMainHubConnection() async {
-    await SignalRService().startConnection();
-  }
-
   @override
   void dispose() {
-    // Dispose of the hub connection when the screen is closed
-    SignalRService().stopConnection();
     super.dispose();
   }
 
   void _loadGames() async {
-    final fetchedGames = await GetIt.I<ApiService>().getGames();
-    setState(() {
-      //games = fetchedGames;
-    });
+    // final fetchedGames = await GetIt.I<ApiService>().getGames();
+    // setState(() {
+    //   //games = fetchedGames;
+    // });
   }
 
   @override
@@ -407,57 +380,6 @@ class _GamesScreenState extends State<GamesScreen> {
       ),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-
-        /*
-        appBar: AppBar(
-          title: Text(S.of(context).games),
-          automaticallyImplyLeading: false,
-          actions: [
-            // IconButton(
-            //   icon: const Icon(Icons.add, color: Colors.white),
-            //   onPressed: () {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(builder: (context) => const CreateGameScreen()),
-            //     );
-            //   },
-            // ),
-            IconButton(
-              icon: const Icon(Icons.filter_list, color: Colors.white),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FilterizationScreen()),
-                );
-              },
-            ),
-          ],
-        ),
-        */
-
-        //! STREAM
-        // body: 
-        // StreamBuilder<List<Game>>(
-        //   stream: GetIt.I<ApiService>().gamesStream,
-        //   builder: (context, snapshot) {
-        //     if (snapshot.connectionState == ConnectionState.waiting) {
-        //       return const Center(child: CircularProgressIndicator());
-        //     } else if (snapshot.hasError) {
-        //       return Center(child: Text('Error: ${snapshot.error}'));
-        //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        //       return const Center(child: Text('No games available.'));
-        //     } else {
-        //       final gamesSnap = snapshot.data!;
-        //       return ListView.builder(
-        //         itemCount: gamesSnap.length, 
-        //         itemBuilder: (context, index) {
-        //           return GameCard(game: gamesSnap[index]);
-        //         },
-        //       );
-        //     }
-        //   },
-        // ),
-        
         body: Padding(
           padding: EdgeInsets.only(top: 50.h, right: 20.w, left: 20.w),
           child: Column(
@@ -758,11 +680,11 @@ class Game {
       minPlayers: json['minCapacity'],    
       maxPlayers: json['maxCapacity'],    
       hasPassword: json['hasPassword'], 
-      status: json['status'],
+      status: json['state'],
       players: json['players'].isEmpty ? <Player>[] : (json['players'] as List)
           .map((playerJson) => Player.fromJson(playerJson))
           .toList(),
-      extraRoles: json['extraRoles'].isEmpty ? <String>[] : json['extraRoles'].cast<String>(),    
+      extraRoles: json['extraGameRoles'].isEmpty ? <String>[] : json['extraGameRoles'].cast<String>(),    
     );
   }
 }
@@ -873,7 +795,7 @@ class _GameCardState extends State<GameCard> {
                           
             // BUTTON:    JOIN 
             //!
-            widget.game.status == 'Game Started'
+            widget.game.status == 'Started'
             ? Text(
               'Game Started',
               style: TextStyle(
@@ -902,10 +824,15 @@ class _GameCardState extends State<GameCard> {
                         isAlive: true
                       )
                     );
+                    final jsonString = jsonEncode({
+                      'Title': widget.game.title,
+                      'Password': '',
+                    });
+                    TcpClientService().sendMessage(ClientCommand.joinRoom.value, jsonString); // Join Game
                     Navigator.of(context, rootNavigator: true).push(
                       MaterialPageRoute(builder: (context) => 
                         (text == 'You Are Playing Here' || text == 'You Died Here')
-                        ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false,)
+                        ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",)
                         : GameLobbyScreen(
                           game: widget.game,
                           //! ------------------- CHANGE -------------------
@@ -1103,6 +1030,7 @@ class _GameCardState extends State<GameCard> {
                     child: GestureDetector(
                       onTap: () {
                         //DONE:    DIALOG
+                        final playersNotifier = ValueNotifier<List<Player>>(widget.game.players);
                         showGeneralDialog(
                           context: context,
                           barrierDismissible: true,
@@ -1110,7 +1038,7 @@ class _GameCardState extends State<GameCard> {
                           barrierColor: Colors.black.withOpacity(0.7),
                           transitionDuration: const Duration(milliseconds: 800),
                           pageBuilder: (context, animation, secondaryAnimation) {
-                            return PlayersPopup(playersInGame: widget.game.players, gameTitle: widget.game.title,);
+                            return PlayersPopup(playersNotifier: playersNotifier, gameTitle: widget.game.title,);
                           },
                           transitionBuilder: (context, animation, secondaryAnimation, child) {
                             final curvedAnimation = CurvedAnimation(
@@ -1128,6 +1056,7 @@ class _GameCardState extends State<GameCard> {
                             );
                           },
                         );            
+                      
                       },
                       child: Column(
                         children: [
@@ -1289,12 +1218,12 @@ List<Player> playersWithMe = [
 ////////// PLAYER ///////
 
 class PlayersPopup extends StatefulWidget {
-  final List<Player> playersInGame;
+  final ValueNotifier<List<Player>> playersNotifier;
   final String gameTitle;
   
   const PlayersPopup({
     super.key, 
-    required this.playersInGame, 
+    required this.playersNotifier, 
     required this.gameTitle
   });
 
@@ -1307,117 +1236,123 @@ class _PlayersPopupState extends State<PlayersPopup> {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.center,
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 21.w),
-        width: double.maxFinite,
-        height: 350.h,
-        child: Material(
-          borderRadius: BorderRadius.circular(12.sp),
-          color: const Color(0xFF111111),
-          child: Column(
-            children: [
-              //? TITLE AND CLOSE BUTTON
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: ValueListenableBuilder(
+        valueListenable: widget.playersNotifier,
+        builder: (context, value, child) {
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: 21.w),
+            width: double.maxFinite,
+            height: 350.h,
+            child: Material(
+              borderRadius: BorderRadius.circular(12.sp),
+              color: const Color(0xFF111111),
+              child: Column(
                 children: [
-                  SizedBox(width: 25.w),
-        
-                  Padding(
-                    padding: EdgeInsets.all(8.sp),
-                    child: Text(
-                      widget.gameTitle,
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 32.sp,
-                        color: const Color(0xFFFFB000)
+                  //? TITLE AND CLOSE BUTTON
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(width: 25.w),
+            
+                      Padding(
+                        padding: EdgeInsets.all(8.sp),
+                        child: Text(
+                          widget.gameTitle,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 32.sp,
+                            color: const Color(0xFFFFB000)
+                          ),
+                        ),
                       ),
-                    ),
+            
+                      // BUTTON:    CLOSE BUTTON
+                      Padding(
+                        padding: EdgeInsets.only(right: 25.w),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Image.asset(
+                            "assets/images/close-white-icon.png",
+                            scale: 2.5,
+                          ),
+                        ),
+                      )
+                    ],
                   ),
-        
-                  // BUTTON:    CLOSE BUTTON
-                  Padding(
-                    padding: EdgeInsets.only(right: 25.w),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Image.asset(
-                        "assets/images/close-white-icon.png",
-                        scale: 2.5,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-        
-              Container(
-                margin: EdgeInsets.only(top: 10.h),
-                height: 250.h,
-                child: ListView.builder(
-                  padding: EdgeInsets.only(left: 20.w, right: 20.w),
-                  shrinkWrap: true,
-                  itemCount: widget.playersInGame.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: EdgeInsets.only(top: 5.h),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            
+                  Container(
+                    margin: EdgeInsets.only(top: 10.h),
+                    height: 250.h,
+                    child: ListView.builder(
+                      padding: EdgeInsets.only(left: 20.w, right: 20.w),
+                      shrinkWrap: true,
+                      itemCount: value.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: EdgeInsets.only(top: 5.h),
+                          child: Column(
                             children: [
-                              //? CIRCLE AVATAR AND NICKNAME
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  CircleAvatar(
-                                    radius: 15,
-                                    backgroundImage: NetworkImage(widget.playersInGame[index].avatarUrl),
+                                  //? CIRCLE AVATAR AND NICKNAME
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 15,
+                                        backgroundImage: NetworkImage(value[index].avatarUrl),
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Text(
+                                        value[index].nickname, 
+                                        style: TextStyle(
+                                          fontSize: 15.sp, 
+                                          fontFamily: 'CenturyGothic',
+                                          color: value[index].isAlive == true ? const Color(0xFFFFB000) : const Color(0xFF515151)
+                                        )
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(width: 10.w),
+                                              
+                                  // TEXT:    DEFEATED OR STILL HERE
                                   Text(
-                                    widget.playersInGame[index].nickname, 
+                                    value[index].isAlive == true ? S.of(context).stillHere : S.of(context).defeated,
                                     style: TextStyle(
-                                      fontSize: 15.sp, 
+                                      fontSize: 15.sp,
                                       fontFamily: 'CenturyGothic',
-                                      color: widget.playersInGame[index].isAlive == true ? const Color(0xFFFFB000) : const Color(0xFF515151)
-                                    )
-                                  ),
+                                      color: widget.playersNotifier.value[index].isAlive == true ? const Color(0xFFFFB000) : const Color(0xFF515151),
+                                    ),
+                                  )
                                 ],
                               ),
-                                          
-                              // TEXT:    DEFEATED OR STILL HERE
-                              Text(
-                                widget.playersInGame[index].isAlive == true ? S.of(context).stillHere : S.of(context).defeated,
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  color: widget.playersInGame[index].isAlive == true ? const Color(0xFFFFB000) : const Color(0xFF515151),
+                            
+                              //? DIVIDER      
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: SizedBox(
+                                  width: 310.w,
+                                  child: const Divider(
+                                    color: Colors.white,
+                                    thickness: 1,
+                                  ),
                                 ),
-                              )
-                            ],
-                          ),
-                        
-                          //? DIVIDER      
-                          Padding(
-                            padding: EdgeInsets.only(top: 5.h),
-                            child: SizedBox(
-                              width: 310.w,
-                              child: const Divider(
-                                color: Colors.white,
-                                thickness: 1,
                               ),
-                            ),
-                          ),
-            
-                        ],
-                      )
-                    );
-                  },
-                ),
+                
+                            ],
+                          )
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       ),
     );
+  
   }
 }
 
@@ -1598,41 +1533,50 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       .map((entry) => entry.key)
       .toList();
 
-    bool status = await GetIt.I<ApiService>().createGame(
-      CreateGame(
-        title: roomName, 
-        minPlayers: minPlayers, 
-        maxPlayers: maxPlayers, 
-        password: password, 
-        extraRoles: extras
-      )
-    );
+
+    final jsonString = jsonEncode({
+      'Title': roomName,
+      'MinCapacity': minPlayers,
+      'MaxCapacity': maxPlayers,
+      'Password': password,
+      'ExtraGameRoles': extras,
+    });
+
+    TcpClientService().sendMessage(ClientCommand.createRoom.value, jsonString);
+
+    // bool status = await GetIt.I<ApiService>().createGame(
+    //   CreateGame(
+    //     title: roomName, 
+    //     minPlayers: minPlayers, 
+    //     maxPlayers: maxPlayers, 
+    //     password: password, 
+    //     extraRoles: extras
+    //   )
+    // );
 
     
-    if (status) {
-      Navigator.of(context, rootNavigator: true).push(
-        MaterialPageRoute(builder: (context) => GameLobbyScreen(
-            game: Game(
-              title: roomName, 
-              minPlayers: minPlayers,
-              maxPlayers: maxPlayers,
-              status: 'Waiting',
-              extraRoles: extras, 
-              hasPassword: false, 
-              players: [
-                Player(
-                  nickname: authorizedUser.nickname, 
-                  avatarUrl: authorizedUser.avatarUrl, 
-                  isAlive: true
-                )
-              ]
-            ),
-            //!!!!!!!!! CHANGE
-            password: '',
-          )
-        ),
-      );
-    }
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(builder: (context) => GameLobbyScreen(
+          game: Game(
+            title: roomName, 
+            minPlayers: minPlayers,
+            maxPlayers: maxPlayers,
+            status: 'Waiting',
+            extraRoles: extras, 
+            hasPassword: false, 
+            players: [
+              Player(
+                nickname: authorizedUser.nickname, 
+                avatarUrl: authorizedUser.avatarUrl, 
+                isAlive: true
+              )
+            ]
+          ),
+          //!!!!!!!!! CHANGE
+          password: '',
+        )
+      ),
+    );
     
   }
 
@@ -3506,6 +3450,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
   bool shouldDisconnect = true;
 
+  late StreamSubscription<String> roomStateData;
+  late StreamSubscription<String> roomPlayerJoined;
+  late StreamSubscription<String> roomPlayerLeft;
+  late StreamSubscription<String> roomTimerUpdate;
+  late StreamSubscription<String> roomNewMessage;
+  late StreamSubscription<String> gameInitialState;
+
   @override
   void initState() {
     super.initState();
@@ -3518,132 +3469,33 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       ));
     }
 
-    // reference lazimdi her defe container nedi istifade elirsen
-    
-    
-    var apiService = GetIt.I<ApiService>();
-
-    // NOTE:    UNCOMMENT THIS SECTION
-
-    
-    //! ------------------- CHANGE ------------------- IIIIPPPP
-    var connectionUri = (widget.game.hasPassword)
-      ? "https://31.171.65.145/gamelobby?title=${widget.game.title}&password=${widget.password}" // passwordu tapammiram
-      : "https://31.171.65.145/gamelobby?title=${widget.game.title}";
-
-    //!   GAME LOBBY HUB
-    apiService.gameHubConnection = HubConnectionBuilder().withUrl(
-      connectionUri, // MURAD PASSWORD LAZIMDI BURA
-      options: HttpConnectionOptions(
-        accessTokenFactory: () => Future.value(GetIt.I<ApiService>().accessToken),
-        // skipNegotiation: true,
-        // transport: HttpTransportType.WebSockets,
-      ),
-    )
-    .build();
-    print('---------------- CONNECTION --------------');
-
-    // DONE - TIMER HERE
-    apiService.gameHubConnection.on('GameLobbyData', (List<Object?>? parameters) {
-      // NOTE:    parameters as Map<String, dynamic> to variable
-      log('1');
-      final List<GameLobbyChatPlayer>? messages = GetIt.I<ApiService>().decodeGameLobbyChatPlayersParameters(parameters);
-      log('2');
-      // DONE:    MESSAGES IN VIEW
-
-      setState(() {
-        log('3');
-        if (!(messages == null || messages.isEmpty)) {
-          log('4');
-          for (var message in messages) {
-            gameLobbyChatMessages.add(ChatMessage(
-              isSystemMessage: false,
-              nickname: message.nickname, 
-              avatarUrl: widget.game.players.firstWhere((player) => player.nickname == message.nickname).avatarUrl, 
-              text: message.content
-            ));
-          }
-        }
-        log('5');
-      });
-
-      // DONE:    TIMER
-      // final String eventTime = json.decode(parameters!.first as String)['eventTime'];
-      // if (eventTime.isNotEmpty && !timerIsStarted) {
-      //   final DateTime parsedDate = DateTime.parse(eventTime);
-
-      //   setState(() {
-      //     remainingTime = parsedDate.difference(DateTime.now()).inSeconds;
-      //   });
-
-      //   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      //     setState(() {
-      //       if (remainingTime > 0) {
-      //         remainingTime--;
-      //       } else {
-      //         timer.cancel();
-      //       }
-      //     });
-      //   });
-
-      //   timerIsStarted = !timerIsStarted;
-      // }
-    });
-    
     // DONE
-    apiService.gameHubConnection.on('GameStarted', (List<Object?>? parameters) {
-      // {
-      //   "role": "Mafia",
-      //   "citizenCount": 5,
-      //   "mafiaCount": 2,
-      //   "playerRoles": [
-      //     {
-      //         "nickname": "Player1",
-      //         "role": "Mafia"
-      //     },
-      //     {
-      //         "nickname": "Player2",
-      //         "role": "Citizen"
-      //     },
-      //     {
-      //         "nickname": "Player3",
-      //         "role": "Doctor"
-      //     }
-      //   ]
-      // }
-
-      if (parameters == null || parameters.isEmpty) return;
-
-      var data = json.decode(parameters.first as String);
-
-      String role = data['role'] ?? '';
-      int civilianCount = data['civilianCount'] ?? 0;
-      int mafiaCount = data['mafiaCount'] ?? 0;
-
-      List<dynamic> playerRolesJson = data['playerRoles'] ?? [];
-      List<PlayerRole> playerRoles = playerRolesJson.map((json) => PlayerRole.fromJson(json)).toList();
-
-      startGame(widget.game.title, role, civilianCount, mafiaCount, playerRoles);
+    roomStateData = EventRouterService()
+        .subscribe(ServerEvent.roomStateData)
+        .listen((payload) {
+      print('----- LOBBY ROOMS DATA -----');
+      print(payload);
     });
 
-    // DONE - TIMER HERE
-    apiService.gameHubConnection.on('PlayerJoined', (List<Object?>? parameters) {
-      print('----------- PLAYER JOINED -----------');
-      if (parameters == null || parameters.isEmpty) {
+    // DONE
+    roomPlayerJoined = EventRouterService()
+        .subscribe(ServerEvent.roomPlayerJoined)
+        .listen((payload) {
+      if (payload.isEmpty) {
         return;
       }
 
-      // DONE:   PLAYER
-      log(parameters.first as String);
-      var data = json.decode(parameters.first as String);
-      //var playerDto = data['player'] as Map<String, dynamic>;
+      var data = json.decode(payload);
 
       LobbyPlayer player = LobbyPlayer.fromJson(data);
 
       setState(() {
-        log('---------- PLAYER INFO: ----------');
-        log('Nickname: ${player.nickname}');
         gameLobbyPlayers.add(player);
+        widget.game.players.add(Player(
+          avatarUrl: player.avatarUrl, 
+          nickname: player.nickname, 
+          isAlive: true
+        ));
         gameLobbyChatMessages.add(
           ChatMessage(
             isSystemMessage: true, 
@@ -3652,43 +3504,20 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             text: '${player.nickname} has joined'
           )
         );
-        log('---------- GAME LOBBY PLAYERS: ----------');
-        for (var element in gameLobbyPlayers) {
-          log('${gameLobbyPlayers.indexOf(element)}: NICKNAME: ${element.nickname}');
-        }
       });
-
-      // DONE:    EVENT TIME
-      // String eventTime = data['eventTime'] ?? '';
-      // if (eventTime.isNotEmpty && !timerIsStarted) {
-      //   final DateTime parsedDate = DateTime.parse(eventTime);
-
-      //   setState(() {
-      //     remainingTime = parsedDate.difference(DateTime.now()).inSeconds;
-      //   });
-
-      //   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      //     setState(() {
-      //       if (remainingTime > 0) {
-      //         remainingTime--;
-      //       } else {
-      //         timer.cancel();
-      //       }
-      //     });
-      //   });
-
-      //   timerIsStarted = !timerIsStarted;
-      // }
     });
 
     // DONE
-    apiService.gameHubConnection.on('PlayerLeft', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
+    roomPlayerLeft = EventRouterService()
+        .subscribe(ServerEvent.roomPlayerLeft)
+        .listen((payload) {
+      if (payload.isEmpty) return;
 
-      final String nickname = parameters.first as String;
+      final String nickname = json.decode(payload)['nickname'];
 
       setState(() {
         gameLobbyPlayers.removeWhere((player) => player.nickname == nickname);
+        widget.game.players.removeWhere((player) => player.nickname == nickname);
         gameLobbyChatMessages.add(
           ChatMessage(
             isSystemMessage: true, 
@@ -3704,94 +3533,68 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     });
 
     // DONE
-    // apiService.gameHubConnection.on('StopEventTimer', (List<Object?>? parameters) {
-    //   // NOTE:    STOP TIMER IF THE TIMER TICKING
-    //   setState(() {
-    //     _timer!.cancel();
-    //     remainingTime = 0;
-    //   });
-    // });
+    roomTimerUpdate = EventRouterService()
+        .subscribe(ServerEvent.roomTimerUpdate)
+        .listen((payload) {
+      if (payload.isEmpty) return;
 
-    // DONE
-    apiService.gameHubConnection.on('ReceiveMessage', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
-
-      var data = json.decode(parameters.first as String);
-
-      // NOTE:    CHANGE CLASS NAME
-      GameLobbyChatPlayer message = GameLobbyChatPlayer.fromJson(data);
-
-      final nickname = message.nickname;
-      final content = message.content; 
-      log('------------MELUMATLAR BLYAD:--------------');
-      log('NICKNAME: $nickname');
-      log('CONTENT: $content');
+      final int time = json.decode(payload)['timer'];
 
       setState(() {
-        gameLobbyChatMessages.add(ChatMessage(
-          isSystemMessage: false,
-          nickname: nickname, 
-          avatarUrl: gameLobbyPlayers.firstWhere((player) => player.nickname == message.nickname).avatarUrl, 
-          text: content
-        ));
+        remainingTime = time;
       });
     });
 
     // DONE
-    apiService.gameHubConnection.on('CloseConnection', (List<Object?>? parameters) {
-      print("Disonnected to SignalR! 1400 games screen");
-      GetIt.I<ApiService>().disconnectGameHub();
-    });
+    roomNewMessage = EventRouterService()
+        .subscribe(ServerEvent.roomNewMessage)
+        .listen((payload) {
+      if (payload.isEmpty) return;
 
-    // INCOMPLETE
-    apiService.gameHubConnection.on('Timer', (List<Object?>? parameters) {
-      if (parameters == null || parameters.isEmpty) return;
+      var data = json.decode(payload);
 
       setState(() {
-        remainingTime = parameters.first as int;
+        gameLobbyChatMessages.add(
+          ChatMessage(
+            isSystemMessage: false, 
+            nickname: data['nickname'], 
+            avatarUrl: data['avatarUrl'], 
+            text: data['content']
+          )
+        );
       });
     });
-    
-    // GetIt.I<ApiService>().gameHubConnection.onclose((error) {
-    //     print('Connection closed by client. Error: ${error?.toString() ?? "No error"}');
-    // });
+  
+    // DONE
+    gameInitialState = EventRouterService()
+        .subscribe(ServerEvent.gameInitialStateData)
+        .listen((payload) {
+      if (payload.isEmpty) return;
 
-    if (!apiService.gameHubIsConnected) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        apiService.gameHubConnection.start()?.then((_) {
-          apiService.gameHubIsConnected = true;
-          print("Connected to SignalR! 1400 games screen");
-        }).catchError((e) {
-          print("Connection error: $e");
-        });
-      });
-    }
-    
-    
+      var data = json.decode(payload);
 
-    // _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-    //   setState(() {
-    //     if (remainingTime > 0) {
-    //       remainingTime--;
-    //     } else {
-    //       timer.cancel();
-    //       // Logic start after time ends
-    //       startGame();
-    //     }
-    //   });
-    // });
-    
-    //!!!!!!!!!!!!!!!
+      String role = data['role'] ?? '';
+      String phase = data['phase'] ?? '';
+      int civilianCount = data['civilianCount'] as int;
+      int mafiaCount = data['mafiaCount'] as int;
+
+      List<dynamic> playerRolesJson = data['playerRoles'] ?? [];
+      List<PlayerRole> playerRoles = playerRolesJson.map((json) => PlayerRole.fromJson(json)).toList();
+
+      startGame(widget.game.title, role, civilianCount, mafiaCount, playerRoles, phase);
+    });
+  
   }
   
 
-  void startGame(String title, String role, int civilianCount, int mafiaCount, List<PlayerRole> playerRoles) {
-    widget.game.players.removeWhere((e) => e.nickname == authorizedUser.nickname);
+  void startGame(String title, String role, int civilianCount, int mafiaCount, List<PlayerRole> playerRoles, String phase) {
+    //widget.game.players.removeWhere((e) => e.nickname == authorizedUser.nickname);
     Navigator.pushReplacement(
       context,
       // NOTE:  MATERIAL PAGE ROUTE ---- ANDROID: HER YERDE shupheli
       MaterialPageRoute(builder: (context) => 
         GameScreen(
+          phase: phase,
           title: title,
           role: role,
           civilianCount: civilianCount,
@@ -3814,23 +3617,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
   @override
   void dispose() {
-    //_timer?.cancel();
-    // DONE
-    if (shouldDisconnect) {
-      print("Disonnected to SignalR! 1400 games screen");
-      GetIt.I<ApiService>().disconnectGameHub();
-    }
-    print("1400 games screen Dispose");
+    roomStateData.cancel();
     super.dispose();
   }
 
   void sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
-    //!!!!!!!!!!!!!!!!!!
-    await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[ 
-      text.trim()
-    ]);
+    TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, json.encode({'message': text.trim()}));
 
     setState(() {
       gameLobbyChatMessages.add(ChatMessage(
@@ -4294,17 +4088,24 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                   children: [
                     const SizedBox(),
                               
-                    Container(
-                      width: 33.w,
-                      height: 33.w,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFB000).withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(8.sp),
-                      ),
-                      child: Icon(
-                        Icons.keyboard_double_arrow_left,
-                        color: Colors.white,
-                        size: 33.sp,
+                    GestureDetector(
+                      onTap: () {
+                        TcpClientService().sendMessage(ClientCommand.leaveRoom.value, ""); // Leave Game'
+                        widget.game.players.removeWhere((e) => e.nickname == authorizedUser.nickname);
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        width: 33.w,
+                        height: 33.w,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFB000).withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(8.sp),
+                        ),
+                        child: Icon(
+                          Icons.keyboard_double_arrow_left,
+                          color: Colors.white,
+                          size: 33.sp,
+                        ),
                       ),
                     )
                   ],

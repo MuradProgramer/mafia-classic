@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
+import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
 
 import 'package:mafia_classic/theme/theme.dart';
@@ -127,6 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return ProfileScreen(user: widget.user);
       case 1:
+        //TcpClientService().sendMessage(2, "");
         return GamesScreen(user: widget.user);
       case 2:
         return const CreateGameScreen();
