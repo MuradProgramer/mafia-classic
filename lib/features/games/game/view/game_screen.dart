@@ -17,7 +17,10 @@ import 'package:mafia_classic/features/games/game/models/in_game_player.dart';
 import 'package:mafia_classic/features/games/games.dart';
 import 'package:mafia_classic/features/games/game/models/models.dart';
 import 'package:mafia_classic/features/games/game/widgets/widgets.dart';
+import 'package:mafia_classic/features/games/popups/game_information_popup.dart';
+import 'package:mafia_classic/features/games/popups/game_player_dead_popup.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/role_card.dart';
+import 'package:mafia_classic/features/profile/roles/widgets/role_card_popup.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/main.dart';
@@ -27,6 +30,8 @@ import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
 import 'package:signalr_netcore/signalr_client.dart';
+
+import '../../popups/game_over_popup.dart';
 
 Map<String, BuildContext> popupContexts = {};
 
@@ -211,8 +216,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     
 
     //!!!!!!!!!!!!!!!
-    
-    TcpClientService().sendMessage(ClientCommand.useGameAbility.value, json.encode({'targets': influencedBySkillPlayersNickname}));
+    if (state) {
+      TcpClientService().sendMessage(ClientCommand.useGameAbility.value, json.encode({'targets': influencedBySkillPlayersNickname}));
+    }
   }
 
   // NOTE:    TESTING
@@ -297,11 +303,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     //   ));
     // }
 
+    ;
+
     //inGamePlayers.value.firstWhere((el) => el.nickname == 'Player2' || el.nickname == 'Player4').isAlive = false;
 
     // INCOMPLETE
     gameStateData = EventRouterService()
-        .subscribe(ServerEvent.gameInitialStateData)
+        .subscribe(ServerEvent.gameStateData)
         .listen((payload) {
       try {
         if (payload.isEmpty) return;
@@ -309,7 +317,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         var data = json.decode(payload);
 
         final role = data['role'];
-        final phase = data['gamePhase'];
+        final phase = data['phase'];
         final isAlive = data['isAlive'] as bool;
         final mafiaCount = data['mafiaCount'] as int;
         final civilianCount = data['civilianCount'] as int;
@@ -322,7 +330,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             ?.map((e) => PlayersFromAfk.fromJson(e))
             .toList() ?? [];
 
-        final marksOfPlayer = (data['playerMarks'] as List<dynamic>?)
+        final marksOfPlayer = (data['activeEffects'] as List<dynamic>?)
             ?.map((e) => e.toString())
             .toList() ?? [];
 
@@ -599,10 +607,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       try {
         if (payload.isEmpty) return;
         
-        setState(() {
-          phaseTimeNotifier.value = json.decode(payload)['timer'];
-          //print(phaseTimeNotifier.value);
-        });
+        
+        if (mounted) {
+          setState(() {
+            phaseTimeNotifier.value = json.decode(payload)['timer'];
+            //print(phaseTimeNotifier.value);
+          });
+        }
       } on Exception catch (e) {
         log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
       }
@@ -779,7 +790,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     });
 
     
-    // DONE
+    // DONE 
     gameEffectApplied = EventRouterService()
         .subscribe(ServerEvent.gameEffectApplied)
         .listen((payload) {
@@ -791,6 +802,12 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         setState(() {
           markNames.add(mark);
         });
+
+        PopupManager().show(
+          context: context,
+          id: 'informationPopup',
+          builder: (_) => InformationPopup(effect: mark)
+        );
       } on Exception catch (e) {
         log('EXCEPTION IN:     MARK EVENT - GAME SCREEN: ${e.toString()}');
       }
@@ -861,7 +878,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         
         final String winner = data['winner'];
         final int points = data['points'];
-        
+
+        PopupManager().show(
+          context: context,
+          id: 'gameOverPopup',
+          builder: (_) => GameOverPopup(isMafiaWinner: winner.toLowerCase() == 'mafia', score: points)
+        );
+
         log('WINNER: $winner    |    POINTS: $points');
       } on Exception catch (e) {
         log('EXCEPTION IN:     GAME OVER EVENT - GAME SCREEN: ${e.toString()}');
@@ -1518,6 +1541,23 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     _controller.dispose();
     _audioPlayer.stop();
     _audioPlayer.dispose();
+    AudioPlayer.clearAssetCache();
+    AudioPlayer().dispose();
+    phaseTimeNotifier.dispose();
+
+    gameStateData.cancel();
+    gamePhaseChanged.cancel();
+    gameTimerUpdate.cancel();
+    gameNewMessage.cancel();
+    gameVoteRegistered.cancel();
+    gamePlayerEliminated.cancel();
+    gameTerroristExplosion.cancel();
+    gameJournalistInterview.cancel();
+    gameEffectApplied.cancel();
+    gameEffectRemoved.cancel();
+    gamePersonalFeedback.cancel();
+    gameNightActionPrompt.cancel();
+    gameOver.cancel();
     super.dispose();
   }
 
@@ -1706,20 +1746,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     
     PopupManager().show(
       context: context,
-      id: 'deadPopup',
-      builder: (_) =>
-        AlertDialog(
-          title: const Text("You Died!"),
-          content: const Text("You have been eliminated from the game."),
-          actions: [
-            TextButton(
-              onPressed: () {
-                PopupManager().close('deadPopup');
-              },
-              child: const Text("Close"),
-            ),
-          ],
-        )
+      id: 'playerDeadPopup',
+      builder: (_) => const GamePlayerDeadPopup()
     );
     
     /*
@@ -1775,6 +1803,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     return "assets/images/default.png";
   }
 
+  bool isOpened = false;
   @override
   Widget build(BuildContext context) {
     final double deviceHeight = MediaQuery.of(context).size.height;
@@ -1785,6 +1814,17 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     final double height10 = deviceHeight * 0.01;
     final double width10 = deviceWidth * 0.023;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!isOpened && !widget.cameBackFromAfk) {
+        PopupManager().show(
+          context: context,
+          id: 'roleInformationPopup',
+          builder: (_) => RoleCardPopup(roleName: widget.role.toLowerCase(), closeType: 2,)
+        );
+        isOpened = true;
+      }
+    });
 
     return !gameIsReady ? const Center(child: CircularProgressIndicator()) : Stack(
       children: [
@@ -2206,9 +2246,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                               ],
                             ),
                           ),
-                    
+
                           SizedBox(height: height10),
-                    
+
                           //? PLAYERS PART AND ROLE CARD +
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -3485,27 +3525,28 @@ class _VotePopupState extends State<VotePopup> {
                           ),
                         ),
         
-                        //BUTTON:    X
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 5.h, right: 5.w),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Icon(
-                                  Icons.close, 
-                                  color: ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) 
-                                    ? Colors.black 
-                                    : Colors.white,
-                                  size: 35.sp
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
+                        // //BUTTON:    X
+                        // Padding(
+                        //   padding: EdgeInsets.only(bottom: 5.h, right: 5.w),
+                        //   child: Column(
+                        //     mainAxisAlignment: MainAxisAlignment.center,
+                        //     children: [
+                        //       GestureDetector(
+                        //         onTap: () {
+                        //           Navigator.of(context).pop();
+                        //         },
+                        //         child: Icon(
+                        //           Icons.close, 
+                        //           color: ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) 
+                        //             ? Colors.black 
+                        //             : Colors.white,
+                        //           size: 35.sp
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // )
+                      
                       ],
                     )
                   ),
@@ -3968,24 +4009,24 @@ class _SkillPopupState extends State<SkillPopup> {
   @override
   void initState() {
     super.initState();
-    //widget.timerNotifier.addListener(handleTimerChange);
+    widget.timerNotifier.addListener(handleTimerChange);
   }
 
-  // void handleTimerChange() {
-  //   final time = widget.timerNotifier.value;
+  void handleTimerChange() {
+    final time = widget.timerNotifier.value;
 
-  //   if (time == 0 && !isPopupClosed) {
-  //     isPopupClosed = true;
+    if (time == 0 && !isPopupClosed) {
+      isPopupClosed = true;
 
-  //     if (Navigator.of(context).canPop()) {
-  //       Navigator.of(context).pop();
-  //     }
-  //   }
-  // }
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
 
   @override
   void dispose() {
-    //widget.timerNotifier.removeListener(handleTimerChange);
+    widget.timerNotifier.removeListener(handleTimerChange);
     super.dispose();
   }
 
@@ -4070,7 +4111,7 @@ class _SkillPopupState extends State<SkillPopup> {
                             ),
                           ),
 
-                          //BUTTON:    X
+                          // //BUTTON:    X
                           Padding(
                             padding: EdgeInsets.only(top: 5.h, right: 5.w),
                             child: Column(
@@ -4078,7 +4119,9 @@ class _SkillPopupState extends State<SkillPopup> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.of(context).pop();
+                                    if (widget.timerNotifier.value > 1) {
+                                      Navigator.of(context).pop();
+                                    }
                                   },
                                   child: Image.asset(
                                     fromMafiaTeam
@@ -4091,6 +4134,7 @@ class _SkillPopupState extends State<SkillPopup> {
                               ],
                             ),
                           )
+                        
                         ],
                       ),
                     
@@ -4290,7 +4334,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                                 }
                                               }
                                               
-                                              Navigator.of(context).pop();
+                                              //Navigator.of(context).pop();
 
                                               // print('---------------------------');
                                               // for (var nick in toWhomIVotedNow) {
@@ -4453,7 +4497,7 @@ class PlayersFromAfk {
       isAlive: json['isAlive'],    
       role: json['role'],    
       avatarUrl: json['avatarUrl'], 
-      isMarked: json['isMarked'],
+      isMarked: json['effectApplied'],
     );
   }
 }

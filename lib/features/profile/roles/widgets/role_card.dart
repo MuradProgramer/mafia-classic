@@ -34,7 +34,7 @@ class _RoleCardState extends State<RoleCard> {
             barrierColor: Colors.black.withOpacity(0.7),
             transitionDuration: const Duration(milliseconds: 800),
             pageBuilder: (context, animation, secondaryAnimation) {
-              return RoleCardPopup(roleName: widget.roleName);
+              return RoleCardPopup(roleName: widget.roleName, closeType: 1);
             },
             transitionBuilder: (context, animation, secondaryAnimation, child) {
               final curvedAnimation = CurvedAnimation(

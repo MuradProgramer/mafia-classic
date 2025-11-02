@@ -8,7 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/game/game.dart';
+import 'package:mafia_classic/features/games/popups/games_popups.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/widgets.dart';
+import 'package:mafia_classic/features/widgets/validation_popup.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/models/player.dart';
@@ -19,6 +21,7 @@ import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
+import 'package:mafia_classic/utils/popup_utils.dart';
 import 'package:signalr_netcore/http_connection_options.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
 import 'package:signalr_netcore/itransport.dart';
@@ -358,6 +361,14 @@ class _GamesScreenState extends State<GamesScreen> {
 
   @override
   void dispose() {
+    lobbyRooms.cancel();
+    lobbyRoomCreated.cancel();
+    lobbyPlayerEnteredRoom.cancel();
+    lobbyPlayerExitedRoom.cancel();
+    lobbyPlayerGameStarted.cancel();
+    lobbyPlayerEliminated.cancel();
+    lobbyGameOver.cancel();
+    lobbyRoomClosed.cancel();
     super.dispose();
   }
 
@@ -738,10 +749,82 @@ class GameCard extends StatefulWidget {
 
 class _GameCardState extends State<GameCard> {
   String text = '';
+  String password = '';
   bool isCardExpanded = false;
+
+  late StreamSubscription<String> passwordIsWrong;
+  late StreamSubscription<String> roomStateData;
+  bool canBeNavigated = true;
+
+  void showExceptionPopup(String content) {
+    showBouncingPopupFromTop(
+      context, 
+      ValidationPopup(
+        height: 170.h, 
+        width: 270.w, 
+        popupType: 2, 
+        statusCode: 111, 
+        content: content
+      )
+    );
+  }
 
   @override
   void initState() {
+    //? 1007
+    // DONE
+    // DONE
+    roomStateData = EventRouterService()
+        .subscribe(ServerEvent.roomStateData)
+        .listen((payload) {
+      print('----- LOBBY ROOMS DATA -----');
+      try {
+        if (payload.isEmpty) return;
+        
+        var data = json.decode(payload);
+
+        final allPlayers = (data['players'] as List<dynamic>?)
+            ?.map((e) => Player.fromJson(e))
+            .toList() ?? [];
+
+        Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(builder: (context) => 
+            GameLobbyScreen(
+              game: Game(
+                title: widget.game.title, 
+                minPlayers: widget.game.minPlayers, 
+                maxPlayers: widget.game.maxPlayers, 
+                status: widget.game.status, 
+                extraRoles: widget.game.extraRoles, 
+                hasPassword: widget.game.hasPassword, 
+                players: allPlayers
+              ),
+              //! ------------------- CHANGE -------------------
+              //password: widget.game.hasPassword ? 'password' : '',
+              password: password,
+            )
+          ),
+        );
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     RoomStateData EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+    passwordIsWrong = EventRouterService()
+        .subscribe(ServerEvent.clientError)
+        .listen((payload) {
+      try {
+        setState(() {
+          canBeNavigated = false;
+        });
+
+        showExceptionPopup("Password is incorrect, try another one!");
+
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     : ${e.toString()}');
+      }
+    });
+
     if (widget.game.players.any((e) => e.nickname == authorizedUser.nickname)) {
       if (widget.game.players.firstWhere((e) => e.nickname == authorizedUser.nickname).isAlive) {
         text = 'You Are Playing Here';
@@ -795,7 +878,7 @@ class _GameCardState extends State<GameCard> {
                           
             // BUTTON:    JOIN 
             //!
-            widget.game.status == 'Started'
+            widget.game.status == 'Started' && text == ''
             ? Text(
               'Game Started',
               style: TextStyle(
@@ -816,30 +899,67 @@ class _GameCardState extends State<GameCard> {
                 SizedBox(width: 40.w),
         
                 GestureDetector(
-                  onTap: () {
-                    widget.game.players.add(
-                      Player(
-                        nickname: authorizedUser.nickname, 
-                        avatarUrl: authorizedUser.avatarUrl, 
-                        isAlive: true
-                      )
-                    );
+                  onTap: () async {
+                    
+                    if (widget.game.hasPassword) {
+                      final result = await showGeneralDialog<String>(
+                        context: context,
+                        useRootNavigator: true,              // <— важно
+                        barrierDismissible: false, 
+                        //barrierDismissible: true,
+                        barrierLabel: "Dismiss",
+                        barrierColor: Colors.black.withOpacity(0.7),
+                        transitionDuration: const Duration(milliseconds: 800),
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          //return const InformationPopup(effect: 'satisfied');
+                          return const GameJoinPasswordPopup();
+                          //return GameOverPopup(isMafiaWinner: true, score: 250);
+                        },
+                        transitionBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              final curvedAnimation = CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.elasticOut,
+                                reverseCurve: Curves.easeInBack,
+                              );
+
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(-1.0, 0.0),
+                                  end: Offset.zero,
+                                ).animate(curvedAnimation),
+                                child: child,
+                              );
+                            },
+                      );
+
+                      log("RESULT: $result");
+
+                      if (result == null) {
+                        log("RESULT IS NOT SUCCESFULL");
+                        return;
+                      } else {
+                        password = result;
+                      }
+                    }
+
+                    //! PROVERKA
+
+                    
                     final jsonString = jsonEncode({
                       'Title': widget.game.title,
-                      'Password': '',
+                      'Password': password,
                     });
-                    TcpClientService().sendMessage(ClientCommand.joinRoom.value, jsonString); // Join Game
-                    Navigator.of(context, rootNavigator: true).push(
-                      MaterialPageRoute(builder: (context) => 
-                        (text == 'You Are Playing Here' || text == 'You Died Here')
-                        ? GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",)
-                        : GameLobbyScreen(
-                          game: widget.game,
-                          //! ------------------- CHANGE -------------------
-                          password: widget.game.hasPassword ? 'password' : '',
+
+                    TcpClientService().sendMessage(ClientCommand.joinRoom.value, jsonString);
+
+                    if (text == 'You Are Playing Here' || text == 'You Died Here') {
+                      Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute(builder: (context) => 
+                          GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",)
                         )
-                      ),
-                    );
+                      );
+                    }
                   },
                   child: Container(
                     width: 100.w,
@@ -1802,9 +1922,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                           ),
                           child: RangeSlider(
                             values: RangeValues(minPlayers.toDouble(), maxPlayers.toDouble()),
-                            min: 5,
-                            max: 20,
-                            divisions: 15,
+                            min: 4,
+                            max: 21,
+                            divisions: 17,
+                            
                             
                             activeColor: const Color(0xFFFFB000),
                             inactiveColor: Colors.white,
@@ -3462,6 +3583,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     super.initState();
 
     for (var player in widget.game.players) {
+      log('nickname: ${player.nickname} | avatar url: ${player.avatarUrl} | isAlive: ${player.isAlive}');
       gameLobbyPlayers.add(LobbyPlayer(
         nickname: player.nickname, 
         avatarUrl: player.avatarUrl, 
@@ -3617,7 +3739,13 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
   @override
   void dispose() {
+    //!roomStateData.cancel();
     roomStateData.cancel();
+    roomPlayerJoined.cancel();
+    roomPlayerLeft.cancel();
+    roomTimerUpdate.cancel();
+    roomNewMessage.cancel();
+    gameInitialState.cancel();
     super.dispose();
   }
 

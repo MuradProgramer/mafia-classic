@@ -14,6 +14,12 @@ class EventRouterService {
     return _streams[eventType]!.stream;
   }
 
+  // GLOBAL: одно место, куда летит всё (для “показывать везде”)
+  final _global = StreamController<MapEntry<ServerEvent, String>>.broadcast();
+
+  /// Глобальный поток — слушаем в корневом виджете приложения (или Shell)
+  Stream<MapEntry<ServerEvent, String>> get globalStream => _global.stream;
+
   void dispatch(ServerEvent eventType, String payload) {
     print(eventType);
     if (_streams.containsKey(eventType)) {
@@ -21,5 +27,17 @@ class EventRouterService {
     } else {
       log('⚠️ No listeners for $eventType');
     }
+
+    // global
+    if (!_global.isClosed) {
+      _global.add(MapEntry(eventType, payload));
+    }
+  }
+
+  Future<void> dispose() async {
+    for (final c in _streams.values) {
+      await c.close();
+    }
+    await _global.close();
   }
 }

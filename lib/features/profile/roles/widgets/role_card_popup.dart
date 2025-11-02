@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mafia_classic/features/games/game/view/game_screen.dart';
 
 class RoleCardPopup extends StatefulWidget {
   final String roleName;
+  final int closeType;
 
-  const RoleCardPopup({super.key, required this.roleName});
+  const RoleCardPopup({super.key, required this.roleName, required this.closeType});
 
   @override
   State<RoleCardPopup> createState() => _RoleCardPopupState();
@@ -61,7 +63,12 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.of(context).pop();
+                              if (widget.closeType == 1) {
+                                Navigator.of(context).pop();
+                              } else {
+                                PopupManager().close('roleInformationPopup');
+                              }
+                              
                             },
                             child: Image.asset(
                               ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 

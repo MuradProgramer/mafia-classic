@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,7 +11,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
-import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
+import 'package:mafia_classic/services/tcp/enums.dart';
+import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
 
 import 'package:mafia_classic/theme/theme.dart';
@@ -26,6 +30,8 @@ void buildApiService(accessToken, refreshToken, expirationDate) {
   GetIt.I.registerSingleton(ApiService(accessToken, accessToken, accessToken));
 }
 
+final GlobalKey<NavigatorState> rootNavKey = GlobalKey<NavigatorState>();
+
 class MafiaClassicApp extends StatefulWidget {
   const MafiaClassicApp({super.key});
 
@@ -38,15 +44,54 @@ class MafiaClassicApp extends StatefulWidget {
 
 class _MafiaClassicAppState extends State<MafiaClassicApp> {
 
+  late final StreamSubscription _globalSub;
+
   @override
   void initState() {
     GeneralStreams.languageStream.add(const Locale("en"));
+
+    _globalSub = EventRouterService().globalStream.listen((entry) {
+      final event = entry.key;
+      final payload = entry.value;
+
+      if (event == ServerEvent.friendInvitation) {
+        final data = jsonDecode(payload) as Map<String, dynamic>;
+        _showInviteDialog(
+          data['senderName'] as String?,
+          data['roomName'] as String?,
+        );
+      }
+    });
+
     super.initState();
+  }
+
+  void _showInviteDialog(String? sender, String? room) {
+    final nav = rootNavKey.currentState;
+    if (nav == null) return;
+    showDialog(
+      context: nav.overlay!.context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('🎉 Invitation'),
+        content: Text('${sender ?? "Friend"} invited you to "${room ?? "room"}"'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Decline')),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              // Навигация в комнату, отправка join-команды и т.п.
+            },
+            child: const Text('Join'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   void dispose() {
     GeneralStreams.languageStream.close();
+    _globalSub.cancel();
     super.dispose();
   }
 
@@ -64,21 +109,24 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> {
       child: StreamBuilder<Locale>(
         stream: GeneralStreams.languageStream.stream,
         builder: (context, snapshot) {
-          return MaterialApp(
-            key: MafiaClassicApp.globalKey,
-            debugShowCheckedModeBanner: false,
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              AppLocalizations.delegate,
-            ],
-            locale: snapshot.data,
-            supportedLocales: L10n.locals,
-            //title: 'Flutter Demo',
-            theme: theme,
-            routes: routes,
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: MaterialApp(
+              key: MafiaClassicApp.globalKey,
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: const [
+                S.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                AppLocalizations.delegate,
+              ],
+              locale: snapshot.data,
+              supportedLocales: L10n.locals,
+              //title: 'Flutter Demo',
+              theme: theme,
+              routes: routes,
+            ),
           );
         }
       )

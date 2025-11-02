@@ -34,6 +34,7 @@ class TcpClientService {
     });
 
     sendMessage(ClientCommand.authorize.value, user.accessToken);
+    //sendMessage(10000, "");
 
     Timer.periodic(const Duration(seconds: 30), (t) {
       sendMessage(ClientCommand.ping.value, "");

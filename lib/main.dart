@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
 import 'package:mafia_classic/repositories/repositories.dart';
+import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -24,6 +25,7 @@ void main() async {
   GetIt.I.registerSingleton(AuthRepository());
   GetIt.I.registerSingleton(DioService());
   WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefsService.init();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

@@ -28,6 +28,7 @@ dependencies:
   easy_localization: ^3.0.8
   audioplayers: ^6.5.1
   just_audio: ^0.10.5
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

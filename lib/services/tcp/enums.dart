@@ -35,6 +35,8 @@ enum ServerEvent {
   gameNightActionPrompt(1512),
   gameOver(1513),
 
+  friendInvitation(5000),
+
   errorEvent(-1);
 
   final int value;
