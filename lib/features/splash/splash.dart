@@ -106,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           fullscreenDialog: true,
-          builder: (context) => const SignInScreen()   // TRUEEE
+        builder: (context) => const SignInScreen()   // TRUEEE
           //builder: (context) => const SignUpScreen()
           //builder: (context) => const SettingsScreen(),
           //builder: (context) => const ForgotPasswordScreen(),

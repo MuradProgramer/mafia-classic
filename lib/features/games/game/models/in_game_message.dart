@@ -1,13 +1,17 @@
+import 'dart:ui';
+
 class InGameMessage {
   final String? nickname;
   final String content;
   String? avatarUrl;
   String type;
+  final bool colorHasOpacity;
 
   InGameMessage({
     required this.nickname,
     required this.content,
     required this.avatarUrl,
+    required this.colorHasOpacity,
     this.type = 'Default',
   });
 
@@ -16,7 +20,8 @@ class InGameMessage {
       nickname: json['nickname'] ?? '',
       content: json['content'] ?? '',
       type: json['type'] ?? '',
-      avatarUrl: ''
+      avatarUrl: '',
+      colorHasOpacity: false
     );
   }
 }

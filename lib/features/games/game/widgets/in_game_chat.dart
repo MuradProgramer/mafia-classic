@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mafia_classic/features/games/game/models/models.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
+import 'package:mafia_classic/features/games/view/games_screen.dart';
 
 class InGameChatBox extends StatefulWidget {
   final List<InGameMessage> messages;
@@ -10,6 +11,7 @@ class InGameChatBox extends StatefulWidget {
   final Function() scrollToBottom;
   final bool isAlive;
   final String gamePhase;
+  final List<Player> players;
 
   const InGameChatBox({
     super.key, 
@@ -18,7 +20,8 @@ class InGameChatBox extends StatefulWidget {
     required this.messageController, 
     required this.scrollToBottom, 
     required this.isAlive, 
-    required this.gamePhase
+    required this.gamePhase, 
+    required this.players
   });
 
   @override
@@ -73,7 +76,8 @@ class _InGameChatBoxState extends State<InGameChatBox> {
                     Text(
                       message.nickname ?? '', //!!!!!!!!!!!!
                       style: TextStyle(
-                        color: widget.isAlive ? const Color(0xFFFFB000) : const Color(0xFFFFB000).withOpacity(0.7), 
+                        color: !message.colorHasOpacity ? const Color(0xFFFFB000) : const Color(0xFFFFB000).withOpacity(0.5),
+
                         fontWeight: FontWeight.bold, 
                         fontSize: 17.sp,
                         fontFamily: 'CenturyGothic'
@@ -82,13 +86,13 @@ class _InGameChatBoxState extends State<InGameChatBox> {
                     Text(
                       message.content,
                       style: TextStyle(
-                        color: widget.isAlive ? 
+                        color: !message.colorHasOpacity ? 
                           ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) 
                             ? Colors.black 
                             : Colors.white 
                           : ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) 
-                            ? Colors.black.withOpacity(0.7)
-                            : Colors.white.withOpacity(0.7),
+                            ? Colors.black.withOpacity(0.5)
+                            : Colors.white.withOpacity(0.5),
                         fontWeight: FontWeight.w400,
                         fontSize: 14.sp,
                         fontFamily: 'CenturyGothic'

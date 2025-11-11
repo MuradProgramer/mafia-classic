@@ -195,8 +195,8 @@
   "avatar": "Avatar",
   "upload": "Upload",
   "soundEffects": "Sound Effects",
-  "On": "On",
-  "Off": "Off",
+  "onOn": "On",
+  "offOff": "Off",
   "deleteAccount": "Delete Account",
   "currentAvatar": "Current Avatar",
   "uploadNew": "Upload New",
@@ -215,5 +215,15 @@
   "sms": "SMS",
   "codeMustBeNumeric": "Code must be numeric",
   "codeMustBe6Charactes": "Code must be 6 charactes",
-  "gameTerroristExplosion": "Terrorist tried to bomb [$playerNickname], but bodyguard saved him/her"
+  "gameTerroristExplosion": "Terrorist tried to bomb [$playerNickname], but bodyguard saved him/her",
+  "timeForDecision": "Time for decision - ",
+  "skillsDescriptionsBeauty": "Select a player to satisfy. They won't be able to vote or use abilities",
+  "skillsDescriptionsBodyguard": "Select a player to protect from the mafia and the terrorist",
+  "skillsDescriptionsBarman": "Select a player to intoxicate. They won't be able to vote, speak, or use abilities",
+  "skillsDescriptionsDoctor": "Select a player to heal from a mafia attack",
+  "skillsDescriptionsInformant": "Select a player whose role you want to reveal",
+  "skillsDescriptionsSheriff": "Select a player to investigate and find out their role",
+  "skillsDescriptionsJournalist": "Select two players to find out if they are on the same team",
+  "hasJoined": "has joined",
+  "hasLeft": "has left"
 }

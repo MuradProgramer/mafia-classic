@@ -110,11 +110,11 @@
   "civilian": "Civilian ",
   "day": "Day",
   "isYourDestiny": "is your destiny",
-  "useSkill": "Use Skill",
+  "useSkill": "Skill",
   "civiliansAreWithUs": "civilians are with us",
-  "bombard": "Bombard",
-  "vote": "Vote",
-  "myMoveIsMade": "My move is made",
+  "bombard": "Explode",
+  "vote": "Choose",
+  "myMoveIsMade": "Vote",
   "iAcceptTheWeightOfMyChoice": "I accept the weight of my choice",
   "cure": "Cure",
   "satisfy": "Satisfy",
@@ -125,7 +125,7 @@
   "interview": "Interview",
   "mafias": "mafias",
   "civilians": "civilians",
-  "pickYourTarget": "Pick your target",
+  "pickYourTarget": "Mafias pick target - ",
   "iveChosenNoRegrets": "I've chosen. No regrets",
   "choose": "Choose",
   "enterTheMessage": "Enter the message...",
@@ -158,7 +158,7 @@
   "includedRoles": "Included roles:",
   "lover": "Lover",
   "starting": "Starting:",
-  "waiting": "Waiting...",
+  "waiting": "Waiting For Players",
   "trustedIndividuals": "TRUSTED INDIVIDUALS",
   "justiceRidesWithUs": "Justice rides with us.",
   "noUsersFound": "No users found",
@@ -222,5 +222,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "timeForDecision": "Town's decision - ",
+  "skillsDescriptionsBeauty": "Select a player to satisfy. They won't be able to vote or use abilities",
+  "skillsDescriptionsBodyguard": "Select a player to protect from the mafia and the terrorist",
+  "skillsDescriptionsBarman": "Select a player to intoxicate. They won't be able to vote, speak, or use abilities",
+  "skillsDescriptionsDoctor": "Select a player to heal from a mafia attack",
+  "skillsDescriptionsInformant": "Select a player whose role you want to reveal",
+  "skillsDescriptionsSheriff": "Select a player to investigate and find out their role",
+  "skillsDescriptionsJournalist": "Select two players to find out if they are on the same team",
+  "hasJoined": "has joined",
+  "hasLeft": "has left"
 }

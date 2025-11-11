@@ -17,6 +17,90 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
   final double ornamentSize = 50.sp;
   final double ornamentMargin = 5.sp;
 
+  Map<String, String> rolesGeneralDescription = {
+    'mafia': "",
+    'civilian': "",
+    'spy': "",
+    'doctor': "",
+    'beauty': "",
+    'bodyguard': "",
+    'barman': "",
+    'informant': "",
+    'sheriff': "You are the Sheriff — the town’s investigator, dedicated to uncovering the Mafia. Use your sharp instincts and investigative skills to expose the criminals before it’s too late.",
+    'journalist': "",
+    'terrorist': "",
+  };
+
+  Map<String, String> rolesObjective = {
+    'mafia': "",
+    'civilian': "",
+    'spy': "",
+    'doctor': "",
+    'beauty': "",
+    'bodyguard': "",
+    'barman': "",
+    'informant': "",
+    'sheriff': "Eliminate all members of the Mafia.",
+    'journalist': "",
+    'terrorist': "",
+  };
+
+  Map<String, String> rolesDayPhase = {
+    'mafia': "",
+    'civilian': "",
+    'spy': "",
+    'doctor': "",
+    'beauty': "",
+    'bodyguard': "",
+    'barman': "",
+    'informant': "",
+    'sheriff': "Participate in daytime discussions, help the townspeople identify the Mafia, and vote to exile suspects.",
+    'journalist': "",
+    'terrorist': "",
+  };
+
+  Map<String, String> rolesThirdTitle = {
+    'mafia': "",
+    'civilian': "",
+    'spy': "",
+    'doctor': "",
+    'beauty': "",
+    'bodyguard': "",
+    'barman': "",
+    'informant': "",
+    'sheriff': "Night Phase / Skill",
+    'journalist': "",
+    'terrorist': "",
+  };
+
+  Map<String, String> rolesThirdDescription = {
+    'mafia': "",
+    'civilian': "",
+    'spy': "",
+    'doctor': "",
+    'beauty': "",
+    'bodyguard': "",
+    'barman': "",
+    'informant': "",
+    'sheriff': "Each night, use your Sheriff’s ability to investigate one player and learn their true role or alignment.",
+    'journalist': "",
+    'terrorist': "",
+  };
+
+  Map<String, String> rolesWinningConditions = {
+    'mafia': "",
+    'civilian': "",
+    'spy': "",
+    'doctor': "",
+    'beauty': "",
+    'bodyguard': "",
+    'barman': "",
+    'informant': "",
+    'sheriff': "The Town wins when all Mafia members have been eliminated.",
+    'journalist': "",
+    'terrorist': "",
+  };
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -92,7 +176,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                     Padding(
                       padding: EdgeInsets.only(top: 120.sp),
                       child: Text(
-                        'You are the Sheriff, the town\'s investigator\ndedicated to rooting out the Mafia. Use\n your investigative skills wisely to expose\n the criminals before it\'s too late.',
+                        rolesGeneralDescription[widget.roleName]!,
                         style: GoogleFonts.playfairDisplay(
                           fontStyle: FontStyle.italic,
                           fontSize: 18,
@@ -187,6 +271,176 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                               ),
                             ],
                           ),
+                        
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // TEXT: GamePlay Rules
+                              Container(
+                                margin: EdgeInsets.only(top: 15.h),
+                                child: Text(
+                                  "Gameplay Rules:",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 18.sp,
+                                    height: 0,
+                                    fontFamily: 'CenturyGothic',
+                                    color: const Color(0xFFFFB000),
+                                    fontWeight: FontWeight.w800
+                                  ),
+                                ),
+                              ),
+                          
+                              SizedBox(height: 10.h),
+                          
+                              //? Rules
+                              Container(
+                                margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 50.h),
+                                child: Column(
+                                  children: [
+                          
+                                    //? Objective
+                                    RichText(
+                                      textAlign: TextAlign.center,
+                                      text: TextSpan(
+                                        children: [
+                                          // TEXT:    Objective
+                                          TextSpan(
+                                            text: "Objective: ",
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontStyle: FontStyle.italic,
+                                              height: 0,
+                                              fontFamily: 'CenturyGothic',
+                                              color: const Color(0xFFFFB000),
+                                              fontWeight: FontWeight.w800
+                                            ),
+                                          ),
+                                      
+                                          // TEXT
+                                          TextSpan(
+                                            text: rolesObjective[widget.roleName],
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              height: 0,
+                                              fontFamily: 'CenturyGothic',
+                                              color: const Color(0xFF000000),
+                                              fontWeight: FontWeight.w400
+                                            ),
+                                          ),
+                                        ]
+                                      )
+                                    ),
+                                  
+                                    SizedBox(height: 10.h),
+                          
+                                    //? Day Phase
+                                    RichText(
+                                      textAlign: TextAlign.center,
+                                      text: TextSpan(
+                                        children: [
+                                          // TEXT:    Day Phase
+                                          TextSpan(
+                                            text: "Day Phase: ",
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontStyle: FontStyle.italic,
+                                              height: 0,
+                                              fontFamily: 'CenturyGothic',
+                                              color: const Color(0xFFFFB000),
+                                              fontWeight: FontWeight.w800
+                                            ),
+                                          ),
+                                      
+                                          // TEXT
+                                          TextSpan(
+                                            text: rolesDayPhase[widget.roleName],
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              height: 0,
+                                              fontFamily: 'CenturyGothic',
+                                              color: const Color(0xFF000000),
+                                              fontWeight: FontWeight.w400
+                                            ),
+                                          ),
+                                        ]
+                                      )
+                                    ),
+                                  
+                                    SizedBox(height: 10.h),
+                          
+                                    //? Third Description
+                                    RichText(
+                                      textAlign: TextAlign.center,
+                                      text: TextSpan(
+                                        children: [
+                                          // TEXT:    Third Desc Title
+                                          TextSpan(
+                                            text: "${rolesThirdTitle[widget.roleName]}: ",
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontStyle: FontStyle.italic,
+                                              height: 0,
+                                              fontFamily: 'CenturyGothic',
+                                              color: const Color(0xFFFFB000),
+                                              fontWeight: FontWeight.w800
+                                            ),
+                                          ),
+                                      
+                                          // TEXT:    Third Description
+                                          TextSpan(
+                                            text: rolesThirdDescription[widget.roleName],
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              height: 0,
+                                              fontFamily: 'CenturyGothic',
+                                              color: const Color(0xFF000000),
+                                              fontWeight: FontWeight.w400
+                                            ),
+                                          ),
+                                        ]
+                                      )
+                                    ),
+                                  
+                                    SizedBox(height: 10.h),
+                          
+                                    //? Winning Conditions
+                                    RichText(
+                                      textAlign: TextAlign.center,
+                                      text: TextSpan(
+                                        children: [
+                                          // TEXT:    Winning Conditions
+                                          TextSpan(
+                                            text: "Winning Conditions: ",
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontStyle: FontStyle.italic,
+                                              height: 0,
+                                              fontFamily: 'CenturyGothic',
+                                              color: const Color(0xFFFFB000),
+                                              fontWeight: FontWeight.w800
+                                            ),
+                                          ),
+                                      
+                                          // TEXT
+                                          TextSpan(
+                                            text: rolesWinningConditions[widget.roleName],
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              height: 0,
+                                              fontFamily: 'CenturyGothic',
+                                              color: const Color(0xFF000000),
+                                              fontWeight: FontWeight.w400
+                                            ),
+                                          ),
+                                        ]
+                                      )
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          )
                         ],
                       ),
                     )

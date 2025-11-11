@@ -679,4 +679,41 @@ class AppLocalizationsTr extends AppLocalizations {
   String gameTerroristExplosion(String playerNickname) {
     return 'Terrorist tried to bomb [\$playerNickname], but bodyguard saved him/her';
   }
+
+  @override
+  String get timeForDecision => 'Time for decision - ';
+
+  @override
+  String get skillsDescriptionsBeauty =>
+      'Select a player to satisfy. They won\'t be able to vote or use abilities';
+
+  @override
+  String get skillsDescriptionsBodyguard =>
+      'Select a player to protect from the mafia and the terrorist';
+
+  @override
+  String get skillsDescriptionsBarman =>
+      'Select a player to intoxicate. They won\'t be able to vote, speak, or use abilities';
+
+  @override
+  String get skillsDescriptionsDoctor =>
+      'Select a player to heal from a mafia attack';
+
+  @override
+  String get skillsDescriptionsInformant =>
+      'Select a player whose role you want to reveal';
+
+  @override
+  String get skillsDescriptionsSheriff =>
+      'Select a player to investigate and find out their role';
+
+  @override
+  String get skillsDescriptionsJournalist =>
+      'Select two players to find out if they are on the same team';
+
+  @override
+  String get hasJoined => 'has joined';
+
+  @override
+  String get hasLeft => 'has left';
 }

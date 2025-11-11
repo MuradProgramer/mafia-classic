@@ -13,6 +13,7 @@ import 'package:mafia_classic/features/profile/roles/widgets/widgets.dart';
 import 'package:mafia_classic/features/widgets/validation_popup.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/models/player.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
@@ -160,16 +161,9 @@ class _GamesScreenState extends State<GamesScreen> {
   late StreamSubscription<String> lobbyGameOver;
   late StreamSubscription<String> lobbyRoomClosed;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
+  void loadStreamsAndData() {
     TcpClientService().sendMessage(ClientCommand.getRooms.value, ""); //? lobbyRooms
+    log('*************SEND MESSAGE IS SUCCEFULL*************');
 
     // DONE +
     lobbyRooms = EventRouterService()
@@ -357,6 +351,12 @@ class _GamesScreenState extends State<GamesScreen> {
     authorizedUser = widget.user;
     //allGames = games;
     searchedGames = allGames;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadStreamsAndData();    
   }
 
   @override
@@ -630,7 +630,7 @@ class _GamesScreenState extends State<GamesScreen> {
                       padding: EdgeInsets.zero,
                       itemCount: searchedGames!.length,
                       itemBuilder: (context, index) {
-                        return GameCard(game: searchedGames![index]);
+                        return GameCard(game: searchedGames![index], loadStreamsAndData: loadStreamsAndData,);
                       },
                     ),
                 ),
@@ -740,8 +740,9 @@ class Game {
 
 class GameCard extends StatefulWidget {
   final Game game;
+  final void Function() loadStreamsAndData;
 
-  const GameCard({super.key, required this.game});
+  const GameCard({super.key, required this.game, required this.loadStreamsAndData});
 
   @override
   State<GameCard> createState() => _GameCardState();
@@ -773,7 +774,6 @@ class _GameCardState extends State<GameCard> {
   void initState() {
     //? 1007
     // DONE
-    // DONE
     roomStateData = EventRouterService()
         .subscribe(ServerEvent.roomStateData)
         .listen((payload) {
@@ -786,6 +786,8 @@ class _GameCardState extends State<GameCard> {
         final allPlayers = (data['players'] as List<dynamic>?)
             ?.map((e) => Player.fromJson(e))
             .toList() ?? [];
+
+        if (!mounted) return;
 
         Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(builder: (context) => 
@@ -804,7 +806,11 @@ class _GameCardState extends State<GameCard> {
               password: password,
             )
           ),
-        );
+        ).then((value) {
+          if (mounted) {
+            widget.loadStreamsAndData();
+          }
+        });
       } on Exception catch (e) {
         log('EXCEPTION IN:     RoomStateData EVENT - GAME SCREEN: ${e.toString()}');
       }
@@ -834,6 +840,14 @@ class _GameCardState extends State<GameCard> {
     }
     super.initState();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    passwordIsWrong.cancel();
+    roomStateData.cancel();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -958,7 +972,9 @@ class _GameCardState extends State<GameCard> {
                         MaterialPageRoute(builder: (context) => 
                           GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",)
                         )
-                      );
+                      ).then((result) {
+                        widget.loadStreamsAndData();
+                      });
                     }
                   },
                   child: Container(
@@ -1204,32 +1220,37 @@ class _GameCardState extends State<GameCard> {
                 ],
               ),
             
-              //? DIVIDER
-              Container(
-                margin: EdgeInsets.only(bottom: 10.h),
-                width: 320.w,
-                child: const Divider(
-                  color: Colors.white,
-                  thickness: 1,
-                ),
-              ),
-
-              // TEXT:    USER STATE
-              Padding(
-                padding: EdgeInsets.only(bottom: 20.h),
-                child: Text(
-                  text == 'You Are Playing Here'
-                  ? S.of(context).youArePlayingHere
-                  : text == 'You Died Here'
-                  ? S.of(context).youDiedHere
-                  : '',
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontFamily: 'CenturyGothic',
-                    color: const Color(0xFF515151)
+              if (text.isNotEmpty)
+                //? DIVIDER
+                Container(
+                  margin: EdgeInsets.only(bottom: 10.h),
+                  width: 320.w,
+                  child: const Divider(
+                    color: Colors.white,
+                    thickness: 1,
                   ),
                 ),
-              )
+              
+              if (text.isEmpty)
+                SizedBox(height: 10.h),
+
+              // TEXT:    USER STATE
+              if (text.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(bottom: 20.h),
+                  child: Text(
+                    text == 'You Are Playing Here'
+                    ? S.of(context).youArePlayingHere
+                    : text == 'You Died Here'
+                    ? S.of(context).youDiedHere
+                    : '',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontFamily: 'CenturyGothic',
+                      color: const Color(0xFF515151)
+                    ),
+                  ),
+                )
             ],
           )
         ],              
@@ -3623,7 +3644,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             isSystemMessage: true, 
             nickname: player.nickname, 
             avatarUrl: player.avatarUrl,
-            text: '${player.nickname} has joined'
+            text: '[${player.nickname}] ${AppLocalizations.of(context)!.hasJoined}'
           )
         );
       });
@@ -3645,7 +3666,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             isSystemMessage: true, 
             nickname: nickname, 
             avatarUrl: gameLobbyPlayers[0].avatarUrl,
-            text: '$nickname has left'
+            text: '[$nickname] ${AppLocalizations.of(context)!.hasLeft}'
           )
         );
         if (gameLobbyPlayers.length < widget.game.minPlayers) {
@@ -3754,14 +3775,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
     TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, json.encode({'message': text.trim()}));
 
-    setState(() {
-      gameLobbyChatMessages.add(ChatMessage(
-        isSystemMessage: false,
-        nickname: authorizedUser.nickname,
-        avatarUrl: authorizedUser.avatarUrl,
-        text: text,
-      ));
-    });
+    // setState(() {
+    //   gameLobbyChatMessages.add(ChatMessage(
+    //     isSystemMessage: false,
+    //     nickname: authorizedUser.nickname,
+    //     avatarUrl: authorizedUser.avatarUrl,
+    //     text: text,
+    //   ));
+    // });
   }
 
   @override
@@ -3800,7 +3821,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
               
           
               Padding(
-                padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
+                padding: EdgeInsets.only(top: 50.h, right: 7.w, left: 7.w),
                 child: Stack(
                   children: [
                     
@@ -3912,7 +3933,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             ),
               
                                             Text(
-                                              S.of(context).min,
+                                              "Min",
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15.sp,
@@ -3954,7 +3975,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             ),
               
                                             Text(
-                                              S.of(context).max,
+                                              "Max",
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15.sp,
@@ -4026,7 +4047,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                       height: 450.h,
                       decoration: BoxDecoration(
                         color: const Color(0xFF2B2B2B),
-                        borderRadius: BorderRadius.circular(20.0),
+                        borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Column(
                         children: [
@@ -4035,7 +4056,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                             children: [
                               //? PLAYERS
                               SizedBox(
-                                width: 210.w,
+                                width: 230.w,
                                 height: 130.h,
                                 child: ListView.builder(
                                   padding: EdgeInsets.zero,
@@ -4047,38 +4068,45 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                   // ),
                                   itemCount: gameLobbyPlayers.length,
                                   itemBuilder: (context, index) {
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        SizedBox(width: 10.w),
-          
-                                        //? AVATAR
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(50.sp),
-                                          ),
-                                          child: CircleAvatar(
-                                            backgroundImage: NetworkImage(
-                                              gameLobbyPlayers[index].avatarUrl
+                                    return Padding(
+                                      padding: EdgeInsetsGeometry.only(bottom: 10.h),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          SizedBox(width: 7.5.w),
+                                                
+                                          //? AVATAR
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(50.r),
+                                              border: Border.all(
+                                                width: 1.w,
+                                                color: const Color(0xFFFFFFFF)
+                                              )
                                             ),
-                                            radius: 18.sp,
-                                          )
-                                        ),
-                                        SizedBox(width: 4.w),
-          
-                                        //? NICKNAME
-                                        Container(
-                                          child: Text(
-                                            gameLobbyPlayers[index].nickname,
-                                            softWrap: true,
-                                            overflow: TextOverflow.fade,
-                                            style: TextStyle(
-                                              fontSize: 18.sp,
-                                              fontFamily: 'CenturyGothic',
+                                            child: CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                gameLobbyPlayers[index].avatarUrl
+                                              ),
+                                              radius: 18.sp,
+                                            )
+                                          ),
+                                          SizedBox(width: 4.w),
+                                                
+                                          //? NICKNAME
+                                          Container(
+                                            child: Text(
+                                              gameLobbyPlayers[index].nickname,
+                                              softWrap: true,
+                                              overflow: TextOverflow.fade,
+                                              style: TextStyle(
+                                                fontSize: 18.sp,
+                                                fontFamily: 'CenturyGothic',
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     );
                                   },
                                 ),
@@ -4086,7 +4114,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
               
                               //? TIMER
                               Container(
-                                margin: EdgeInsets.only(top: 10.h, right: 15.w),
+                                margin: EdgeInsets.only(top: 10.h, right: 10.w),
                                 width: 130.w,
                                 height: 130.h,
                                 decoration: BoxDecoration(
@@ -4102,7 +4130,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                   children: [
                                     remainingTime != -1
                                     ? Text(
-                                      S.of(context).starting,
+                                      AppLocalizations.of(context)!.starting,
                                       style: GoogleFonts.playfairDisplay(
                                         color: const Color(0xFFFFB000),
                                         fontSize: 22.sp,
@@ -4115,7 +4143,8 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                     Padding(
                                       padding: remainingTime == -1 ? EdgeInsets.only(bottom: 5.h) : EdgeInsets.only(bottom: 0.h),
                                       child: Text(
-                                        remainingTime != -1 ? '$remainingTime ${S.of(context).seconds}' : S.of(context).waiting,
+                                        textAlign: TextAlign.center,
+                                        remainingTime != -1 ? '$remainingTime\n${AppLocalizations.of(context)!.seconds}' : AppLocalizations.of(context)!.waiting.replaceAll(' ', '\n'),
                                         style: GoogleFonts.playfairDisplay(
                                           color: const Color(0xFFFFB000),
                                           fontSize: 22.sp,
@@ -4131,9 +4160,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                           
                           //? CHAT
                           Container(
-                            margin: EdgeInsets.all(15.sp),
+                            margin: EdgeInsets.all(10.sp),
                             width: double.maxFinite,
-                            height: 280.h,
+                            height: 290.h,
                             decoration: BoxDecoration(
                               color: const Color(0xFF1E1E1E),
                               borderRadius: BorderRadius.circular(12.0),
@@ -4150,18 +4179,18 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                   
                     //? INPUT FIELD
                     Container(
-                      margin: EdgeInsets.only(top: 725.h),
+                      margin: EdgeInsets.only(top: 715.h),
                       width: double.maxFinite,
                       height: 55.h,
                       decoration: BoxDecoration(
                         color: const Color(0xFF2B2B2B),
-                        borderRadius: BorderRadius.circular(12.0),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Row(
                         children: [
                           //? SMILES
                           Container(
-                            margin: const EdgeInsets.only(left: 7, right: 7),
+                            margin: EdgeInsets.only(left: 7.w, right: 7.w),
                             child: GestureDetector(
                               onTap: () {},
                               child: Image.asset(
@@ -4171,10 +4200,10 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                               ),
                             ),
                           ),
-              
+                          
                           //? INPUT
                           SizedBox(
-                            width: 310.w,
+                            width: 330.w,
                             height: 55.h,
                             child: MessageInputField(onSend: sendMessage),
                           )
@@ -4557,7 +4586,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 style: const TextStyle(color: Colors.white),
                 controller: _controller,
                 decoration: InputDecoration(
-                  hintText: '${S.of(context).enterMessage}...',
+                  hintText: '${AppLocalizations.of(context)!.enterMessage}...',
                   border: InputBorder.none
                 ),
               ),

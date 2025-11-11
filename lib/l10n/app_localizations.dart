@@ -765,7 +765,7 @@ abstract class AppLocalizations {
   /// No description provided for @useSkill.
   ///
   /// In en, this message translates to:
-  /// **'Use Skill'**
+  /// **'Skill'**
   String get useSkill;
 
   /// No description provided for @civiliansAreWithUs.
@@ -777,19 +777,19 @@ abstract class AppLocalizations {
   /// No description provided for @bombard.
   ///
   /// In en, this message translates to:
-  /// **'Bombard'**
+  /// **'Explode'**
   String get bombard;
 
   /// No description provided for @vote.
   ///
   /// In en, this message translates to:
-  /// **'Vote'**
+  /// **'Choose'**
   String get vote;
 
   /// No description provided for @myMoveIsMade.
   ///
   /// In en, this message translates to:
-  /// **'My move is made'**
+  /// **'Vote'**
   String get myMoveIsMade;
 
   /// No description provided for @iAcceptTheWeightOfMyChoice.
@@ -855,7 +855,7 @@ abstract class AppLocalizations {
   /// No description provided for @pickYourTarget.
   ///
   /// In en, this message translates to:
-  /// **'Pick your target'**
+  /// **'Mafias pick target - '**
   String get pickYourTarget;
 
   /// No description provided for @iveChosenNoRegrets.
@@ -1053,7 +1053,7 @@ abstract class AppLocalizations {
   /// No description provided for @waiting.
   ///
   /// In en, this message translates to:
-  /// **'Waiting...'**
+  /// **'Waiting For Players'**
   String get waiting;
 
   /// No description provided for @trustedIndividuals.
@@ -1397,6 +1397,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terrorist tried to bomb [{playerNickname}], but bodyguard saved him/her'**
   String gameTerroristExplosion(String playerNickname);
+
+  /// No description provided for @timeForDecision.
+  ///
+  /// In en, this message translates to:
+  /// **'Town\'s decision - '**
+  String get timeForDecision;
+
+  /// No description provided for @skillsDescriptionsBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a player to satisfy. They won\'t be able to vote or use abilities'**
+  String get skillsDescriptionsBeauty;
+
+  /// No description provided for @skillsDescriptionsBodyguard.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a player to protect from the mafia and the terrorist'**
+  String get skillsDescriptionsBodyguard;
+
+  /// No description provided for @skillsDescriptionsBarman.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a player to intoxicate. They won\'t be able to vote, speak, or use abilities'**
+  String get skillsDescriptionsBarman;
+
+  /// No description provided for @skillsDescriptionsDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a player to heal from a mafia attack'**
+  String get skillsDescriptionsDoctor;
+
+  /// No description provided for @skillsDescriptionsInformant.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a player whose role you want to reveal'**
+  String get skillsDescriptionsInformant;
+
+  /// No description provided for @skillsDescriptionsSheriff.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a player to investigate and find out their role'**
+  String get skillsDescriptionsSheriff;
+
+  /// No description provided for @skillsDescriptionsJournalist.
+  ///
+  /// In en, this message translates to:
+  /// **'Select two players to find out if they are on the same team'**
+  String get skillsDescriptionsJournalist;
+
+  /// No description provided for @hasJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'has joined'**
+  String get hasJoined;
+
+  /// No description provided for @hasLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'has left'**
+  String get hasLeft;
 }
 
 class _AppLocalizationsDelegate

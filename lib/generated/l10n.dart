@@ -2200,6 +2200,8 @@ class S {
     );
   }
 
+  get timeForDecision => null;
+
   /// `Terrorist tried to bomb [{playerNickname}], but bodyguard saved him/her`
   String gameTerroristExplosion(String playerNickname) {
     return Intl.message(

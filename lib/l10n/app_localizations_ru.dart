@@ -277,7 +277,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get seconds => 'секунд';
 
   @override
-  String get playersInRoom => 'Игроки в комнате';
+  String get playersInRoom => 'Игроков в комнате';
 
   @override
   String get enterMessage => 'Введите сообщение';
@@ -350,28 +350,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get playersInTheRoom => 'Игроки в комнате';
 
   @override
-  String get civilian => 'Мирный житель';
+  String get civilian => 'Мирный';
 
   @override
   String get day => 'День';
 
   @override
-  String get isYourDestiny => '— твоя судьба';
+  String get isYourDestiny => 'твоя судьба';
 
   @override
-  String get useSkill => 'Использовать навык';
+  String get useSkill => 'Навык';
 
   @override
   String get civiliansAreWithUs => 'Мирные жители с нами';
 
   @override
-  String get bombard => 'Обстрелять';
+  String get bombard => 'Взорвать';
 
   @override
-  String get vote => 'Голосовать';
+  String get vote => 'Выбрать';
 
   @override
-  String get myMoveIsMade => 'Мой ход сделан';
+  String get myMoveIsMade => 'Голосовать';
 
   @override
   String get iAcceptTheWeightOfMyChoice => 'Я принимаю тяжесть своего выбора';
@@ -380,31 +380,31 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cure => 'Лечить';
 
   @override
-  String get satisfy => 'Удовлетворить';
+  String get satisfy => 'Очаровать';
 
   @override
   String get protect => 'Защитить';
 
   @override
-  String get intoxicate => 'Отравить';
+  String get intoxicate => 'Опьянить';
 
   @override
   String get reveale => 'Раскрыть';
 
   @override
-  String get investigate => 'Расследовать';
+  String get investigate => 'Проверить';
 
   @override
-  String get interview => 'Допросить';
+  String get interview => 'Опросить';
 
   @override
   String get mafias => 'Мафия';
 
   @override
-  String get civilians => 'Мирные жители';
+  String get civilians => 'Мирные';
 
   @override
-  String get pickYourTarget => 'Выберите цель';
+  String get pickYourTarget => 'Мафия выбирает жертву - ';
 
   @override
   String get iveChosenNoRegrets => 'Я выбрал. Без сожалений';
@@ -503,7 +503,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get starting => 'Начало:';
 
   @override
-  String get waiting => 'Ожидание...';
+  String get waiting => 'Ожидание Игроков';
 
   @override
   String get trustedIndividuals => 'НАДЁЖНЫЕ ЛИЦА';
@@ -590,94 +590,130 @@ class AppLocalizationsRu extends AppLocalizations {
   String get overall => 'Общее';
 
   @override
-  String get wins => 'Победы';
+  String get wins => 'Победа';
 
   @override
   String get loses => 'Поражения';
 
   @override
-  String get mafiaWins => 'Победы мафии';
+  String get mafiaWins => 'Победа мафии';
 
   @override
-  String get civilianWins => 'Победы мирных';
+  String get civilianWins => 'Победа мирных';
 
   @override
   String get playedRoles => 'Сыгранные роли';
 
   @override
-  String get avatar => 'Avatar';
+  String get avatar => 'Аватар';
 
   @override
-  String get upload => 'Upload';
+  String get upload => 'Загрузить';
 
   @override
-  String get soundEffects => 'Sound Effects';
+  String get soundEffects => 'Звуковые эффекты';
 
   @override
-  String get onOn => 'On';
+  String get onOn => 'Вкл';
 
   @override
-  String get offOff => 'Off';
+  String get offOff => 'Выкл';
 
   @override
-  String get deleteAccount => 'Delete Account';
+  String get deleteAccount => 'Удалить аккаунт';
 
   @override
-  String get currentAvatar => 'Current Avatar';
+  String get currentAvatar => 'Текущий аватар';
 
   @override
-  String get uploadNew => 'Upload New';
+  String get uploadNew => 'Загрузить новый';
 
   @override
-  String get uploadAnother => 'Upload Another';
+  String get uploadAnother => 'Загрузить другой';
 
   @override
-  String get currentNickname => 'Current Nickname';
+  String get currentNickname => 'Текущий никнейм';
 
   @override
-  String get currentPassword => 'Current Password';
+  String get currentPassword => 'Текущий пароль';
 
   @override
-  String get title => 'Title';
+  String get title => 'Название';
 
   @override
   String get youMustWriteATitleOfTheReport =>
-      'You must write a title of the report';
+      'Вы должны написать название отчёта';
 
   @override
-  String get typeHere => 'Type here';
+  String get typeHere => 'Пишите здесь';
 
   @override
   String get inCaseOfAnyProblemPleaseNotifyUs =>
-      'In case of any problem, please notify us';
+      'В случае любой проблемы, пожалуйста, сообщите нам';
 
   @override
-  String get recover => 'Recover';
+  String get recover => 'Восстановить';
 
   @override
-  String get writeDownTheEmailToGetACode =>
-      'Write down the email to get a code';
+  String get writeDownTheEmailToGetACode => 'Введите email, чтобы получить код';
 
   @override
-  String get next => 'Next';
+  String get next => 'Далее';
 
   @override
-  String get back => 'Back';
+  String get back => 'Назад';
 
   @override
-  String get youMustWriteTheSmsCode => 'You must write the SMS code';
+  String get youMustWriteTheSmsCode => 'Вы должны ввести SMS-код';
 
   @override
   String get sms => 'SMS';
 
   @override
-  String get codeMustBeNumeric => 'Code must be numeric';
+  String get codeMustBeNumeric => 'Код должен быть числовым';
 
   @override
-  String get codeMustBe6Charactes => 'Code must be 6 charactes';
+  String get codeMustBe6Charactes => 'Код должен состоять из 6 символов';
 
   @override
   String gameTerroristExplosion(String playerNickname) {
     return 'Terrorist tried to bomb [\$playerNickname], but bodyguard saved him/her';
   }
+
+  @override
+  String get timeForDecision => 'Дневное голосование - ';
+
+  @override
+  String get skillsDescriptionsBeauty =>
+      'Выберите игрока, которого хотите очаровать. Он не сможет голосовать и использовать способности';
+
+  @override
+  String get skillsDescriptionsBodyguard =>
+      'Выберите игрока, которого хотите защитить от мафии и террориста';
+
+  @override
+  String get skillsDescriptionsBarman =>
+      'Выберите игрока, которого хотите опьянить. Он не сможет голосовать, говорить и использовать способности';
+
+  @override
+  String get skillsDescriptionsDoctor =>
+      'Выберите игрока, которого вы вылечите при нападении мафии';
+
+  @override
+  String get skillsDescriptionsInformant =>
+      'Выберите игрока, чью роль хотите раскрыть';
+
+  @override
+  String get skillsDescriptionsSheriff =>
+      'Выберите двух игроков, чтобы узнать, в одной они команде или нет';
+
+  @override
+  String get skillsDescriptionsJournalist =>
+      'Выберите игрока для расследования, чтобы узнать его роль';
+
+  @override
+  String get hasJoined => 'зашел';
+
+  @override
+  String get hasLeft => 'вышел';
 }
