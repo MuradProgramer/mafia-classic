@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 
 class RoleCardPopup extends StatefulWidget {
   final String roleName;
@@ -17,89 +18,81 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
   final double ornamentSize = 50.sp;
   final double ornamentMargin = 5.sp;
 
-  Map<String, String> rolesGeneralDescription = {
-    'mafia': "",
-    'civilian': "",
-    'spy': "",
-    'doctor': "",
-    'beauty': "",
-    'bodyguard': "",
-    'barman': "",
-    'informant': "",
-    'sheriff': "You are the Sheriff — the town’s investigator, dedicated to uncovering the Mafia. Use your sharp instincts and investigative skills to expose the criminals before it’s too late.",
-    'journalist': "",
-    'terrorist': "",
+  Map<String, String> get rolesGeneralDescription => {
+    'mafia': AppLocalizations.of(context)!.rolesGeneralDescriptionMafia,
+    'civilian': AppLocalizations.of(context)!.rolesGeneralDescriptionCivilian,
+    'spy': AppLocalizations.of(context)!.rolesGeneralDescriptionSpy,
+    'doctor': AppLocalizations.of(context)!.rolesGeneralDescriptionDoctor,
+    'beauty': AppLocalizations.of(context)!.rolesGeneralDescriptionBeauty,
+    'bodyguard': AppLocalizations.of(context)!.rolesGeneralDescriptionBodyguard,
+    'barman': AppLocalizations.of(context)!.rolesGeneralDescriptionBarman,
+    'informant': AppLocalizations.of(context)!.rolesGeneralDescriptionInformant,
+    'sheriff': AppLocalizations.of(context)!.rolesGeneralDescriptionSheriff,
+    'journalist': AppLocalizations.of(context)!.rolesGeneralDescriptionJournalist,
+    'terrorist': AppLocalizations.of(context)!.rolesGeneralDescriptionTerrorist,
   };
 
-  Map<String, String> rolesObjective = {
-    'mafia': "",
-    'civilian': "",
-    'spy': "",
-    'doctor': "",
-    'beauty': "",
-    'bodyguard': "",
-    'barman': "",
-    'informant': "",
-    'sheriff': "Eliminate all members of the Mafia.",
-    'journalist': "",
-    'terrorist': "",
+  Map<String, String> get rolesObjective => {
+    'mafia': AppLocalizations.of(context)!.rolesObjectiveMafia,
+    'civilian': AppLocalizations.of(context)!.rolesObjectiveVicilian,
+    'spy': AppLocalizations.of(context)!.rolesObjectiveSpy,
+    'doctor': AppLocalizations.of(context)!.rolesObjectiveDoctor,
+    'beauty': AppLocalizations.of(context)!.rolesObjectiveBeauty,
+    'bodyguard': AppLocalizations.of(context)!.rolesObjectiveBodyguard,
+    'barman': AppLocalizations.of(context)!.rolesObjectiveBarman,
+    'informant': AppLocalizations.of(context)!.rolesObjectiveInformant,
+    'sheriff': AppLocalizations.of(context)!.rolesObjectiveSheriff,
+    'journalist': AppLocalizations.of(context)!.rolesObjectiveJournalist,
+    'terrorist': AppLocalizations.of(context)!.rolesObjectiveTerrorist,
   };
 
-  Map<String, String> rolesDayPhase = {
-    'mafia': "",
-    'civilian': "",
-    'spy': "",
-    'doctor': "",
-    'beauty': "",
-    'bodyguard': "",
-    'barman': "",
-    'informant': "",
-    'sheriff': "Participate in daytime discussions, help the townspeople identify the Mafia, and vote to exile suspects.",
-    'journalist': "",
-    'terrorist': "",
+  Map<String, String> get rolesDayPhase => {
+    'mafia': AppLocalizations.of(context)!.rolesDayPhaseMafia,
+    'civilian': AppLocalizations.of(context)!.rolesDayPhaseCivilian,
+    'spy': AppLocalizations.of(context)!.rolesDayPhaseSpy,
+    'doctor': AppLocalizations.of(context)!.rolesDayPhaseDoctor,
+    'beauty': AppLocalizations.of(context)!.rolesDayPhaseBeauty,
+    'bodyguard': AppLocalizations.of(context)!.rolesDayPhaseBodyguard,
+    'barman': AppLocalizations.of(context)!.rolesDayPhaseBarman,
+    'informant': AppLocalizations.of(context)!.rolesDayPhaseInformant,
+    'sheriff': AppLocalizations.of(context)!.rolesDayPhaseSheriff,
+    'journalist': AppLocalizations.of(context)!.rolesDayPhaseJournalist,
+    'terrorist': AppLocalizations.of(context)!.rolesDayPhaseTerrorist,
   };
 
-  Map<String, String> rolesThirdTitle = {
-    'mafia': "",
-    'civilian': "",
-    'spy': "",
-    'doctor': "",
-    'beauty': "",
-    'bodyguard': "",
-    'barman': "",
-    'informant': "",
-    'sheriff': "Night Phase / Skill",
-    'journalist': "",
-    'terrorist': "",
+  List<String> exceptionRolesForSecondTitle = ['bodyguard', 'terrorist'];
+
+  List<String> exceptionRolesForThirdTitle = ['doctor', 'beauty', 'barman', 'informant', 'sheriff', 'journalist'];
+
+  Map<String, String> get rolesThirdDescription => {
+    'mafia': AppLocalizations.of(context)!.rolesThirdDescriptionMafia,
+    'civilian': AppLocalizations.of(context)!.rolesThirdDescriptionCivilian,
+    'spy': AppLocalizations.of(context)!.rolesThirdDescriptionSpy,
+    'doctor': AppLocalizations.of(context)!.rolesThirdDescriptionDoctor,
+    'beauty': AppLocalizations.of(context)!.rolesThirdDescriptionBeauty,
+    'bodyguard': AppLocalizations.of(context)!.rolesThirdDescriptionBodyguard,
+    'barman': AppLocalizations.of(context)!.rolesThirdDescriptionBarman,
+    'informant': AppLocalizations.of(context)!.rolesThirdDescriptionInformant,
+    'sheriff': AppLocalizations.of(context)!.rolesThirdDescriptionSheriff,
+    'journalist': AppLocalizations.of(context)!.rolesThirdDescriptionJournalist,
+    'terrorist': AppLocalizations.of(context)!.rolesThirdDescriptionTerrorist,
   };
 
-  Map<String, String> rolesThirdDescription = {
-    'mafia': "",
-    'civilian': "",
-    'spy': "",
-    'doctor': "",
-    'beauty': "",
-    'bodyguard': "",
-    'barman': "",
-    'informant': "",
-    'sheriff': "Each night, use your Sheriff’s ability to investigate one player and learn their true role or alignment.",
-    'journalist': "",
-    'terrorist': "",
+  Map<String, String> get rolesWinningConditions => {
+    'mafia': AppLocalizations.of(context)!.rolesWinningConditionMafia,
+    'civilian': AppLocalizations.of(context)!.rolesWinningConditionsCivilian,
+    'spy': AppLocalizations.of(context)!.rolesWinningConditionsSpy,
+    'doctor': AppLocalizations.of(context)!.rolesWinningConditionsDoctor,
+    'beauty': AppLocalizations.of(context)!.rolesWinningConditionsBeauty,
+    'bodyguard': AppLocalizations.of(context)!.rolesWinningConditionsBodyguard,
+    'barman': AppLocalizations.of(context)!.rolesWinningConditionsBarman,
+    'informant': AppLocalizations.of(context)!.rolesWinningConditionsInformant,
+    'sheriff': AppLocalizations.of(context)!.rolesWinningConditionsSheriff,
+    'journalist': AppLocalizations.of(context)!.rolesWinningConditionsJournalist,
+    'terrorist': AppLocalizations.of(context)!.rolesWinningConditionsTerrorist,
   };
 
-  Map<String, String> rolesWinningConditions = {
-    'mafia': "",
-    'civilian': "",
-    'spy': "",
-    'doctor': "",
-    'beauty': "",
-    'bodyguard': "",
-    'barman': "",
-    'informant': "",
-    'sheriff': "The Town wins when all Mafia members have been eliminated.",
-    'journalist': "",
-    'terrorist': "",
-  };
+  bool get fromMafiaTeam => ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName);
 
   @override
   Widget build(BuildContext context) {
@@ -116,13 +109,13 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
               image: AssetImage('assets/images/role-card-background-${widget.roleName}.png'),
               fit: BoxFit.cover,
             ),
-            borderRadius: BorderRadius.circular(6.sp),
+            borderRadius: BorderRadius.circular(6.r),
           ),
           child: Container(
             margin: EdgeInsets.all(5.sp),
             decoration: BoxDecoration(
               color: Colors.transparent,
-              borderRadius: BorderRadius.circular(12.sp),
+              borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
                 color: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
                   ? Colors.white 
@@ -174,14 +167,14 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                   children: [
                     //? GENERAL DESCRIPTION
                     Padding(
-                      padding: EdgeInsets.only(top: 120.sp),
+                      padding: EdgeInsets.only(bottom: 5.h),
                       child: Text(
                         rolesGeneralDescription[widget.roleName]!,
                         style: GoogleFonts.playfairDisplay(
                           fontStyle: FontStyle.italic,
-                          fontSize: 18,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w300,
-                          color: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
+                          color: fromMafiaTeam 
                             ? const Color(0xFF917A4D)
                             : const Color(0xFF807B75),
                         ),
@@ -189,21 +182,21 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                       ),
                     ),
       
-                    //? PATTERN
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      child: Image.asset(
-                        ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
-                          ? 'assets/images/pattern-2.png'
-                          : 'assets/images/pattern-1.png',
-                        height: 20.h,
-                        width: 92.w,
-                      ),
-                    ),
+                    // //? PATTERN
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(vertical: 8.h),
+                    //   child: Image.asset(
+                    //     ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
+                    //       ? 'assets/images/pattern-2.png'
+                    //       : 'assets/images/pattern-1.png',
+                    //     height: 20.h,
+                    //     width: 92.w,
+                    //   ),
+                    // ),
 
                     //? MORE DETAILS
                     Container(
-                      height: 330.h,
+                      height: 370.h,
                       width: double.maxFinite,
                       margin: EdgeInsets.all(10.sp),
                       decoration: BoxDecoration(
@@ -273,13 +266,13 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                           ),
                         
                           Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               // TEXT: GamePlay Rules
                               Container(
-                                margin: EdgeInsets.only(top: 15.h),
+                                margin: EdgeInsets.only(top: 15.h, bottom: 5.h),
                                 child: Text(
-                                  "Gameplay Rules:",
+                                  AppLocalizations.of(context)!.gameplayRules,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 18.sp,
@@ -295,8 +288,9 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                           
                               //? Rules
                               Container(
-                                margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 50.h),
+                                margin: EdgeInsets.only(left: 20.w, right: 20.w),
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                           
                                     //? Objective
@@ -306,7 +300,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                         children: [
                                           // TEXT:    Objective
                                           TextSpan(
-                                            text: "Objective: ",
+                                            text: "${AppLocalizations.of(context)!.objective}: ",
                                             style: TextStyle(
                                               fontSize: 14.sp,
                                               fontStyle: FontStyle.italic,
@@ -324,7 +318,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                               fontSize: 14.sp,
                                               height: 0,
                                               fontFamily: 'CenturyGothic',
-                                              color: const Color(0xFF000000),
+                                              color: !fromMafiaTeam ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
                                               fontWeight: FontWeight.w400
                                             ),
                                           ),
@@ -341,7 +335,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                         children: [
                                           // TEXT:    Day Phase
                                           TextSpan(
-                                            text: "Day Phase: ",
+                                            text: "${AppLocalizations.of(context)!.dayPhase}${exceptionRolesForSecondTitle.any((role) => role.toLowerCase() == widget.roleName) ? ' / ${AppLocalizations.of(context)!.skill}: ' : ': '}",
                                             style: TextStyle(
                                               fontSize: 14.sp,
                                               fontStyle: FontStyle.italic,
@@ -359,7 +353,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                               fontSize: 14.sp,
                                               height: 0,
                                               fontFamily: 'CenturyGothic',
-                                              color: const Color(0xFF000000),
+                                              color: !fromMafiaTeam ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
                                               fontWeight: FontWeight.w400
                                             ),
                                           ),
@@ -369,14 +363,14 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                   
                                     SizedBox(height: 10.h),
                           
-                                    //? Third Description
+                                    //? Night Phase
                                     RichText(
                                       textAlign: TextAlign.center,
                                       text: TextSpan(
                                         children: [
-                                          // TEXT:    Third Desc Title
+                                          // TEXT:    Night Phase
                                           TextSpan(
-                                            text: "${rolesThirdTitle[widget.roleName]}: ",
+                                            text: "${AppLocalizations.of(context)!.nightPhase}${exceptionRolesForThirdTitle.any((role) => role.toLowerCase() == widget.roleName) ? ' / ${AppLocalizations.of(context)!.skill}: ' : ': '}",
                                             style: TextStyle(
                                               fontSize: 14.sp,
                                               fontStyle: FontStyle.italic,
@@ -394,7 +388,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                               fontSize: 14.sp,
                                               height: 0,
                                               fontFamily: 'CenturyGothic',
-                                              color: const Color(0xFF000000),
+                                              color: !fromMafiaTeam ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
                                               fontWeight: FontWeight.w400
                                             ),
                                           ),
@@ -411,7 +405,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                         children: [
                                           // TEXT:    Winning Conditions
                                           TextSpan(
-                                            text: "Winning Conditions: ",
+                                            text: "${AppLocalizations.of(context)!.winningConditions}: ",
                                             style: TextStyle(
                                               fontSize: 14.sp,
                                               fontStyle: FontStyle.italic,
@@ -429,7 +423,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                               fontSize: 14.sp,
                                               height: 0,
                                               fontFamily: 'CenturyGothic',
-                                              color: const Color(0xFF000000),
+                                              color: !fromMafiaTeam ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
                                               fontWeight: FontWeight.w400
                                             ),
                                           ),

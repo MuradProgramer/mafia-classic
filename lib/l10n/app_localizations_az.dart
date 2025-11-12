@@ -716,4 +716,242 @@ class AppLocalizationsAz extends AppLocalizations {
 
   @override
   String get hasLeft => 'has left';
+
+  @override
+  String get rolesGeneralDescriptionMafia =>
+      'Вы — мафия и играете за команду мафии. Ваша задача устранить всех мирных жителей с помощью обмана на дневных голосованиях или совместных ночных убийств';
+
+  @override
+  String get rolesGeneralDescriptionCivilian =>
+      'Вы - простой житель города. Ваша задача вычислить всех членов мафии и проголосовать против них, помогая мирным добиться победы';
+
+  @override
+  String get rolesGeneralDescriptionSpy =>
+      'Вы — шпион мирных жителей. Подслушивайте разговоры мафии и используйте полученную информацию, чтобы помочь мирным выявлять и устранять членов мафии';
+
+  @override
+  String get rolesGeneralDescriptionDoctor =>
+      'Вы — доктор мирных жителей. Используйте свои медицинские навыки что бы спасти мирных от нападения мафии';
+
+  @override
+  String get rolesGeneralDescriptionBeauty =>
+      'Вы — красотка, игрок за мирных. Ваша задача — отвлекать членов мафии, мешая им использовать способности и участвовать в голосовании.';
+
+  @override
+  String get rolesGeneralDescriptionBodyguard =>
+      'Вы — телохранитель мирных жителей. Используйте свои навыки, чтобы защищать мирных от нападений террориста или мафии';
+
+  @override
+  String get rolesGeneralDescriptionInformant =>
+      'Вы — информатор мафии. Вы не знаете личности мафии, и они не знают вашу. Раскрывайте роли мирных жителей и анонимно общайтесь с членами мафии, передавая им важную информацию';
+
+  @override
+  String get rolesGeneralDescriptionSheriff =>
+      'Вы — шериф города, представляющий команду мирных жителей. Ваша цель расследовать игроков и выявлять членов мафии';
+
+  @override
+  String get rolesGeneralDescriptionJournalist =>
+      'Вы — журналист, играющий за мирных жителей. Каждую ночь проводите репортаж, опрашивая двух игроков, чтобы все узнали, находятся ли они в одной команде или в разных';
+
+  @override
+  String get rolesGeneralDescriptionTerrorist =>
+      'Вы — террорист из команды мафии. Вы не знаете мафию, но мафия знает вас. Во время дневного голосования можете взорвать мирного жителя, погибнув вместе с ним';
+
+  @override
+  String get rolesGeneralDescriptionBarman =>
+      'Вы — бармен, играющий за команду мафии. Вы не знаете личности мафии, и они не знают вашу. Используйте свои барменские навыки, чтобы напоить мирных жителей';
+
+  @override
+  String get rolesObjectiveMafia =>
+      'Устранить всех мирных жителей в дневном или ночьном голосовании';
+
+  @override
+  String get rolesObjectiveVicilian =>
+      'Устранить всех членов мафии с помощью дневного голосования';
+
+  @override
+  String get rolesObjectiveSpy =>
+      'Помогайте мирным жителям устранять всех членов мафии, подслушивая их ночные разговоры';
+
+  @override
+  String get rolesObjectiveDoctor =>
+      'Помогайте мирным жителям устранять всех членов мафии, спасая их от нападений мафии';
+
+  @override
+  String get rolesObjectiveBeauty =>
+      'Помочь мирным, препятствуя действиям мафии и способствуя их устранению';
+
+  @override
+  String get rolesObjectiveBodyguard =>
+      'Помогайте мирным жителям устранять всех членов мафии, защишая мирных от членов мафии';
+
+  @override
+  String get rolesObjectiveBarman =>
+      'Помогайте членам мафии устранять мирных, опьянив их';
+
+  @override
+  String get rolesObjectiveInformant =>
+      'Помогайте членам мафии устранять мирных, передавая им важную информацию';
+
+  @override
+  String get rolesObjectiveSheriff =>
+      'Помогайте мирным жителям устранять всех членов мафии, выявляя членов мафии';
+
+  @override
+  String get rolesObjectiveJournalist =>
+      'Помогайте мирным жителям устранять всех членов мафии, ежедневно проводя репортажи';
+
+  @override
+  String get rolesObjectiveTerrorist =>
+      'Помогайте членам мафии устранять мирных, взорвав важного мирного жителя';
+
+  @override
+  String get rolesDayPhaseMafia =>
+      'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло';
+
+  @override
+  String get rolesDayPhaseCivilian =>
+      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+
+  @override
+  String get rolesDayPhaseSpy =>
+      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+
+  @override
+  String get rolesDayPhaseDoctor =>
+      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+
+  @override
+  String get rolesDayPhaseBeauty =>
+      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+
+  @override
+  String get rolesDayPhaseBodyguard =>
+      'Каждый день вы можете выбрать игрока для защиты от нападения террориста или мафии.';
+
+  @override
+  String get rolesDayPhaseBarman =>
+      'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло';
+
+  @override
+  String get rolesDayPhaseInformant =>
+      'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло';
+
+  @override
+  String get rolesDayPhaseSheriff =>
+      'Участвуйте в обсуждениях и голосованиях, берите инициативу и ведите мирных к победе.';
+
+  @override
+  String get rolesDayPhaseJournalist =>
+      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+
+  @override
+  String get rolesDayPhaseTerrorist =>
+      'Вы можете участвовать в обсуждениях, но не имеете права голосовать. Во время дневного голосования вы можете взорвать мирного жителя, однако если его защитит телохранитель, вы погибнете напрасно';
+
+  @override
+  String get skill => 'Skill';
+
+  @override
+  String get rolesThirdDescriptionMafia =>
+      'Каждую ночь мафия собирается, обсуждает и выбирает одного игрока для устранения. Шпион может видеть ваши ночные разговоры, но не знает, кто именно их отправляет';
+
+  @override
+  String get rolesThirdDescriptionCivilian =>
+      'Ночью вам делать нечего, отдыхайте';
+
+  @override
+  String get rolesThirdDescriptionSpy =>
+      'Ночью вы можете подслушивать разговоры мафии и информатора, но не узнаёте, кто именно говорит';
+
+  @override
+  String get rolesThirdDescriptionDoctor =>
+      'Каждую ночь вы можете вылечить одного игрока, выбранного мафией для нападения. Если вы выберете правильного игрока, его жизнь будет сохранена';
+
+  @override
+  String get rolesThirdDescriptionBodyguard =>
+      'Если выбранный вами игрок станет целью террориста днём, ночью он останется без защиты от нападения мафии';
+
+  @override
+  String get rolesThirdDescriptionBarman =>
+      'Каждую ночь вы можете опьянять одного игрока. Опьяненный игрок не сможет голосовать, использовать способности и трезво разговаривать до следующей ночи';
+
+  @override
+  String get rolesThirdDescriptionInformant =>
+      'Каждую ночь вы можете раскрыть роль одного игрока и общаться с мафией. Мафия и шпион видят ваши сообщения, но не узнают, кто их отправил';
+
+  @override
+  String get rolesThirdDescriptionSheriff =>
+      'Каждую ночь вы можете расследовать одного игрока, чтобы узнать его роль';
+
+  @override
+  String get rolesThirdDescriptionJournalist =>
+      'Каждую ночь вы проводите репортаж, опрашивая двух игроков, чтобы выяснить, находятся ли они в одной команде или нет. Результаты репортажа видны всем в чате';
+
+  @override
+  String get rolesThirdDescriptionTerrorist =>
+      'Ночью вам делать нечего, отдыхайте';
+
+  @override
+  String get rolesThirdDescriptionBeauty =>
+      'Каждую ночь вы можете отвлечь одного игрока (желательно мафию). Отвлечённый игрок не может голосовать и не может использовать свои способности в течение дня';
+
+  @override
+  String get rolesWinningConditionMafia =>
+      'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
+
+  @override
+  String get rolesWinningConditionsCivilian =>
+      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+
+  @override
+  String get rolesWinningConditionsSpy =>
+      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+
+  @override
+  String get rolesWinningConditionsDoctor =>
+      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+
+  @override
+  String get rolesWinningConditionsBeauty =>
+      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+
+  @override
+  String get rolesWinningConditionsBodyguard =>
+      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+
+  @override
+  String get rolesWinningConditionsBarman =>
+      'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
+
+  @override
+  String get rolesWinningConditionsInformant =>
+      'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
+
+  @override
+  String get rolesWinningConditionsSheriff =>
+      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+
+  @override
+  String get rolesWinningConditionsJournalist =>
+      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+
+  @override
+  String get rolesWinningConditionsTerrorist =>
+      'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
+
+  @override
+  String get gameplayRules => 'Gameplay Rules:';
+
+  @override
+  String get objective => 'Objective';
+
+  @override
+  String get dayPhase => 'Day Phase';
+
+  @override
+  String get nightPhase => 'Night Phase';
+
+  @override
+  String get winningConditions => 'Winning Conditions';
 }

@@ -1457,6 +1457,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'has left'**
   String get hasLeft;
+
+  /// No description provided for @rolesGeneralDescriptionMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — мафия и играете за команду мафии. Ваша задача устранить всех мирных жителей с помощью обмана на дневных голосованиях или совместных ночных убийств'**
+  String get rolesGeneralDescriptionMafia;
+
+  /// No description provided for @rolesGeneralDescriptionCivilian.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы - простой житель города. Ваша задача вычислить всех членов мафии и проголосовать против них, помогая мирным добиться победы'**
+  String get rolesGeneralDescriptionCivilian;
+
+  /// No description provided for @rolesGeneralDescriptionSpy.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — шпион мирных жителей. Подслушивайте разговоры мафии и используйте полученную информацию, чтобы помочь мирным выявлять и устранять членов мафии'**
+  String get rolesGeneralDescriptionSpy;
+
+  /// No description provided for @rolesGeneralDescriptionDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — доктор мирных жителей. Используйте свои медицинские навыки что бы спасти мирных от нападения мафии'**
+  String get rolesGeneralDescriptionDoctor;
+
+  /// No description provided for @rolesGeneralDescriptionBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — красотка, игрок за мирных. Ваша задача — отвлекать членов мафии, мешая им использовать способности и участвовать в голосовании.'**
+  String get rolesGeneralDescriptionBeauty;
+
+  /// No description provided for @rolesGeneralDescriptionBodyguard.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — телохранитель мирных жителей. Используйте свои навыки, чтобы защищать мирных от нападений террориста или мафии'**
+  String get rolesGeneralDescriptionBodyguard;
+
+  /// No description provided for @rolesGeneralDescriptionInformant.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — информатор мафии. Вы не знаете личности мафии, и они не знают вашу. Раскрывайте роли мирных жителей и анонимно общайтесь с членами мафии, передавая им важную информацию'**
+  String get rolesGeneralDescriptionInformant;
+
+  /// No description provided for @rolesGeneralDescriptionSheriff.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — шериф города, представляющий команду мирных жителей. Ваша цель расследовать игроков и выявлять членов мафии'**
+  String get rolesGeneralDescriptionSheriff;
+
+  /// No description provided for @rolesGeneralDescriptionJournalist.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — журналист, играющий за мирных жителей. Каждую ночь проводите репортаж, опрашивая двух игроков, чтобы все узнали, находятся ли они в одной команде или в разных'**
+  String get rolesGeneralDescriptionJournalist;
+
+  /// No description provided for @rolesGeneralDescriptionTerrorist.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — террорист из команды мафии. Вы не знаете мафию, но мафия знает вас. Во время дневного голосования можете взорвать мирного жителя, погибнув вместе с ним'**
+  String get rolesGeneralDescriptionTerrorist;
+
+  /// No description provided for @rolesGeneralDescriptionBarman.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы — бармен, играющий за команду мафии. Вы не знаете личности мафии, и они не знают вашу. Используйте свои барменские навыки, чтобы напоить мирных жителей'**
+  String get rolesGeneralDescriptionBarman;
+
+  /// No description provided for @rolesObjectiveMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Устранить всех мирных жителей в дневном или ночьном голосовании'**
+  String get rolesObjectiveMafia;
+
+  /// No description provided for @rolesObjectiveVicilian.
+  ///
+  /// In en, this message translates to:
+  /// **'Устранить всех членов мафии с помощью дневного голосования'**
+  String get rolesObjectiveVicilian;
+
+  /// No description provided for @rolesObjectiveSpy.
+  ///
+  /// In en, this message translates to:
+  /// **'Помогайте мирным жителям устранять всех членов мафии, подслушивая их ночные разговоры'**
+  String get rolesObjectiveSpy;
+
+  /// No description provided for @rolesObjectiveDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Помогайте мирным жителям устранять всех членов мафии, спасая их от нападений мафии'**
+  String get rolesObjectiveDoctor;
+
+  /// No description provided for @rolesObjectiveBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Помочь мирным, препятствуя действиям мафии и способствуя их устранению'**
+  String get rolesObjectiveBeauty;
+
+  /// No description provided for @rolesObjectiveBodyguard.
+  ///
+  /// In en, this message translates to:
+  /// **'Помогайте мирным жителям устранять всех членов мафии, защишая мирных от членов мафии'**
+  String get rolesObjectiveBodyguard;
+
+  /// No description provided for @rolesObjectiveBarman.
+  ///
+  /// In en, this message translates to:
+  /// **'Помогайте членам мафии устранять мирных, опьянив их'**
+  String get rolesObjectiveBarman;
+
+  /// No description provided for @rolesObjectiveInformant.
+  ///
+  /// In en, this message translates to:
+  /// **'Помогайте членам мафии устранять мирных, передавая им важную информацию'**
+  String get rolesObjectiveInformant;
+
+  /// No description provided for @rolesObjectiveSheriff.
+  ///
+  /// In en, this message translates to:
+  /// **'Помогайте мирным жителям устранять всех членов мафии, выявляя членов мафии'**
+  String get rolesObjectiveSheriff;
+
+  /// No description provided for @rolesObjectiveJournalist.
+  ///
+  /// In en, this message translates to:
+  /// **'Помогайте мирным жителям устранять всех членов мафии, ежедневно проводя репортажи'**
+  String get rolesObjectiveJournalist;
+
+  /// No description provided for @rolesObjectiveTerrorist.
+  ///
+  /// In en, this message translates to:
+  /// **'Помогайте членам мафии устранять мирных, взорвав важного мирного жителя'**
+  String get rolesObjectiveTerrorist;
+
+  /// No description provided for @rolesDayPhaseMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло'**
+  String get rolesDayPhaseMafia;
+
+  /// No description provided for @rolesDayPhaseCivilian.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных'**
+  String get rolesDayPhaseCivilian;
+
+  /// No description provided for @rolesDayPhaseSpy.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных'**
+  String get rolesDayPhaseSpy;
+
+  /// No description provided for @rolesDayPhaseDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных'**
+  String get rolesDayPhaseDoctor;
+
+  /// No description provided for @rolesDayPhaseBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных'**
+  String get rolesDayPhaseBeauty;
+
+  /// No description provided for @rolesDayPhaseBodyguard.
+  ///
+  /// In en, this message translates to:
+  /// **'Каждый день вы можете выбрать игрока для защиты от нападения террориста или мафии.'**
+  String get rolesDayPhaseBodyguard;
+
+  /// No description provided for @rolesDayPhaseBarman.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло'**
+  String get rolesDayPhaseBarman;
+
+  /// No description provided for @rolesDayPhaseInformant.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло'**
+  String get rolesDayPhaseInformant;
+
+  /// No description provided for @rolesDayPhaseSheriff.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, берите инициативу и ведите мирных к победе.'**
+  String get rolesDayPhaseSheriff;
+
+  /// No description provided for @rolesDayPhaseJournalist.
+  ///
+  /// In en, this message translates to:
+  /// **'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных'**
+  String get rolesDayPhaseJournalist;
+
+  /// No description provided for @rolesDayPhaseTerrorist.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы можете участвовать в обсуждениях, но не имеете права голосовать. Во время дневного голосования вы можете взорвать мирного жителя, однако если его защитит телохранитель, вы погибнете напрасно'**
+  String get rolesDayPhaseTerrorist;
+
+  /// No description provided for @skill.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill'**
+  String get skill;
+
+  /// No description provided for @rolesThirdDescriptionMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Каждую ночь мафия собирается, обсуждает и выбирает одного игрока для устранения. Шпион может видеть ваши ночные разговоры, но не знает, кто именно их отправляет'**
+  String get rolesThirdDescriptionMafia;
+
+  /// No description provided for @rolesThirdDescriptionCivilian.
+  ///
+  /// In en, this message translates to:
+  /// **'Ночью вам делать нечего, отдыхайте'**
+  String get rolesThirdDescriptionCivilian;
+
+  /// No description provided for @rolesThirdDescriptionSpy.
+  ///
+  /// In en, this message translates to:
+  /// **'Ночью вы можете подслушивать разговоры мафии и информатора, но не узнаёте, кто именно говорит'**
+  String get rolesThirdDescriptionSpy;
+
+  /// No description provided for @rolesThirdDescriptionDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Каждую ночь вы можете вылечить одного игрока, выбранного мафией для нападения. Если вы выберете правильного игрока, его жизнь будет сохранена'**
+  String get rolesThirdDescriptionDoctor;
+
+  /// No description provided for @rolesThirdDescriptionBodyguard.
+  ///
+  /// In en, this message translates to:
+  /// **'Если выбранный вами игрок станет целью террориста днём, ночью он останется без защиты от нападения мафии'**
+  String get rolesThirdDescriptionBodyguard;
+
+  /// No description provided for @rolesThirdDescriptionBarman.
+  ///
+  /// In en, this message translates to:
+  /// **'Каждую ночь вы можете опьянять одного игрока. Опьяненный игрок не сможет голосовать, использовать способности и трезво разговаривать до следующей ночи'**
+  String get rolesThirdDescriptionBarman;
+
+  /// No description provided for @rolesThirdDescriptionInformant.
+  ///
+  /// In en, this message translates to:
+  /// **'Каждую ночь вы можете раскрыть роль одного игрока и общаться с мафией. Мафия и шпион видят ваши сообщения, но не узнают, кто их отправил'**
+  String get rolesThirdDescriptionInformant;
+
+  /// No description provided for @rolesThirdDescriptionSheriff.
+  ///
+  /// In en, this message translates to:
+  /// **'Каждую ночь вы можете расследовать одного игрока, чтобы узнать его роль'**
+  String get rolesThirdDescriptionSheriff;
+
+  /// No description provided for @rolesThirdDescriptionJournalist.
+  ///
+  /// In en, this message translates to:
+  /// **'Каждую ночь вы проводите репортаж, опрашивая двух игроков, чтобы выяснить, находятся ли они в одной команде или нет. Результаты репортажа видны всем в чате'**
+  String get rolesThirdDescriptionJournalist;
+
+  /// No description provided for @rolesThirdDescriptionTerrorist.
+  ///
+  /// In en, this message translates to:
+  /// **'Ночью вам делать нечего, отдыхайте'**
+  String get rolesThirdDescriptionTerrorist;
+
+  /// No description provided for @rolesThirdDescriptionBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Каждую ночь вы можете отвлечь одного игрока (желательно мафию). Отвлечённый игрок не может голосовать и не может использовать свои способности в течение дня'**
+  String get rolesThirdDescriptionBeauty;
+
+  /// No description provided for @rolesWinningConditionMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя'**
+  String get rolesWinningConditionMafia;
+
+  /// No description provided for @rolesWinningConditionsCivilian.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного члена мафии'**
+  String get rolesWinningConditionsCivilian;
+
+  /// No description provided for @rolesWinningConditionsSpy.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного члена мафии'**
+  String get rolesWinningConditionsSpy;
+
+  /// No description provided for @rolesWinningConditionsDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного члена мафии'**
+  String get rolesWinningConditionsDoctor;
+
+  /// No description provided for @rolesWinningConditionsBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного члена мафии'**
+  String get rolesWinningConditionsBeauty;
+
+  /// No description provided for @rolesWinningConditionsBodyguard.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного члена мафии'**
+  String get rolesWinningConditionsBodyguard;
+
+  /// No description provided for @rolesWinningConditionsBarman.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя'**
+  String get rolesWinningConditionsBarman;
+
+  /// No description provided for @rolesWinningConditionsInformant.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя'**
+  String get rolesWinningConditionsInformant;
+
+  /// No description provided for @rolesWinningConditionsSheriff.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного члена мафии'**
+  String get rolesWinningConditionsSheriff;
+
+  /// No description provided for @rolesWinningConditionsJournalist.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного члена мафии'**
+  String get rolesWinningConditionsJournalist;
+
+  /// No description provided for @rolesWinningConditionsTerrorist.
+  ///
+  /// In en, this message translates to:
+  /// **'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя'**
+  String get rolesWinningConditionsTerrorist;
+
+  /// No description provided for @gameplayRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Gameplay Rules:'**
+  String get gameplayRules;
+
+  /// No description provided for @objective.
+  ///
+  /// In en, this message translates to:
+  /// **'Objective'**
+  String get objective;
+
+  /// No description provided for @dayPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Day Phase'**
+  String get dayPhase;
+
+  /// No description provided for @nightPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Night Phase'**
+  String get nightPhase;
+
+  /// No description provided for @winningConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Winning Conditions'**
+  String get winningConditions;
 }
 
 class _AppLocalizationsDelegate
