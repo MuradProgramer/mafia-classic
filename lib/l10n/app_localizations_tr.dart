@@ -742,6 +742,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Вы — телохранитель мирных жителей. Используйте свои навыки, чтобы защищать мирных от нападений террориста или мафии';
 
   @override
+  String get rolesGeneralDescriptionBarman =>
+      'Вы — бармен, играющий за команду мафии. Вы не знаете личности мафии, и они не знают вашу. Используйте свои барменские навыки, чтобы напоить мирных жителей';
+
+  @override
   String get rolesGeneralDescriptionInformant =>
       'Вы — информатор мафии. Вы не знаете личности мафии, и они не знают вашу. Раскрывайте роли мирных жителей и анонимно общайтесь с членами мафии, передавая им важную информацию';
 
@@ -756,10 +760,6 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get rolesGeneralDescriptionTerrorist =>
       'Вы — террорист из команды мафии. Вы не знаете мафию, но мафия знает вас. Во время дневного голосования можете взорвать мирного жителя, погибнув вместе с ним';
-
-  @override
-  String get rolesGeneralDescriptionBarman =>
-      'Вы — бармен, играющий за команду мафии. Вы не знаете личности мафии, и они не знают вашу. Используйте свои барменские навыки, чтобы напоить мирных жителей';
 
   @override
   String get rolesObjectiveMafia =>
@@ -869,6 +869,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Каждую ночь вы можете вылечить одного игрока, выбранного мафией для нападения. Если вы выберете правильного игрока, его жизнь будет сохранена';
 
   @override
+  String get rolesThirdDescriptionBeauty =>
+      'Каждую ночь вы можете отвлечь одного игрока (желательно мафию). Отвлечённый игрок не может голосовать и не может использовать свои способности в течение дня';
+
+  @override
   String get rolesThirdDescriptionBodyguard =>
       'Если выбранный вами игрок станет целью террориста днём, ночью он останется без защиты от нападения мафии';
 
@@ -891,10 +895,6 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get rolesThirdDescriptionTerrorist =>
       'Ночью вам делать нечего, отдыхайте';
-
-  @override
-  String get rolesThirdDescriptionBeauty =>
-      'Каждую ночь вы можете отвлечь одного игрока (желательно мафию). Отвлечённый игрок не может голосовать и не может использовать свои способности в течение дня';
 
   @override
   String get rolesWinningConditionMafia =>
@@ -954,4 +954,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get winningConditions => 'Winning Conditions';
+
+  @override
+  String get night => 'Night';
+
+  @override
+  String get itIsYou => 'it is you';
 }

@@ -272,15 +272,15 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _audioPlayer.setAsset('assets/sounds/sawtrack.m4a');
+    // _audioPlayer.setAsset('assets/sounds/sawtrack.m4a');
 
-    _audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed && mounted) {
-        setState(() {
-          _audioPlayer.seek(Duration.zero);
-        });
-      }
-    });
+    // _audioPlayer.playerStateStream.listen((state) {
+    //   if (state.processingState == ProcessingState.completed && mounted) {
+    //     setState(() {
+    //       _audioPlayer.seek(Duration.zero);
+    //     });
+    //   }
+    // });
 
     mafiaAlive = widget.mafiaCount;
     civilianAlive = widget.civilianCount;
@@ -751,7 +751,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               : '[$nickname] was eliminated by the town\'s decision',
             avatarUrl: '',
             type: 'System',
-            colorHasOpacity: false
+            colorHasOpacity: false,
+            color: const Color(0xFFE62727)
           ));
         });
         
@@ -787,7 +788,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             content: content, 
             avatarUrl: '',
             type: 'System',
-            colorHasOpacity: false
+            colorHasOpacity: false,
+            color: (isProtected) ? const Color(0xFF63A361): const Color(0xFFE62727)
           ));
         });
       } on Exception catch (e) {
@@ -819,7 +821,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             content: content, 
             avatarUrl: '',
             type: 'System',
-            colorHasOpacity: false
+            colorHasOpacity: false,
+            color: const Color(0xFF00695C)
           ));
         });
       } on Exception catch (e) {
@@ -1783,6 +1786,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   void youAreDead() {
+    PopupManager().close('votePopup');
+    PopupManager().close('skillPopup');
+    PopupManager().close('roleInformationPopup');
     
     PopupManager().show(
       context: context,
@@ -2154,11 +2160,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                     children: [
                                       //? DAY
                                       GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            gamePhase = 'Day';
-                                          });
-                                        },
                                         //NOTE: FONT SIZE
                                         child: Icon(
                                           Icons.sunny,
@@ -2171,11 +2172,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                       
                                       //? NIGHT
                                       GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            gamePhase = 'Night';
-                                          });
-                                        },
                                         //NOTE: FONT SIZE
                                         child: Icon(
                                           Icons.nights_stay,
@@ -2390,7 +2386,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                           roleName: widget.role.toLowerCase(), 
                                           width: deviceWidth * 0.174, 
                                           height: deviceHeight * 0.106,
-                                          isMini: false
+                                          isMini: false,
                                         ),
                                                     
                                         SizedBox(height: 10.h),
@@ -2421,46 +2417,66 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                   if (canIUseSkill == false) {
                                                     return;
                                                   }
-                                                  
-                                                  showGeneralDialog(
+
+                                                  PopupManager().show(
                                                     context: context,
-                                                    barrierDismissible: true,
-                                                    barrierLabel: "Dismiss",
-                                                    barrierColor: Colors.black.withOpacity(0.7),
-                                                    transitionDuration: const Duration(milliseconds: 800),
-                                                    pageBuilder: (context, animation, secondaryAnimation) {
-                                                      return SkillPopup(
-                                                        role: widget.role,
-                                                        useSkill: useSkill,
-                                                        title: widget.title,
-                                                        gamePhase: gamePhase,
-                                                        iUsedSkill: iUsedSkill,
-                                                        canIUseSkill: canIUseSkill,
-                                                        aliveMafiaCount: mafiaAlive,
-                                                        inGamePlayers: inGamePlayers,
-                                                        mafiaCount: widget.mafiaCount,
-                                                        aliveCivilianCount: civilianAlive,
-                                                        timerNotifier: phaseTimeNotifier,
-                                                        civilianCount: widget.civilianCount,
-                                                        toWhomIUsedSkill: toWhomIUsedSkill,
-                                                      );
-                                                    },
-                                                    transitionBuilder: (context, animation, secondaryAnimation, child) {
-                                                      final curvedAnimation = CurvedAnimation(
-                                                        parent: animation,
-                                                        curve: Curves.elasticOut,
-                                                        reverseCurve: Curves.easeInBack,
-                                                      );
-                                    
-                                                      return SlideTransition(
-                                                        position: Tween<Offset>(
-                                                          begin: const Offset(-1.0, 0.0),
-                                                          end: Offset.zero,
-                                                        ).animate(curvedAnimation),
-                                                        child: child,
-                                                      );
-                                                    },
+                                                    id: 'skillPopup',
+                                                    builder: (_) => SkillPopup(
+                                                      role: widget.role,
+                                                      useSkill: useSkill,
+                                                      title: widget.title,
+                                                      gamePhase: gamePhase,
+                                                      iUsedSkill: iUsedSkill,
+                                                      canIUseSkill: canIUseSkill,
+                                                      aliveMafiaCount: mafiaAlive,
+                                                      inGamePlayers: inGamePlayers,
+                                                      mafiaCount: widget.mafiaCount,
+                                                      aliveCivilianCount: civilianAlive,
+                                                      timerNotifier: phaseTimeNotifier,
+                                                      civilianCount: widget.civilianCount,
+                                                      toWhomIUsedSkill: toWhomIUsedSkill,
+                                                    )
                                                   );
+                                                  
+                                                  // showGeneralDialog(
+                                                  //   context: context,
+                                                  //   barrierDismissible: true,
+                                                  //   barrierLabel: "Dismiss",
+                                                  //   barrierColor: Colors.black.withOpacity(0.7),
+                                                  //   transitionDuration: const Duration(milliseconds: 800),
+                                                  //   pageBuilder: (context, animation, secondaryAnimation) {
+                                                  //     return SkillPopup(
+                                                  //       role: widget.role,
+                                                  //       useSkill: useSkill,
+                                                  //       title: widget.title,
+                                                  //       gamePhase: gamePhase,
+                                                  //       iUsedSkill: iUsedSkill,
+                                                  //       canIUseSkill: canIUseSkill,
+                                                  //       aliveMafiaCount: mafiaAlive,
+                                                  //       inGamePlayers: inGamePlayers,
+                                                  //       mafiaCount: widget.mafiaCount,
+                                                  //       aliveCivilianCount: civilianAlive,
+                                                  //       timerNotifier: phaseTimeNotifier,
+                                                  //       civilianCount: widget.civilianCount,
+                                                  //       toWhomIUsedSkill: toWhomIUsedSkill,
+                                                  //     );
+                                                  //   },
+                                                  //   transitionBuilder: (context, animation, secondaryAnimation, child) {
+                                                  //     final curvedAnimation = CurvedAnimation(
+                                                  //       parent: animation,
+                                                  //       curve: Curves.elasticOut,
+                                                  //       reverseCurve: Curves.easeInBack,
+                                                  //     );
+                                    
+                                                  //     return SlideTransition(
+                                                  //       position: Tween<Offset>(
+                                                  //         begin: const Offset(-1.0, 0.0),
+                                                  //         end: Offset.zero,
+                                                  //       ).animate(curvedAnimation),
+                                                  //       child: child,
+                                                  //     );
+                                                  //   },
+                                                  // );
                                                   
                                                 },
                                                 style: ElevatedButton.styleFrom(
@@ -3541,7 +3557,7 @@ class _VotePopupState extends State<VotePopup> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                '${AppLocalizations.of(context)!.day} ${widget.dayCount}', 
+                                '${AppLocalizations.of(context)!.day} ${widget.dayCount == 0 ? '' : widget.dayCount}', 
                                 style: GoogleFonts.playfairDisplay(
                                   height: 0,
                                   fontSize: 30.sp, 
@@ -3763,6 +3779,7 @@ class _VotePopupState extends State<VotePopup> {
                                           return SizedBox(
                                             width: double.maxFinite,
                                             child: NoIconExpansionTile(
+                                              canExpand: canExpand,
                                               //controlAffinity: ListTileControlAffinity.leading,
                                               //enabled: canExpand,
                                               title: Column(
@@ -3783,7 +3800,8 @@ class _VotePopupState extends State<VotePopup> {
                                                               roleName: player.isRevealed ? player.role!.toLowerCase() : 'noname',
                                                               width: 30.w, 
                                                               height: 30.h, 
-                                                              isMini: false
+                                                              isMini: false,
+                                                              enabled: false,
                                                             ),
                                   
                                                             SizedBox(width: 5.w),
@@ -3821,11 +3839,12 @@ class _VotePopupState extends State<VotePopup> {
                                                                 )
                                                               ), 
                                                             ),
-                                                            if (player.nickname != authorizedUser.nickname)
+                                                            
                                                             SizedBox(
-                                                              width: 90.w,
-                                                              height: 37.h,
-                                                              child: ElevatedButton(
+                                                              width: (player.nickname != authorizedUser.nickname) ? 90.w : 70.w,
+                                                              height: (player.nickname != authorizedUser.nickname) ? 37.h : 20.h,
+                                                              child: (player.nickname != authorizedUser.nickname) 
+                                                              ? ElevatedButton(
                                                                 onPressed: () {
                                                                   setState(() {
                                                                     if (canIVotePopup(player)) {
@@ -3866,9 +3885,17 @@ class _VotePopupState extends State<VotePopup> {
                                                                       : (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black.withOpacity(0.4) : Colors.white.withOpacity(0.4)),
                                                                   ),
                                                                 ),
-                                                              ),
+                                                              )
+                                                              : Text(
+                                                                AppLocalizations.of(context)!.itIsYou,
+                                                                style: TextStyle(
+                                                                  fontSize: 15.sp,
+                                                                  fontFamily: 'CenturyGothic',
+                                                                  color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white)
+                                                                ),
+                                                              )
                                                             ),
-                                                          
+
                                                           ],
                                                         )
                                                       ],
@@ -4204,7 +4231,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                 GestureDetector(
                                   onTap: () {
                                     if (widget.timerNotifier.value > 1) {
-                                      Navigator.of(context).pop();
+                                      PopupManager().close('skillPopup');
                                     }
                                   },
                                   child: Image.asset(
@@ -4263,7 +4290,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                     Future.delayed(const Duration(milliseconds: 700), () {
                                       if (!mounted) return;
                                       if (Navigator.of(context).canPop()) {
-                                        Navigator.of(context).pop();
+                                        PopupManager().close('skillPopup');
                                       }
                                     });
                                   });
@@ -4345,9 +4372,18 @@ class _SkillPopupState extends State<SkillPopup> {
                                   children: [
                                     Row(
                                       children: [
-                                        CircleAvatar(
-                                          backgroundImage: NetworkImage(player.avatarUrl!), //!!!!!!!!!!!
-                                          radius: 15,
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(50.r),
+                                            border: Border.all(
+                                              width: 1.w,
+                                              color: const Color(0xFFFFFFFF)
+                                            )
+                                          ),
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(player.avatarUrl!), //!!!!!!!!!!!
+                                            radius: 15.sp,
+                                          ),
                                         ),
                                         SizedBox(width: 5.w),
                                         Row(
@@ -4406,7 +4442,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                                 });
                                                 Future.delayed(const Duration(seconds: 1), () {
                                                   if (Navigator.of(context).canPop()) {
-                                                    Navigator.of(context).pop();
+                                                    PopupManager().close('skillPopup');
                                                   }
                                                 });
                                               } else {
@@ -4420,7 +4456,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                                   });
                                                   Future.delayed(const Duration(milliseconds: 500), () {
                                                     if (Navigator.of(context).canPop()) {
-                                                      Navigator.of(context).pop();
+                                                      PopupManager().close('skillPopup');
                                                     }
                                                   });
                                                 }
@@ -4613,11 +4649,13 @@ class Vote {
 class NoIconExpansionTile extends StatefulWidget {
   final Widget title;
   final List<Widget> children;
+  final bool canExpand;
 
   const NoIconExpansionTile({
     Key? key,
     required this.title,
-    required this.children,
+    required this.children, 
+    required this.canExpand,
   }) : super(key: key);
 
   @override
@@ -4636,7 +4674,9 @@ class _NoIconExpansionTileState extends State<NoIconExpansionTile>
       children: [
         GestureDetector(
           behavior: HitTestBehavior.opaque,  // <— важный момент!
-          onTap: () => setState(() => _expanded = !_expanded),
+          onTap: () => {
+            if (widget.canExpand) setState(() => _expanded = !_expanded)
+          },
           child: widget.title,  // полностью твой layout, без ListTile
         ),
         AnimatedSize(

@@ -21,7 +21,7 @@ class InGameChatBox extends StatefulWidget {
     required this.scrollToBottom, 
     required this.isAlive, 
     required this.gamePhase, 
-    required this.players
+    required this.players,
   });
 
   @override
@@ -52,7 +52,7 @@ class _InGameChatBoxState extends State<InGameChatBox> {
               child: Text(
                 message.content,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: const Color(0xFFFFB000), fontSize: 14.sp, fontWeight: FontWeight.bold),
+                style: TextStyle(color: message.color, fontSize: 14.sp, fontWeight: FontWeight.bold),
               ),
             ),
           );

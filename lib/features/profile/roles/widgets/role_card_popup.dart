@@ -167,7 +167,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                   children: [
                     //? GENERAL DESCRIPTION
                     Padding(
-                      padding: EdgeInsets.only(bottom: 5.h),
+                      padding: EdgeInsets.only(bottom: 5.h, left: 2.w, right: 2.w),
                       child: Text(
                         rolesGeneralDescription[widget.roleName]!,
                         style: GoogleFonts.playfairDisplay(
@@ -335,7 +335,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                         children: [
                                           // TEXT:    Day Phase
                                           TextSpan(
-                                            text: "${AppLocalizations.of(context)!.dayPhase}${exceptionRolesForSecondTitle.any((role) => role.toLowerCase() == widget.roleName) ? ' / ${AppLocalizations.of(context)!.skill}: ' : ': '}",
+                                            text: "${AppLocalizations.of(context)!.day}${exceptionRolesForSecondTitle.any((role) => role.toLowerCase() == widget.roleName) ? ' / ${AppLocalizations.of(context)!.skill}: ' : ': '}",
                                             style: TextStyle(
                                               fontSize: 14.sp,
                                               fontStyle: FontStyle.italic,
@@ -370,7 +370,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                         children: [
                                           // TEXT:    Night Phase
                                           TextSpan(
-                                            text: "${AppLocalizations.of(context)!.nightPhase}${exceptionRolesForThirdTitle.any((role) => role.toLowerCase() == widget.roleName) ? ' / ${AppLocalizations.of(context)!.skill}: ' : ': '}",
+                                            text: "${AppLocalizations.of(context)!.night}${exceptionRolesForThirdTitle.any((role) => role.toLowerCase() == widget.roleName) ? ' / ${AppLocalizations.of(context)!.skill}: ' : ': '}",
                                             style: TextStyle(
                                               fontSize: 14.sp,
                                               fontStyle: FontStyle.italic,

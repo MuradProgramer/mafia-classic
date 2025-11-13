@@ -286,5 +286,7 @@
   "objective": "Objective",
   "dayPhase": "Day Phase",
   "nightPhase": "Night Phase",
-  "winningConditions": "Winning Conditions"
+  "winningConditions": "Winning Conditions",
+  "night": "Night",
+  "itIsYou": "it is you"
 }

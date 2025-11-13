@@ -6,6 +6,8 @@ class InGameMessage {
   String? avatarUrl;
   String type;
   final bool colorHasOpacity;
+  final Color color;
+  
 
   InGameMessage({
     required this.nickname,
@@ -13,6 +15,7 @@ class InGameMessage {
     required this.avatarUrl,
     required this.colorHasOpacity,
     this.type = 'Default',
+    this.color = const Color(0xFFFFB000)
   });
 
   factory InGameMessage.fromJson(Map<String, dynamic> json) {
