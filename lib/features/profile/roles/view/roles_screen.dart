@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/profile/roles/data/data.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/widgets.dart';
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 
 class RolesScreen extends StatefulWidget {
   const RolesScreen({super.key});
@@ -99,7 +100,7 @@ class _RolesScreenState extends State<RolesScreen> {
                             ),
                             
                             child: Text(
-                              S.of(context).civilians,
+                              AppLocalizations.of(context)!.civilians,
                               style: TextStyle(
                                 fontSize: buttonTextFontSize,
                                 fontWeight: FontWeight.w600,
@@ -153,7 +154,7 @@ class _RolesScreenState extends State<RolesScreen> {
                             ),
                             
                             child: Text(
-                              S.of(context).mafias,
+                              AppLocalizations.of(context)!.mafias,
                               style: TextStyle(
                                 fontSize: buttonTextFontSize,
                                 fontWeight: FontWeight.w600,

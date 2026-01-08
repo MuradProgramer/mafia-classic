@@ -5,11 +5,16 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/features/games/view/view.dart';
+import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
+import 'package:mafia_classic/features/profile/friends/models/models.dart';
+import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/widgets/widgets.dart';
 import 'package:mafia_classic/generated/intl/messages_en.dart';
 import 'package:mafia_classic/main.dart';
 import 'package:mafia_classic/models/models.dart';
+import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
+import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:signalr_netcore/ihub_protocol.dart';
 import 'package:signalr_netcore/signalr_client.dart';
  
@@ -500,7 +505,7 @@ class ApiService extends TokenAwareService {
     );
     
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.data);
+      final data = jsonDecode(response.data.toString());
       _accessToken = data['accessToken'];
       _expiration = DateTime.parse(data['expiration']);
       _refreshToken = data['refreshToken'];
@@ -517,37 +522,142 @@ class ApiService extends TokenAwareService {
   Future<List<Friendship>?> getFriends() async {
     List<Friendship>? friendList = [];
     //!!!!!!!!!!
-    // await executeWithTokenCheck((accessToken) async {
-    //   final response = await GetIt.I<DioService>().dio.get(
-    //     'Friend/All',
-    //     options: Options(
-    //       headers: {
-    //         'Authorization': 'Bearer $accessToken'
-    //       }
-    //     )
-    //   );
+    await executeWithTokenCheck((accessToken) async {
+      final response = await GetIt.I<DioService>().dio.get(
+        'Friend/All',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken'
+          }
+        )
+      );
 
-    //   if (response.statusCode == 200) {
-    //     List<dynamic> jsonData = response.data as List<dynamic>;
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = response.data as List<dynamic>;
     
-    //     friendList = jsonData.isEmpty ? null : jsonData.map((item) {
-    //       return Friendship.fromJson(item as Map<String, dynamic>);
-    //     }).toList();
-    //   } else {
-    //     throw Exception('Failed to load friends');
-    //   }
-    // });
+        friendList = jsonData.isEmpty ? null : jsonData.map((item) {
+          return Friendship.fromJson(item as Map<String, dynamic>);
+        }).toList();
+      } else {
+        throw Exception('Failed to load friends');
+      }
+    });
     return friendList;
+  }
+
+
+
+
+
+  Future<Map<String, dynamic>?> sendNewMessageToFriend(String nickname, String content) async {
+    Map<String, dynamic>? result;
+    await executeWithTokenCheck((accessToken) async {
+      final body = jsonEncode({
+        'nickname': nickname,
+        'content': content
+      });
+
+      final response = await GetIt.I<DioService>().dio.post(
+        'Friend/SendMessageToFriend',
+        data: body,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken'
+          }
+        )
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonData = response.data;
+        result = {
+          'messageId': jsonData['messageId'] as int,
+          'status': jsonData['status'],
+        };
+        log("${result!['messageId']} | ${result!['status']}\n");
+      } else {
+        print('Failed to send message: ${response.statusCode}');
+        throw Exception('Failed to load new message');
+      }
+    });
+    return result;
+    //throw Exception('Failed to send message');
+  }
+
+  Future<List<Message>?> getAllMessagesInFriendChat(String nickname) async {
+    List<Message>? result;
+    await executeWithTokenCheck((accessToken) async {
+      final body = jsonEncode({
+        'nickname': nickname
+      });
+
+      final response = await GetIt.I<DioService>().dio.get(
+        'Friend/FriendMessages',
+        data: body,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken'
+          }
+        )
+      );
+
+      if (response.statusCode == 200) {
+
+        final List<dynamic> jsonList = response.data['messages'];
+
+        result = jsonList
+            .map((jsonItem) => Message.fromJson(jsonItem))
+            .toList();
+
+        for (var m in result!) {
+          log('****Message id: ${m.id} | status: ${m.status}\n');
+        }
+      } else {
+        print('Failed to send message: ${response.statusCode}');
+        throw Exception('Failed to load new message');
+      }
+    });
+    return result;
+    //throw Exception('Failed to send message');
+  }
+
+  Future<List<Message>?> readFriendMessages(String nickname) async {
+    List<Message>? result;
+    await executeWithTokenCheck((accessToken) async {
+      final body = jsonEncode({
+        'nickname': nickname
+      });
+
+      final response = await GetIt.I<DioService>().dio.post(
+        'Friend/ReadFriendMessages',
+        data: body,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken'
+          }
+        )
+      );
+
+      if (response.statusCode == 200) {
+        
+      } else {
+        print('Failed to read message: ${response.statusCode}');
+        throw Exception('Failed to load new message');
+      }
+    });
+    return result;
+    //throw Exception('Failed to send message');
   }
 
   Future<PlayerInfo> getPlayerInfo(String nickname) async {
     PlayerInfo? playerInfo;
     await executeWithTokenCheck((accessToken) async {
-      final formDataObject = FormData.fromMap({'nickname': nickname});
+      final body = jsonEncode({
+        'nickname': nickname
+      });
 
       final response = await GetIt.I<DioService>().dio.get(
-        'Friend/PlayerInfo',
-        data: formDataObject,
+        'Friend/FriendProfileDetails',
+        data: body,
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken'
@@ -559,26 +669,7 @@ class ApiService extends TokenAwareService {
         log(response.data.toString());
         final data = response.data as Map<String, dynamic>;
         
-        playerInfo = PlayerInfo(
-          nickname: data['nickname'] ?? '',
-          avatarUrl: data['avatarUrl'] ?? '',
-          isOnline: data['isOnline'] ?? false,
-          lastSeen: data['lastSeen'] != null && data['lastSeen'].toString().isNotEmpty
-              ? DateFormat("M/d/yyyy h:mm:ss a").parse(data['lastSeen'])
-              : null,
-          joinDate: DateFormat("M/d/yyyy").parse(data['joinDate']),
-          friendshipStatus: data['friendshipStatus'] ?? '',
-          inGameLobby: data['inGameLobby'] ?? false,
-          overall: data['overall'] ?? 0,
-          wins: data['wins'] ?? 0,
-          loses: data['loses'] ?? 0,
-          mafiaWins: data['mafiaWins'] ?? 0,
-          civilianWins: data['civilianWins'] ?? 0,
-          playedRoles: Map<String, int>.from(data['playedRoles'] ?? {}),
-          gameLobbyTitle: data['gameLobbyTitle'],
-          gameLobbyStatus: data['gameLobbyStatus'],
-          gameLobbyPlayerCount: data['gameLobbyPlayerCount'],
-        );
+        playerInfo = PlayerInfo.fromJson(data);
       } else {
         throw Exception('Failed to load friends');
       }
@@ -586,15 +677,18 @@ class ApiService extends TokenAwareService {
     return playerInfo!;
   }
 
+
   // ++++++
   Future<bool> deleteFriend(String nickname) async {
     bool status = false;
     await executeWithTokenCheck((accessToken) async {
-      final formDataObject = FormData.fromMap({'nickname': nickname});
+      final body = jsonEncode({
+        'nickname': nickname
+      });
 
       final response = await GetIt.I<DioService>().dio.delete(
-        'Friend/Delete',
-        data: formDataObject,
+        'Friend/DeleteFriendship',
+        data: body,
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -604,6 +698,21 @@ class ApiService extends TokenAwareService {
 
       if (response.statusCode == 200) {
         status = true;
+        List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+          "all_friends_list",
+          (json) => Friendship.fromJson(json as Map<String, dynamic>),
+        );
+
+        currentFriends ??= [];
+
+        currentFriends.removeWhere((f) => f.nickname == nickname);
+
+        await GeneralCacheService().save<List<Friendship>?>(
+          "all_friends_list",
+          currentFriends,
+        );
+        EventBus().fire(DeleteFriendEvent(nickname));
+
       } else if (response.statusCode == 404) {
         throw Exception('No user found');
       } else {
@@ -676,11 +785,13 @@ class ApiService extends TokenAwareService {
   Future<bool> sendRequest(String nickname) async {
     bool status = false;
     await executeWithTokenCheck((accessToken) async {
-      final formDataObject = FormData.fromMap({'nickname': nickname});
+      final body = jsonEncode({
+        'nickname': nickname
+      });
 
       final response = await GetIt.I<DioService>().dio.post(
         'Friend/RequestFriendship',
-        data: formDataObject,
+        data: body,
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',

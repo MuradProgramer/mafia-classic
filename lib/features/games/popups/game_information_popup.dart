@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 
 class InformationPopup extends StatefulWidget {
   final String effect;
@@ -36,19 +37,19 @@ class _InformationPopupState extends State<InformationPopup> {
   String get content {
     switch (widget.effect.toLowerCase()) {
       case 'cured':
-        return 'You’re in “safe” hands, the mafia can’t touch you now';
+        return AppLocalizations.of(context)!.gameInformationPopupCured;
       case 'interviewed':
-        return 'Congrats — you’re now part of their “big investigation,” whether you like it or not. And, as always, everyone’s already gossiping about whether you’re on the same side as the other interviewee';
+        return AppLocalizations.of(context)!.gameInformationPopupInterviewed;
       case 'intoxicated':
-        return 'Under the effect: you cannot vote, use abilities, and your messages appear distorted';
+        return AppLocalizations.of(context)!.gameInformationPopupIntoxicated;
       case 'investigated':
-        return 'The sheriff entered your details into the system — now they know who you are';
+        return AppLocalizations.of(context)!.gameInformationPopupInvestigated;
       case 'revealed':
-        return 'Now your life depends on how important your role is';
+        return AppLocalizations.of(context)!.gameInformationPopupRevealed;
       case 'protected':
-        return 'While the protection is active, you’re safe from harm.';
+        return AppLocalizations.of(context)!.gameInformationPopupProtected;
       case 'satisfied':
-        return 'You’ve succumbed to the temptation and cannot vote or use abilities.';
+        return AppLocalizations.of(context)!.gameInformationPopupSatisfied;
     }
     return '';
   }
@@ -56,19 +57,19 @@ class _InformationPopupState extends State<InformationPopup> {
   String get title {
     switch (widget.effect.toLowerCase()) {
       case 'cured':
-        return 'The doctor has cured you';
+        return AppLocalizations.of(context)!.gameInformationPopupTitleCured;
       case 'interviewed':
-        return 'The journalist interviewed you';
+        return AppLocalizations.of(context)!.gameInformationPopupTitleInterviewed;
       case 'intoxicated':
-        return 'The bartender got you drunk';
+        return AppLocalizations.of(context)!.gameInformationPopupTitleIntoxicated;
       case 'investigated':
-        return 'The sheriff investigated you.';
+        return AppLocalizations.of(context)!.gameInformationPopupTitleInvestigated;
       case 'revealed':
-        return 'The informant revealed your role.';
+        return AppLocalizations.of(context)!.gameInformationPopupTitleRevealed;
       case 'protected':
-        return 'The bodyguard has protected you.';
+        return AppLocalizations.of(context)!.gameInformationPopupTitleProtected;
       case 'satisfied':
-        return 'The beauty has enchanted you.';
+        return AppLocalizations.of(context)!.gameInformationPopupTitleSatisfied;
     }
     return '';
   }
@@ -76,19 +77,19 @@ class _InformationPopupState extends State<InformationPopup> {
   String get expiration {
     switch (widget.effect.toLowerCase()) {
       case 'cured':
-        return 'The effect will wear off in one day';
+        return AppLocalizations.of(context)!.gameInformationPopupExpirationCured;
       case 'interviewed':
-        return 'The effect lasts until the end of the game';
+        return AppLocalizations.of(context)!.gameInformationPopupExpirationInterviewed;
       case 'intoxicated':
-        return 'The effect will wear off in one day';
+        return AppLocalizations.of(context)!.gameInformationPopupExpirationIntoxicated;
       case 'investigated':
-        return 'The effect lasts until the end of the game';
+        return AppLocalizations.of(context)!.gameInformationPopupExpirationInvestigated;
       case 'revealed':
-        return 'The effect lasts until the end of the game';
+        return AppLocalizations.of(context)!.gameInformationPopupExpirationRevealed;
       case 'protected':
-        return 'The effect will wear off in one day';
+        return AppLocalizations.of(context)!.gameInformationPopupExpirationProtected;
       case 'satisfied':
-        return 'The effect will wear off in one day';
+        return AppLocalizations.of(context)!.gameInformationPopupExpirationSatisfied;
     }
     return '';
   }

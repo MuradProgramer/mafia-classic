@@ -960,4 +960,145 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get itIsYou => 'it is you';
+
+  @override
+  String get uknown => 'uknown';
+
+  @override
+  String get gameInformationPopupCured =>
+      'You’re in “safe” hands, the mafia can’t touch you now';
+
+  @override
+  String get gameInformationPopupInterviewed =>
+      'Congrats — you’re now part of their “big investigation,” whether you like it or not. And, as always, everyone’s already gossiping about whether you’re on the same side as the other interviewee';
+
+  @override
+  String get underTheEffectYouCannotVoteUseAbilitiesAndYour =>
+      'Under the effect: you cannot vote, use abilities, and your messages appear distorted';
+
+  @override
+  String get gameInformationPopupIntoxicated =>
+      'Under the effect: you cannot vote, use abilities, and your messages appear distorted';
+
+  @override
+  String get gameInformationPopupInvestigated =>
+      'The sheriff entered your details into the system — now they know who you are';
+
+  @override
+  String get gameInformationPopupRevealed =>
+      'Now your life depends on how important your role is';
+
+  @override
+  String get gameInformationPopupProtected =>
+      'While the protection is active, you’re safe from harm.';
+
+  @override
+  String get gameInformationPopupSatisfied =>
+      'You’ve succumbed to the temptation and cannot vote or use abilities.';
+
+  @override
+  String get gameInformationPopupTitleCured => 'The doctor has cured you';
+
+  @override
+  String get gameInformationPopupTitleInterviewed =>
+      'The journalist interviewed you';
+
+  @override
+  String get gameInformationPopupTitleIntoxicated =>
+      'The bartender got you drunk';
+
+  @override
+  String get gameInformationPopupTitleInvestigated =>
+      'The sheriff investigated you.';
+
+  @override
+  String get gameInformationPopupTitleRevealed =>
+      'The informant revealed your role.';
+
+  @override
+  String get gameInformationPopupTitleProtected =>
+      'The bodyguard has protected you.';
+
+  @override
+  String get gameInformationPopupTitleSatisfied =>
+      'The beauty has enchanted you.';
+
+  @override
+  String get gameInformationPopupExpirationCured =>
+      'The effect will wear off in one day';
+
+  @override
+  String get gameInformationPopupExpirationInterviewed =>
+      'The effect lasts until the end of the game';
+
+  @override
+  String get gameInformationPopupExpirationIntoxicated =>
+      'The effect will wear off in one day';
+
+  @override
+  String get gameInformationPopupExpirationInvestigated =>
+      'The effect lasts until the end of the game';
+
+  @override
+  String get gameInformationPopupExpirationRevealed =>
+      'The effect lasts until the end of the game';
+
+  @override
+  String get gameInformationPopupExpirationProtected =>
+      'The effect will wear off in one day';
+
+  @override
+  String get gameInformationPopupExpirationSatisfied =>
+      'The effect will wear off in one day';
+
+  @override
+  String get youMustWriteYourReport => 'You must write your report';
+
+  @override
+  String get inviteFriend => 'Invite Friend';
+
+  @override
+  String get phaseMessagesDay => 'The silence of night is over. Now speak.';
+
+  @override
+  String get phaseMessageDayVoting => 'Choose the imposter of the day';
+
+  @override
+  String get phaseMessageNight => 'The night begins. All must rest in silence';
+
+  @override
+  String get phaseMessageNightVoting => 'The Mafia cast their deadly vote.';
+
+  @override
+  String nicknameDidNotSurviveTheNight(String nickname) {
+    return '[$nickname] did not survive the night..';
+  }
+
+  @override
+  String nicknameWasEliminatedByTheTownsDecision(String nickname) {
+    return '[$nickname] was eliminated by the town\'s decision';
+  }
+
+  @override
+  String terroristTriedToBombTargetplayerButBodyguardSavedHimher(
+      String targetPlayer) {
+    return 'Terrorist tried to bomb [$targetPlayer], but bodyguard saved him/her';
+  }
+
+  @override
+  String terroristBombardedTargetplayer(String targetPlayer) {
+    return 'Terrorist bombarded [$targetPlayer]';
+  }
+
+  @override
+  String firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams(
+      String firstPlayerNickname, String secondPlayerNickname) {
+    return '[$firstPlayerNickname] and [$secondPlayerNickname] are on different teams';
+  }
+
+  @override
+  String firstplayernicknameAndSecondplayernicknameAreOnSameTeams(
+      String firstPlayerNickname, String secondPlayerNickname) {
+    return '[$firstPlayerNickname] and [$secondPlayerNickname] are on same teams';
+  }
 }

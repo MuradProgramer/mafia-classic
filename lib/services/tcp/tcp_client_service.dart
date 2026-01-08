@@ -47,9 +47,8 @@ class TcpClientService {
   void _onData(List<int> data) {
     _buffer.addAll(data);
 
-    // Парсим несколько сообщений подряд, если они пришли "склеенно"
     while (true) {
-      if (_buffer.length < 8) return; // ждём заголовок (2 int = 8 байт)
+      if (_buffer.length < 8) return;
 
       final headerBytes = _buffer.sublist(0, 8);
       final header = ByteData.sublistView(Uint8List.fromList(headerBytes));
@@ -57,7 +56,7 @@ class TcpClientService {
       final messageTypeId = header.getInt32(0, Endian.big);
       final payloadLength = header.getInt32(4, Endian.big);
 
-      if (_buffer.length < 8 + payloadLength) return; // ждём весь payload
+      if (_buffer.length < 8 + payloadLength) return;
 
       final payloadBytes = _buffer.sublist(8, 8 + payloadLength);
       final payload = utf8.decode(payloadBytes);
@@ -66,10 +65,8 @@ class TcpClientService {
         log('📩 ON MESSAGE  |  MessageType: $messageTypeId  |  Payload: $payload');
       }
 
-      // Удаляем обработанные данные
       _buffer.removeRange(0, 8 + payloadLength);
 
-      // Вызываем обработчик
       _onMessage(messageTypeId, payload);
     }
   }

@@ -427,7 +427,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         onPressed: () {
                           // NOTE:    Logic
                           _emailController.text = "murad@gmail.com";
-                          _passwordController.text = "admin123";
+                          _passwordController.text = "muravyed";
                         },
                         child: Text(
                           "murad",

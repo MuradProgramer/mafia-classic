@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ffi';
 import 'dart:math' as math;
 
 //NOTE:      53, 90, 4
@@ -79,8 +78,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   int votesOnMe = 0; // +
 
   // DEF:    VOTE VARIABLES
-  bool canIVote = false;
-  bool iVoted = false;
+  ValueNotifier<bool> canIVote = ValueNotifier<bool>(false);
+  ValueNotifier<bool> iVoted = ValueNotifier<bool>(false);
   bool votesAreVisibleToMe = false;
   bool canNightVote = false; // NOTE: Informant
 
@@ -107,8 +106,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   late Animation<double> _fadeAnimation;
 
   void _scrollToBottom() {
+    if (!_scrollController.hasClients) return;
     Future.delayed(const Duration(milliseconds: 300), () {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
     });
   }
 
@@ -269,9 +271,17 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (mounted) setState(() {});
   }
 
+  Iterable<InGamePlayer> filteredPlayers = [];
+
   @override
   void initState() {
     super.initState();
+    //final authorizedPlayer = inGamePlayers.value.firstWhere((p) => p.nickname == authorizedUser.nickname);
+    
+    //inGamePlayers.value.removeWhere((p) => p.nickname == authorizedUser.nickname);
+    //inGamePlayers.value.insert(0, authorizedPlayer);
+    filteredPlayers = inGamePlayers.value.where((p) => p.nickname != authorizedUser.nickname);
+    //filteredPlayers = inGamePlayers.value.where((p) => p.nickname != '${authorizedUser.nickname}ahgziiqedqw');
     // _audioPlayer.setAsset('assets/sounds/sawtrack.m4a');
 
     // _audioPlayer.playerStateStream.listen((state) {
@@ -377,6 +387,17 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           //   }
           // } 
 
+          inGamePlayers.value.add(
+            InGamePlayer(
+              nickname: authorizedUser.nickname,
+              isAlive: isAlive,
+              avatarUrl: authorizedUser.avatarUrl,
+              isRevealed: true,
+              votesOfPlayer: [],
+              role: role
+            )
+          );
+
           for (PlayersFromAfk el in players) {
             List<String> playerVotesTEMP = [];
 
@@ -386,7 +407,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               }
             }
 
-            if (el.nickname == authorizedUser.nickname) continue;
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //if (el.nickname == authorizedUser.nickname) continue;
 
             inGamePlayers.value.add(
               InGamePlayer(
@@ -415,15 +437,25 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             }
           }
 
+
+          for (var element in inGamePlayers.value) {
+            print('Name: ${element.nickname}  |  Role: ${element.role} \n');
+          }
+
+            // final authorizedPlayer = inGamePlayers.value.firstWhere((p) => p.nickname == authorizedUser.nickname);
+            // inGamePlayers.value.removeWhere((p) => p.nickname == authorizedUser.nickname);
+            // inGamePlayers.value.insert(0, authorizedPlayer);
+
           if ((gamePhase == 'NightVoting' && (widget.role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
-            inGamePlayers.value.insert(0, InGamePlayer(
-              nickname: authorizedUser.nickname,
-              isAlive: isAliveMyself,
-              isRevealed: true,
-              role: widget.role.toLowerCase(),
-              avatarUrl: authorizedUser.avatarUrl,
-              votesOfPlayer: []
-            ));
+            //!!!!!!!!!!!
+            // inGamePlayers.value.insert(0, InGamePlayer(
+            //   nickname: authorizedUser.nickname,
+            //   isAlive: isAliveMyself,
+            //   isRevealed: true,
+            //   role: widget.role.toLowerCase(),
+            //   avatarUrl: authorizedUser.avatarUrl,
+            //   votesOfPlayer: []
+            // ));
             
             PopupManager().show(
               context: context,
@@ -445,6 +477,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                   aliveCount: mafiaAlive + civilianAlive,
                   votesAreVisibleToMe: votesAreVisibleToMe,
                   checkSecondIfEligibleToVote: checkSecondIfEligibleToVote,
+                  iVoted: iVoted,
               ),
             );
           }
@@ -464,9 +497,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         final String phase = json.decode(payload)['phase'];
         
         setState(() {
-          if (inGamePlayers.value[0].nickname == authorizedUser.nickname) {
-            inGamePlayers.value.removeAt(0);
-          }
+          //!!!!!!!!!!!!!!!!!!!!
+          // if (inGamePlayers.value[0].nickname == authorizedUser.nickname) {
+          //   inGamePlayers.value.removeAt(0);
+          // }
 
           gamePhase = phase;
         
@@ -492,7 +526,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             element.votesOfPlayer = [];
           }
         
-          iVoted = false;
+          iVoted.value = false;
           
           checkIfEligibleToVote();
         
@@ -503,10 +537,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           checkIfEligibleToSendMessage();
 
           Map<String, String> phaseMessages = {
-            'Day': 'The silence of night is over. Now speak.',
-            'DayVoting': 'Choose the imposter of the day',
-            'Night': 'The night begins. All must rest in silence',
-            'NightVoting': 'The Mafia cast their deadly vote.'
+            'Day': AppLocalizations.of(context)!.phaseMessagesDay,
+            'DayVoting': AppLocalizations.of(context)!.phaseMessageDayVoting,
+            'Night': AppLocalizations.of(context)!.phaseMessageNight,
+            'NightVoting': AppLocalizations.of(context)!.phaseMessageNightVoting
           };
         
           inGameMessages.add(InGameMessage(
@@ -522,14 +556,15 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           }
 
           if ((gamePhase == 'NightVoting' && (widget.role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
-            inGamePlayers.value.insert(0, InGamePlayer(
-              nickname: authorizedUser.nickname,
-              isAlive: isAliveMyself,
-              isRevealed: true,
-              role: widget.role.toLowerCase(),
-              avatarUrl: authorizedUser.avatarUrl,
-              votesOfPlayer: []
-            ));
+            //!!!!!!!!!!!!!!!!!!!!
+            // inGamePlayers.value.insert(0, InGamePlayer(
+            //   nickname: authorizedUser.nickname,
+            //   isAlive: isAliveMyself,
+            //   isRevealed: true,
+            //   role: widget.role.toLowerCase(),
+            //   avatarUrl: authorizedUser.avatarUrl,
+            //   votesOfPlayer: []
+            // ));
             /*
             showGeneralDialog(
               context: context,
@@ -604,6 +639,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                   aliveCount: mafiaAlive + civilianAlive,
                   votesAreVisibleToMe: votesAreVisibleToMe,
                   checkSecondIfEligibleToVote: checkSecondIfEligibleToVote,
+                  iVoted: iVoted,
               ),
             );
           } else {
@@ -747,8 +783,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           inGameMessages.add(InGameMessage(
             nickname: '', 
             content: phaseCheck == 'NightVoting'
-              ? '[$nickname] did not survive the night..'
-              : '[$nickname] was eliminated by the town\'s decision',
+              ? AppLocalizations.of(context)!.nicknameDidNotSurviveTheNight(nickname)
+              : AppLocalizations.of(context)!.nicknameWasEliminatedByTheTownsDecision(nickname),
             avatarUrl: '',
             type: 'System',
             colorHasOpacity: false,
@@ -775,9 +811,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         PlayerRole targetPlayer = PlayerRole.fromJson(data['targetPlayer'] as Map<String, dynamic>);
         final bool isProtected = data['targetProtected'] as bool;
         
-        String content = 'Terrorist tried to bomb [${targetPlayer.nickname}], but bodyguard saved him/her';
+        String content = AppLocalizations.of(context)!.terroristTriedToBombTargetplayerButBodyguardSavedHimher(targetPlayer.nickname);
         if (!isProtected) {
-          content = 'Terrorist bombarded [${targetPlayer.nickname}]';
+          content = AppLocalizations.of(context)!.terroristBombardedTargetplayer(targetPlayer.nickname);
           playerDeadEvent(targetPlayer);
         }
         playerDeadEvent(PlayerRole(nickname: terroristNickname, role: 'Terrorist'));
@@ -810,9 +846,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         final String secondPlayerNickname = data['secondPlayerNickname'];
         final bool areSameTeam = data['areSameTeam'] as bool;
 
-        String content = '[$firstPlayerNickname] and [$secondPlayerNickname] are on different teams';
+        String content = AppLocalizations.of(context)!.firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams(firstPlayerNickname, secondPlayerNickname);
         if (areSameTeam) {
-          content = '[$firstPlayerNickname] and [$secondPlayerNickname] are on same teams';
+          content = AppLocalizations.of(context)!.firstplayernicknameAndSecondplayernicknameAreOnSameTeams(firstPlayerNickname, secondPlayerNickname);
         }
         
         setState(() {
@@ -851,6 +887,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           id: 'informationPopup',
           builder: (_) => InformationPopup(effect: mark)
         );
+
+        if (['intoxicated', 'satisfied'].any((e) => e == mark.toLowerCase())) {
+          PopupManager().close('skillPopup');
+        }
       } on Exception catch (e) {
         log('EXCEPTION IN:     MARK EVENT - GAME SCREEN: ${e.toString()}');
       }
@@ -1155,7 +1195,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       }
 
       for (var item in widget.allPlayers) {
-        if (item.nickname == authorizedUser.nickname) continue;
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //if (item.nickname == authorizedUser.nickname) continue;
         inGamePlayers.value.add(InGamePlayer(
           nickname: item.nickname,
           isAlive: true,
@@ -1621,7 +1662,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
   void changeVoteState(bool newState) {
     setState(() {
-      canIVote = newState;
+      canIVote.value = newState;
     });
   }
 
@@ -1789,6 +1830,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     PopupManager().close('votePopup');
     PopupManager().close('skillPopup');
     PopupManager().close('roleInformationPopup');
+    PopupManager().close('informationPopup');
     
     PopupManager().show(
       context: context,
@@ -2311,25 +2353,36 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                         crossAxisSpacing: 0,
                                         mainAxisSpacing: 0,
                                       ),
-                                      itemCount: inGamePlayers.value.length,
+                                      itemCount: filteredPlayers.length,
                                       itemBuilder: (context, index) {
+                                        final player = filteredPlayers.elementAt(index);
                                         return Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Opacity(
-                                              opacity: inGamePlayers.value[index].isAlive ? 1.0 : 0.5,
-                                              child: Image.asset(
-                                                inGamePlayers.value[index].isRevealed || !inGamePlayers.value[index].isAlive ? 'assets/images/role-card-${inGamePlayers.value[index].role!.toLowerCase()}.png' : 'assets/images/role-card-noname.png',
-                                                width: 60.w,
-                                                height: 78.h,
-                                              ),
+                                            Stack(
+                                              children: [
+                                                RoleTooltipCard(
+                                                  roleName: player.role!,
+                                                  isAlive: player.isAlive,
+                                                  isRevealed: player.isRevealed,
+                                                ),
+
+                                                if (!player.isAlive)
+                                                  IgnorePointer(
+                                                    child: Image.asset(
+                                                      'assets/images/blood-effect.png',
+                                                      width: 62.w,
+                                                      height: 78.h,
+                                                    ),
+                                                  )
+                                              ],
                                             ),
                                             Container(
                                               margin: EdgeInsets.only(top: 2.h),
                                               width: 75.w,
                                               height: 40.h,
                                               child: Text(
-                                                inGamePlayers.value[index].nickname,
+                                                player.nickname,
                                                 textAlign: TextAlign.center,
                                                 softWrap: true,
                                                 maxLines: 2,
@@ -2413,7 +2466,44 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                     
                                                   
                                                   //checkSecondIfEligibleToVote(inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == authorizedUser.nickname));
-                                                  
+
+                                                  if (canIVote.value) {
+                                                    //!!!!!!!!!!!!!!!!!!!!
+                                                    // inGamePlayers.value.insert(0, InGamePlayer(
+                                                    //   nickname: authorizedUser.nickname,
+                                                    //   isAlive: isAliveMyself,
+                                                    //   isRevealed: true,
+                                                    //   role: widget.role.toLowerCase(),
+                                                    //   avatarUrl: authorizedUser.avatarUrl,
+                                                    //   votesOfPlayer: []
+                                                    // ));
+
+                                                    PopupManager().show(
+                                                      context: context, 
+                                                      id: 'votePopup', 
+                                                      builder: (_) => VotePopup(
+                                                        role: widget.role,
+                                                          canIVote: canIVote,
+                                                          useSkill: useSkill,
+                                                          dayCount: dayNumber,
+                                                          title: widget.title,
+                                                          gamePhase: gamePhase,
+                                                          markNames: markNames,
+                                                          votePlayer: votePlayer,
+                                                          canNightVote: canNightVote,
+                                                          isAliveMyself: isAliveMyself,
+                                                          inGamePlayers: inGamePlayers,
+                                                          changeVoteState: changeVoteState,
+                                                          timerNotifier: phaseTimeNotifier,
+                                                          aliveCount: mafiaAlive + civilianAlive,
+                                                          votesAreVisibleToMe: votesAreVisibleToMe,
+                                                          checkSecondIfEligibleToVote: checkSecondIfEligibleToVote,
+                                                          iVoted: iVoted,
+                                                      ),
+                                                    );
+                                                    return;
+                                                  }
+
                                                   if (canIUseSkill == false) {
                                                     return;
                                                   }
@@ -2480,7 +2570,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                   
                                                 },
                                                 style: ElevatedButton.styleFrom(
-                                                  backgroundColor: canIUseSkill ? const Color(0xFFFFB000) : const Color(0xFF9A9A9A),
+                                                  backgroundColor: canIUseSkill || canIVote.value ? const Color(0xFFFFB000) : const Color(0xFF9A9A9A),
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius: BorderRadius.circular(34.0),
                                                     side: const BorderSide(
@@ -2491,7 +2581,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                 ),
                                                     
                                                 child: Text(
-                                                  AppLocalizations.of(context)!.useSkill,
+                                                  canIVote.value ? "Vote" : AppLocalizations.of(context)!.useSkill,
                                                   style: TextStyle(
                                                     fontSize: 15.sp,
                                                     fontWeight: FontWeight.w600,
@@ -2557,13 +2647,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                               child: Row(
                                 children: [
                                   Container(
-                                    margin: const EdgeInsets.only(left: 7, right: 7),
+                                    margin: EdgeInsets.only(left: 4.w, right: 4.w),
                                     child: GestureDetector(
                                       onTap: () {},
                                       child: Image.asset(
-                                        'assets/images/game-stickers-icon.png',
-                                        width: 30.h,
-                                        height: 30.h,
+                                        'assets/images/icon-disabled-micro.png',
+                                        width: 35.h,
+                                        height: 35.h,
                                       ),
                                     ),
                                   ),
@@ -3333,12 +3423,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
 class VotePopup extends StatefulWidget {
   final String role;
-  final bool canIVote;
+  final ValueNotifier<bool> canIVote;
   final bool votesAreVisibleToMe;
   final void Function(bool newState) changeVoteState;
   final bool Function(InGamePlayer player) checkSecondIfEligibleToVote;
 
   //! ESSENTIAL VARIABLES
+  final ValueNotifier<bool> iVoted;
   final int dayCount;
   final String title;
   final int aliveCount;
@@ -3369,6 +3460,7 @@ class VotePopup extends StatefulWidget {
     required this.votesAreVisibleToMe, 
     required this.checkSecondIfEligibleToVote, 
     required this.canNightVote, 
+    required this.iVoted, 
   });
   
   @override
@@ -3438,6 +3530,13 @@ class _VotePopupState extends State<VotePopup> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.iVoted.value) {
+      setState(() {
+        iVotedCompletely = true;
+        iVotedPartially = false;
+      });
+    }
     
     //widget.timerNotifier.addListener(handleTimerChange);
   }
@@ -3611,7 +3710,8 @@ class _VotePopupState extends State<VotePopup> {
                               GestureDetector(
                                 onTap: () {
                                   if (widget.timerNotifier.value > 1) {
-                                    widget.inGamePlayers.value.removeWhere((player) => player.nickname == authorizedUser.nickname);
+                                    //!!!!!!!!!!!!!!!!!!!!!!!!
+                                    //widget.inGamePlayers.value.removeWhere((player) => player.nickname == authorizedUser.nickname);
                                     PopupManager().close('votePopup');
                                   }
                                 },
@@ -3913,29 +4013,81 @@ class _VotePopupState extends State<VotePopup> {
                                               ),
                                                                         
                                               children: [
-                                                player.votesOfPlayer!.isNotEmpty && (player.votesOfPlayer != null)
-                                                ?
-                                                Row(
-                                                  children: [
-                                                    CircleAvatar(
-                                                      backgroundImage: NetworkImage(widget.inGamePlayers.value.firstWhere((e) => e.nickname == player.votesOfPlayer?[0]).avatarUrl!),
-                                                      //backgroundImage: NetworkImage("https://www.w3schools.com/w3images/avatar6.png"),
-                                                      radius: 15,
+                                                if (player.votesOfPlayer != null && player.votesOfPlayer!.isNotEmpty)
+                                                  GridView.builder(
+                                                    padding: EdgeInsets.only(left: 20.w, top: 5.h),
+                                                    physics: const NeverScrollableScrollPhysics(),
+                                                    shrinkWrap: true,
+                                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                                      crossAxisCount: 2,
+                                                      mainAxisSpacing: 5.h,
+                                                      mainAxisExtent: 40.h,
                                                     ),
-                                                    SizedBox(width: 5.w),
-                                                    Text(
-                                                      player.votesOfPlayer![0], 
-                                                      style: TextStyle(
-                                                        fontSize: 15.sp,
-                                                        fontFamily: 'CenturyGothic',
-                                                        color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                                :
-                                                const SizedBox()
+                                                    itemCount: player.votesOfPlayer!.length,
+                                                    itemBuilder: (context, index) {
+                                                      final voter = player.votesOfPlayer![index];
+                                                  
+                                                      final playerData = widget.inGamePlayers.value.firstWhere(
+                                                        (e) => e.nickname == voter,
+                                                      );
+                                                  
+                                                      return Row(
+                                                        children: [
+                                                          Container(
+                                                            decoration: BoxDecoration(
+                                                              border: Border.all(
+                                                                color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white),
+                                                                width: 1.sp,
+                                                              ),
+                                                              shape: BoxShape.circle,
+                                                            ),
+                                                            child: CircleAvatar(
+                                                              radius: 15.r,
+                                                              backgroundImage: NetworkImage(playerData.avatarUrl!),
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: 8.w),
+                                                          SizedBox(
+                                                            width: 80.w,
+                                                            child: Text(
+                                                              voter,
+                                                              textAlign: TextAlign.center,
+                                                              softWrap: true,
+                                                              maxLines: 2,
+                                                              style: TextStyle(
+                                                                height: 0,
+                                                                fontSize: 15.sp,
+                                                                fontFamily: 'CenturyGothic',
+                                                                color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  )
+                                                else
+                                                  const SizedBox(),
+                                                // Row(
+                                                //   children: [
+                                                //     CircleAvatar(
+                                                //       backgroundImage: NetworkImage(widget.inGamePlayers.value.firstWhere((e) => e.nickname == player.votesOfPlayer?[0]).avatarUrl!),
+                                                //       //backgroundImage: NetworkImage("https://www.w3schools.com/w3images/avatar6.png"),
+                                                //       radius: 15,
+                                                //     ),
+                                                //     SizedBox(width: 5.w),
+                                                //     Text(
+                                                //       player.votesOfPlayer![0], 
+                                                //       style: TextStyle(
+                                                //         fontSize: 15.sp,
+                                                //         fontFamily: 'CenturyGothic',
+                                                //         color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white),
+                                                //       ),
+                                                //     ),
+                                                //   ],
+                                                // )
                                               ],
+                                            
                                             ),
                                           );
                                         },
@@ -3973,6 +4125,7 @@ class _VotePopupState extends State<VotePopup> {
                                           setState(() {
                                             iVotedCompletely = true;
                                             iVotedPartially = false;
+                                            widget.iVoted.value = true;
                                           });
                                   
                                           if (widget.role.toLowerCase() == 'terrorist') {
@@ -4257,7 +4410,7 @@ class _SkillPopupState extends State<SkillPopup> {
                         color: const Color(0xFFFFAB00),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center, 
                           children: [
                             // TEXT:    Descrription of the Skill
@@ -4287,7 +4440,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                   delayStarted = true;
 
                                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    Future.delayed(const Duration(milliseconds: 700), () {
+                                    Future.delayed(const Duration(milliseconds: 0), () {
                                       if (!mounted) return;
                                       if (Navigator.of(context).canPop()) {
                                         PopupManager().close('skillPopup');
@@ -4440,7 +4593,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                                 setState(() {
                                                   widget.useSkill(toWhomIVotedNow, true);
                                                 });
-                                                Future.delayed(const Duration(seconds: 1), () {
+                                                Future.delayed(const Duration(milliseconds: 200), () {
                                                   if (Navigator.of(context).canPop()) {
                                                     PopupManager().close('skillPopup');
                                                   }
@@ -4454,7 +4607,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                                   setState(() {
                                                     widget.useSkill(toWhomIVotedNow, true);
                                                   });
-                                                  Future.delayed(const Duration(milliseconds: 500), () {
+                                                  Future.delayed(const Duration(milliseconds: 200), () {
                                                     if (Navigator.of(context).canPop()) {
                                                       PopupManager().close('skillPopup');
                                                     }
@@ -4510,14 +4663,12 @@ class _SkillPopupState extends State<SkillPopup> {
                   }
                 ),
               ),
-
             ],
           ),
         ),
       ),
     );
   }
-
 }
 
 
@@ -4645,6 +4796,160 @@ class Vote {
 }
 
 
+class RoleTooltipCard extends StatefulWidget {
+  final String roleName;
+  final bool isAlive;
+  final bool isRevealed;
+
+  const RoleTooltipCard({
+    required this.roleName,
+    required this.isAlive,
+    required this.isRevealed,
+    super.key,
+  });
+
+  @override
+  State<RoleTooltipCard> createState() => _RoleTooltipCardState();
+}
+
+class _RoleTooltipCardState extends State<RoleTooltipCard>
+    with SingleTickerProviderStateMixin {
+  OverlayEntry? _overlayEntry;
+  late AnimationController _controller;
+  late Animation<double> _scale;
+  late Animation<double> _opacity;
+  late Animation<Offset> _slide;
+
+  Map<String, String> get rolesLocalizaitons => {
+    'mafia': AppLocalizations.of(context)!.mafia,
+    'civilian': AppLocalizations.of(context)!.civilian,
+    'spy': AppLocalizations.of(context)!.spy,
+    'doctor': AppLocalizations.of(context)!.doctor,
+    'beauty': AppLocalizations.of(context)!.beauty,
+    'bodyguard': AppLocalizations.of(context)!.bodyguard,
+    'barman': AppLocalizations.of(context)!.barman,
+    'informant': AppLocalizations.of(context)!.informant,
+    'sheriff': AppLocalizations.of(context)!.sheriff,
+    'journalist': AppLocalizations.of(context)!.journalist,
+    'terrorist': AppLocalizations.of(context)!.terrorist,
+    'undef': AppLocalizations.of(context)!.uknown
+  };
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+      reverseDuration: const Duration(milliseconds: 200),
+    );
+
+    _scale = Tween<double>(begin: 0.7, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+
+    _opacity = Tween<double>(begin: 0, end: 1).animate(_controller);
+
+    _slide = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  void _showTooltip() {
+    if (_overlayEntry != null) return;
+
+    final overlay = Overlay.of(context);
+    final renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          left: offset.dx + renderBox.size.width / 2 - 40,
+          top: offset.dy - 40,
+          child: Material(
+            color: Colors.transparent,
+            child: SlideTransition(
+              position: _slide,
+              child: ScaleTransition(
+                scale: _scale,
+                child: FadeTransition(
+                  opacity: _opacity,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.6),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: Text(
+                      widget.isRevealed || !widget.isAlive ? rolesLocalizaitons[widget.roleName.toLowerCase()]! : AppLocalizations.of(context)!.uknown,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    overlay.insert(_overlayEntry!);
+    _controller.forward();
+
+    // Auto hide
+    Future.delayed(const Duration(seconds: 1), () => _hideTooltip());
+  }
+
+  void _hideTooltip() async {
+    if (_overlayEntry == null) return;
+    await _controller.reverse();
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (_overlayEntry != null) {
+          _hideTooltip();
+        } else {
+          _showTooltip();
+        }
+      },
+      child: Opacity(
+        opacity: widget.isAlive ? 1.0 : 0.5,
+        child: Image.asset(
+          widget.isRevealed || !widget.isAlive
+              ? 'assets/images/role-card-${widget.roleName.toLowerCase()}.png'
+              : 'assets/images/role-card-noname.png',
+          width: 60.w,
+          height: 78.h,
+        ),
+      ),
+    );
+  }
+}
+
 
 class NoIconExpansionTile extends StatefulWidget {
   final Widget title;
@@ -4684,7 +4989,7 @@ class _NoIconExpansionTileState extends State<NoIconExpansionTile>
           curve: Curves.easeOut,
           child: _expanded
               ? Container(
-                margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
+                margin: EdgeInsets.symmetric(horizontal: 15.w),
                 child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: widget.children,
@@ -4696,8 +5001,6 @@ class _NoIconExpansionTileState extends State<NoIconExpansionTile>
     );
   }
 }
-
-
 
 
 class PopupManager {
@@ -4712,6 +5015,7 @@ class PopupManager {
     required BuildContext context,
     required String id,
     required WidgetBuilder builder,
+    bool dismissOnTapOutside = true,
     Duration duration = const Duration(milliseconds: 800),
     Offset slideBegin = const Offset(-1.0, 0),
     Curve curve = Curves.elasticOut,
@@ -4745,11 +5049,26 @@ class PopupManager {
     ).animate(animation);
 
     final entry = OverlayEntry(
-      builder: (_) => Material(
-        color: Colors.black.withOpacity(0.7),
-        child: SlideTransition(
-          position: slideAnimation,
-          child: Center(child: builder(context)),
+      builder: (_) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: dismissOnTapOutside ? () => close(id) : null,
+        child: Material(
+          color: Colors.black.withOpacity(0.7),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (dismissOnTapOutside) close(id);
+            },
+            child: SlideTransition(
+              position: slideAnimation,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {}, // Prevent closing on inner tap
+                  child: builder(context),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

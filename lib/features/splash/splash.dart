@@ -2,23 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-//import 'package:mafia_classic/features/games/view/games_screen.dart';
-//import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/features/auth/auth.dart';
-import 'package:mafia_classic/features/auth/signin/view/forgot_password.dart';
-import 'package:mafia_classic/features/games/game/game.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
+import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
-import 'package:mafia_classic/features/profile/ratings-/view/ratings_screen.dart';
-import 'package:mafia_classic/features/profile/roles/view/roles_screen.dart';
-import 'package:mafia_classic/features/profile/view/profile_screen.dart';
-import 'package:mafia_classic/features/settings/view/settings_screen.dart';
 import 'package:mafia_classic/features/widgets/widgets.dart';
-import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/utils/popup_utils.dart';
-//import 'package:mafia_classic/features/games/view/games_screen.dart';
-//import 'package:mafia_classic/models/models.dart';
-//import 'package:mafia_classic/features/profile/profile.dart';
 
 List<PlayerRole> players = [
   PlayerRole(
@@ -106,7 +95,18 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(context, 
         MaterialPageRoute(
           fullscreenDialog: true,
-        builder: (context) => const SignInScreen()   // TRUEEE
+          builder: (context) => const SignInScreen()   // TRUEEE
+          
+          // builder: (context) => FriendChat(friend: 
+          //   Friendship(
+          //     gameTitle: 'Avengers999',
+          //     nickname: 'Leonardo Di Caprio', 
+          //     avatarUrl: 'https://mediaproxy.tvtropes.org/width/1200/https://static.tvtropes.org/pmwiki/pub/images/tony_stark.png',
+          //     isOnline: true,
+          //     lastSeen: DateTime.now()
+          //   ),
+          // )
+          
           //builder: (context) => const SignUpScreen()
           //builder: (context) => const SettingsScreen(),
           //builder: (context) => const ForgotPasswordScreen(),
@@ -144,7 +144,8 @@ class _SplashScreenState extends State<SplashScreen> {
                       context, 
                       PlayerInfoPopup(
                         height: 727.h, 
-                        width: 405.w, 
+                        width: 405.w,
+                        nickname: 'Admin',
                         /*
                         playerInfo: PlayerInfo(
                           nickname: 'Tony Stark', 
@@ -182,7 +183,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     );
                   }, 
                   child: Text(
-                    'MAFIA CLASSIC', 
+                    'MAFIA CLASSIC',
                     style: TextStyle(
                       fontSize: 40.sp, 
                       color: Colors.white, 

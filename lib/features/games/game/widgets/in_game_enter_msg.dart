@@ -40,6 +40,7 @@ class _EnterMessageState extends State<EnterMessage> {
               child: TextField(
                 controller: widget.messageController,
                 style: TextStyle(color: ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white, fontSize: 15.sp),
+                cursorColor: ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF),
                 decoration: InputDecoration(
                   hintText: '${S.of(context).enterMessage}...',
                   hintStyle: const TextStyle(color: Colors.grey),

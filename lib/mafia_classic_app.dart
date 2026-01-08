@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
+import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
@@ -42,12 +43,13 @@ class MafiaClassicApp extends StatefulWidget {
   State<MafiaClassicApp> createState() => _MafiaClassicAppState();
 }
 
-class _MafiaClassicAppState extends State<MafiaClassicApp> {
+class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingObserver {
 
   late final StreamSubscription _globalSub;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     GeneralStreams.languageStream.add(const Locale("en"));
 
     _globalSub = EventRouterService().globalStream.listen((entry) {
@@ -91,8 +93,25 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> {
   @override
   void dispose() {
     GeneralStreams.languageStream.close();
+    WidgetsBinding.instance.removeObserver(this);
     _globalSub.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+
+    if (state == AppLifecycleState.paused) {
+      print("App is paused or going to the background.");
+      
+    } else if (state == AppLifecycleState.detached) {
+      print("App engine detached. Clearing all cache...");
+      GeneralCacheService().clearAllData();
+    } else if (state == AppLifecycleState.hidden) {
+      print("App is hidden.");
+    }
   }
 
   @override

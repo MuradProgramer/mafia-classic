@@ -1,9 +1,9 @@
 enum ServerEvent {
   pong(0),
 
-  clientError(1),
-  clientDuplicateLogin(2),
-  clientAuthorizationSuccess(3),
+  clientError(300),
+  clientDuplicateLogin(301),
+  clientAuthorizationSuccess(302),
   
   lobbyRooms(1100),
   lobbyRoomCreated(1101),
@@ -35,6 +35,25 @@ enum ServerEvent {
   gameNightActionPrompt(1512),
   gameOver(1513),
 
+  friendshipFriends(2000), //
+  friendshipFriendsUnreadMessages(2001),
+  friendshipFriendProfileDetails(2002),
+  friendshipFriendOnline(2003), //?
+  friendshipFriendOffline(2004), //?
+  friendshipFriendJoinedRoom(2005),
+  friendshipFriendLeftRoom(2006),
+  friendshipRoomInvite(2007),
+  friendshipNewFriend(2008), //
+  friendshipSearchedPlayers(2009), //
+  friendshipSuggestedFriends(2010), //
+  friendshipRequestFriendship(2011), //
+  friendshipDeleteFriendship(2012), //
+  friendshipPendingFriendshipRequests(2013), //
+  friendshipFriendMessages(2014),
+  friendshipFriendNewMessage(2015),
+  friendshipFriendMessageStatus(2016),
+  friendshipFriendMessagesReaded(2017),
+
   friendInvitation(5000),
 
   errorEvent(-1);
@@ -46,7 +65,7 @@ enum ServerEvent {
 enum ClientCommand {
   ping(0),
 
-  authorize(1),
+  authorize(300),
 
   getRooms(1100),
   createRoom(1101),
@@ -56,6 +75,21 @@ enum ClientCommand {
   sendRoomMessage(1500),
   useGameAbility(1501),
   submitGameVote(1502),
+
+  getFriends(2000),
+  friendsUnreadMessages(2001),
+  requestFriendship(2002),
+  approveFriendship(2003),
+  deleteFriendship(2004),
+  getSuggestedFriends(2005),
+  getFriendProfileDetails(2006),
+  getPendingFriendshipRequests(2007),
+  searchPlayers(2008),
+  sendRoomInvite(2009),
+  acceptRoomInvite(2010),
+  getFriendMessages(2011),
+  readFriendMessages(2012),
+  sendMessageToFriend(2013),
 
   errorEvent(-1);
 

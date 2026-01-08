@@ -1155,7 +1155,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcome.
   ///
   /// In en, this message translates to:
-  /// **'Welcome,'**
+  /// **'Welcome'**
   String get welcome;
 
   /// No description provided for @chat.
@@ -1835,6 +1835,219 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'it is you'**
   String get itIsYou;
+
+  /// No description provided for @uknown.
+  ///
+  /// In en, this message translates to:
+  /// **'uknown'**
+  String get uknown;
+
+  /// No description provided for @gameInformationPopupCured.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re in “safe” hands, the mafia can’t touch you now'**
+  String get gameInformationPopupCured;
+
+  /// No description provided for @gameInformationPopupInterviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Congrats — you’re now part of their “big investigation,” whether you like it or not. And, as always, everyone’s already gossiping about whether you’re on the same side as the other interviewee'**
+  String get gameInformationPopupInterviewed;
+
+  /// No description provided for @underTheEffectYouCannotVoteUseAbilitiesAndYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Under the effect: you cannot vote, use abilities, and your messages appear distorted'**
+  String get underTheEffectYouCannotVoteUseAbilitiesAndYour;
+
+  /// No description provided for @gameInformationPopupIntoxicated.
+  ///
+  /// In en, this message translates to:
+  /// **'Under the effect: you cannot vote, use abilities, and your messages appear distorted'**
+  String get gameInformationPopupIntoxicated;
+
+  /// No description provided for @gameInformationPopupInvestigated.
+  ///
+  /// In en, this message translates to:
+  /// **'The sheriff entered your details into the system — now they know who you are'**
+  String get gameInformationPopupInvestigated;
+
+  /// No description provided for @gameInformationPopupRevealed.
+  ///
+  /// In en, this message translates to:
+  /// **'Now your life depends on how important your role is'**
+  String get gameInformationPopupRevealed;
+
+  /// No description provided for @gameInformationPopupProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'While the protection is active, you’re safe from harm.'**
+  String get gameInformationPopupProtected;
+
+  /// No description provided for @gameInformationPopupSatisfied.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve succumbed to the temptation and cannot vote or use abilities.'**
+  String get gameInformationPopupSatisfied;
+
+  /// No description provided for @gameInformationPopupTitleCured.
+  ///
+  /// In en, this message translates to:
+  /// **'The doctor has cured you'**
+  String get gameInformationPopupTitleCured;
+
+  /// No description provided for @gameInformationPopupTitleInterviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'The journalist interviewed you'**
+  String get gameInformationPopupTitleInterviewed;
+
+  /// No description provided for @gameInformationPopupTitleIntoxicated.
+  ///
+  /// In en, this message translates to:
+  /// **'The bartender got you drunk'**
+  String get gameInformationPopupTitleIntoxicated;
+
+  /// No description provided for @gameInformationPopupTitleInvestigated.
+  ///
+  /// In en, this message translates to:
+  /// **'The sheriff investigated you.'**
+  String get gameInformationPopupTitleInvestigated;
+
+  /// No description provided for @gameInformationPopupTitleRevealed.
+  ///
+  /// In en, this message translates to:
+  /// **'The informant revealed your role.'**
+  String get gameInformationPopupTitleRevealed;
+
+  /// No description provided for @gameInformationPopupTitleProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'The bodyguard has protected you.'**
+  String get gameInformationPopupTitleProtected;
+
+  /// No description provided for @gameInformationPopupTitleSatisfied.
+  ///
+  /// In en, this message translates to:
+  /// **'The beauty has enchanted you.'**
+  String get gameInformationPopupTitleSatisfied;
+
+  /// No description provided for @gameInformationPopupExpirationCured.
+  ///
+  /// In en, this message translates to:
+  /// **'The effect will wear off in one day'**
+  String get gameInformationPopupExpirationCured;
+
+  /// No description provided for @gameInformationPopupExpirationInterviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'The effect lasts until the end of the game'**
+  String get gameInformationPopupExpirationInterviewed;
+
+  /// No description provided for @gameInformationPopupExpirationIntoxicated.
+  ///
+  /// In en, this message translates to:
+  /// **'The effect will wear off in one day'**
+  String get gameInformationPopupExpirationIntoxicated;
+
+  /// No description provided for @gameInformationPopupExpirationInvestigated.
+  ///
+  /// In en, this message translates to:
+  /// **'The effect lasts until the end of the game'**
+  String get gameInformationPopupExpirationInvestigated;
+
+  /// No description provided for @gameInformationPopupExpirationRevealed.
+  ///
+  /// In en, this message translates to:
+  /// **'The effect lasts until the end of the game'**
+  String get gameInformationPopupExpirationRevealed;
+
+  /// No description provided for @gameInformationPopupExpirationProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'The effect will wear off in one day'**
+  String get gameInformationPopupExpirationProtected;
+
+  /// No description provided for @gameInformationPopupExpirationSatisfied.
+  ///
+  /// In en, this message translates to:
+  /// **'The effect will wear off in one day'**
+  String get gameInformationPopupExpirationSatisfied;
+
+  /// No description provided for @youMustWriteYourReport.
+  ///
+  /// In en, this message translates to:
+  /// **'You must write your report'**
+  String get youMustWriteYourReport;
+
+  /// No description provided for @inviteFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Friend'**
+  String get inviteFriend;
+
+  /// No description provided for @phaseMessagesDay.
+  ///
+  /// In en, this message translates to:
+  /// **'The silence of night is over. Now speak.'**
+  String get phaseMessagesDay;
+
+  /// No description provided for @phaseMessageDayVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the imposter of the day'**
+  String get phaseMessageDayVoting;
+
+  /// No description provided for @phaseMessageNight.
+  ///
+  /// In en, this message translates to:
+  /// **'The night begins. All must rest in silence'**
+  String get phaseMessageNight;
+
+  /// No description provided for @phaseMessageNightVoting.
+  ///
+  /// In en, this message translates to:
+  /// **'The Mafia cast their deadly vote.'**
+  String get phaseMessageNightVoting;
+
+  /// ...
+  ///
+  /// In en, this message translates to:
+  /// **'[{nickname}] did not survive the night..'**
+  String nicknameDidNotSurviveTheNight(String nickname);
+
+  /// ...
+  ///
+  /// In en, this message translates to:
+  /// **'[{nickname}] was eliminated by the town\'s decision'**
+  String nicknameWasEliminatedByTheTownsDecision(String nickname);
+
+  /// ...
+  ///
+  /// In en, this message translates to:
+  /// **'Terrorist tried to bomb [{targetPlayer}], but bodyguard saved him/her'**
+  String terroristTriedToBombTargetplayerButBodyguardSavedHimher(
+      String targetPlayer);
+
+  /// ...
+  ///
+  /// In en, this message translates to:
+  /// **'Terrorist bombarded [{targetPlayer}]'**
+  String terroristBombardedTargetplayer(String targetPlayer);
+
+  /// ...
+  ///
+  /// In en, this message translates to:
+  /// **'[{firstPlayerNickname}] and [{secondPlayerNickname}] are on different teams'**
+  String firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams(
+      String firstPlayerNickname, String secondPlayerNickname);
+
+  /// ...
+  ///
+  /// In en, this message translates to:
+  /// **'[{firstPlayerNickname}] and [{secondPlayerNickname}] are on same teams'**
+  String firstplayernicknameAndSecondplayernicknameAreOnSameTeams(
+      String firstPlayerNickname, String secondPlayerNickname);
 }
 
 class _AppLocalizationsDelegate

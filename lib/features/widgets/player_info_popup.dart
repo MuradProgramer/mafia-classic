@@ -5,11 +5,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
+import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/services/api_service.dart';
 
 // ignore: must_be_immutable
 class PlayerInfoPopup extends StatefulWidget {
+  final String nickname;
   final double height;
   final double width;
   //PlayerInfo playerInfo;
@@ -18,6 +21,7 @@ class PlayerInfoPopup extends StatefulWidget {
     super.key, 
     required this.height, 
     required this.width, 
+    required this.nickname,
     //required this.playerInfo,
   });
 
@@ -38,6 +42,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
     _loadPlayerInfo();
   }
 
+
   String formatLastSeen(DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
@@ -54,10 +59,10 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
   }
 
   void _loadPlayerInfo() async {
-    //!final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo('musayev');
-    //!print(playerInfoData.toString());
+    final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo(widget.nickname);
+    print(playerInfoData.toString());
     setState(() {
-      //!playerInfo = PlayerInfo.from(playerInfoData);
+      playerInfo = PlayerInfo.from(playerInfoData);
     });
     print('-----------------');
     print(playerInfo.toString());
@@ -236,7 +241,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   )
                                 ],
                               ),
-                          
+
                               //? AVATAR
                               Container(
                                 decoration: BoxDecoration(
@@ -327,6 +332,10 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                               //? FRIENDSHIP STATUS
                               playerInfo!.friendshipStatus == 'None'
                               ? GestureDetector(
+                                onTap: () async {
+                                  await GetIt.I<ApiService>().sendRequest(playerInfo!.nickname);
+                                  _loadPlayerInfo();
+                                },
                                 child: Container(
                                   height: 35.h,
                                   decoration: BoxDecoration(
@@ -352,6 +361,37 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   ),
                                 ),
                               )
+                              : playerInfo!.friendshipStatus == 'Accepted' 
+                              ? GestureDetector(
+                                onTap: () async {
+                                  await GetIt.I<ApiService>().deleteFriend(playerInfo!.nickname);
+                                  _loadPlayerInfo();
+                                },
+                                child: Container(
+                                  height: 35.h,
+                                  decoration: BoxDecoration(
+                                    color: Colors.redAccent,
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 1
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.sp)
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                      child: Text(
+                                        "Delete friend",
+                                        style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.white
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
                               : Text(
                                 playerInfo!.friendshipStatus,
                                 style: TextStyle(
@@ -362,7 +402,23 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                               ),
                     
                               // BUTTON:    CHAT
-                              GestureDetector(
+                              if (playerInfo!.friendshipStatus == 'Accepted') GestureDetector(
+                                onTap: () {
+                                  //if (playerInfo!.friendshipStatus != 'Accepted') return;
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => FriendChat(
+                                        friend: Friendship(
+                                          nickname: playerInfo!.nickname, 
+                                          avatarUrl: playerInfo!.avatarUrl,
+                                          isOnline: playerInfo!.isOnline,
+                                          gameTitle: playerInfo!.gameLobbyTitle ?? '',
+                                          lastSeen: playerInfo!.lastSeen ?? DateTime.now()
+                                        )
+                                      ),
+                                    ),
+                                  );
+                                },
                                 child: Container(
                                   width: 70.h,
                                   height: 35.h,
@@ -404,7 +460,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         ? Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.h),
                           child: Text(
-                            playerInfo!.isOnline ? S.of(context).currentlyAreNotPlaying : S.of(context).currentlyOffline,
+                            playerInfo!.isOnline ? "Currently is not in a room" : S.of(context).currentlyOffline,
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 20.sp,
                               color: const Color(0xFF4F4F4F)
@@ -756,31 +812,31 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             //? CIVILIAN
-                            WinRole(role: 'Civillian', winCount: playerInfo!.playedRoles[('Civillian')]!),
+                            WinRole(role: 'Civilian', winCount: playerInfo!.civilianRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? DOCTOR
-                            WinRole(role: 'Doctor', winCount: playerInfo!.playedRoles[('Doctor')]!),
+                            WinRole(role: 'Doctor', winCount: playerInfo!.doctorRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? SHERIFF
-                            WinRole(role: 'Sheriff', winCount: playerInfo!.playedRoles[('Sheriff')]!),
+                            WinRole(role: 'Sheriff', winCount: playerInfo!.sheriffRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? BODYGUARD
-                            WinRole(role: 'Bodyguard', winCount: playerInfo!.playedRoles[('Bodyguard')]!),
+                            WinRole(role: 'Bodyguard', winCount: playerInfo!.bodyguardRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? BEAUTY
-                            WinRole(role: 'Beauty', winCount: playerInfo!.playedRoles[('Beauty')]!),
+                            WinRole(role: 'Beauty', winCount: playerInfo!.beautyRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? JOURNALIST
-                            WinRole(role: 'Journalist', winCount: playerInfo!.playedRoles[('Journalist')]!),
+                            WinRole(role: 'Journalist', winCount: playerInfo!.journalistRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? SPY
-                            WinRole(role: 'Spy', winCount: playerInfo!.playedRoles[('Spy')]!),
+                            WinRole(role: 'Spy', winCount: playerInfo!.spyRolePlayedGames),
                           ],
                         ),
                       
@@ -791,19 +847,19 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             //? MAFIA
-                            WinRole(role: 'Mafia', winCount: playerInfo!.playedRoles[('Mafia')]!),
+                            WinRole(role: 'Mafia', winCount: playerInfo!.mafiaRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? TERRORIST
-                            WinRole(role: 'Terrorist', winCount: playerInfo!.playedRoles[('Terrorist')]!),
+                            WinRole(role: 'Terrorist', winCount: playerInfo!.terroristRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? INFORMANT
-                            WinRole(role: 'Informant', winCount: playerInfo!.playedRoles[('Informant')]!),
+                            WinRole(role: 'Informant', winCount: playerInfo!.informantRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? BARMAN
-                            WinRole(role: 'Barman', winCount: playerInfo!.playedRoles[('Barman')]!)
+                            WinRole(role: 'Barman', winCount: playerInfo!.barmanRolePlayedGames)
                           ],
                         )
                       
@@ -836,9 +892,32 @@ class PlayerInfo {
   final int loses;
   final int mafiaWins;
   final int civilianWins;
-  final Map<String, int> playedRoles;
+  
+  final int civilianRolePlayedGames;
+  final int sheriffRolePlayedGames;
+  final int doctorRolePlayedGames;
+  final int beautyRolePlayedGames;
+  final int bodyguardRolePlayedGames;
+  final int spyRolePlayedGames;
+  final int journalistRolePlayedGames;
+  final int mafiaRolePlayedGames;
+  final int informantRolePlayedGames;
+  final int barmanRolePlayedGames;
+  final int terroristRolePlayedGames;
 
   PlayerInfo({
+    required this.civilianRolePlayedGames, 
+    required this.sheriffRolePlayedGames, 
+    required this.doctorRolePlayedGames, 
+    required this.beautyRolePlayedGames, 
+    required this.bodyguardRolePlayedGames,
+    required this.spyRolePlayedGames, 
+    required this.journalistRolePlayedGames, 
+    required this.mafiaRolePlayedGames, 
+    required this.informantRolePlayedGames, 
+    required this.barmanRolePlayedGames, 
+    required this.terroristRolePlayedGames,
+
     required this.nickname, 
     required this.avatarUrl, 
     required this.isOnline, 
@@ -851,11 +930,79 @@ class PlayerInfo {
     required this.loses, 
     required this.mafiaWins, 
     required this.civilianWins, 
-    required this.playedRoles,
     required this.gameLobbyTitle, 
     required this.gameLobbyStatus, 
     required this.gameLobbyPlayerCount,
   });
+
+  static final DateFormat _customFormat = DateFormat('dd.MM.yyyy HH:mm');
+
+  factory PlayerInfo.fromJson(Map<String, dynamic> json) {
+    final String lastSeenString = json['lastSeen'] as String? ?? '';
+    final String joindDateString = json['joinDate'] as String? ?? '';
+    
+    DateTime? parsedLastSeen;
+    DateTime parsedJoinDate = DateTime.now();
+    
+    if (lastSeenString.isNotEmpty) {
+      DateTime? isoDate = DateTime.tryParse(lastSeenString);
+      
+      if (isoDate != null) {
+        parsedLastSeen = isoDate.toLocal();
+      } else {
+        try {
+          parsedLastSeen = _customFormat.parse(lastSeenString, true).toLocal();
+        } catch (e) {
+          print('Error parsing date "$lastSeenString": $e');
+        }
+      }
+    }
+
+    if (joindDateString.isNotEmpty) {
+      DateTime? isoDate = DateTime.tryParse(joindDateString);
+      
+      if (isoDate != null) {
+        parsedJoinDate = isoDate.toLocal();
+      } else {
+        try {
+          parsedJoinDate = _customFormat.parse(joindDateString, true).toLocal();
+        } catch (e) {
+          print('Error parsing date "$joindDateString": $e');
+        }
+      }
+    }
+
+    return PlayerInfo(
+      nickname: json['nickname'] ?? '',
+      avatarUrl: json['avatarUrl'] ?? '',
+      isOnline: json['isOnline'] ?? false,
+      lastSeen: parsedLastSeen,
+      joinDate: parsedJoinDate,
+      friendshipStatus: json['friendshipStatus'] ?? '',
+      inGameLobby: json['inRoom'] ?? false,
+      overall: json['stats']['overall'] ?? 0,
+      wins: json['stats']['wins'] ?? 0,
+      loses: json['stats']['loses'] ?? 0,
+      mafiaWins: json['stats']['mafiaWins'] ?? 0,
+      civilianWins: json['stats']['civilianWins'] ?? 0,
+
+      bodyguardRolePlayedGames: json['stats']['bodyguardRolePlayedGames'] ?? 0,
+      doctorRolePlayedGames: json['stats']['doctorRolePlayedGames'] ?? 0,
+      sheriffRolePlayedGames: json['stats']['sheriffRolePlayedGames'] ?? 0,
+      beautyRolePlayedGames: json['stats']['beautyRolePlayedGames'] ?? 0,
+      journalistRolePlayedGames: json['stats']['journalistRolePlayedGames'] ?? 0,
+      spyRolePlayedGames: json['stats']['spyRolePlayedGames'] ?? 0,
+      civilianRolePlayedGames: json['stats']['civilianRolePlayedGames'] ?? 0,
+      mafiaRolePlayedGames: json['stats']['mafiaRolePlayedGames'] ?? 0,
+      terroristRolePlayedGames: json['stats']['terroristRolePlayedGames'] ?? 0,
+      informantRolePlayedGames: json['stats']['informantRolePlayedGames'] ?? 0,
+      barmanRolePlayedGames: json['stats']['barmanRolePlayedGames'] ?? 0,
+
+      gameLobbyTitle: json['room'] == null ? '' : json['room']['title'] ?? '',
+      gameLobbyStatus: json['room'] == null ? '' : json['room']['state'] ?? '',
+      gameLobbyPlayerCount: json['room'] == null ? -1 : json['room']['playerCount'] ?? -1,
+    );
+  }
 
   @override
   String toString() {
@@ -876,7 +1023,6 @@ PlayerInfo(
   loses: $loses,
   mafiaWins: $mafiaWins,
   civilianWins: $civilianWins,
-  playedRoles: $playedRoles
 )
 ''';
   }
@@ -894,10 +1040,23 @@ PlayerInfo(
       loses = other.loses,
       mafiaWins = other.mafiaWins,
       civilianWins = other.civilianWins,
-      playedRoles = Map.from(other.playedRoles),
       gameLobbyTitle = other.gameLobbyTitle,
       gameLobbyStatus = other.gameLobbyStatus,
-      gameLobbyPlayerCount = other.gameLobbyPlayerCount;
+      gameLobbyPlayerCount = other.gameLobbyPlayerCount,
+
+      civilianRolePlayedGames = other.civilianRolePlayedGames,
+      sheriffRolePlayedGames = other.sheriffRolePlayedGames,
+      doctorRolePlayedGames = other.doctorRolePlayedGames,
+      beautyRolePlayedGames = other.beautyRolePlayedGames,
+      bodyguardRolePlayedGames = other.bodyguardRolePlayedGames,
+      spyRolePlayedGames = other.spyRolePlayedGames,
+      journalistRolePlayedGames = other.journalistRolePlayedGames,
+      mafiaRolePlayedGames = other.mafiaRolePlayedGames,
+      informantRolePlayedGames = other.informantRolePlayedGames,
+      barmanRolePlayedGames = other.barmanRolePlayedGames,
+      terroristRolePlayedGames = other.terroristRolePlayedGames;
+
+      
 }
 
 class WinRole extends StatelessWidget {

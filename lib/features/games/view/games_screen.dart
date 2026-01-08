@@ -508,7 +508,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             Padding(
                               padding: EdgeInsets.only(top: 15.h),
                               child: Text(
-                                S.of(context).lobby,
+                                AppLocalizations.of(context)!.lobby,
                                 style: GoogleFonts.playfairDisplay(
                                   fontSize: 42.sp,
                                   color: const Color(0xFFFFB000)
@@ -551,7 +551,7 @@ class _GamesScreenState extends State<GamesScreen> {
                                           controller: _searchController,
                                           style: TextStyle(color: Colors.white, fontSize: 16.sp, fontFamily: 'CenturyGothic'),
                                           decoration: InputDecoration(
-                                            hintText: ' ${S.of(context).search}',
+                                            hintText: ' ${AppLocalizations.of(context)!.search}',
                                             hintStyle: const TextStyle(color: Color.fromARGB(255, 166, 166, 166), fontFamily: 'CenturyGothic'),
                                             border: InputBorder.none,
                                           ),
@@ -583,7 +583,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             Padding(
                               padding: EdgeInsets.only(top: 15.h, left: 25.w, right: 20.w),
                               child: Text(
-                                S.of(context).filterOff,
+                                AppLocalizations.of(context)!.filterOff,
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: Colors.white,
@@ -618,7 +618,7 @@ class _GamesScreenState extends State<GamesScreen> {
                       child: Align(
                         alignment: Alignment.topCenter,
                         child: Text(
-                          S.of(context).noAvailableGames,
+                          AppLocalizations.of(context)!.noAvailableGames,
                           style: GoogleFonts.playfairDisplay(
                             color: Colors.white,
                             fontSize: 22
@@ -969,8 +969,10 @@ class _GameCardState extends State<GameCard> {
 
                     if (text == 'You Are Playing Here' || text == 'You Died Here') {
                       Navigator.of(context, rootNavigator: true).push(
-                        MaterialPageRoute(builder: (context) => 
-                          GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",)
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",);
+                          }
                         )
                       ).then((result) {
                         widget.loadStreamsAndData();
@@ -986,7 +988,7 @@ class _GameCardState extends State<GameCard> {
                     ),
                     child: Center(
                       child: Text(
-                        S.of(context).join,
+                        AppLocalizations.of(context)!.join,
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontFamily: 'CenturyGothic',
@@ -1030,7 +1032,7 @@ class _GameCardState extends State<GameCard> {
                               ),
                                     
                               Text(
-                                S.of(context).min,
+                                AppLocalizations.of(context)!.min,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15.sp,
@@ -1072,7 +1074,7 @@ class _GameCardState extends State<GameCard> {
                               ),
                                     
                               Text(
-                                S.of(context).max,
+                                AppLocalizations.of(context)!.max,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15.sp,
@@ -1089,7 +1091,7 @@ class _GameCardState extends State<GameCard> {
 
                   // TEXT:    players in the room            
                   Text(
-                    S.of(context).playersInTheRoom,
+                    AppLocalizations.of(context)!.playersInTheRoom,
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontFamily: 'CenturyGothic'
@@ -1148,7 +1150,7 @@ class _GameCardState extends State<GameCard> {
                       RotatedBox(
                         quarterTurns: 3, // Rotates the text 90 degrees clockwise
                         child: Text(
-                          S.of(context).areHere, // Replace with your text
+                          AppLocalizations.of(context)!.areHere, // Replace with your text
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15.sp,
@@ -1197,7 +1199,7 @@ class _GameCardState extends State<GameCard> {
                       child: Column(
                         children: [
                           Text(
-                            S.of(context).show,
+                            AppLocalizations.of(context)!.show,
                             style: GoogleFonts.playfairDisplay(
                               height: 0,
                               color: const Color(0xFFFFB000),
@@ -1206,7 +1208,7 @@ class _GameCardState extends State<GameCard> {
                           ),
                       
                           Text(
-                            S.of(context).allPlayers,
+                            AppLocalizations.of(context)!.allPlayers,
                             style: GoogleFonts.playfairDisplay(
                               height: 0,
                               color: const Color(0xFFFFB000),
@@ -1240,9 +1242,9 @@ class _GameCardState extends State<GameCard> {
                   padding: EdgeInsets.only(bottom: 20.h),
                   child: Text(
                     text == 'You Are Playing Here'
-                    ? S.of(context).youArePlayingHere
+                    ? AppLocalizations.of(context)!.youArePlayingHere
                     : text == 'You Died Here'
-                    ? S.of(context).youDiedHere
+                    ? AppLocalizations.of(context)!.youDiedHere
                     : '',
                     style: TextStyle(
                       fontSize: 15.sp,
@@ -1458,7 +1460,7 @@ class _PlayersPopupState extends State<PlayersPopup> {
                                               
                                   // TEXT:    DEFEATED OR STILL HERE
                                   Text(
-                                    value[index].isAlive == true ? S.of(context).stillHere : S.of(context).defeated,
+                                    value[index].isAlive == true ? AppLocalizations.of(context)!.stillHere : AppLocalizations.of(context)!.defeated,
                                     style: TextStyle(
                                       fontSize: 15.sp,
                                       fontFamily: 'CenturyGothic',
@@ -1493,7 +1495,6 @@ class _PlayersPopupState extends State<PlayersPopup> {
         }
       ),
     );
-  
   }
 }
 
@@ -1637,13 +1638,13 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     super.didChangeDependencies();
     
     rolesL10 = {
-      S.of(context).mistress: false,
-      S.of(context).journalist: false,
-      S.of(context).bodyguard: false,
-      S.of(context).spy: false,
-      S.of(context).terrorist: false,
-      S.of(context).barman: false,
-      S.of(context).informant: false,
+      AppLocalizations.of(context)!.mistress: false,
+      AppLocalizations.of(context)!.journalist: false,
+      AppLocalizations.of(context)!.bodyguard: false,
+      AppLocalizations.of(context)!.spy: false,
+      AppLocalizations.of(context)!.terrorist: false,
+      AppLocalizations.of(context)!.barman: false,
+      AppLocalizations.of(context)!.informant: false,
     };
 
     mainRoles = {
@@ -1760,7 +1761,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    S.of(context).createGame,
+                    AppLocalizations.of(context)!.createGame,
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 38.sp,
                       color: Colors.white
@@ -1806,7 +1807,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         controller: _titleController,
                         style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
                         decoration: InputDecoration(
-                          hintText: ' ${S.of(context).enterTheName}',
+                          hintText: ' ${AppLocalizations.of(context)!.enterTheName}',
                           hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
                           border: InputBorder.none,
                           counterText: '',
@@ -1825,7 +1826,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                           child: Row(
                             children: [
                               Text(
-                                '${S.of(context).password} ${isPasswordVisible ? S.of(context).on : S.of(context).off}',
+                                '${AppLocalizations.of(context)!.password} ${isPasswordVisible ? AppLocalizations.of(context)!.on : AppLocalizations.of(context)!.off}',
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: const Color(0xFF494239),
@@ -1897,7 +1898,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                           controller: _passwordController,
                           style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
                           decoration: InputDecoration(
-                            hintText: ' ${S.of(context).enterThePassword}',
+                            hintText: ' ${AppLocalizations.of(context)!.enterThePassword}',
                             hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
                             border: InputBorder.none,
                             counterText: '',
@@ -1925,7 +1926,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                   children: [
                     // TEXT:    Number of players
                     Text(
-                      S.of(context).numberOfPlayers,
+                      AppLocalizations.of(context)!.numberOfPlayers,
                       style: GoogleFonts.playfairDisplay(
                         color: Colors.white,
                         fontSize: 23.sp,
@@ -2012,7 +2013,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                     Padding(
                       padding: EdgeInsets.only(top: 5.h),
                       child: Text(
-                        S.of(context).extraRoles,
+                        AppLocalizations.of(context)!.extraRoles,
                         style: GoogleFonts.playfairDisplay(
                           color: const Color(0xFF494239),
                           fontSize: 23.sp,
@@ -2048,7 +2049,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          S.of(context).bodyguard,
+                                          AppLocalizations.of(context)!.bodyguard,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 18.sp,
@@ -2102,7 +2103,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          S.of(context).spy,
+                                          AppLocalizations.of(context)!.spy,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2154,7 +2155,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          S.of(context).journalist,
+                                          AppLocalizations.of(context)!.journalist,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2206,7 +2207,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          S.of(context).beauty,
+                                          AppLocalizations.of(context)!.beauty,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2276,7 +2277,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          S.of(context).terrorist,
+                                          AppLocalizations.of(context)!.terrorist,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2328,7 +2329,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          S.of(context).bartender,
+                                          AppLocalizations.of(context)!.bartender,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 18.sp,
@@ -2380,7 +2381,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          S.of(context).informant,
+                                          AppLocalizations.of(context)!.informant,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2454,7 +2455,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            S.of(context).confirm,
+                            AppLocalizations.of(context)!.create,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20.sp,
@@ -2476,7 +2477,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
             children: [
               TextField(
                 decoration: InputDecoration(
-                  labelText: S.of(context).roomName,
+                  labelText: AppLocalizations.of(context)!.roomName,
                   hintStyle: const TextStyle(color: Colors.white30)
                 ),
                 onChanged: (value) {
@@ -2487,7 +2488,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 style: const TextStyle(color: Colors.white)
               ),
               const SizedBox(height: 20),
-              Text('${S.of(context).players}: $minPlayers - $maxPlayers'),
+              Text('${AppLocalizations.of(context)!.players}: $minPlayers - $maxPlayers'),
               RangeSlider(
                 values: RangeValues(minPlayers.toDouble(), maxPlayers.toDouble()),
                 min: 5,
@@ -2502,7 +2503,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                S.of(context).roles,
+                AppLocalizations.of(context)!.roles,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
@@ -2532,7 +2533,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
               const SizedBox(height: 20),
               TextField(
                 decoration: InputDecoration(
-                  labelText: S.of(context).passwordOptional,
+                  labelText: AppLocalizations.of(context)!.passwordOptional,
                   hintStyle: const TextStyle(color: Colors.white30)
                 ),
                 obscureText: true,
@@ -2583,7 +2584,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                       );
                     }
                   },
-                  child: Text(S.of(context).createGame),
+                  child: Text(AppLocalizations.of(context)!.createGame),
                 ),
               ),
             ],
@@ -2676,15 +2677,15 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
     const String ornament = "assets/images/game-ornament-night.png";
 
     Map<String, bool> additionalRoles = {
-      //S.of(context).doctor: false,
-      //S.of(context).sheriff: false,
-      S.of(context).mistress: false,
-      S.of(context).journalist: false,
-      S.of(context).bodyguard: false,
-      S.of(context).spy: false,
-      S.of(context).terrorist: false,
-      S.of(context).barman: false,
-      S.of(context).informant: false,
+      //AppLocalizations.of(context)!.doctor: false,
+      //AppLocalizations.of(context)!.sheriff: false,
+      AppLocalizations.of(context)!.mistress: false,
+      AppLocalizations.of(context)!.journalist: false,
+      AppLocalizations.of(context)!.bodyguard: false,
+      AppLocalizations.of(context)!.spy: false,
+      AppLocalizations.of(context)!.terrorist: false,
+      AppLocalizations.of(context)!.barman: false,
+      AppLocalizations.of(context)!.informant: false,
     };
 
     void resetFilters() {
@@ -2795,7 +2796,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                           children: [
                             // TEXT:    FILTER
                             Text(
-                              S.of(context).filter,
+                              AppLocalizations.of(context)!.filter,
                               style: GoogleFonts.playfairDisplay(
                                 color: const Color(0xFFFFB000),
                                 fontSize: 42.sp
@@ -2823,7 +2824,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      S.of(context).close,
+                                      AppLocalizations.of(context)!.close,
                                       style: TextStyle(
                                         color: const Color(0xFFFFFFFF),
                                         fontSize: 16.sp,
@@ -2858,7 +2859,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                   children: [
                     // TEXT:    Number of players
                     Text(
-                      S.of(context).numberOfPlayers,
+                      AppLocalizations.of(context)!.numberOfPlayers,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 19.sp,
@@ -2938,7 +2939,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                   children: [
                     // TEXT:    ROOMS WITH
                     Text(
-                      S.of(context).roomsWith,
+                      AppLocalizations.of(context)!.roomsWith,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 19.sp,
@@ -2977,7 +2978,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                               Padding(
                                 padding: EdgeInsets.only(left: 10.w),
                                 child: Text(
-                                  S.of(context).availableSpots,
+                                  AppLocalizations.of(context)!.availableSpots,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.sp,
@@ -2995,7 +2996,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             children: [
                               // TEXT:    Friends In
                               Text(
-                                S.of(context).friendsIn,
+                                AppLocalizations.of(context)!.friendsIn,
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.6),
                                   fontSize: 16.sp,
@@ -3041,7 +3042,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                     Padding(
                       padding: EdgeInsets.only(bottom: 8.h),
                       child: Text(
-                        S.of(context).access,
+                        AppLocalizations.of(context)!.access,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 19.sp,
@@ -3072,7 +3073,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             },
                             child: Center(
                               child: Text(
-                                S.of(context).mixed,
+                                AppLocalizations.of(context)!.mixed,
                                 style: TextStyle(
                                   color: accessState == 0 ? Colors.white : const Color(0xFFBFBFBF),
                                   fontSize: 16.sp,
@@ -3099,7 +3100,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             },
                             child: Center(
                               child: Text(
-                                S.of(context).open,
+                                AppLocalizations.of(context)!.open,
                                 style: TextStyle(
                                   color: accessState == 1 ? Colors.white : const Color(0xFFBFBFBF),
                                   fontSize: 16.sp,
@@ -3127,7 +3128,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                             },
                             child: Center(
                               child: Text(
-                                S.of(context).private,
+                                AppLocalizations.of(context)!.private,
                                 style: TextStyle(
                                   color: accessState == 2 ? Colors.white : const Color(0xFFBFBFBF),
                                   fontSize: 16.sp,
@@ -3152,7 +3153,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                   children: [
                     // TEXT:    Included Roles
                     Text(
-                      S.of(context).includedRoles,
+                      AppLocalizations.of(context)!.includedRoles,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 19.sp,
@@ -3197,7 +3198,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                     Padding(
                                       padding: EdgeInsets.only(left: 10.w),
                                       child: Text(
-                                        S.of(context).bodyguard,
+                                        AppLocalizations.of(context)!.bodyguard,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.sp,
@@ -3213,7 +3214,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                   children: [
                                     // TEXT:    Terrorist
                                     Text(
-                                      S.of(context).terrorist,
+                                      AppLocalizations.of(context)!.terrorist,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16.sp,
@@ -3276,7 +3277,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 10.w),
                                         child: Text(
-                                          S.of(context).journalist,
+                                          AppLocalizations.of(context)!.journalist,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 16.sp,
@@ -3292,7 +3293,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                     children: [
                                       // TEXT:    Bartender
                                       Text(
-                                        S.of(context).bartender,
+                                        AppLocalizations.of(context)!.bartender,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.sp,
@@ -3356,7 +3357,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       Padding(
                                         padding: EdgeInsets.only(left: 10.w),
                                         child: Text(
-                                          S.of(context).beauty,
+                                          AppLocalizations.of(context)!.beauty,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 16.sp,
@@ -3372,7 +3373,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                     children: [
                                       // TEXT:    Informant
                                       Text(
-                                        S.of(context).informant,
+                                        AppLocalizations.of(context)!.informant,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16.sp,
@@ -3432,7 +3433,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                   Padding(
                                     padding: EdgeInsets.only(left: 10.w),
                                     child: Text(
-                                      S.of(context).spy,
+                                      AppLocalizations.of(context)!.spy,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16.sp,
@@ -3472,7 +3473,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            S.of(context).reset,
+                            AppLocalizations.of(context)!.reset,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.white,
@@ -3497,7 +3498,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            S.of(context).apply,
+                            AppLocalizations.of(context)!.apply,
                             style: TextStyle(
                               fontSize: 16.sp,
                               color: const Color(0xFFFFB000),
@@ -3724,10 +3725,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       List<dynamic> playerRolesJson = data['playerRoles'] ?? [];
       List<PlayerRole> playerRoles = playerRolesJson.map((json) => PlayerRole.fromJson(json)).toList();
 
+      PopupManager().close('inviteFriendPopup');
+
       startGame(widget.game.title, role, civilianCount, mafiaCount, playerRoles, phase);
     });
   
   }
+
+  
   
 
   void startGame(String title, String role, int civilianCount, int mafiaCount, List<PlayerRole> playerRoles, String phase) {
@@ -3809,7 +3814,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
             preferredSize: const Size.fromHeight(30.0),
             child: Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('${S.of(context).playersInRoom} [${gameLobbyPlayers.length}/${widget.game.maxPlayers}]'),
+              child: Text('${AppLocalizations.of(context)!.playersInRoom} [${gameLobbyPlayers.length}/${widget.game.maxPlayers}]'),
             ),
           ),
         ),
@@ -3837,7 +3842,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                       ),
                       child: Stack(
                         children: [
-              
+
                           //? ORNAMENTS
                           Stack(
                             children: [
@@ -3894,7 +3899,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                           ),
                         
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               const SizedBox(),
               
@@ -3902,92 +3907,117 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                 children: [
               
                                   //? TITLE
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 15.h),
-                                    child: Text(
-                                      widget.game.title, 
-                                      style: GoogleFonts.playfairDisplay(
-                                        fontSize: 32.sp,
-                                        color: const Color(0xFFFFB000)
-                                      ),
+                                  Text(
+                                    widget.game.title, 
+                                    style: GoogleFonts.playfairDisplay(
+                                      fontSize: 32.sp,
+                                      color: const Color(0xFFFFB000)
                                     ),
                                   ),
-              
+
                                   //? MIN AND MAX
-                                  Container(
-                                    padding: EdgeInsets.only(top: 8.h),
-                                    child: Row(
-                                      children: [
-              
-                                        //? MIN COUNT
-                                        Column(
+                                  Row(
+                                    children: [
+                                                
+                                      //? MIN COUNT
+                                      Column(
+                                        children: [
+                                          Text(
+                                            "${widget.game.minPlayers}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              height: 0
+                                            ),
+                                          ),
+                                                
+                                          Text(
+                                            "Min",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              height: 0
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                                
+                                      //? ACTUAL COUNT
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                        child: Column(
                                           children: [
                                             Text(
-                                              "${widget.game.minPlayers}",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15.sp,
-                                                fontFamily: 'CenturyGothic',
-                                                height: 0
+                                              "${gameLobbyPlayers.length}",
+                                              style: GoogleFonts.playfairDisplay(
+                                                color: const Color(0xFFFFB000),
+                                                fontSize: 32.sp,
                                               ),
                                             ),
-              
-                                            Text(
-                                              "Min",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15.sp,
-                                                fontFamily: 'CenturyGothic',
-                                                height: 0
-                                              ),
-                                            )
+                                            SizedBox(height: 15.h,)
                                           ],
                                         ),
-              
-                                        //? ACTUAL COUNT
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                                          child: Column(
-                                            children: [
-                                              Text(
-                                                "${gameLobbyPlayers.length}",
-                                                style: GoogleFonts.playfairDisplay(
-                                                  color: const Color(0xFFFFB000),
-                                                  fontSize: 32.sp,
-                                                ),
-                                              ),
-                                              SizedBox(height: 15.h,)
-                                            ],
+                                      ),
+                                                
+                                      //? MAX COUNT
+                                      Column(
+                                        children: [
+                                          Text(
+                                            "${widget.game.maxPlayers}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              height: 0
+                                            ),
+                                          ),
+                                                
+                                          Text(
+                                            "Max",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              height: 0
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+
+                                  // BUTTON:    INVITE FRIEND
+                                  GestureDetector(
+                                    onTap: () {
+                                      PopupManager().show(
+                                        context: context,
+                                        id: 'inviteFriendPopup',
+                                        builder: (_) => InviteFriendPopup(
+                                          friendsList: players,
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: AppLocalizations.of(context)!.inviteFriend.length <= 13 ? 120.w : 155.w,
+                                      height: 35.h,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(71.sp),
+                                        border: Border.all(color: const Color(0xFFFFFFFF), width: 1.5)
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          AppLocalizations.of(context)!.inviteFriend,
+                                          style: TextStyle(
+                                            fontSize: 15.sp,
+                                            color: const Color(0xFFFFFFFF),
+                                            fontFamily: 'CenturyGothic'
                                           ),
                                         ),
-              
-                                        //? MAX COUNT
-                                        Column(
-                                          children: [
-                                            Text(
-                                              "${widget.game.maxPlayers}",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15.sp,
-                                                fontFamily: 'CenturyGothic',
-                                                height: 0
-                                              ),
-                                            ),
-              
-                                            Text(
-                                              "Max",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15.sp,
-                                                fontFamily: 'CenturyGothic',
-                                                height: 0
-                                              ),
-                                            )
-                                          ],
-                                        )
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                  )
                                 
                                 ],
                               ),
@@ -4247,7 +4277,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                               
                     GestureDetector(
                       onTap: () {
-                        TcpClientService().sendMessage(ClientCommand.leaveRoom.value, ""); // Leave Game'
+                        TcpClientService().sendMessage(ClientCommand.leaveRoom.value, "");
                         widget.game.players.removeWhere((e) => e.nickname == authorizedUser.nickname);
                         Navigator.pop(context);
                       },
@@ -4265,6 +4295,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                         ),
                       ),
                     )
+                  
                   ],
                 ),
               ),
@@ -4284,7 +4315,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
-                    remainingTime != -1 ? '${S.of(context).remainingTime}: $remainingTime ${S.of(context).seconds}' : "Waiting",
+                    remainingTime != -1 ? '${AppLocalizations.of(context)!.remainingTime}: $remainingTime ${AppLocalizations.of(context)!.seconds}' : "Waiting",
                     style: const TextStyle(fontSize: 20),
                   ),
                 ),
@@ -4329,7 +4360,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                 //         MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: widget.game.players, cameBackFromAfk: false))
                 //       );
                 //     },
-                //     child: Text(S.of(context).join),
+                //     child: Text(AppLocalizations.of(context)!.join),
                 //   ),
                 // ),
               
@@ -4584,6 +4615,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
               padding: EdgeInsets.only(left: 7.w, bottom: 6.h),
               child: TextField(
                 style: const TextStyle(color: Colors.white),
+                cursorColor: const Color(0xFFFFFFFF),
                 controller: _controller,
                 decoration: InputDecoration(
                   hintText: '${AppLocalizations.of(context)!.enterMessage}...',
@@ -4603,6 +4635,154 @@ class _MessageInputFieldState extends State<MessageInputField> {
           },
         ),
       ],
+    );
+  }
+}
+
+
+class InviteFriendPopup extends StatefulWidget {
+  final List<Player> friendsList;
+
+  InviteFriendPopup({super.key, required this.friendsList});
+
+  @override
+  State<InviteFriendPopup> createState() => _InviteFriendPopupState();
+}
+
+class _InviteFriendPopupState extends State<InviteFriendPopup> {
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 21.w),
+        width: double.maxFinite,
+        height: 350.h,
+        child: Material(
+          borderRadius: BorderRadius.circular(12.sp),
+          color: const Color(0xFF111111),
+          child: Column(
+            children: [
+              //? TITLE AND CLOSE BUTTON
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(width: 25.w),
+        
+                  Padding(
+                    padding: EdgeInsets.all(8.sp),
+                    child: Text(
+                      "Friends",
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 32.sp,
+                        color: const Color(0xFFFFB000)
+                      ),
+                    ),
+                  ),
+        
+                  // BUTTON:    CLOSE BUTTON
+                  Padding(
+                    padding: EdgeInsets.only(right: 25.w),
+                    child: GestureDetector(
+                      onTap: () {
+                        PopupManager().close('inviteFriendPopup');
+                      },
+                      child: Image.asset(
+                        "assets/images/close-white-icon.png",
+                        scale: 2.5,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+        
+              Container(
+                margin: EdgeInsets.only(top: 10.h),
+                height: 250.h,
+                child: ListView.builder(
+                  padding: EdgeInsets.only(left: 20.w, right: 20.w),
+                  shrinkWrap: true,
+                  itemCount: widget.friendsList.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: EdgeInsets.only(top: 5.h),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              //? CIRCLE AVATAR AND NICKNAME
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 15.r,
+                                    backgroundImage: NetworkImage(widget.friendsList[index].avatarUrl),
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Text(
+                                    widget.friendsList[index].nickname, 
+                                    style: TextStyle(
+                                      fontSize: 15.sp, 
+                                      fontFamily: 'CenturyGothic',
+                                      color: const Color(0xFFFFFFFF)
+                                    )
+                                  ),
+                                ],
+                              ),
+                                          
+                              // BUTTON:    Invite or Invited
+                              GestureDetector(
+                                onTap: () {
+                                  // TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, jsonEncode({
+                                  //   'type': 'friendInvitation',
+                                  //   'toNickname': value[index].nickname
+                                  // }));
+                                  // Navigator.of(context).pop();
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  height: 40.h,
+                                  width: 115.w,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(34.sp),
+                                    border: Border.all(color: const Color(0xFFFFFFFF), width: 1)
+                                  ),
+                                  child: Text(
+                                    "Invite",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      color: const Color(0xFFFFFFFF),
+                                    )
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        
+                          //? DIVIDER      
+                          Padding(
+                            padding: EdgeInsets.only(top: 5.h),
+                            child: SizedBox(
+                              width: 310.w,
+                              child: const Divider(
+                                color: Colors.white,
+                                thickness: 1,
+                              ),
+                            ),
+                          ),
+            
+                        ],
+                      )
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      )
     );
   }
 }

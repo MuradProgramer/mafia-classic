@@ -175,7 +175,7 @@
   "requestPending": "Request Pending",
   "approvePending": "Approve Pending",
   "classic": "classic",
-  "welcome": "Welcome,",
+  "welcome": "Welcome",
   "chat": "Chat",
   "offline": "Offline",
   "joinDate": "Join Date",
@@ -295,5 +295,94 @@
   "nightPhase": "Night Phase",
   "winningConditions": "Winning Conditions",
   "night": "Night",
-  "itIsYou": "it is you"
+  "itIsYou": "it is you",
+  "uknown": "uknown",
+  "gameInformationPopupCured": "You’re in “safe” hands, the mafia can’t touch you now",
+  "gameInformationPopupInterviewed": "Congrats — you’re now part of their “big investigation,” whether you like it or not. And, as always, everyone’s already gossiping about whether you’re on the same side as the other interviewee",
+  "underTheEffectYouCannotVoteUseAbilitiesAndYour": "Under the effect: you cannot vote, use abilities, and your messages appear distorted",
+  "gameInformationPopupIntoxicated": "Under the effect: you cannot vote, use abilities, and your messages appear distorted",
+  "gameInformationPopupInvestigated": "The sheriff entered your details into the system — now they know who you are",
+  "gameInformationPopupRevealed": "Now your life depends on how important your role is",
+  "gameInformationPopupProtected": "While the protection is active, you’re safe from harm.",
+  "gameInformationPopupSatisfied": "You’ve succumbed to the temptation and cannot vote or use abilities.",
+  "gameInformationPopupTitleCured": "The doctor has cured you",
+  "gameInformationPopupTitleInterviewed": "The journalist interviewed you",
+  "gameInformationPopupTitleIntoxicated": "The bartender got you drunk",
+  "gameInformationPopupTitleInvestigated": "The sheriff investigated you.",
+  "gameInformationPopupTitleRevealed": "The informant revealed your role.",
+  "gameInformationPopupTitleProtected": "The bodyguard has protected you.",
+  "gameInformationPopupTitleSatisfied": "The beauty has enchanted you.",
+  "gameInformationPopupExpirationCured": "The effect will wear off in one day",
+  "gameInformationPopupExpirationInterviewed": "The effect lasts until the end of the game",
+  "gameInformationPopupExpirationIntoxicated": "The effect will wear off in one day",
+  "gameInformationPopupExpirationInvestigated": "The effect lasts until the end of the game",
+  "gameInformationPopupExpirationRevealed": "The effect lasts until the end of the game",
+  "gameInformationPopupExpirationProtected": "The effect will wear off in one day",
+  "gameInformationPopupExpirationSatisfied": "The effect will wear off in one day",
+  "youMustWriteYourReport": "You must write your report",
+  "inviteFriend": "Invite Friend",
+  "phaseMessagesDay": "The silence of night is over. Now speak.",
+  "phaseMessageDayVoting": "Choose the imposter of the day",
+  "phaseMessageNight": "The night begins. All must rest in silence",
+  "phaseMessageNightVoting": "The Mafia cast their deadly vote.",
+  "nicknameDidNotSurviveTheNight": "[{nickname}] did not survive the night..",
+  "@nicknameDidNotSurviveTheNight": {
+    "description": "...",
+    "placeholders": {
+      "nickname": {
+        "type": "String"
+      }
+    }
+  },
+  "nicknameWasEliminatedByTheTownsDecision": "[{nickname}] was eliminated by the town's decision",
+  "@nicknameWasEliminatedByTheTownsDecision": {
+    "description": "...",
+    "placeholders": {
+      "nickname": {
+        "type": "String"
+      }
+    }
+  },
+  "terroristTriedToBombTargetplayerButBodyguardSavedHimher": "Terrorist tried to bomb [{targetPlayer}], but bodyguard saved him/her",
+  "@terroristTriedToBombTargetplayerButBodyguardSavedHimher": {
+    "description": "...",
+    "placeholders": {
+      "targetPlayer": {
+        "type": "String"
+      }
+    }
+  },
+  "terroristBombardedTargetplayer": "Terrorist bombarded [{targetPlayer}]",
+  "@terroristBombardedTargetplayer": {
+    "description": "...",
+    "placeholders": {
+      "targetPlayer": {
+        "type": "String"
+      }
+    }
+  },
+  "firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams": "[{firstPlayerNickname}] and [{secondPlayerNickname}] are on different teams",
+  "@firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams": {
+    "description": "...",
+    "placeholders": {
+      "firstPlayerNickname": {
+        "type": "String"
+      },
+      "secondPlayerNickname": {
+        "type": "String"
+      }
+    }
+  },
+  "firstplayernicknameAndSecondplayernicknameAreOnSameTeams": "[{firstPlayerNickname}] and [{secondPlayerNickname}] are on same teams",
+  "@firstplayernicknameAndSecondplayernicknameAreOnSameTeams": {
+    "description": "...",
+    "placeholders": {
+      "firstPlayerNickname": {
+        "type": "String"
+      },
+      "secondPlayerNickname": {
+        "type": "String"
+      }
+    }
+  }
 }

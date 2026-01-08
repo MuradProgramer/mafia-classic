@@ -29,10 +29,53 @@ class InGameChatBox extends StatefulWidget {
 }
 
 class _InGameChatBoxState extends State<InGameChatBox> {
+  bool _isUserAtBottom() {
+    if (!widget.scrollController.hasClients) return false;
+    const threshold = 50.0; 
+    return widget.scrollController.position.maxScrollExtent -
+          widget.scrollController.position.pixels < threshold;
+  }
+
+  bool _autoScroll = true;
+  bool _userDragging = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.scrollController.addListener(() {
+      if (widget.scrollController.position.isScrollingNotifier.value) {
+        _userDragging = true;
+        _autoScroll = false;
+      }
+
+      if (_isUserAtBottom()) {
+        _userDragging = false;
+        _autoScroll = true;
+      }
+    });
+  }
+
+  void scrollToBottom() {
+    if (widget.scrollController.hasClients) {
+      final position = widget.scrollController.position.maxScrollExtent;
+      Future.microtask(() {
+        if (widget.scrollController.hasClients && _autoScroll) {
+          widget.scrollController.animateTo(
+            position,
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
   @override
   void didUpdateWidget(covariant InGameChatBox oldWidget) {
     super.didUpdateWidget(oldWidget);
-    widget.scrollToBottom();
+    if (_autoScroll) {
+      scrollToBottom();
+    }
   }
 
   @override
@@ -64,9 +107,18 @@ class _InGameChatBoxState extends State<InGameChatBox> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(message.avatarUrl ?? ''), //!!!!!!!!!!!
-                radius: 20.sp,
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white),
+                    width: 1.sp,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(message.avatarUrl ?? ''), //!!!!!!!!!!!
+                  radius: 20.sp,
+                ),
               ),
               SizedBox(width: 8.w),
               Expanded(

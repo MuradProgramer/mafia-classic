@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,9 +8,12 @@ import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:mafia_classic/features/games/view/view.dart';
+import 'package:mafia_classic/features/profile/friends/models/models.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 
 //import 'package:mafia_classic/blocs/player_bloc.dart';
 // import 'package:mafia_classic/blocs/player_event.dart';
@@ -20,6 +25,11 @@ import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/features/profile/friends/widgets/widgets.dart';
 import 'package:mafia_classic/features/profile/friends/view/screens/screens.dart';
+import 'package:mafia_classic/services/cache/general_cache_service.dart';
+import 'package:mafia_classic/services/tcp/enums.dart';
+import 'package:mafia_classic/services/tcp/event_bus.dart';
+import 'package:mafia_classic/services/tcp/event_router_service.dart';
+import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
 
 class FriendsScreen extends StatefulWidget {
@@ -118,7 +128,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             
                             // TEXT:    Friends
                             child: Text(
-                              S.of(context).friends,
+                              AppLocalizations.of(context)!.friends,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
@@ -168,7 +178,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             
                             // TEXT:    Reuqests
                             child: Text(
-                              S.of(context).requests,
+                              AppLocalizations.of(context)!.requests,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
@@ -218,7 +228,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             
                             // TEXT:    Search
                             child: Text(
-                              S.of(context).search,
+                              AppLocalizations.of(context)!.search,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
@@ -359,7 +369,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
           iconTheme: const IconThemeData(
             color: Colors.white
           ),
-          title: Text(S.of(context).friends.toUpperCase(), style: theme.textTheme.bodyMedium),
+          title: Text(AppLocalizations.of(context)!.friends.toUpperCase(), style: theme.textTheme.bodyMedium),
           actions: [
             IconButton(
               icon: const Icon(Icons.search),
@@ -455,6 +465,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
   }
 }
 
+
+
 class FriendsTab extends StatefulWidget {
   const FriendsTab({
     super.key,
@@ -466,7 +478,11 @@ class FriendsTab extends StatefulWidget {
 
 class _FriendsTabState extends State<FriendsTab> {
   final TextEditingController searchController = TextEditingController();
-  List<Friendship>? friends = [];
+  StreamSubscription? _eventSubscriptionNewFriend;
+  StreamSubscription? _eventSubscriptionDeleteFriend;
+  StreamSubscription? _eventSubscriptionFriendOnline;
+  StreamSubscription? _eventSubscriptionFriendOffline;
+  List<Friendship> friends = [];
   // List<Friendship>? friends = [
   //   Friendship(
   //     nickname: 'Player1', 
@@ -496,38 +512,82 @@ class _FriendsTabState extends State<FriendsTab> {
 
   @override
   void initState() {
-    super.initState();
     _loadFriends();
+    _eventSubscriptionNewFriend = EventBus().on<NewFriendAddedEvent>().listen((event) {
+      setState(() {
+        friends.insert(0, event.requestData); 
+      });
+    });
+    
+    _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
+      setState(() {
+        friends.removeWhere((friend) => friend.nickname == event.friendId); 
+      });
+    });
+
+    _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
+      setState(() {
+        friends.firstWhere((friend) => friend.nickname == event.friendNickname).isOnline = true;
+      });
+    });
+
+    _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
+      setState(() {
+        Friendship friend = friends.firstWhere((friend) => friend.nickname == event.friendNickname);
+        friend.isOnline = false;
+        friend.lastSeen = DateTime.now();
+      });
+    });
+    
+    super.initState();
   }
 
-  void _loadFriends() async {
-    final updatedFriends = await GetIt.I<ApiService>().getFriends();
+  @override
+  void didChangeDependencies() {
+    _loadFriends();
+    super.didChangeDependencies();
+  }
 
-    if (!mounted) return;
-
+  void _loadFriends() {
+    final updated = GeneralCacheService().loadList<Friendship>(
+      "all_friends_list",
+      (json) => Friendship.fromJson(json as Map<String, dynamic>),
+    );
+    
     setState(() {
-      friends = updatedFriends;
+      friends = updated ?? [];
+      print('FRIENDS LOADED FROM CACHE: ${friends.length}');
     });
   }
 
   void _deleteFriend(String nickname) async {
-    bool isDeleted = await GetIt.I<ApiService>().deleteFriend(nickname);
-    if (isDeleted) {
-      _loadFriends();
-    } else {
-      // error
-    }
+    TcpClientService().sendMessage(ClientCommand.deleteFriendship.value, json.encode({'nickname': nickname}));
+    friends.removeWhere((friend) => friend.nickname == nickname);
+    await GeneralCacheService().save('all_friends_list', friends);
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _eventSubscriptionNewFriend?.cancel();
+    _eventSubscriptionDeleteFriend?.cancel();
+    _eventSubscriptionFriendOnline?.cancel();
+    _eventSubscriptionFriendOffline?.cancel();
+    searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    _loadFriends();
+
     return Column(
       children: [
         // TEXT:    TRUSTED INDIVIDUALS
         Padding(
           padding: EdgeInsets.only(top: 30.h),
           child: Text(
-            S.of(context).trustedIndividuals,
+            AppLocalizations.of(context)!.trustedIndividuals,
             style: GoogleFonts.playfairDisplay(
               fontSize: 22.sp,
               fontWeight: FontWeight.w600,
@@ -540,7 +600,7 @@ class _FriendsTabState extends State<FriendsTab> {
         Padding(
           padding: EdgeInsets.only(top: 3.h),
           child: Text(
-            S.of(context).justiceRidesWithUs,
+            AppLocalizations.of(context)!.justiceRidesWithUs,
             style: GoogleFonts.playfairDisplay(
               fontSize: 14.sp,
               color: const Color(0xFF2A2723),
@@ -581,7 +641,7 @@ class _FriendsTabState extends State<FriendsTab> {
                       controller: searchController,
                       style: TextStyle(color: const Color(0xFF3E3E3E), fontSize: 16.sp),
                       decoration: InputDecoration(
-                        hintText: ' ${S.of(context).search}...',
+                        hintText: ' ${AppLocalizations.of(context)!.search}...',
                         hintStyle: const TextStyle(color: Color(0xFF3E3E3E)),
                         border: InputBorder.none,
                       ),
@@ -610,14 +670,14 @@ class _FriendsTabState extends State<FriendsTab> {
         ),
       
         //? FRIENDS LIST
-        (friends == null)
+        (friends.isEmpty)
         ? 
         Padding(
           padding: EdgeInsets.only(top: 20.h),
           child: Align(
             alignment: Alignment.topCenter,
             child: Text(
-              S.of(context).noUsersFound,
+              AppLocalizations.of(context)!.noFriendsFound,
               style: GoogleFonts.playfairDisplay(
                 color: Colors.black,
                 fontSize: 18
@@ -630,22 +690,9 @@ class _FriendsTabState extends State<FriendsTab> {
             padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
             child: ListView.builder(
               padding: EdgeInsets.zero,
-              itemCount: friends == null ? 0 : friends?.length,
+              itemCount: friends.length,
               itemBuilder: (context, index) {
-                if (friends == null) {
-                  return Center(
-                    child: Text(
-                      S.of(context).noFriendsFound,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 25.sp,
-                        fontFamily: 'CenturyGothic'
-                      ),
-                    ),
-                  );
-                }
-                final friend = friends![index];
-                //final hasVotes = player["votes"] > 0;
+                final friend = friends[index];
                 return Column(
                   children: [
                     Padding(
@@ -678,7 +725,7 @@ class _FriendsTabState extends State<FriendsTab> {
 
                                   // TEXT:    STATUS
                                   Text(
-                                    friend.isOnline ? S.of(context).online : DateFormat('yyyy.MM.dd HH:mm').format(friend.lastSeen), //! DYNAMIC
+                                    friend.isOnline ? AppLocalizations.of(context)!.online : DateFormat('dd.MM.yyyy HH:mm').format(friend.lastSeen), //! DYNAMIC
                                     style: TextStyle(
                                       fontSize: 15.sp, 
                                       color: Colors.black,
@@ -691,6 +738,23 @@ class _FriendsTabState extends State<FriendsTab> {
                           ),
                 
                           //BUTTON:    DELETE
+                          GestureDetector(
+                            onTap: () {
+                              //_deleteFriend(friend.nickname);
+                              Navigator.of(context, rootNavigator: true).push(
+                                MaterialPageRoute(
+                                  builder: (context) => FriendChat(friend: friends[index]),
+                                ),
+                              );
+                            },
+                            child: Icon(
+                              Icons.chat,
+                              color: Colors.black,
+                              size: 30.sp,
+                            )
+                          ),
+                            
+                          /*
                           SizedBox(
                             width: 85.w,
                             height: 35.h,
@@ -706,7 +770,7 @@ class _FriendsTabState extends State<FriendsTab> {
                               ),
                               
                               child: Text(
-                                S.of(context).delete,
+                                AppLocalizations.of(context)!.delete,
                                 //! DYNAMIC
                                 style: TextStyle(
                                   fontSize: 15.sp,
@@ -716,6 +780,7 @@ class _FriendsTabState extends State<FriendsTab> {
                               ),
                             ),
                           )
+                          */
                         ],
                       ),
                     ),
@@ -727,7 +792,6 @@ class _FriendsTabState extends State<FriendsTab> {
         ),
       ],
     );
-  
   }
 }
 
@@ -741,7 +805,8 @@ class RequestsTab extends StatefulWidget {
 }
 
 class _RequestsTabState extends State<RequestsTab> {
-  List<FriendRequest>? requests = [];
+  StreamSubscription? _eventSubscription;
+  List<FriendRequest> requests = [];
   // List<FriendRequest>? requests = [
   //   FriendRequest(
   //     nickname: 'Player1', 
@@ -758,25 +823,57 @@ class _RequestsTabState extends State<RequestsTab> {
 
   // ];
 
+  late StreamSubscription<String> friendshipPendingFriendshipRequests;
+
   @override
   void initState() {
     super.initState();
+
+    friendshipPendingFriendshipRequests = EventRouterService()
+        .subscribe(ServerEvent.friendshipPendingFriendshipRequests)
+        .listen((payload) async {
+      try {
+        final List<dynamic> jsonData = json.decode(payload)['pendingFriends'];
+
+        requests = jsonData.isEmpty ? [] : jsonData.map((item) {
+          return FriendRequest.fromJson(item as Map<String, dynamic>);
+        }).toList();
+
+        if (!mounted) return;
+        setState(() {});
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     friendshipPendingFriendshipRequests Event - Friend Request Screen: ${e.toString()}');
+      }
+    });
+
+    _eventSubscription = EventBus().on<FriendRequestReceivedEvent>().listen((event) {
+      setState(() {
+        // DIRECT UPDATE: Add the new request to the TOP of the list
+        requests.insert(0, FriendRequest(nickname: event.requestData["nickname"], avatarUrl: event.requestData["avatarUrl"])); 
+      });
+    });
+    
     _getRequests();
   }
 
+  @override
+  void dispose() {
+    friendshipPendingFriendshipRequests.cancel();
+    _eventSubscription?.cancel();
+    super.dispose();
+  }
+
   void _getRequests() async {
-    requests = await GetIt.I<ApiService>().getRequests();
-    if (!mounted) return;
-    setState(() {});
+    TcpClientService().sendMessage(ClientCommand.getPendingFriendshipRequests.value, "");
+    //requests = await GetIt.I<ApiService>().getRequests();
+    // if (!mounted) return;
+    // setState(() {});
   }
 
   void _approveFriend(String nickname, bool approve) async {
-    bool isApproved = await GetIt.I<ApiService>().approveFriend(nickname, approve);
-    if (isApproved) {
-      _getRequests();
-    } else {
-      // error
-    }
+    TcpClientService().sendMessage(ClientCommand.approveFriendship.value, json.encode({'nickname': nickname, 'approve': approve}));
+    requests?.removeWhere((request) => request.nickname == nickname);
+    setState(() {});
   }
 
   @override
@@ -787,7 +884,7 @@ class _RequestsTabState extends State<RequestsTab> {
         Padding(
           padding: EdgeInsets.only(top: 30.h),
           child: Text(
-            S.of(context).registry,
+            AppLocalizations.of(context)!.registry,
             style: GoogleFonts.playfairDisplay(
               height: 1,
               fontSize: 22.sp,
@@ -799,7 +896,7 @@ class _RequestsTabState extends State<RequestsTab> {
 
         // TEXT:    OF CHOOSEN ONES
         Text(
-          S.of(context).ofChoosenOnes,
+          AppLocalizations.of(context)!.ofChoosenOnes,
           style: GoogleFonts.playfairDisplay(
             fontSize: 22.sp,
             fontWeight: FontWeight.w600,
@@ -811,7 +908,7 @@ class _RequestsTabState extends State<RequestsTab> {
         Padding(
           padding: EdgeInsets.only(top: 3.h),
           child: Text(
-            S.of(context).onlyTheTruestRideTogether,
+            AppLocalizations.of(context)!.onlyTheTruestRideTogether,
             style: GoogleFonts.playfairDisplay(
               fontSize: 14.sp,
               color: const Color(0xFF2A2723),
@@ -829,14 +926,14 @@ class _RequestsTabState extends State<RequestsTab> {
         ),
       
         //? REQUESTS
-        (requests == null)
+        (requests.isEmpty)
         ?
         Padding(
           padding: EdgeInsets.only(top: 20.h),
           child: Align(
             alignment: Alignment.topCenter,
             child: Text(
-              S.of(context).noPlayersFound,
+              AppLocalizations.of(context)!.noPlayersFound,
               style: GoogleFonts.playfairDisplay(
                 color: Colors.black,
                 fontSize: 18
@@ -850,22 +947,9 @@ class _RequestsTabState extends State<RequestsTab> {
             padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
             child: ListView.builder(
               padding: EdgeInsets.zero,
-              itemCount: requests == null ? 0 : requests?.length,
+              itemCount: requests.length,
               itemBuilder: (context, index) {
-                if (requests == null) {
-                  return Center(
-                    child: Text(
-                      S.of(context).noRequestsFound,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 25.sp,
-                        fontFamily: 'CenturyGothic'
-                      ),
-                    ),
-                  );
-                }
-
-                final request = requests![index];
+                final request = requests[index];
 
                 return Column(
                   children: [
@@ -905,24 +989,38 @@ class _RequestsTabState extends State<RequestsTab> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  _approveFriend(request.nickname, false);
+                                  _approveFriend(request.nickname, true);
                                 },
                                 child: Icon(
-                                  Icons.remove_circle_outline,
-                                  color: Colors.red,
-                                  size: 25.sp,
-                                ),
+                                  Icons.handshake_outlined,
+                                  color: const Color(0xFF302B25),
+                                  size: 30.sp,
+                                )
                               ),
                               SizedBox(width: 5.w),
                               GestureDetector(
                                 onTap: () {
-                                  _approveFriend(request.nickname, true);
+                                  _approveFriend(request.nickname, false);
                                 },
-                                child: Icon(
-                                  Icons.add_circle_outline,
-                                  color: Colors.green,
-                                  size: 25.sp,
-                                ),
+                                child: Container(
+                                  width: 30.w,
+                                  height: 30.h,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF302B25),
+                                    borderRadius: BorderRadius.circular(5.sp),
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                  child: Center(
+                                    child: Container(
+                                      height: 5.h,
+                                      width: 20.w,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFE0D0BC),
+                                        borderRadius: BorderRadius.circular(5.sp),
+                                      ),
+                                    ),
+                                  ),
+                                )
                               ),
                             ],
                           )
@@ -975,31 +1073,82 @@ class _SearchTabState extends State<SearchTab> {
   //   ),
   // ];
 
+  late StreamSubscription<String> friendshipSearchedPlayers;
+  late StreamSubscription<String> friendshipSuggestedFriends;
+
   @override
   void initState() {
     super.initState();
+
+    friendshipSearchedPlayers = EventRouterService()
+        .subscribe(ServerEvent.friendshipSearchedPlayers)
+        .listen((payload) async {
+      try {
+        final List<dynamic> jsonData = json.decode(payload)['players'];
+        print("BBBBBBBBBBBBBB2222222: $jsonData");
+        
+        setState(() {
+          searchResults = jsonData.isEmpty ? null : jsonData.map((item) {
+            return FindFriend.fromJson(item as Map<String, dynamic>);
+          }).toList();
+
+          print("AAAAAAAAAAAAAA ${searchResults?.first.friendshipStatus}");
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     friendshipSearchedPlayers Event - Friend Search Screen: ${e.toString()}');
+      }
+    });
+
+    friendshipSuggestedFriends = EventRouterService()
+        .subscribe(ServerEvent.friendshipSuggestedFriends)
+        .listen((payload) async {
+      try {
+        final List<dynamic> jsonData = json.decode(payload)['suggestedFriends'];
+        print("BBBBBBBBBBBBBB2222222: $jsonData");
+      
+        setState(() {
+          searchResults = jsonData.isEmpty ? null : jsonData.map((item) {
+            return FindFriend.fromJson(item as Map<String, dynamic>);
+          }).toList();
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
     getPossibleFriends();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    friendshipSearchedPlayers.cancel();
+    friendshipSuggestedFriends.cancel();
+  }
+
   void getPossibleFriends() async {
-    searchResults = await GetIt.I<ApiService>().possibleFriends();
-    if (!mounted) return;
-    setState(() {});
+
+    TcpClientService().sendMessage(ClientCommand.getSuggestedFriends.value, "");
+
+    // searchResults = await GetIt.I<ApiService>().possibleFriends();
+    // if (!mounted) return;
+    // setState(() {});
   }
 
   void _searchUsers() async {
-    if (_searchController.text.isEmpty) {
-      searchResults = await GetIt.I<ApiService>().possibleFriends();
+    if (_searchController.text.trim().isEmpty) {
+      TcpClientService().sendMessage(ClientCommand.getSuggestedFriends.value, "");
     } else {
-      searchResults = await GetIt.I<ApiService>().findFriend(_searchController.text);
+      TcpClientService().sendMessage(ClientCommand.searchPlayers.value, json.encode({'pattern': _searchController.text.trim()}));
     }
     if (!mounted) return;
     setState(() {});
   }
 
   void _sendRequest(String nickname) async {
-    await GetIt.I<ApiService>().sendRequest(nickname);
-    setState(() {});
+    TcpClientService().sendMessage(ClientCommand.requestFriendship.value, json.encode({'nickname': nickname}));
+    //await GetIt.I<ApiService>().sendRequest(nickname);
+    //setState(() {});
   }
 
   void changeFriendshipStatus(String nickname, String status) {
@@ -1018,7 +1167,7 @@ class _SearchTabState extends State<SearchTab> {
         Padding(
           padding: EdgeInsets.only(top: 30.h),
           child: Text(
-            S.of(context).wanted,
+            AppLocalizations.of(context)!.wanted,
             style: GoogleFonts.playfairDisplay(
               height: 1,
               fontSize: 22.sp,
@@ -1030,7 +1179,7 @@ class _SearchTabState extends State<SearchTab> {
 
         // TEXT:    GOOD COMPANY
         Text(
-          S.of(context).goodCompany,
+          AppLocalizations.of(context)!.goodCompany,
           style: GoogleFonts.playfairDisplay(
             fontSize: 22.sp,
             fontWeight: FontWeight.w600,
@@ -1042,7 +1191,7 @@ class _SearchTabState extends State<SearchTab> {
         Padding(
           padding: EdgeInsets.only(top: 3.h),
           child: Text(
-            S.of(context).ridingSoloAintTheWay,
+            AppLocalizations.of(context)!.ridingSoloAintTheWay,
             style: GoogleFonts.playfairDisplay(
               fontSize: 14.sp,
               color: const Color(0xFF2A2723),
@@ -1086,7 +1235,7 @@ class _SearchTabState extends State<SearchTab> {
                       controller: _searchController,
                       style: TextStyle(color: const Color(0xFF3E3E3E), fontSize: 16.sp),
                       decoration: InputDecoration(
-                        hintText: " ${S.of(context).search}...",
+                        hintText: " ${AppLocalizations.of(context)!.search}...",
                         hintStyle: const TextStyle(color: Color(0xFF3E3E3E)),
                         border: InputBorder.none,
                       ),
@@ -1123,7 +1272,7 @@ class _SearchTabState extends State<SearchTab> {
             child: Align(
               alignment: Alignment.topCenter,
               child: Text(
-                S.of(context).noPlayersFound,
+                AppLocalizations.of(context)!.noPlayersFound,
                 style: GoogleFonts.playfairDisplay(
                   color: Colors.black,
                   fontSize: 18
@@ -1176,17 +1325,27 @@ class _SearchTabState extends State<SearchTab> {
                 
                           //BUTTON:    DELETE
                           user.friendshipStatus == 'RequestPending'
-                          ? Text(
-                              S.of(context).requestPending,
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontSize: 15.sp,
-                                fontFamily: 'CenturyGothic'
+                          ? 
+                            Container(
+                              margin: EdgeInsets.only(right: 5.w),
+                              child: Icon(
+                                size: 30.sp,
+                                Icons.pending_actions,
+                                color: const Color(0xFF00695C),
                               ),
                             )
+                            // Text(
+                            //   AppLocalizations.of(context)!.requestPending,
+                            //   style: TextStyle(
+                            //     color: Colors.green,
+                            //     fontSize: 15.sp,
+                            //     fontFamily: 'CenturyGothic'
+                            //   ),
+                            // )
                           : user.friendshipStatus == 'ApprovePending'
-                          ? Text(
-                              S.of(context).approvePending,
+                          ? 
+                            Text(
+                              AppLocalizations.of(context)!.approvePending,
                               style: TextStyle(
                                 color: Colors.green,
                                 fontSize: 15.sp,
@@ -1195,30 +1354,20 @@ class _SearchTabState extends State<SearchTab> {
                             )
                           : user.friendshipStatus == 'None'
                           ? SizedBox(
-                            width: 110.w,
+                            width: 40.w,
                             height: 35.h,
-                            child: ElevatedButton(
-                              onPressed: () {
+                            child: GestureDetector(
+                              onTap: () {
                                 //! CHECK
                                 _sendRequest(user.nickname);
                                 changeFriendshipStatus(user.nickname, 'RequestPending');
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white, //! DYNAMIC
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                              ),
                               
-                              child: Text(
-                                S.of(context).sendRequest,
-                                //! DYNAMIC
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  color: Colors.black,
-                                ),
-                              ),
+                              child: Icon(
+                                Icons.handshake_outlined,
+                                color: const Color(0xFF302B25),
+                                size: 30.sp,
+                              )
                             ),
                           )
                           : const SizedBox()
@@ -1235,5 +1384,510 @@ class _SearchTabState extends State<SearchTab> {
       ],
     );
   
+  }
+}
+
+
+
+class FriendChat extends StatefulWidget {
+  final Friendship friend;
+  const FriendChat({super.key, required this.friend});
+
+  @override
+  State<FriendChat> createState() => _FriendChatState();
+}
+
+class _FriendChatState extends State<FriendChat> {
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _messageController = TextEditingController();
+
+  // List<Message> messages = [
+  //   Message(text: "abrakadabra", isMe: false, time: DateTime.now(), id: 1),
+  //   Message(text: "abrakadabra", isMe: true, time: DateTime.now(), id: 2, status: "DeLiVerEd"),
+  //   Message(text: "abrakadabra", isMe: false, time: DateTime.now(), id: 3),
+  //   Message(text: "abrakadabra", isMe: true, time: DateTime.now(), id: 4, status: "sENt"),
+  // ];
+
+  List<Message> messages = [];
+
+  StreamSubscription? eventSubscriptionNewMessage;
+
+  late StreamSubscription<String> friendshipFriendMessages;
+  late StreamSubscription<String> friendshipFriendMessagesReaded;
+
+  void _scrollToBottom() {
+    if (!_scrollController.hasClients) return;
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+  }
+
+  bool _isUserAtBottom() {
+    if (!_scrollController.hasClients) return false;
+    const threshold = 50.0; 
+    return _scrollController.position.maxScrollExtent -
+          _scrollController.position.pixels < threshold;
+  }
+
+  bool _autoScroll = true;
+  bool _userDragging = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    eventSubscriptionNewMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
+      setState(() {
+        messages.add(event.message);
+        GetIt.I<ApiService>().readFriendMessages(widget.friend.nickname);
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToBottom();
+      });
+    });
+
+    loadMessages();
+    //!
+
+    friendshipFriendMessagesReaded = EventRouterService()
+        .subscribe(ServerEvent.friendshipFriendMessagesReaded)
+        .listen((payload) async {
+      try {
+        if (mounted) {
+          setState(() {
+            for (var msg in messages) {
+              msg.status = "Read";
+            }
+          });
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            scrollToBottom();
+          });
+        }
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     friendshipFriendMessagesReaded Event - Friend Chat Screen: ${e.toString()}');
+      }
+    });
+
+    // friendshipFriendMessages = EventRouterService()
+    //     .subscribe(ServerEvent.friendshipFriendMessages)
+    //     .listen((payload) async {
+    //   try {
+    //     final List<dynamic> jsonList = json.decode(payload);
+
+    //     List<Message> historyMessages = jsonList
+    //         .map((jsonItem) => Message.fromJson(jsonItem))
+    //         .toList();
+
+    //     if (mounted) {
+    //       setState(() {
+    //         messages = historyMessages; 
+    //       });
+
+    //       WidgetsBinding.instance.addPostFrameCallback((_) {
+    //         scrollToBottom();
+    //       });
+    //     }
+    //   } on Exception catch (e) {
+    //     log('EXCEPTION IN:     friendshipFriendMessages Event - Friend Chat Screen: ${e.toString()}');
+    //   }
+    // });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.isScrollingNotifier.value) {
+        _userDragging = true;
+        _autoScroll = false;
+      }
+
+      if (_isUserAtBottom()) {
+        _userDragging = false;
+        _autoScroll = true;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    eventSubscriptionNewMessage?.cancel();
+    friendshipFriendMessagesReaded.cancel();
+    _scrollController.dispose();
+    _messageController.dispose();
+  }
+
+  void scrollToBottom() {
+    if (_scrollController.hasClients) {
+      final position = _scrollController.position.maxScrollExtent;
+      Future.microtask(() {
+        if (_scrollController.hasClients && _autoScroll) {
+          _scrollController.animateTo(
+            position,
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
+  void loadMessages() async {
+    //await GetIt.I<ApiService>().readFriendMessages(widget.friend.nickname);
+    var allMessages = await GetIt.I<ApiService>().getAllMessagesInFriendChat(widget.friend.nickname);
+
+    if (mounted) {
+      setState(() {
+        messages = allMessages ?? [];
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToBottom();
+      });
+    }
+
+    await GetIt.I<ApiService>().readFriendMessages(widget.friend.nickname);
+  }
+
+  @override
+  void didUpdateWidget(covariant FriendChat oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_autoScroll) {
+      scrollToBottom();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        image: DecorationImage(image: AssetImage("assets/images/background-friend-chat.png"), fit: BoxFit.fill),
+      ),
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+
+        body: SingleChildScrollView(
+          child: Stack(
+            children: [
+              // BUTTON:    GoBack
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 40.h, right: 10.w),
+                      child: Image.asset(
+                        "assets/images/close-white-icon.png",
+                        width: 30.w,
+                        height: 30.h,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          
+              Column(
+                children: [
+                  //? HEADER
+                  Align(
+                    alignment: Alignment.center,
+                    //? NICKNAME AND IS ONLINE
+                    child: Container(
+                      width: 160.w,
+                      height: 250.h,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0D0D0D),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //? PROFILE PHOTO
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(widget.friend.avatarUrl),
+                            radius: 50.r,
+                          ),
+            
+                          SizedBox(height: 10.h),
+            
+                          // TEXT:    NICKNAME
+                          Text(
+                            widget.friend.nickname,
+                            softWrap: true,
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.playfairDisplay(
+                              height: 0,
+                              fontSize: 24.sp, 
+                              color: Colors.white 
+                            )
+                          ),
+            
+                          SizedBox(height: 5.h),
+
+                          // TEXT:    IS ONLINE
+                          Text(
+                            widget.friend.isOnline ? AppLocalizations.of(context)!.online : DateFormat('yyyy.MM.dd HH:mm').format(widget.friend.lastSeen),
+                            style: TextStyle(
+                              fontSize: 16.sp, 
+                              color: Colors.white,
+                              fontFamily: 'CenturyGothic'
+                            )
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                
+                  //? CHAT
+                  Container(
+                    height: 520.h,
+                    margin: EdgeInsets.only(top: 10.h, left: 10.w, right: 10.w),
+                    padding: EdgeInsets.all(10.h),
+                    decoration: BoxDecoration(
+                      //color: const Color(0xFF2A2723).withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      padding: EdgeInsets.zero,
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        return ChatBubble(message: messages[index]);
+                      },
+                    ),
+                  ),
+                
+                  //? INPUT PART
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // INPUT
+                      Container(
+                        width: 325.w,
+                        height: 45.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE3C278),
+                          borderRadius: BorderRadius.circular(12.r)
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 10.w, bottom: 6.h, right: 10.w),
+                          child: TextField(
+                            controller: _messageController,
+                            style: TextStyle(color: Colors.white, fontSize: 15.sp),
+                            cursorColor: const Color(0xFFFFFFFF),
+                            decoration: InputDecoration(
+                              hintText: '${AppLocalizations.of(context)!.enterMessage}...',
+                              hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+          
+                      SizedBox(width: 5.w),
+
+                      // BUTTON:    Send
+                      GestureDetector(
+                        child: Container(
+                          width: 46.w,
+                          height: 45.h,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE3C278),
+                            borderRadius: BorderRadius.circular(12.r)
+                          ),
+                          child: Padding(
+                            padding: EdgeInsetsGeometry.only(left: 2.w),
+                            child: IconButton(
+                              icon: Icon(Icons.send, color: Colors.white, size: 25.sp),
+                              onPressed: () async {
+                                if (_messageController.text.trim().isEmpty) return;
+                                //messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: 001));
+                                // TcpClientService().sendMessage(ClientCommand.sendMessageToFriend.value, json.encode({
+                                //   'nickname': widget.friend.nickname,
+                                //   'content': _messageController.text.trim(),
+                                // }));
+                                Map<String, dynamic>? response = await GetIt.I<ApiService>().sendNewMessageToFriend(
+                                  widget.friend.nickname, 
+                                  _messageController.text.trim()
+                                );
+                                _scrollToBottom();
+                                if (!mounted) return;
+                                print("RESPONSE MESSAGE ID: ${response?['messageId'].toString()}");
+                                setState(() {
+                                  messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: response?['messageId'], status: response?['status']));
+                                  _messageController.clear();
+                                });
+                              },
+                            ),
+                          ) 
+                        ),
+                        
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class ChatBubble extends StatelessWidget {
+  final Message message;
+
+  const ChatBubble({super.key, required this.message});
+
+  bool isSameDay(DateTime a, DateTime b) {
+    DateTime utcA = a.toUtc();
+    DateTime utcB = b.toUtc();
+
+    return utcA.year == utcB.year && 
+      utcA.month == utcB.month && 
+      utcA.day == utcB.day;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = message.isMe ? const Color(0xFF9C978E) : const Color(0xFFB0A07B);
+    final align = message.isMe ? Alignment.centerRight : Alignment.centerLeft;
+    final radius = message.isMe
+        ? const BorderRadius.only(
+            topLeft: Radius.circular(18),
+            topRight: Radius.circular(18),
+            bottomLeft: Radius.circular(18),
+          )
+        : const BorderRadius.only(
+            topLeft: Radius.circular(18),
+            topRight: Radius.circular(18),
+            bottomRight: Radius.circular(18),
+          );
+
+    return Container(
+      alignment: align,
+      margin: EdgeInsets.symmetric(vertical: 6.h),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 280.w,
+          minWidth: 100.w
+        ),
+        child: Container(
+          padding: EdgeInsets.all(14.sp),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: radius,
+          ),
+          child: IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  message.text,
+                  style: TextStyle(
+                    fontSize: 17.sp, 
+                    color: Colors.black,
+                    fontFamily: 'CenturyGothic'
+                  ),
+                ),
+            
+                SizedBox(height: 6.sp),
+            
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // TEXT:     Time
+                      Text(
+                        isSameDay(message.time, DateTime.now())
+                        ? DateFormat('HH:mm').format(message.time)
+                        : DateFormat('dd.MM.yy, HH:mm').format(message.time),
+                        style: TextStyle(
+                          fontSize: 13.sp, 
+                          color: Colors.black,
+                          fontFamily: 'CenturyGothic'
+                        ),
+                      ),
+
+                      //SizedBox(width: 5.w),
+
+                      //? DELIVERED ICON
+                      message.isMe
+                      ? Container(
+                        margin: EdgeInsets.only(left: 2.w),
+                        child: 
+                        message.status.toLowerCase() == "sent"
+                          ? Icon(
+                            Icons.check,
+                            size: 18.sp,
+                            color: Colors.black,
+                          )
+                          :
+                          Icon(
+                            Icons.done_all,
+                            size: 18.sp,
+                            color: message.status.toLowerCase() == "read" ? const Color(0xFFE3C278) : Colors.black,
+                          ),
+                      )
+                      : const SizedBox(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Message {
+  final int id;
+  final String text;
+  final bool isMe;
+  final DateTime time;
+  String status;
+
+  static final DateFormat _customFormat = DateFormat('dd.MM.yyyy HH:mm');
+
+  Message({required this.text, required this.isMe, required this.time, required this.id, this.status = "sent"});
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    final String dateTimeString = json['lastSeen'] as String? ?? '';
+    
+    DateTime parsedDateTime = DateTime.now();
+    
+    if (dateTimeString.isNotEmpty) {
+      DateTime? isoDate = DateTime.tryParse(dateTimeString);
+      
+      if (isoDate != null) {
+        parsedDateTime = isoDate.toLocal();
+      } else {
+        try {
+          parsedDateTime = _customFormat.parse(dateTimeString, true).toLocal();
+        } catch (e) {
+          print('Error parsing date CHAT "$dateTimeString": $e');
+        }
+      }
+    }
+
+    return Message(
+      id: json['messageId'] as int,
+      text: json['content'] as String,
+      isMe: json['nickname'] == authorizedUser.nickname ? true : false,
+      status: json['status'] ?? "sent",
+      time: parsedDateTime,
+    );
   }
 }

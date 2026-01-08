@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/extensions/context_extension.dart';
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
@@ -138,7 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Padding(
                           padding: EdgeInsets.only(left: 25.w),
                           child: Text(
-                            S.of(context).avatar,
+                            AppLocalizations.of(context)!.avatar,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 20.sp,
@@ -169,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                S.of(context).upload,
+                                AppLocalizations.of(context)!.upload,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15.sp,
@@ -190,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Padding(
                           padding: EdgeInsets.only(left: 25.w),
                           child: Text(
-                            S.of(context).nickname,
+                            AppLocalizations.of(context)!.nickname,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 20.sp,
@@ -221,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                S.of(context).change,
+                                AppLocalizations.of(context)!.change,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15.sp,
@@ -242,7 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Padding(
                           padding: EdgeInsets.only(left: 25.w),
                           child: Text(
-                            S.of(context).password,
+                            AppLocalizations.of(context)!.password,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 20.sp,
@@ -273,7 +274,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                S.of(context).change,
+                                AppLocalizations.of(context)!.change,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15.sp,
@@ -294,7 +295,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Padding(
                           padding: EdgeInsets.only(left: 25.w),
                           child: Text(
-                            S.of(context).language,
+                            AppLocalizations.of(context)!.language,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 20.sp,
@@ -428,10 +429,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Padding(
                       padding: EdgeInsets.only(left: 10.w),
                       child: Text(
-                        S.of(context).soundEffects,
+                        AppLocalizations.of(context)!.soundEffects,
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 20.sp,
+                          fontSize: 19.sp,
                           fontFamily: 'CenturyGothic'
                         ),
                       ),
@@ -439,7 +440,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     //? RADIO BUTTONS:    SOUND EFFECTS
                     Container(
-                      width: 150.w,
+                      width: 155.w,
                       margin: EdgeInsets.only(right: 10.w),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -449,7 +450,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               // TEXT:    ON
                               Text(
-                                S.of(context).onOn,
+                                AppLocalizations.of(context)!.onOn,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 16.sp,
@@ -484,7 +485,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               // TEXT:    OFF
                               Text(
-                                S.of(context).offOff,
+                                AppLocalizations.of(context)!.offOff,
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 16.sp,
@@ -621,9 +622,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             )
           ],
         )
-
-
-
         /*
         appBar: AppBar(
           title: Text(S.of(context).settings),
@@ -838,7 +836,7 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                   ),
                   child: Center(
                     child: Text(
-                      S.of(context).avatar,
+                      AppLocalizations.of(context)!.avatar,
                       style: GoogleFonts.playfairDisplay(
                         color: Colors.black,
                         fontSize: 32.sp
@@ -875,7 +873,7 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                   Padding(
                     padding: EdgeInsets.only(top: 35.h),
                     child: Text(
-                      S.of(context).currentAvatar,
+                      AppLocalizations.of(context)!.currentAvatar,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20.sp,
@@ -922,7 +920,7 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                       },
                       child: Container(
                         height: 35.h,
-                        width: 120.w,
+                        width: AppLocalizations.of(context)!.uploadNew.length <= 9 ? 120.w : 135.w,
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFFFFF),
                           border: Border.all(
@@ -933,7 +931,7 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                         ),
                         child: Center(
                           child: Text(
-                            S.of(context).uploadNew,
+                            AppLocalizations.of(context)!.uploadNew,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 15.sp,
@@ -977,7 +975,7 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                           ),
                           child: Center(
                             child: Text(
-                              S.of(context).uploadAnother,
+                              AppLocalizations.of(context)!.uploadAnother,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 15.sp,
@@ -1003,7 +1001,7 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                           ),
                           child: Center(
                             child: Text(
-                              S.of(context).confirm,
+                              AppLocalizations.of(context)!.confirm,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 15.sp,
@@ -1154,7 +1152,7 @@ class _ChangeNicknamePopupState extends State<ChangeNicknamePopup> {
                   ),
                   child: Center(
                     child: Text(
-                      S.of(context).nickname,
+                      AppLocalizations.of(context)!.nickname,
                       style: GoogleFonts.playfairDisplay(
                         color: Colors.black,
                         fontSize: 32.sp
@@ -1191,7 +1189,7 @@ class _ChangeNicknamePopupState extends State<ChangeNicknamePopup> {
                   Padding(
                     padding: EdgeInsets.only(top: 35.h),
                     child: Text(
-                      S.of(context).currentNickname,
+                      AppLocalizations.of(context)!.currentNickname,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20.sp,
@@ -1251,7 +1249,7 @@ class _ChangeNicknamePopupState extends State<ChangeNicknamePopup> {
                                 border: const OutlineInputBorder(
                                   borderSide: BorderSide(color: Color(0xFF494239)),
                                 ),
-                                hintText: _isNicknameFocused ? null : S.of(context).nickname,
+                                hintText: _isNicknameFocused ? null : AppLocalizations.of(context)!.nickname,
                                 hintStyle: TextStyle(
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w600,
@@ -1346,7 +1344,7 @@ class _ChangeNicknamePopupState extends State<ChangeNicknamePopup> {
                         ),
                         child: Center(
                           child: Text(
-                            S.of(context).confirm,
+                            AppLocalizations.of(context)!.confirm,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 15.sp,
@@ -1520,7 +1518,7 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
                   ),
                   child: Center(
                     child: Text(
-                      S.of(context).password,
+                      AppLocalizations.of(context)!.password,
                       style: GoogleFonts.playfairDisplay(
                         color: Colors.black,
                         fontSize: 32.sp
@@ -1559,7 +1557,7 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
                     Padding(
                       padding: EdgeInsets.only(top: 35.h, bottom: 25.h),
                       child: Text(
-                        S.of(context).currentPassword,
+                        AppLocalizations.of(context)!.currentPassword,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20.sp,
@@ -1587,7 +1585,7 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
                               borderSide: BorderSide(color: const Color(0xFF494239), width: 2.sp),
                               borderRadius: BorderRadius.circular(15.r),
                             ),
-                            hintText: _isPasswordFocused ? null : S.of(context).password,
+                            hintText: _isPasswordFocused ? null : AppLocalizations.of(context)!.password,
                             hintStyle: const TextStyle(
                               fontSize: 19,
                               fontWeight: FontWeight.w600,
@@ -1676,7 +1674,7 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
                           maxLength: 14,
                         
                           decoration: InputDecoration(
-                            hintText: _isPasswordFocused ? null : S.of(context).newPassword,
+                            hintText: _isPasswordFocused ? null : AppLocalizations.of(context)!.newPassword,
                             hintStyle: const TextStyle(
                               fontSize: 19,
                               fontFamily: 'CenturyGothic',
@@ -1780,7 +1778,7 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
                           maxLength: 14,
                         
                           decoration: InputDecoration(
-                            hintText: _isConfirmPasswordFocused ? null : S.of(context).confirmPassword,
+                            hintText: _isConfirmPasswordFocused ? null : AppLocalizations.of(context)!.confirmPassword,
                             hintStyle: const TextStyle(
                               fontSize: 19,
                               fontFamily: 'CenturyGothic',
@@ -1864,7 +1862,7 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
                           ),
                           child: Center(
                             child: Text(
-                              S.of(context).confirm,
+                              AppLocalizations.of(context)!.confirm,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 15.sp,
@@ -2032,10 +2030,10 @@ class _ReportPopupState extends State<ReportPopup> {
                   ),
                   child: Center(
                     child: Text(
-                      S.of(context).report,
+                      AppLocalizations.of(context)!.report,
                       style: GoogleFonts.playfairDisplay(
                         color: Colors.black,
-                        fontSize: 32.sp
+                        fontSize: 30.sp
                       ),
                     ),
                   ),
@@ -2071,10 +2069,10 @@ class _ReportPopupState extends State<ReportPopup> {
                     Padding(
                       padding: EdgeInsets.only(top: 25.h, bottom: 15.h, left: 30.w, right: 30.w),
                       child: Text(
-                        S.of(context).inCaseOfAnyProblemPleaseNotifyUs,
+                        AppLocalizations.of(context)!.inCaseOfAnyProblemPleaseNotifyUs,
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 20.sp,
+                          fontSize: 19.sp,
                           fontFamily: 'CenturyGothic',
                         ),
                         softWrap: true,
@@ -2103,7 +2101,7 @@ class _ReportPopupState extends State<ReportPopup> {
                           },
                         
                           decoration: InputDecoration(
-                            hintText: _isTitleFocused ? null : S.of(context).title,
+                            hintText: _isTitleFocused ? null : AppLocalizations.of(context)!.title,
                             hintStyle: TextStyle(
                               fontSize: 19.sp,
                               fontFamily: 'CenturyGothic',
@@ -2141,7 +2139,7 @@ class _ReportPopupState extends State<ReportPopup> {
             
                           validator: (value) {
                             if (value!.isEmpty) {
-                              showValidationPopup(S.of(context).youMustWriteATitleOfTheReport, 'title');
+                              showValidationPopup(AppLocalizations.of(context)!.youMustWriteATitleOfTheReport, 'title');
                               return null;
                             } else {
                               setState(() {
@@ -2179,7 +2177,7 @@ class _ReportPopupState extends State<ReportPopup> {
                           },
                         
                           decoration: InputDecoration(
-                            hintText: _isContentFocused ? null : S.of(context).typeHere,
+                            hintText: _isContentFocused ? null : AppLocalizations.of(context)!.typeHere,
                             hintStyle: TextStyle(
                               fontSize: 19.sp,
                               fontFamily: 'CenturyGothic',
@@ -2217,7 +2215,7 @@ class _ReportPopupState extends State<ReportPopup> {
             
                           validator: (value) {
                             if (value!.isEmpty) {
-                              showValidationPopup('You must write your report', 'content');
+                              showValidationPopup(AppLocalizations.of(context)!.youMustWriteYourReport, 'content');
                               return null;
                             } else {
                               setState(() {
