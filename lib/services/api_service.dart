@@ -546,19 +546,16 @@ class ApiService extends TokenAwareService {
   }
 
 
-
-
-
-  Future<Map<String, dynamic>?> sendNewMessageToFriend(String nickname, String content) async {
+  // DONE partially
+  Future<Map<String, dynamic>?> sendNewMessageToFriend(int id, String content) async {
     Map<String, dynamic>? result;
     await executeWithTokenCheck((accessToken) async {
       final body = jsonEncode({
-        'nickname': nickname,
         'content': content
       });
 
       final response = await GetIt.I<DioService>().dio.post(
-        'Friend/SendMessageToFriend',
+        'conversation/$id/messages',
         data: body,
         options: Options(
           headers: {
@@ -583,16 +580,13 @@ class ApiService extends TokenAwareService {
     //throw Exception('Failed to send message');
   }
 
-  Future<List<Message>?> getAllMessagesInFriendChat(String nickname) async {
+  // DONE partially
+  Future<List<Message>?> getAllMessagesInFriendChat(int id) async {
     List<Message>? result;
     await executeWithTokenCheck((accessToken) async {
-      final body = jsonEncode({
-        'nickname': nickname
-      });
 
       final response = await GetIt.I<DioService>().dio.get(
-        'Friend/FriendMessages',
-        data: body,
+        'conversation/$id/messages',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken'
@@ -620,16 +614,13 @@ class ApiService extends TokenAwareService {
     //throw Exception('Failed to send message');
   }
 
-  Future<List<Message>?> readFriendMessages(String nickname) async {
+  // DONE partially
+  Future<List<Message>?> readFriendMessages(int id) async {
     List<Message>? result;
     await executeWithTokenCheck((accessToken) async {
-      final body = jsonEncode({
-        'nickname': nickname
-      });
 
-      final response = await GetIt.I<DioService>().dio.post(
-        'Friend/ReadFriendMessages',
-        data: body,
+      final response = await GetIt.I<DioService>().dio.patch(
+        'conversation/$id/messages/read',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken'
@@ -648,16 +639,13 @@ class ApiService extends TokenAwareService {
     //throw Exception('Failed to send message');
   }
 
-  Future<PlayerInfo> getPlayerInfo(String nickname) async {
+
+  // DONE partially
+  Future<PlayerInfo> getPlayerInfo(int id) async {
     PlayerInfo? playerInfo;
     await executeWithTokenCheck((accessToken) async {
-      final body = jsonEncode({
-        'nickname': nickname
-      });
-
       final response = await GetIt.I<DioService>().dio.get(
-        'Friend/FriendProfileDetails',
-        data: body,
+        'profile/$id',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken'
@@ -678,17 +666,13 @@ class ApiService extends TokenAwareService {
   }
 
 
-  // ++++++
-  Future<bool> deleteFriend(String nickname) async {
+  // DONE partially
+  Future<bool> deleteFriend(int id) async {
     bool status = false;
     await executeWithTokenCheck((accessToken) async {
-      final body = jsonEncode({
-        'nickname': nickname
-      });
 
       final response = await GetIt.I<DioService>().dio.delete(
-        'Friend/DeleteFriendship',
-        data: body,
+        'Friend/$id',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -705,13 +689,13 @@ class ApiService extends TokenAwareService {
 
         currentFriends ??= [];
 
-        currentFriends.removeWhere((f) => f.nickname == nickname);
+        currentFriends.removeWhere((f) => f.id == id);
 
         await GeneralCacheService().save<List<Friendship>?>(
           "all_friends_list",
           currentFriends,
         );
-        EventBus().fire(DeleteFriendEvent(nickname));
+        EventBus().fire(DeleteFriendEvent(id));
 
       } else if (response.statusCode == 404) {
         throw Exception('No user found');
@@ -722,16 +706,15 @@ class ApiService extends TokenAwareService {
     return status;
   }
 
-  // ++++++
-  
+  // DONE partially  
   Future<List<FindFriend>?> findFriend(String? pattern) async {
     List<FindFriend>? userList = [];
     await executeWithTokenCheck((accessToken) async {
-      final formDataObject = FormData.fromMap({'pattern': pattern});
-
       final response = await GetIt.I<DioService>().dio.get(
-        'Friend/Find',
-        data: formDataObject,
+        'Friend/Search',
+        queryParameters: {
+          'pattern': pattern,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -740,7 +723,7 @@ class ApiService extends TokenAwareService {
       );
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonData = response.data as List<dynamic>;
+        List<dynamic> jsonData = response.data['players'] as List<dynamic>;
         
         userList = jsonData.isEmpty ? null : jsonData.map((item) {
           return FindFriend.fromJson(item as Map<String, dynamic>);
@@ -754,11 +737,12 @@ class ApiService extends TokenAwareService {
     return userList;
   }
 
-  Future<List<FindFriend>?> possibleFriends() async {
+  // DONE partially
+  Future<List<FindFriend>?> suggestedFriends() async {
     List<FindFriend>? userList = [];
     await executeWithTokenCheck((accessToken) async {
       final response = await GetIt.I<DioService>().dio.get(
-        'Friend/PossibleFriends',
+        'Friend/Suggested',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -767,7 +751,8 @@ class ApiService extends TokenAwareService {
       );
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonData = response.data as List<dynamic>;
+        print(response.data.toString());
+        List<dynamic> jsonData = response.data['suggestedFriends'];
         
         userList = jsonData.isEmpty ? null : jsonData.map((item) {
           return FindFriend.fromJson(item as Map<String, dynamic>);
@@ -781,17 +766,13 @@ class ApiService extends TokenAwareService {
     return userList;
   }
 
-  // +++++++
-  Future<bool> sendRequest(String nickname) async {
+  // DONE partially
+  Future<bool> sendRequest(int id) async {
     bool status = false;
     await executeWithTokenCheck((accessToken) async {
-      final body = jsonEncode({
-        'nickname': nickname
-      });
 
       final response = await GetIt.I<DioService>().dio.post(
-        'Friend/RequestFriendship',
-        data: body,
+        'Friend/$id/request',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -801,6 +782,7 @@ class ApiService extends TokenAwareService {
 
       if (response.statusCode == 200) {
         status = true;
+        EventBus().fire(FriendRequestSentEvent(id));
       } else if (response.statusCode == 409) {
         // request to alredy friend
       } else if (response.statusCode == 404) {
@@ -810,12 +792,12 @@ class ApiService extends TokenAwareService {
     return status;
   }
 
-  // ++++++
+  // DONE partially
   Future<List<FriendRequest>?> getRequests() async {
     List<FriendRequest>? requestsList = [];
     await executeWithTokenCheck((accessToken) async {
       final response = await GetIt.I<DioService>().dio.get(
-        'Friend/Addressee',
+        'friend/requests',
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -824,7 +806,8 @@ class ApiService extends TokenAwareService {
       );
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonData = response.data as List<dynamic>;
+        print(response.data.toString());
+        List<dynamic> jsonData = response.data['pendingFriends'];
         requestsList = jsonData.isEmpty ? null : jsonData.map((item) {
           return FriendRequest.fromJson(item as Map<String, dynamic>);
         }).toList();
@@ -835,16 +818,15 @@ class ApiService extends TokenAwareService {
     return requestsList;
   }
 
-  // ++++++
-  Future<bool> approveFriend(String nickname, bool approve) async {
+  // DONE partially
+  Future<bool> approveFriend(int id, bool approve) async {
     bool status = false;
-    bool res = approve;
     await executeWithTokenCheck((accessToken) async {
-      final formDataObject = FormData.fromMap({'nickname': nickname, 'approve': res});
-
       final response = await GetIt.I<DioService>().dio.post(
-        'Friend/ApproveFriendship',
-        data: formDataObject,
+        'Friend/$id/approve',
+        queryParameters: {
+          'approve': approve,
+        },
         options: Options(
           headers: {
             'Authorization': 'Bearer $accessToken',
@@ -854,6 +836,25 @@ class ApiService extends TokenAwareService {
 
       if (response.statusCode == 200) {
         status = true;
+        if (approve) {
+          final Map<String, dynamic> jsonData = response.data['friend'];
+
+          final newFriend = Friendship.fromJson(jsonData);
+
+          List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+            "all_friends_list",
+            (json) => Friendship.fromJson(json as Map<String, dynamic>),
+          );
+
+          currentFriends ??= [];
+          currentFriends.add(newFriend);
+
+          await GeneralCacheService().save<List<Friendship>?>(
+            "all_friends_list",
+            currentFriends,
+          );
+          EventBus().fire(NewFriendAddedEvent(newFriend));
+        }
       } else if (response.statusCode == 409) {
         // request to alredy friend
       } 

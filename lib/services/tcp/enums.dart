@@ -36,25 +36,19 @@ enum ServerEvent {
   gameOver(1513),
 
   friendshipFriends(2000), //
-  friendshipFriendsUnreadMessages(2001),
-  friendshipFriendProfileDetails(2002),
-  friendshipFriendOnline(2003), //?
-  friendshipFriendOffline(2004), //?
-  friendshipFriendJoinedRoom(2005),
-  friendshipFriendLeftRoom(2006),
-  friendshipRoomInvite(2007),
-  friendshipNewFriend(2008), //
-  friendshipSearchedPlayers(2009), //
-  friendshipSuggestedFriends(2010), //
-  friendshipRequestFriendship(2011), //
-  friendshipDeleteFriendship(2012), //
-  friendshipPendingFriendshipRequests(2013), //
-  friendshipFriendMessages(2014),
-  friendshipFriendNewMessage(2015),
-  friendshipFriendMessageStatus(2016),
-  friendshipFriendMessagesReaded(2017),
-
-  friendInvitation(5000),
+  friendshipFriendOnline(2001), //?
+  friendshipFriendOffline(2002), //?
+  friendshipRoomInvite(2003),
+  friendshipFriendJoinedRoom(2004),
+  friendshipFriendLeftRoom(2005),
+  friendshipNewFriend(2006), //
+  friendshipRequestFriendship(2007), //
+  friendshipRequestDeclined(2008), //
+  friendshipDeleteFriendship(2009), //
+  friendshipFriendNewMessage(2010),
+  friendshipFriendMessagesReaded(2011),
+  friendshipFriendMessagesDelivered(2012),
+  //friendInvitation(5000),
 
   errorEvent(-1);
 

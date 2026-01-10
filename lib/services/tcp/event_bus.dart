@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
@@ -28,27 +29,51 @@ class FriendRequestReceivedEvent {
   FriendRequestReceivedEvent(this.requestData);
 }
 
+class LoadFriendsEvent {}
+
 class NewFriendAddedEvent {
   final Friendship requestData;
   NewFriendAddedEvent(this.requestData);
 }
 
 class DeleteFriendEvent {
-  final String friendId;
+  final int friendId;
   DeleteFriendEvent(this.friendId);
 }
 
 class FriendOnlineEvent {
-  final String friendNickname;
-  FriendOnlineEvent(this.friendNickname);
+  final int friendId;
+  FriendOnlineEvent(this.friendId);
 }
 
 class FriendOfflineEvent {
-  final String friendNickname;
-  FriendOfflineEvent(this.friendNickname);
+  final int friendId;
+  FriendOfflineEvent(this.friendId);
 }
 
 class FriendNewMessageEvent {
   final Message message;
-  FriendNewMessageEvent(this.message);
+  final int friendId;
+  FriendNewMessageEvent(this.message, this.friendId);
 }
+
+class FriendMessagesReadedEvent {
+  final int friendId;
+  FriendMessagesReadedEvent({required this.friendId});
+}
+
+class FriendRequestSentEvent {
+  final int friendId;
+  FriendRequestSentEvent(this.friendId);
+}
+
+class FriendRequestDeclinedEvent {
+  final int playerId;
+  FriendRequestDeclinedEvent(this.playerId);
+}
+
+// class FriendUnreadMessagesEvent {
+//   final int id;
+//   final int unreadCount;
+//   FriendUnreadMessagesEvent(this.id, this.unreadCount);
+// }

@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
 import 'package:mafia_classic/repositories/repositories.dart';
 import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
@@ -25,6 +26,7 @@ void main() async {
   GetIt.I.registerSingleton(AuthRepository());
   GetIt.I.registerSingleton(DioService());
   WidgetsFlutterBinding.ensureInitialized();
+  GeneralCacheService().clearAllData();
   await SharedPrefsService.init();
 
   await SystemChrome.setPreferredOrientations([

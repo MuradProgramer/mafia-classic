@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -9,19 +10,23 @@ import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/services/api_service.dart';
+import 'package:mafia_classic/services/cache/general_cache_service.dart';
+import 'package:mafia_classic/services/tcp/event_bus.dart';
 
 // ignore: must_be_immutable
 class PlayerInfoPopup extends StatefulWidget {
+  final int id;
   final String nickname;
   final double height;
   final double width;
   //PlayerInfo playerInfo;
 
-  PlayerInfoPopup({
+  const PlayerInfoPopup({
     super.key, 
     required this.height, 
     required this.width, 
-    required this.nickname,
+    required this.nickname, 
+    required this.id,
     //required this.playerInfo,
   });
 
@@ -36,30 +41,106 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
 
   final double cardsMargin = 20.w;
 
+  StreamSubscription? _eventSubscriptionFriendOnline;
+  StreamSubscription? _eventSubscriptionFriendOffline;
+  StreamSubscription? _eventSubscriptionNewFriendMessage;
+  StreamSubscription? _eventSubscriptionDeleteFriend;
+  StreamSubscription? _eventSubscriptionFriendMessagesReaded;
+  StreamSubscription? _eventSubscriptionFriendRequestRecieved;
+  StreamSubscription? _eventSubscriptionFriendRequestDeclined;
+  StreamSubscription? _eventSubscriptionNewFriendAdded;
+
   @override
   void initState() {
     super.initState();
+
     _loadPlayerInfo();
+    
+    _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
+      setState(() {
+        playerInfo!.isOnline = true;
+      });
+    });
+
+    _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
+      setState(() {
+        playerInfo!.isOnline = false;
+        playerInfo!.lastSeen = DateTime.now().toLocal();
+      });
+    });
+
+    _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
+      setState(() {
+        playerInfo!.friendshipStatus = 'None';
+      });
+    });
+
+    _eventSubscriptionNewFriendMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
+      setState(() {
+        playerInfo!.unreadMessagesCount++;
+      });
+    });
+
+    _eventSubscriptionFriendMessagesReaded = EventBus().on<FriendMessagesReadedEvent>().listen((event) {
+      setState(() {
+        playerInfo!.unreadMessagesCount = 0;
+      });
+    });
+
+    _eventSubscriptionNewFriendAdded = EventBus().on<NewFriendAddedEvent>().listen((event) {
+      if (event.requestData.id != playerInfo!.id) return;
+      setState(() {
+        playerInfo!.friendshipStatus = 'Accepted';
+      });
+    });
+
+    _eventSubscriptionFriendRequestRecieved = EventBus().on<FriendRequestReceivedEvent>().listen((event) {
+      if (event.requestData['friendId'] != playerInfo!.id) return;
+      setState(() {
+        playerInfo!.friendshipStatus = 'ApprovePending';
+      });
+    });
+
+    _eventSubscriptionFriendRequestDeclined = EventBus().on<FriendRequestDeclinedEvent>().listen((event) {
+      if (event.playerId != playerInfo!.id) return;
+      setState(() {
+        playerInfo!.friendshipStatus = 'None';
+      });
+    });
   }
 
+  @override
+  void dispose() {
+    _eventSubscriptionFriendOnline?.cancel();
+    _eventSubscriptionFriendOffline?.cancel();
+    _eventSubscriptionNewFriendMessage?.cancel();
+    _eventSubscriptionDeleteFriend?.cancel();
+    _eventSubscriptionFriendMessagesReaded?.cancel();
+    _eventSubscriptionNewFriendAdded?.cancel();
+    _eventSubscriptionFriendRequestRecieved?.cancel();
+    _eventSubscriptionFriendRequestDeclined?.cancel();
+    super.dispose();
+  }
 
   String formatLastSeen(DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
 
-    if (difference.inSeconds < 60) {
-      return "${difference.inSeconds} secs ago";
+    if (difference.inSeconds < 59) {
+      return "less than a minute";
     } else if (difference.inMinutes < 60) {
       return "${difference.inMinutes} mins ago";
     } else if (difference.inHours < 24) {
       return "${difference.inHours} hours ago";
+    } else if (difference.inDays < 31) {
+      return "${difference.inDays} days ago";
     } else {
-      return DateFormat('dd.MM.yyyy').format(lastSeen);
+      return DateFormat('dd.MM.yyyy').format(lastSeen.toLocal());
     }
   }
-
+  
   void _loadPlayerInfo() async {
-    final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo(widget.nickname);
+    final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo(widget.id);
     print(playerInfoData.toString());
     setState(() {
       playerInfo = PlayerInfo.from(playerInfoData);
@@ -333,7 +414,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                               playerInfo!.friendshipStatus == 'None'
                               ? GestureDetector(
                                 onTap: () async {
-                                  await GetIt.I<ApiService>().sendRequest(playerInfo!.nickname);
+                                  await GetIt.I<ApiService>().sendRequest(playerInfo!.id);
                                   _loadPlayerInfo();
                                 },
                                 child: Container(
@@ -362,9 +443,11 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 ),
                               )
                               : playerInfo!.friendshipStatus == 'Accepted' 
-                              ? GestureDetector(
+                              ? 
+                              // BUTTON:   DELETE FRIEND
+                              GestureDetector(
                                 onTap: () async {
-                                  await GetIt.I<ApiService>().deleteFriend(playerInfo!.nickname);
+                                  await GetIt.I<ApiService>().deleteFriend(playerInfo!.id);
                                   _loadPlayerInfo();
                                 },
                                 child: Container(
@@ -392,7 +475,57 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   ),
                                 ),
                               )
-                              : Text(
+                              : playerInfo!.friendshipStatus == 'ApprovePending'
+                              ?
+                                //? BUTTONS:     REJECT AND ACCEPT
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () async {
+                                        setState(() {
+                                          playerInfo!.friendshipStatus = 'Accepted';
+                                        });
+                                        await GetIt.I<ApiService>().approveFriend(playerInfo!.id, true);
+                                      },
+                                      child: Icon(
+                                        Icons.handshake_outlined,
+                                        color: const Color(0xFF302B25),
+                                        size: 30.sp,
+                                      )
+                                    ),
+                                    SizedBox(width: 5.w),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        setState(() {
+                                          playerInfo!.friendshipStatus = 'None';
+                                        });
+                                        await GetIt.I<ApiService>().approveFriend(playerInfo!.id, false);
+                                      },
+                                      child: Container(
+                                        width: 30.w,
+                                        height: 30.h,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF302B25),
+                                          borderRadius: BorderRadius.circular(5.sp),
+                                        ),
+                                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                        child: Center(
+                                          child: Container(
+                                            height: 5.h,
+                                            width: 20.w,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFE0D0BC),
+                                              borderRadius: BorderRadius.circular(5.sp),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ),
+                                  ],
+                                )
+                              
+                              :
+                              Text(
                                 playerInfo!.friendshipStatus,
                                 style: TextStyle(
                                   fontSize: 15.sp,
@@ -402,43 +535,102 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                               ),
                     
                               // BUTTON:    CHAT
-                              if (playerInfo!.friendshipStatus == 'Accepted') GestureDetector(
-                                onTap: () {
-                                  //if (playerInfo!.friendshipStatus != 'Accepted') return;
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => FriendChat(
-                                        friend: Friendship(
-                                          nickname: playerInfo!.nickname, 
-                                          avatarUrl: playerInfo!.avatarUrl,
-                                          isOnline: playerInfo!.isOnline,
-                                          gameTitle: playerInfo!.gameLobbyTitle ?? '',
-                                          lastSeen: playerInfo!.lastSeen ?? DateTime.now()
-                                        )
+                              if (playerInfo!.friendshipStatus == 'Accepted')
+                              SizedBox(
+                                height: 45.h,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    //if (playerInfo!.friendshipStatus != 'Accepted') return;
+                                    playerInfo!.unreadMessagesCount = 0;
+                                    setState(() {});
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => FriendChat(
+                                          friend: Friendship(
+                                            id: playerInfo!.id,
+                                            nickname: playerInfo!.nickname, 
+                                            avatarUrl: playerInfo!.avatarUrl,
+                                            isOnline: playerInfo!.isOnline,
+                                            gameTitle: playerInfo!.gameLobbyTitle ?? '',
+                                            lastSeen: playerInfo!.lastSeen ?? DateTime.now()
+                                          )
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 70.h,
-                                  height: 35.h,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFB000),
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 1
-                                    ),
-                                    borderRadius: BorderRadius.circular(12.sp)
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      S.of(context).chat,
-                                      style: TextStyle(
-                                        fontSize: 15.sp,
-                                        fontFamily: 'CenturyGothic',
-                                        color: Colors.black
+                                    ).then((_) async {
+                                      List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+                                        "all_friends_list",
+                                        (json) => Friendship.fromJson(json as Map<String, dynamic>),
+                                      );
+
+                                      currentFriends ??= [];
+                                      currentFriends.firstWhere((friend) => friend.id == playerInfo!.id).unreadMessagesCount = 0;
+
+                                      await GeneralCacheService().save<List<Friendship>?>(
+                                        "all_friends_list",
+                                        currentFriends,
+                                      );
+
+                                      playerInfo!.unreadMessagesCount = 0;
+                                      setState(() {});
+                                    });
+                                  },
+                                  child: Stack(
+                                    children: [
+                                      // BUTTON:    CHAT
+                                      Container(
+                                        width: 70.h,
+                                        height: 35.h,
+                                        margin: EdgeInsets.only(top: 5.h, right: 5.w),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFB000),
+                                          border: Border.all(
+                                            color: Colors.black,
+                                            width: 1
+                                          ),
+                                          borderRadius: BorderRadius.circular(12.sp)
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            S.of(context).chat,
+                                            style: TextStyle(
+                                              fontSize: 15.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                
+                                      //? UNREAD MESSAGES COUNT
+                                      if (playerInfo!.unreadMessagesCount > 0)
+                                        Positioned(
+                                          right: 0.w,
+                                          top: -5.h,
+                                          child: Container(
+                                            padding: EdgeInsets.all(4.w),
+                                            constraints: BoxConstraints(
+                                              minWidth: 16.w,
+                                              minHeight: 16.h,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Colors.white, width: 1.5.w),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                "",
+                                                style: TextStyle(
+                                                  color: Colors.white ,
+                                                  fontSize: 12.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: 'CenturyGothic',
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -877,12 +1069,13 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
 }
 
 class PlayerInfo {
+  final int id;
   final String nickname;
   final String avatarUrl;
-  final bool isOnline;
-  final DateTime? lastSeen;
+  bool isOnline;
+  DateTime? lastSeen;
   final DateTime joinDate;
-  final String friendshipStatus;
+  String friendshipStatus;
   final String? gameLobbyTitle;
   final String? gameLobbyStatus;
   final int? gameLobbyPlayerCount;
@@ -892,6 +1085,7 @@ class PlayerInfo {
   final int loses;
   final int mafiaWins;
   final int civilianWins;
+  int unreadMessagesCount;
   
   final int civilianRolePlayedGames;
   final int sheriffRolePlayedGames;
@@ -918,6 +1112,7 @@ class PlayerInfo {
     required this.barmanRolePlayedGames, 
     required this.terroristRolePlayedGames,
 
+    required this.id,
     required this.nickname, 
     required this.avatarUrl, 
     required this.isOnline, 
@@ -933,6 +1128,7 @@ class PlayerInfo {
     required this.gameLobbyTitle, 
     required this.gameLobbyStatus, 
     required this.gameLobbyPlayerCount,
+    required this.unreadMessagesCount,
   });
 
   static final DateFormat _customFormat = DateFormat('dd.MM.yyyy HH:mm');
@@ -973,6 +1169,7 @@ class PlayerInfo {
     }
 
     return PlayerInfo(
+      id: json['playerId'],
       nickname: json['nickname'] ?? '',
       avatarUrl: json['avatarUrl'] ?? '',
       isOnline: json['isOnline'] ?? false,
@@ -985,6 +1182,7 @@ class PlayerInfo {
       loses: json['stats']['loses'] ?? 0,
       mafiaWins: json['stats']['mafiaWins'] ?? 0,
       civilianWins: json['stats']['civilianWins'] ?? 0,
+      unreadMessagesCount: json['unreadMessagesCount'] ?? 0,
 
       bodyguardRolePlayedGames: json['stats']['bodyguardRolePlayedGames'] ?? 0,
       doctorRolePlayedGames: json['stats']['doctorRolePlayedGames'] ?? 0,
@@ -1028,7 +1226,8 @@ PlayerInfo(
   }
 
   PlayerInfo.from(PlayerInfo other)
-    : nickname = other.nickname,
+    : id = other.id,
+      nickname = other.nickname,
       avatarUrl = other.avatarUrl,
       isOnline = other.isOnline,
       lastSeen = other.lastSeen,
@@ -1043,6 +1242,7 @@ PlayerInfo(
       gameLobbyTitle = other.gameLobbyTitle,
       gameLobbyStatus = other.gameLobbyStatus,
       gameLobbyPlayerCount = other.gameLobbyPlayerCount,
+      unreadMessagesCount = other.unreadMessagesCount,
 
       civilianRolePlayedGames = other.civilianRolePlayedGames,
       sheriffRolePlayedGames = other.sheriffRolePlayedGames,

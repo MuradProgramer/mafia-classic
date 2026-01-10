@@ -56,7 +56,7 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
       final event = entry.key;
       final payload = entry.value;
 
-      if (event == ServerEvent.friendInvitation) {
+      if (event == ServerEvent.friendshipRoomInvite) {
         final data = jsonDecode(payload) as Map<String, dynamic>;
         _showInviteDialog(
           data['senderName'] as String?,

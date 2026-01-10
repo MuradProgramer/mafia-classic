@@ -1,6 +1,7 @@
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
 
 class User {
+  final int id;
   final String email;
   final String nickname;
   final String avatarUrl;
@@ -9,6 +10,7 @@ class User {
   final DateTime expirationDate;
 
   User({
+    required this.id,
     required this.email,
     required this.nickname,
     required this.avatarUrl,

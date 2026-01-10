@@ -25,6 +25,7 @@ class AuthRepository {
       case 200:
         final data = response.data as Map<String, dynamic>;
         User user = User(
+          id: data['id'],
           email: data['email'], 
           nickname: data['nickname'], 
           avatarUrl: data['avatarUrl'],
@@ -98,6 +99,7 @@ class AuthRepository {
     if (statusCodeOfResponse == 200) {
       final data = response!.data as Map<String, dynamic>;
       User user = User(
+        id: data['id'],
         email: data['email'], 
         nickname: data['nickname'], 
         avatarUrl: data['avatarUrl'],
@@ -117,6 +119,6 @@ class AuthRepository {
     } else {
       throw Exception('Failed to sign up');
     }
-    return User(email: email, nickname: nickname, avatarUrl: '', accessToken: '', refreshToken: '', expirationDate: DateTime.now());
+    return User(id: -12345678, email: email, nickname: nickname, avatarUrl: '', accessToken: '', refreshToken: '', expirationDate: DateTime.now());
   }
 }

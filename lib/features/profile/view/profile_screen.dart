@@ -38,6 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late StreamSubscription<String> friendshipFriends;
   late StreamSubscription<String> friendshipNewFriend;
   late StreamSubscription<String> friendshipRequestFriendship;
+  late StreamSubscription<String> friendshipRequestDeclined;
   late StreamSubscription<String> friendshipDeleteFriendship;
   late StreamSubscription<String> friendshipFriendOnline;
   late StreamSubscription<String> friendshipFriendOffline;
@@ -48,6 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
 
+    // DONE partial
     friendshipFriends = EventRouterService()
         .subscribe(ServerEvent.friendshipFriends)
         .listen((payload) async {
@@ -66,12 +68,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
         }
 
+        for (var friend in allFriends) {
+          print('ID: ${friend.id} |||||| Loaded friend: ${friend.nickname}, Online: ${friend.isOnline}');
+        }
+
         await GeneralCacheService().save('all_friends_list', allFriends);
+
+        EventBus().fire(LoadFriendsEvent());
+        
+        List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+          "all_friends_list",
+          (json) => Friendship.fromJson(json as Map<String, dynamic>),
+        );
+        
+        currentFriends ??= [];
+        
+        for (var friend in currentFriends) {
+          log('ID: ${friend.id} |||||| Loaded friend: ${friend.nickname}, Online: ${friend.isOnline}');
+        }
       } on Exception catch (e) {
         log('EXCEPTION IN:     friendshipFriends: ${e.toString()}');
       }
     });
 
+    // DONE partial
     friendshipNewFriend = EventRouterService()
         .subscribe(ServerEvent.friendshipNewFriend)
         .listen((payload) async {
@@ -98,6 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     });
 
+    // DONE partial
     friendshipRequestFriendship = EventRouterService()
         .subscribe(ServerEvent.friendshipRequestFriendship)
         .listen((payload) async {
@@ -105,11 +126,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       EventBus().fire(FriendRequestReceivedEvent(json.decode(payload)));
     });
 
+    friendshipRequestDeclined = EventRouterService()
+        .subscribe(ServerEvent.friendshipRequestDeclined)
+        .listen((payload) async {
+      EventBus().fire(FriendRequestDeclinedEvent(json.decode(payload)['playerId'] as int));
+    });
+
+    // DONE partial
     friendshipDeleteFriendship = EventRouterService()
         .subscribe(ServerEvent.friendshipDeleteFriendship)
         .listen((payload) async {
       try {
-        final String nicknameToDelete = json.decode(payload)['nickname'];
+        final int friendId = json.decode(payload)['friendId'] as int;
 
         List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
           "all_friends_list",
@@ -117,19 +145,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
-        currentFriends.removeWhere((friend) => friend.nickname == nicknameToDelete);
-        EventBus().fire(DeleteFriendEvent(nicknameToDelete));
+        currentFriends.removeWhere((friend) => friend.id == friendId);
+        EventBus().fire(DeleteFriendEvent(friendId));
         await GeneralCacheService().save<List<Friendship>?>("all_friends_list", currentFriends);
       } on Exception catch (e) {
         log('EXCEPTION IN:     friendshipDeleteFriendship: ${e.toString()}');
       }
     });
 
+    // DONE partial +
     friendshipFriendOnline = EventRouterService()
         .subscribe(ServerEvent.friendshipFriendOnline)
         .listen((payload) async {
       try {
-        final String nicknameOnline = json.decode(payload)['nickname'];
+        final int id = json.decode(payload)['friendId'] as int;
 
         List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
           "all_friends_list",
@@ -137,20 +166,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
-        currentFriends.firstWhere((friend) => friend.nickname == nicknameOnline).isOnline = true;
-        EventBus().fire(FriendOnlineEvent(nicknameOnline));
+        print("Friend Online: $id");
+        print("NICKNAME: ${currentFriends[0].nickname} NICKID: ${currentFriends[0].id} ID: $id");
+        print("");
+        currentFriends.firstWhere((friend) => friend.id == id).isOnline = true;
+        EventBus().fire(FriendOnlineEvent(id));
+        log("ICINE AZZARIM OLSUN....2222");
         await GeneralCacheService().save<List<Friendship>?>("all_friends_list", currentFriends);
-        
+        log("ICINE AZZARIM OLSUN....2222");
       } on Exception catch (e) {
         log('EXCEPTION IN:     friendshipFriendOnline: ${e.toString()}');
       }
     });
 
+    // DONE partial +
     friendshipFriendOffline = EventRouterService()
         .subscribe(ServerEvent.friendshipFriendOffline)
         .listen((payload) async {
       try {
-        final String nicknameOffline = json.decode(payload)['nickname'];
+        final int id = json.decode(payload)['friendId'] as int;
 
         List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
           "all_friends_list",
@@ -158,8 +192,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
-        currentFriends.firstWhere((friend) => friend.nickname == nicknameOffline).isOnline = false;
-        EventBus().fire(FriendOfflineEvent(nicknameOffline));
+        currentFriends.firstWhere((friend) => friend.id == id).isOnline = false;
+        currentFriends.firstWhere((friend) => friend.id == id).lastSeen = DateTime.now().toLocal();
+        EventBus().fire(FriendOfflineEvent(id));
         await GeneralCacheService().save<List<Friendship>?>("all_friends_list", currentFriends);
         
       } on Exception catch (e) {
@@ -167,11 +202,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     });
 
+    // DONE partial +
     friendshipFriendJoinedRoom = EventRouterService()
         .subscribe(ServerEvent.friendshipFriendJoinedRoom)
         .listen((payload) async {
       try {
-        final String nicknameJoined = json.decode(payload)['nickname'];
+        final int id = json.decode(payload)['friendId'] as int;
         final String roomTitle = json.decode(payload)['roomTitle'];
 
         List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
@@ -180,7 +216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
-        currentFriends.firstWhere((friend) => friend.nickname == nicknameJoined).gameTitle = roomTitle;
+        currentFriends.firstWhere((friend) => friend.id == id).gameTitle = roomTitle;
 
         //EventBus().fire(FriendOnlineEvent(nicknameJoined));
 
@@ -193,11 +229,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     });
 
+    // DONE partial +
     friendshipFriendLeftRoom = EventRouterService()
         .subscribe(ServerEvent.friendshipFriendLeftRoom)
         .listen((payload) async {
       try {
-        final String nicknameLeft = json.decode(payload)['nickname'];
+        final int id = json.decode(payload)['friendId'] as int;
 
         List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
           "all_friends_list",
@@ -205,9 +242,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
-        currentFriends.firstWhere((friend) => friend.nickname == nicknameLeft).gameTitle = "";
+        currentFriends.firstWhere((friend) => friend.id == id).gameTitle = "";
 
-        EventBus().fire(FriendOnlineEvent(nicknameLeft));
+        //EventBus().fire(FriendOnlineEvent(id));
 
         await GeneralCacheService().save<List<Friendship>?>("all_friends_list", currentFriends);
         
@@ -216,17 +253,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     });
 
+    // DONE partial
     friendshipFriendNewMessage = EventRouterService()
         .subscribe(ServerEvent.friendshipFriendNewMessage)
         .listen((payload) async {
       try {
-        final Map<String, dynamic> jsonData = json.decode(payload);
-
-        final newMessage = Message.fromJson(jsonData);
+        print("\n\nNEW MESSAGE PAYLOAD: $payload\n\n");
+        final Map<String, dynamic> decodedPayload = json.decode(payload);
+        final newMessage = Message.fromJson(decodedPayload['message']);
+        final int friendId = json.decode(payload)['id'] as int;
 
         //? SNACKBAR HERE
 
-        EventBus().fire(FriendNewMessageEvent(newMessage));
+        EventBus().fire(FriendNewMessageEvent(newMessage, friendId));
         
       } on Exception catch (e) {
         log('EXCEPTION IN:     friendshipFriendNewMessage: ${e.toString()}');
@@ -525,6 +564,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   showBouncingPopupFromLeft(
                                     context, 
                                     PlayerInfoPopup(
+                                      id: 2,
                                       height: 727.h, 
                                       width: 405.w, 
                                       nickname: "Admin",

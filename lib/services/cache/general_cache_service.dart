@@ -18,23 +18,24 @@ class GeneralCacheService {
       await _prefs.remove(key);
       return;
     }
-
+    
     if (_isPrimitive(data)) {
       await _savePrimitive(key, data);
       return;
     }
-
+    
     if (data is JsonModel) {
       final jsonStr = jsonEncode(data.toJson());
       await _prefs.setString(key, jsonStr);
       return;
     }
-
+    
     if (data is List) {
+      print("GENERAL CACHE SERVICE LOG: $data");
       await _saveList(key, data);
       return;
     }
-
+    
     throw Exception("Unsupported type for caching: $T");
   }
 
@@ -78,6 +79,8 @@ class GeneralCacheService {
 
     final decoded = jsonDecode(stored);
 
+    print("Decoded in loadList: $decoded");
+
     if (decoded is List) {
       final mappedList = decoded.map((item) => fromJson(item)).toList();
       return mappedList;
@@ -101,13 +104,13 @@ class GeneralCacheService {
       await _prefs.setString(key, jsonEncode([]));
       return;
     }
-
+    
     if (data.first is JsonModel) {
       final list = data.map((e) => (e as JsonModel).toJson()).toList();
+      print("GENERAL CACHE SERVICE LOG - SAVING LIST OF MODELS: ${jsonEncode(list)}}");
       await _prefs.setString(key, jsonEncode(list));
       return;
     }
-
     //? For list of primitives
     await _prefs.setString(key, jsonEncode(data));
   }

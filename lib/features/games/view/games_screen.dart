@@ -67,8 +67,8 @@ List<Game> games = [
 */
 
 //!!!!!!!!!!!!!!!!!!!!!!!
-//late User authorizedUser;
-User authorizedUser = User(email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
+late User authorizedUser;
+//User authorizedUser = User(id: 1123123123, email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
 
 class GamesScreen extends StatefulWidget {
   final User user;
@@ -659,6 +659,7 @@ class _GamesScreenState extends State<GamesScreen> {
 
 //////////////////////////////////////////////////////////
 class Game {
+  final String id;
   final String title;
   //final int currentPlayers; // massive size
   final int minPlayers;
@@ -669,6 +670,7 @@ class Game {
   final List<Player> players;
 
   Game({
+    required this.id,
     required this.title,
     //required this.currentPlayers,
     required this.minPlayers,
@@ -685,6 +687,7 @@ class Game {
     // }).toList();
 
     return Game(
+      id: json['id'],
       title: json['title'],
       //currentPlayers: json['currentPlayers'],
       //currentPlayers: json['currentPlayers'],
@@ -1263,6 +1266,7 @@ class _GameCardState extends State<GameCard> {
 
 
 class Player {
+  final String id;
   final String nickname;
   final String avatarUrl;
   bool isAlive;

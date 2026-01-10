@@ -30,8 +30,8 @@ void showBouncingPopupFromTop(BuildContext context, Widget child) {
   );
 }
 
-void showBouncingPopupFromLeft(BuildContext context, Widget child) {
-  showGeneralDialog(
+Future<T?> showBouncingPopupFromLeft<T>(BuildContext context, Widget child) {
+  return showGeneralDialog(
     context: context,
     barrierDismissible: true,
     barrierLabel: "Dismiss",

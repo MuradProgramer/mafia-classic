@@ -15,7 +15,7 @@ dependencies:
   signalr_netcore: ^1.4.0
   intl: ^0.20.2
   equatable: ^2.0.5
-  flutter_bloc: ^8.1.6
+  flutter_bloc: ^9.1.1
   get_it: ^7.7.0
   dio: ^5.5.0+1
   google_fonts: ^6.2.1
@@ -29,6 +29,8 @@ dependencies:
   audioplayers: ^6.5.1
   just_audio: ^0.10.5
   shared_preferences: ^2.5.3
+  connectivity_plus: ^7.0.0
+  internet_connection_checker: ^1.0.0+1
 
 dev_dependencies:
   flutter_test:

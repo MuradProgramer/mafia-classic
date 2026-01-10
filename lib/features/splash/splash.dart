@@ -143,6 +143,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     showBouncingPopupFromLeft(
                       context, 
                       PlayerInfoPopup(
+                        id: 123,
                         height: 727.h, 
                         width: 405.w,
                         nickname: 'Admin',

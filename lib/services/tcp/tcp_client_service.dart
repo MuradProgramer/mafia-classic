@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:mafia_classic/models/user.dart';
+import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 
@@ -107,5 +108,6 @@ class TcpClientService {
     _socket?.destroy();
     _socket = null;
     _controller.close();
+    GeneralCacheService().clearAllData();
   }
 }

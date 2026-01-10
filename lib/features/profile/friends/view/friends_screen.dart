@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mafia_classic/features/games/view/view.dart';
 import 'package:mafia_classic/features/profile/friends/models/models.dart';
+import 'package:mafia_classic/features/widgets/player_info_popup.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
@@ -31,6 +32,7 @@ import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
+import 'package:mafia_classic/utils/popup_utils.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -478,11 +480,15 @@ class FriendsTab extends StatefulWidget {
 
 class _FriendsTabState extends State<FriendsTab> {
   final TextEditingController searchController = TextEditingController();
+  StreamSubscription? _eventSubscriptionLoadFriends;
   StreamSubscription? _eventSubscriptionNewFriend;
+  StreamSubscription? _eventSubscriptionNewFriendMessage;
   StreamSubscription? _eventSubscriptionDeleteFriend;
   StreamSubscription? _eventSubscriptionFriendOnline;
   StreamSubscription? _eventSubscriptionFriendOffline;
+  StreamSubscription? _eventSubscriptionFriendMessagesReaded;
   List<Friendship> friends = [];
+  List<Friendship> filteredFriends = [];
   // List<Friendship>? friends = [
   //   Friendship(
   //     nickname: 'Player1', 
@@ -513,34 +519,90 @@ class _FriendsTabState extends State<FriendsTab> {
   @override
   void initState() {
     _loadFriends();
+
+    filteredFriends = friends;
+
+    _eventSubscriptionLoadFriends = EventBus().on<LoadFriendsEvent>().listen((event) {
+      setState(() {
+        _loadFriends();
+      });
+    });
+  
     _eventSubscriptionNewFriend = EventBus().on<NewFriendAddedEvent>().listen((event) {
       setState(() {
         friends.insert(0, event.requestData); 
       });
     });
+
+    _eventSubscriptionNewFriendMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
+      setState(() {
+        friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount++;
+      });
+    });
     
     _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
       setState(() {
-        friends.removeWhere((friend) => friend.nickname == event.friendId); 
+        friends.removeWhere((friend) => friend.id == event.friendId); 
       });
     });
-
+    
     _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
       setState(() {
-        friends.firstWhere((friend) => friend.nickname == event.friendNickname).isOnline = true;
+        friends.firstWhere((friend) => friend.id == event.friendId).isOnline = true;
       });
     });
 
     _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
       setState(() {
-        Friendship friend = friends.firstWhere((friend) => friend.nickname == event.friendNickname);
+        Friendship friend = friends.firstWhere((friend) => friend.id == event.friendId);
         friend.isOnline = false;
         friend.lastSeen = DateTime.now();
+      });
+    });
+
+    _eventSubscriptionFriendMessagesReaded = EventBus().on<FriendMessagesReadedEvent>().listen((event) {
+      setState(() {
+        friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount = 0;
       });
     });
     
     super.initState();
   }
+
+  List<Friendship> _filterFriends(String query) {
+    if (query.isEmpty) {
+      return friends;
+    } else {
+      return friends
+          .where((friend) => friend.nickname.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+  }
+
+  // @override
+  // void didUpdateWidget(covariant FriendsTab oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   _loadFriends();
+  // }
+
+  String formatLastSeen(DateTime lastSeen) {
+    final now = DateTime.now();
+    final difference = now.difference(lastSeen);
+
+    if (difference.inSeconds < 59) {
+      return "less than a minute";
+    } else if (difference.inMinutes < 60) {
+      return "${difference.inMinutes} mins ago";
+    } else if (difference.inHours < 24) {
+      return "${difference.inHours} hours ago";
+    } else if (difference.inDays < 31) {
+      return "${difference.inDays} days ago";
+    } else {
+      return DateFormat('dd.MM.yyyy').format(lastSeen.toLocal());
+    }
+  }
+
+
 
   @override
   void didChangeDependencies() {
@@ -551,10 +613,20 @@ class _FriendsTabState extends State<FriendsTab> {
   void _loadFriends() {
     final updated = GeneralCacheService().loadList<Friendship>(
       "all_friends_list",
-      (json) => Friendship.fromJson(json as Map<String, dynamic>),
+      (json) { 
+        // if ((json as Map<String, dynamic>)['id'] == null) {
+        //   return null;
+        // }
+        return Friendship.fromJson(json);
+      },
     );
     
     setState(() {
+      // if (updated == null) {
+      //   friends = [];
+      // } else {
+      //   friends = updated.whereType<Friendship>().toList();
+      // }
       friends = updated ?? [];
       print('FRIENDS LOADED FROM CACHE: ${friends.length}');
     });
@@ -569,17 +641,21 @@ class _FriendsTabState extends State<FriendsTab> {
 
   @override
   void dispose() {
+    _eventSubscriptionLoadFriends?.cancel();
     _eventSubscriptionNewFriend?.cancel();
+    _eventSubscriptionNewFriendMessage?.cancel();
     _eventSubscriptionDeleteFriend?.cancel();
     _eventSubscriptionFriendOnline?.cancel();
     _eventSubscriptionFriendOffline?.cancel();
+    _eventSubscriptionFriendMessagesReaded?.cancel();
     searchController.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    _loadFriends();
+    //_loadFriends();
 
     return Column(
       children: [
@@ -633,6 +709,9 @@ class _FriendsTabState extends State<FriendsTab> {
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.h),
                     child: TextField(
+                      onChanged: (value) => setState(() {
+                        filteredFriends = _filterFriends(value);
+                      }),
                       cursorColor: const Color(0xFF3E3E3E),
                       cursorHeight: 20.h,
                       onTapOutside: (PointerDownEvent event) {
@@ -670,7 +749,7 @@ class _FriendsTabState extends State<FriendsTab> {
         ),
       
         //? FRIENDS LIST
-        (friends.isEmpty)
+        (filteredFriends.isEmpty)
         ? 
         Padding(
           padding: EdgeInsets.only(top: 20.h),
@@ -690,101 +769,166 @@ class _FriendsTabState extends State<FriendsTab> {
             padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
             child: ListView.builder(
               padding: EdgeInsets.zero,
-              itemCount: friends.length,
+              itemCount: filteredFriends.length,
               itemBuilder: (context, index) {
-                final friend = friends[index];
-                return Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              //? PROFILE PHOTO
-                              CircleAvatar(
-                                backgroundImage: NetworkImage(friend.avatarUrl),
-                                radius: 21.sp,
-                              ),
-
-                              SizedBox(width: 12.w),
-
-                              //? NICKNAME AND STATUS
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // TEXT:    NICKNAME
-                                  Text(
-                                    friend.nickname,
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 18.sp, 
-                                      color: Colors.black 
-                                    )
-                                  ),
-
-                                  // TEXT:    STATUS
-                                  Text(
-                                    friend.isOnline ? AppLocalizations.of(context)!.online : DateFormat('dd.MM.yyyy HH:mm').format(friend.lastSeen), //! DYNAMIC
-                                    style: TextStyle(
-                                      fontSize: 15.sp, 
-                                      color: Colors.black,
-                                      fontFamily: 'CenturyGothic'
-                                    )
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                
-                          //BUTTON:    DELETE
-                          GestureDetector(
-                            onTap: () {
-                              //_deleteFriend(friend.nickname);
-                              Navigator.of(context, rootNavigator: true).push(
-                                MaterialPageRoute(
-                                  builder: (context) => FriendChat(friend: friends[index]),
+                final friend = filteredFriends[index];
+                return GestureDetector(
+                  onTap: () {
+                    showBouncingPopupFromLeft(
+                      context, 
+                      PlayerInfoPopup(
+                        id: friend.id,
+                        height: 727.h, 
+                        width: 405.w, 
+                        nickname: friend.nickname,
+                      )
+                    ).then((_) {
+                      _loadFriends();
+                    });
+                  },
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                //? PROFILE PHOTO
+                                CircleAvatar(
+                                  backgroundImage: NetworkImage(friend.avatarUrl),
+                                  radius: 21.sp,
                                 ),
-                              );
-                            },
-                            child: Icon(
-                              Icons.chat,
-                              color: Colors.black,
-                              size: 30.sp,
-                            )
-                          ),
-                            
-                          /*
-                          SizedBox(
-                            width: 85.w,
-                            height: 35.h,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                _deleteFriend(friend.nickname);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
+                  
+                                SizedBox(width: 12.w),
+                  
+                                //? NICKNAME AND STATUS
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // TEXT:    NICKNAME
+                                    Text(
+                                      friend.nickname,
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 18.sp, 
+                                        color: Colors.black 
+                                      )
+                                    ),
+                  
+                                    // TEXT:    STATUS
+                                    Text(
+                                      //friend.isOnline ? AppLocalizations.of(context)!.online : DateFormat('dd.MM.yyyy HH:mm').format(friend.lastSeen.toLocal()), //! DYNAMIC
+                                      friend.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(friend.lastSeen.toLocal()), //! DYNAMIC
+                                      style: TextStyle(
+                                        fontSize: 15.sp, 
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.black,
+                                        fontFamily: 'CenturyGothic'
+                                      )
+                                    ),
+                                  ],
                                 ),
-                              ),
+                              ],
+                            ),
+                  
+                            //? CHAT
+                            SizedBox(
+                              width: 50.w,
+                              height: 50.h,
+                              child: GestureDetector(
+                                onTap: () {
+                                  //_deleteFriend(friend.nickname);
+                                  friend.unreadMessagesCount = 0;
+                                  setState(() {});
+                                  Navigator.of(context, rootNavigator: true).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => FriendChat(friend: friends[index]),
+                                    ),
+                                  ).then((_) {
+                                    friend.unreadMessagesCount = 0;
+                                    setState(() {});
+                                  });
+                                },
+                                child: Stack(
+                                  children: [
+                                    //? CHAT 
+                                    Positioned(
+                                      right: 7.w,
+                                      top: 10.w,
+                                      child: Icon(
+                                        Icons.chat,
+                                        color: Colors.black,
+                                        size: 30.sp,
+                                      ),
+                                    ),
                               
-                              child: Text(
-                                AppLocalizations.of(context)!.delete,
-                                //! DYNAMIC
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  color: Colors.black,
-                                ),
+                                    //? UNREAD MESSAGES COUNT
+                                    if (friend.unreadMessagesCount > 0)
+                                      Positioned(
+                                        right: 0.w,
+                                        top: -4.h,
+                                        child: Container(
+                                          padding: EdgeInsets.all(4.w),
+                                          constraints: BoxConstraints(
+                                            minWidth: 16.w,
+                                            minHeight: 16.h,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: Colors.white, width: 1.5.w),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "",
+                                              style: TextStyle(
+                                                color: Colors.white ,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'CenturyGothic',
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                )
                               ),
                             ),
-                          )
-                          */
-                        ],
+                              
+                            /*
+                            SizedBox(
+                              width: 85.w,
+                              height: 35.h,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _deleteFriend(friend.nickname);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                                
+                                child: Text(
+                                  AppLocalizations.of(context)!.delete,
+                                  //! DYNAMIC
+                                  style: TextStyle(
+                                    fontSize: 15.sp,
+                                    fontFamily: 'CenturyGothic',
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            )
+                            */
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),
@@ -823,12 +967,13 @@ class _RequestsTabState extends State<RequestsTab> {
 
   // ];
 
-  late StreamSubscription<String> friendshipPendingFriendshipRequests;
+  //late StreamSubscription<String> friendshipPendingFriendshipRequests;
 
   @override
   void initState() {
     super.initState();
 
+    /*
     friendshipPendingFriendshipRequests = EventRouterService()
         .subscribe(ServerEvent.friendshipPendingFriendshipRequests)
         .listen((payload) async {
@@ -845,34 +990,38 @@ class _RequestsTabState extends State<RequestsTab> {
         log('EXCEPTION IN:     friendshipPendingFriendshipRequests Event - Friend Request Screen: ${e.toString()}');
       }
     });
+    */
 
     _eventSubscription = EventBus().on<FriendRequestReceivedEvent>().listen((event) {
       setState(() {
         // DIRECT UPDATE: Add the new request to the TOP of the list
-        requests.insert(0, FriendRequest(nickname: event.requestData["nickname"], avatarUrl: event.requestData["avatarUrl"])); 
+        requests.insert(0, FriendRequest(id: event.requestData["friendId"], nickname: event.requestData["nickname"], avatarUrl: event.requestData["avatarUrl"])); 
       });
     });
+
     
     _getRequests();
   }
 
   @override
   void dispose() {
-    friendshipPendingFriendshipRequests.cancel();
+    //friendshipPendingFriendshipRequests.cancel();
     _eventSubscription?.cancel();
     super.dispose();
   }
 
   void _getRequests() async {
-    TcpClientService().sendMessage(ClientCommand.getPendingFriendshipRequests.value, "");
-    //requests = await GetIt.I<ApiService>().getRequests();
-    // if (!mounted) return;
-    // setState(() {});
+    //TcpClientService().sendMessage(ClientCommand.getPendingFriendshipRequests.value, "");
+    requests = await GetIt.I<ApiService>().getRequests() ?? [];
+    if (!mounted) return;
+    setState(() {});
   }
 
-  void _approveFriend(String nickname, bool approve) async {
-    TcpClientService().sendMessage(ClientCommand.approveFriendship.value, json.encode({'nickname': nickname, 'approve': approve}));
-    requests?.removeWhere((request) => request.nickname == nickname);
+  void _approveFriend(int id, bool approve) async {
+    //TcpClientService().sendMessage(ClientCommand.approveFriendship.value, json.encode({'nickname': nickname, 'approve': approve}));
+    await GetIt.I<ApiService>().approveFriend(id, approve);
+    requests.removeWhere((request) => request.id == id);
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -951,83 +1100,99 @@ class _RequestsTabState extends State<RequestsTab> {
               itemBuilder: (context, index) {
                 final request = requests[index];
 
-                return Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              //? PROFILE PHOTO
-                              CircleAvatar(
-                                backgroundImage: NetworkImage(request.avatarUrl), //!!!!!!!!!!!
-                                radius: 21.sp,
-                              ),
-
-                              SizedBox(width: 12.w),
-
-                              //? REQUEST NICKNAME
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    request.nickname, //!!!!!!!!!!!
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 18.sp, 
-                                      color: Colors.black 
-                                    )
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                
-                          //? BUTTONS:     REJECT AND ACCEPT
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  _approveFriend(request.nickname, true);
-                                },
-                                child: Icon(
-                                  Icons.handshake_outlined,
-                                  color: const Color(0xFF302B25),
-                                  size: 30.sp,
-                                )
-                              ),
-                              SizedBox(width: 5.w),
-                              GestureDetector(
-                                onTap: () {
-                                  _approveFriend(request.nickname, false);
-                                },
-                                child: Container(
-                                  width: 30.w,
-                                  height: 30.h,
-                                  decoration: BoxDecoration(
+                return GestureDetector(
+                  onTap: () {
+                    showBouncingPopupFromLeft(
+                      context, 
+                      PlayerInfoPopup(
+                        id: request.id,
+                        height: 727.h, 
+                        width: 405.w, 
+                        nickname: request.nickname,
+                      )
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                //? PROFILE PHOTO
+                                CircleAvatar(
+                                  backgroundImage: NetworkImage(request.avatarUrl), //!!!!!!!!!!!
+                                  radius: 21.sp,
+                                ),
+                  
+                                SizedBox(width: 12.w),
+                  
+                                //? REQUEST NICKNAME
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      request.nickname, //!!!!!!!!!!!
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 18.sp, 
+                                        color: Colors.black 
+                                      )
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                  
+                            //? BUTTONS:     REJECT AND ACCEPT
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    _approveFriend(request.id, true);
+                                    //EventBus().fire(FriendApprovedEvent(request.id, true));
+                                  },
+                                  child: Icon(
+                                    Icons.handshake_outlined,
                                     color: const Color(0xFF302B25),
-                                    borderRadius: BorderRadius.circular(5.sp),
-                                  ),
-                                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                                  child: Center(
-                                    child: Container(
-                                      height: 5.h,
-                                      width: 20.w,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFE0D0BC),
-                                        borderRadius: BorderRadius.circular(5.sp),
+                                    size: 30.sp,
+                                  )
+                                ),
+                                SizedBox(width: 5.w),
+                                GestureDetector(
+                                  onTap: () {
+                                    _approveFriend(request.id, false);
+                                    //EventBus().fire(FriendApprovedEvent(request.id, false));
+                                  },
+                                  child: Container(
+                                    width: 30.w,
+                                    height: 30.h,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF302B25),
+                                      borderRadius: BorderRadius.circular(5.sp),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                    child: Center(
+                                      child: Container(
+                                        height: 5.h,
+                                        width: 20.w,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFE0D0BC),
+                                          borderRadius: BorderRadius.circular(5.sp),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                )
-                              ),
-                            ],
-                          )
-                        ],
+                                  )
+                                ),
+                              ],
+                            )
+                          
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),
@@ -1073,13 +1238,14 @@ class _SearchTabState extends State<SearchTab> {
   //   ),
   // ];
 
-  late StreamSubscription<String> friendshipSearchedPlayers;
-  late StreamSubscription<String> friendshipSuggestedFriends;
+  //late StreamSubscription<String> friendshipSearchedPlayers;
+  //late StreamSubscription<String> friendshipSuggestedFriends;
 
   @override
   void initState() {
     super.initState();
 
+    /*
     friendshipSearchedPlayers = EventRouterService()
         .subscribe(ServerEvent.friendshipSearchedPlayers)
         .listen((payload) async {
@@ -1115,6 +1281,7 @@ class _SearchTabState extends State<SearchTab> {
         log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
       }
     });
+    */
 
     getPossibleFriends();
   }
@@ -1122,33 +1289,42 @@ class _SearchTabState extends State<SearchTab> {
   @override
   void dispose() {
     super.dispose();
-    friendshipSearchedPlayers.cancel();
-    friendshipSuggestedFriends.cancel();
+    _searchController.dispose();
+    //friendshipSearchedPlayers.cancel();
+    //friendshipSuggestedFriends.cancel();
   }
 
+  // DONE
   void getPossibleFriends() async {
 
-    TcpClientService().sendMessage(ClientCommand.getSuggestedFriends.value, "");
+    //TcpClientService().sendMessage(ClientCommand.getSuggestedFriends.value, "");
 
-    // searchResults = await GetIt.I<ApiService>().possibleFriends();
-    // if (!mounted) return;
-    // setState(() {});
+    searchResults = await GetIt.I<ApiService>().suggestedFriends();
+    if (!mounted) return;
+    setState(() {});
   }
 
+  // DONE
   void _searchUsers() async {
+    // if (_searchController.text.trim().isEmpty) {
+    //   TcpClientService().sendMessage(ClientCommand.getSuggestedFriends.value, "");
+    // } else {
+    //   TcpClientService().sendMessage(ClientCommand.searchPlayers.value, json.encode({'pattern': _searchController.text.trim()}));
+    // }
+
     if (_searchController.text.trim().isEmpty) {
-      TcpClientService().sendMessage(ClientCommand.getSuggestedFriends.value, "");
+      searchResults = await GetIt.I<ApiService>().suggestedFriends();
     } else {
-      TcpClientService().sendMessage(ClientCommand.searchPlayers.value, json.encode({'pattern': _searchController.text.trim()}));
+      searchResults = await GetIt.I<ApiService>().findFriend(_searchController.text.trim());
     }
     if (!mounted) return;
     setState(() {});
   }
 
-  void _sendRequest(String nickname) async {
-    TcpClientService().sendMessage(ClientCommand.requestFriendship.value, json.encode({'nickname': nickname}));
-    //await GetIt.I<ApiService>().sendRequest(nickname);
-    //setState(() {});
+  void _sendRequest(int id) async {
+    //TcpClientService().sendMessage(ClientCommand.requestFriendship.value, json.encode({'nickname': nickname}));
+    await GetIt.I<ApiService>().sendRequest(id);
+    setState(() {});
   }
 
   void changeFriendshipStatus(String nickname, String status) {
@@ -1290,92 +1466,114 @@ class _SearchTabState extends State<SearchTab> {
                 FindFriend user = searchResults![index];
                 //final hasVotes = player["votes"] > 0;
                 //? SEARCHED AND FOUND ONES
-                return Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              //? PROFILE PHOTO
-                              CircleAvatar(
-                                backgroundImage: NetworkImage(user.avatarUrl),
-                                radius: 21.sp,
-                              ),
-
-                              SizedBox(width: 12.w),
-
-                              // TEXT:    NICKNAME
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user.nickname, //!!!!!!!!!!!
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 18.sp, 
-                                      color: Colors.black 
-                                    )
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                
-                          //BUTTON:    DELETE
-                          user.friendshipStatus == 'RequestPending'
-                          ? 
-                            Container(
-                              margin: EdgeInsets.only(right: 5.w),
-                              child: Icon(
-                                size: 30.sp,
-                                Icons.pending_actions,
-                                color: const Color(0xFF00695C),
-                              ),
-                            )
-                            // Text(
-                            //   AppLocalizations.of(context)!.requestPending,
-                            //   style: TextStyle(
-                            //     color: Colors.green,
-                            //     fontSize: 15.sp,
-                            //     fontFamily: 'CenturyGothic'
-                            //   ),
-                            // )
-                          : user.friendshipStatus == 'ApprovePending'
-                          ? 
-                            Text(
-                              AppLocalizations.of(context)!.approvePending,
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontSize: 15.sp,
-                                fontFamily: 'CenturyGothic'
-                              ),
-                            )
-                          : user.friendshipStatus == 'None'
-                          ? SizedBox(
-                            width: 40.w,
-                            height: 35.h,
-                            child: GestureDetector(
-                              onTap: () {
-                                //! CHECK
-                                _sendRequest(user.nickname);
-                                changeFriendshipStatus(user.nickname, 'RequestPending');
-                              },
-                              
-                              child: Icon(
-                                Icons.handshake_outlined,
-                                color: const Color(0xFF302B25),
-                                size: 30.sp,
-                              )
+                return GestureDetector(
+                  onTap: () {
+                    showBouncingPopupFromLeft(
+                      context, 
+                      PlayerInfoPopup(
+                        id: user.id,
+                        height: 727.h, 
+                        width: 405.w,
+                        nickname: user.nickname,
+                      )
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                //? PROFILE PHOTO
+                                CircleAvatar(
+                                  backgroundImage: NetworkImage(user.avatarUrl),
+                                  radius: 21.sp,
+                                ),
+                  
+                                SizedBox(width: 12.w),
+                  
+                                // TEXT:    NICKNAME
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      user.nickname, //!!!!!!!!!!!
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 18.sp, 
+                                        color: Colors.black 
+                                      )
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          )
-                          : const SizedBox()
-                          
-                        ],
+                  
+                            //BUTTON:    DELETE
+                            user.friendshipStatus == 'RequestPending'
+                            ? 
+                              Container(
+                                margin: EdgeInsets.only(right: 5.w),
+                                child: Icon(
+                                  size: 30.sp,
+                                  Icons.pending_actions,
+                                  color: const Color(0xFF00695C),
+                                ),
+                              )
+                              // Text(
+                              //   AppLocalizations.of(context)!.requestPending,
+                              //   style: TextStyle(
+                              //     color: Colors.green,
+                              //     fontSize: 15.sp,
+                              //     fontFamily: 'CenturyGothic'
+                              //   ),
+                              // )
+                            : user.friendshipStatus == 'ApprovePending'
+                            ? 
+                              Text(
+                                AppLocalizations.of(context)!.approvePending,
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 15.sp,
+                                  fontFamily: 'CenturyGothic'
+                                ),
+                              )
+                            : user.friendshipStatus == 'None'
+                            ? SizedBox(
+                              width: 40.w,
+                              height: 35.h,
+                              child: GestureDetector(
+                                onTap: () {
+                                  //! CHECK
+                                  _sendRequest(user.id);
+                                  changeFriendshipStatus(user.nickname, 'RequestPending');
+                                },
+                                
+                                child: Icon(
+                                  Icons.handshake_outlined,
+                                  color: const Color(0xFF302B25),
+                                  size: 30.sp,
+                                )
+                              ),
+                            )
+                            : user.friendshipStatus == 'Accepted' 
+                            ? Container(
+                                margin: EdgeInsets.only(right: 5.w),
+                                child: Icon(
+                                  size: 30.sp,
+                                  Icons.people_alt,
+                                  color: const Color(0xFF302B25),
+                                ),
+                              )
+                            : const SizedBox()
+                            
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),
@@ -1411,9 +1609,12 @@ class _FriendChatState extends State<FriendChat> {
   List<Message> messages = [];
 
   StreamSubscription? eventSubscriptionNewMessage;
+  StreamSubscription? _eventSubscriptionFriendOnline;
+  StreamSubscription? _eventSubscriptionFriendOffline;
 
-  late StreamSubscription<String> friendshipFriendMessages;
+  //late StreamSubscription<String> friendshipFriendMessages;
   late StreamSubscription<String> friendshipFriendMessagesReaded;
+  late StreamSubscription<String> friendshipFriendMessagesDelivered;
 
   void _scrollToBottom() {
     if (!_scrollController.hasClients) return;
@@ -1441,11 +1642,24 @@ class _FriendChatState extends State<FriendChat> {
     eventSubscriptionNewMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
       setState(() {
         messages.add(event.message);
-        GetIt.I<ApiService>().readFriendMessages(widget.friend.nickname);
+        GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollToBottom();
+      });
+    });
+
+    _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
+      setState(() {
+        widget.friend.isOnline = true;
+      });
+    });
+
+    _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
+      setState(() {
+        widget.friend.isOnline = false;
+        widget.friend.lastSeen = DateTime.now();
       });
     });
 
@@ -1463,9 +1677,33 @@ class _FriendChatState extends State<FriendChat> {
             }
           });
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            scrollToBottom();
+          EventBus().fire(FriendMessagesReadedEvent(friendId: widget.friend.id));
+
+          // WidgetsBinding.instance.addPostFrameCallback((_) {
+          //   scrollToBottom();
+          // });
+        }
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     friendshipFriendMessagesReaded Event - Friend Chat Screen: ${e.toString()}');
+      }
+    });
+
+    friendshipFriendMessagesDelivered = EventRouterService()
+        .subscribe(ServerEvent.friendshipFriendMessagesDelivered)
+        .listen((payload) async {
+      try {
+        final int friendId = json.decode(payload)['friendId'] as int;
+        if (mounted) {
+          setState(() {
+            if (friendId != widget.friend.id) return;
+            for (var msg in messages) {
+              if (msg.status != "Read") msg.status = "Delivered";
+            }
           });
+
+          // WidgetsBinding.instance.addPostFrameCallback((_) {
+          //   scrollToBottom();
+          // });
         }
       } on Exception catch (e) {
         log('EXCEPTION IN:     friendshipFriendMessagesReaded Event - Friend Chat Screen: ${e.toString()}');
@@ -1513,6 +1751,8 @@ class _FriendChatState extends State<FriendChat> {
   void dispose() {
     super.dispose();
     eventSubscriptionNewMessage?.cancel();
+    _eventSubscriptionFriendOnline?.cancel();
+    _eventSubscriptionFriendOffline?.cancel();
     friendshipFriendMessagesReaded.cancel();
     _scrollController.dispose();
     _messageController.dispose();
@@ -1535,7 +1775,7 @@ class _FriendChatState extends State<FriendChat> {
 
   void loadMessages() async {
     //await GetIt.I<ApiService>().readFriendMessages(widget.friend.nickname);
-    var allMessages = await GetIt.I<ApiService>().getAllMessagesInFriendChat(widget.friend.nickname);
+    var allMessages = await GetIt.I<ApiService>().getAllMessagesInFriendChat(widget.friend.id);
 
     if (mounted) {
       setState(() {
@@ -1547,7 +1787,7 @@ class _FriendChatState extends State<FriendChat> {
       });
     }
 
-    await GetIt.I<ApiService>().readFriendMessages(widget.friend.nickname);
+    await GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
   }
 
   @override
@@ -1712,7 +1952,7 @@ class _FriendChatState extends State<FriendChat> {
                                 //   'content': _messageController.text.trim(),
                                 // }));
                                 Map<String, dynamic>? response = await GetIt.I<ApiService>().sendNewMessageToFriend(
-                                  widget.friend.nickname, 
+                                  widget.friend.id, 
                                   _messageController.text.trim()
                                 );
                                 _scrollToBottom();
@@ -1864,7 +2104,7 @@ class Message {
   Message({required this.text, required this.isMe, required this.time, required this.id, this.status = "sent"});
 
   factory Message.fromJson(Map<String, dynamic> json) {
-    final String dateTimeString = json['lastSeen'] as String? ?? '';
+    final String dateTimeString = json['dateTime'] as String? ?? '';
     
     DateTime parsedDateTime = DateTime.now();
     
@@ -1885,7 +2125,7 @@ class Message {
     return Message(
       id: json['messageId'] as int,
       text: json['content'] as String,
-      isMe: json['nickname'] == authorizedUser.nickname ? true : false,
+      isMe: json['senderId'] == authorizedUser.id ? true : false,
       status: json['status'] ?? "sent",
       time: parsedDateTime,
     );
