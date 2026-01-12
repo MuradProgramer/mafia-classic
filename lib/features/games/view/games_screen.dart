@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mafia_classic/blocs/player_event.dart';
 import 'package:mafia_classic/features/games/game/game.dart';
 import 'package:mafia_classic/features/games/popups/games_popups.dart';
+import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/widgets.dart';
 import 'package:mafia_classic/features/widgets/validation_popup.dart';
 
@@ -17,6 +19,7 @@ import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/models/player.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
+import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/signalr_service.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
@@ -186,7 +189,7 @@ class _GamesScreenState extends State<GamesScreen> {
       });
     });
 
-    // DONE +
+    // DONE +a
     lobbyRoomCreated = EventRouterService()
         .subscribe(ServerEvent.lobbyRoomCreated)
         .listen((payload) {
@@ -206,7 +209,7 @@ class _GamesScreenState extends State<GamesScreen> {
       }
     });
 
-    // DONE +
+    // DONE +a
     lobbyPlayerEnteredRoom = EventRouterService()
         .subscribe(ServerEvent.lobbyPlayerEnteredRoom)
         .listen((payload) {
@@ -222,11 +225,11 @@ class _GamesScreenState extends State<GamesScreen> {
 
         if (playerJoinedToGame != null && allGames != null) {
           if (!allGames!
-            .firstWhere((game) => game.title == playerJoinedToGame.title)
-            .players.any((player) => player.nickname == playerJoinedToGame.player.nickname)) {
+            .firstWhere((game) => game.id == playerJoinedToGame.roomId)
+            .players.any((player) => player.id == playerJoinedToGame.player.id)) {
             setState(() {
               allGames!
-              .firstWhere((game) => game.title == playerJoinedToGame.title)
+              .firstWhere((game) => game.id == playerJoinedToGame.roomId)
               .players.add(playerJoinedToGame.player);
               searchedGames = allGames;
             });
@@ -238,7 +241,7 @@ class _GamesScreenState extends State<GamesScreen> {
       }
     });
 
-    // DONE +
+    // DONE +a
     lobbyPlayerExitedRoom = EventRouterService()
         .subscribe(ServerEvent.lobbyPlayerExitedRoom)
         .listen((payload) {
@@ -254,13 +257,13 @@ class _GamesScreenState extends State<GamesScreen> {
 
         if (playerLeftGame != null && allGames != null) {
           if (allGames!
-            .firstWhere((game) => game.title == playerLeftGame.title)
-            .players.any((player) => player.nickname == playerLeftGame.nickname)) {
+            .firstWhere((game) => game.id == playerLeftGame.roomId)
+            .players.any((player) => player.id == playerLeftGame.playerId)) {
 
             setState(() {
               allGames!
-              .firstWhere((game) => game.title == playerLeftGame.title)
-              .players.removeWhere((player) => player.nickname == playerLeftGame.nickname);
+              .firstWhere((game) => game.id == playerLeftGame.roomId)
+              .players.removeWhere((player) => player.id == playerLeftGame.playerId);
               searchedGames = allGames;
             });
           }
@@ -274,16 +277,16 @@ class _GamesScreenState extends State<GamesScreen> {
       }
     });
     
-    // DONE +
+    // DONE +a
     lobbyPlayerGameStarted = EventRouterService()
         .subscribe(ServerEvent.lobbyGameStarted)
         .listen((payload) {
-      final String? title = json.decode(payload)['title'];
+      final String? roomId = json.decode(payload)['roomId'];
 
-      if (title != null && allGames != null) {
-        if (allGames!.any((game) => game.title == title)) {
+      if (roomId != null && allGames != null) {
+        if (allGames!.any((game) => game.id == roomId)) {
           setState(() {
-            allGames!.firstWhere((game) => game.title == title).status = 'Started';
+            allGames!.firstWhere((game) => game.id == roomId).status = 'Started';
             searchedGames = allGames;
           });
         }
@@ -302,13 +305,13 @@ class _GamesScreenState extends State<GamesScreen> {
         
         var data = json.decode(payload);
         
-        final String nickname = data['nickname'];
-        final String title = data['title'];
+        final int playerId = data['playerId'];
+        final String roomId = data['roomId'];
         
         setState(() {
           allGames!
-            .firstWhere((e) => e.title == title).players
-            .firstWhere((e) => e.nickname == nickname).isAlive = false;
+            .firstWhere((e) => e.id == roomId).players
+            .firstWhere((e) => e.id == playerId).isAlive = false;
           searchedGames = allGames;
         });
       } on Exception catch (e) {
@@ -316,32 +319,32 @@ class _GamesScreenState extends State<GamesScreen> {
       }
     });
 
-    // DONE +
+    // DONE +a
     lobbyGameOver = EventRouterService()
         .subscribe(ServerEvent.lobbyGameOver)
         .listen((payload) {
-      final String? title = json.decode(payload)['title'];
+      final String? roomId = json.decode(payload)['roomId'];
 
-      if (title != null && allGames != null) {
-        if (allGames!.any((game) => game.title == title)) {
+      if (roomId != null && allGames != null) {
+        if (allGames!.any((game) => game.id == roomId)) {
           setState(() {
-            allGames!.firstWhere((game) => game.title == title).status = 'Wating';
+            allGames!.firstWhere((game) => game.id == roomId).status = 'Wating';
             searchedGames = allGames;
           });
         }
       }
     });
 
-    // DONE +
+    // DONE +a
     lobbyRoomClosed = EventRouterService()
         .subscribe(ServerEvent.lobbyRoomClosed)
         .listen((payload) {
-      final String? title = json.decode(payload)['title'];
+      final String? roomId = json.decode(payload)['roomId'];
 
-      if (title != null && allGames != null) {
-        if (allGames!.any((game) => game.title == title)) {
+      if (roomId != null && allGames != null) {
+        if (allGames!.any((game) => game.id == roomId)) {
           setState(() {
-            allGames!.removeWhere((game) => game.title == title);
+            allGames!.removeWhere((game) => game.id == roomId);
             searchedGames = allGames;
           });
         }
@@ -687,7 +690,7 @@ class Game {
     // }).toList();
 
     return Game(
-      id: json['id'],
+      id: json['roomId'],
       title: json['title'],
       //currentPlayers: json['currentPlayers'],
       //currentPlayers: json['currentPlayers'],
@@ -796,6 +799,7 @@ class _GameCardState extends State<GameCard> {
           MaterialPageRoute(builder: (context) => 
             GameLobbyScreen(
               game: Game(
+                id: widget.game.id,
                 title: widget.game.title, 
                 minPlayers: widget.game.minPlayers, 
                 maxPlayers: widget.game.maxPlayers, 
@@ -834,8 +838,8 @@ class _GameCardState extends State<GameCard> {
       }
     });
 
-    if (widget.game.players.any((e) => e.nickname == authorizedUser.nickname)) {
-      if (widget.game.players.firstWhere((e) => e.nickname == authorizedUser.nickname).isAlive) {
+    if (widget.game.players.any((e) => e.id == authorizedUser.id)) {
+      if (widget.game.players.firstWhere((e) => e.id == authorizedUser.id).isAlive) {
         text = 'You Are Playing Here';
       } else {
         text = 'You Died Here';
@@ -964,8 +968,8 @@ class _GameCardState extends State<GameCard> {
 
                     
                     final jsonString = jsonEncode({
-                      'Title': widget.game.title,
-                      'Password': password,
+                      'roomId': widget.game.id,
+                      'password': password,
                     });
 
                     TcpClientService().sendMessage(ClientCommand.joinRoom.value, jsonString);
@@ -1266,12 +1270,13 @@ class _GameCardState extends State<GameCard> {
 
 
 class Player {
-  final String id;
+  final int id;
   final String nickname;
   final String avatarUrl;
   bool isAlive;
 
   Player({
+    required this.id,
     required this.nickname, 
     required this.avatarUrl, 
     required this.isAlive
@@ -1279,6 +1284,7 @@ class Player {
 
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
+      id: json['id'],
       nickname: json['nickname'],
       avatarUrl: json['avatarUrl'],
       isAlive: json['isAlive'] as bool
@@ -1288,36 +1294,43 @@ class Player {
 
 List<Player> players = [
   Player(
+    id: -11,
     nickname: 'Player1', 
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
   Player(
+    id: -12,
     nickname: 'Player2', 
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: false
   ),
   Player(
+    id: -13,
     nickname: 'Player3', 
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
   Player(
+    id: -14,
     nickname: 'Player4', 
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
   Player(
+    id: -15,
     nickname: 'Player5', 
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
   ),
   Player(
+    id: -16,
     nickname: 'Player6', 
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: false
   ),
   Player(
+    id: -17,
     nickname: 'Player7', 
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png', 
     isAlive: true
@@ -1326,36 +1339,43 @@ List<Player> players = [
 
 List<Player> playersWithMe = [
   Player(
+    id: -1,
     nickname: 'Player1', 
     avatarUrl: 'https://example.com/avatar1.png', 
     isAlive: true
   ),
   Player(
+    id: -2,
     nickname: 'Player2', 
     avatarUrl: 'https://example.com/avatar2.png', 
     isAlive: false
   ),
   Player(
+    id: -3,
     nickname: 'Player3', 
     avatarUrl: 'https://example.com/avatar2.png', 
     isAlive: true
   ),
   Player(
+    id: -4,
     nickname: 'Player4', 
     avatarUrl: 'https://example.com/avatar2.png', 
     isAlive: true
   ),
   Player(
+    id: -5,
     nickname: 'musayev', 
     avatarUrl: 'https://example.com/avatar2.png', 
     isAlive: true
   ),
   Player(
+    id: -6,
     nickname: 'Player6', 
     avatarUrl: 'https://example.com/avatar2.png', 
     isAlive: false
   ),
   Player(
+    id: -7,
     nickname: 'Player7', 
     avatarUrl: 'https://example.com/avatar2.png', 
     isAlive: true
@@ -1532,35 +1552,35 @@ class CreateGame {
 }
 
 class PlayerJoinedGame {
-  final String title;
+  final String roomId;
   final Player player;
 
   PlayerJoinedGame({
-    required this.title, 
+    required this.roomId,
     required this.player
   });
   
   factory PlayerJoinedGame.fromJson(Map<String, dynamic> json) {
     return PlayerJoinedGame(
-      title: json['title'],
+      roomId: json['roomId'],
       player: Player.fromJson(json['player'])
     );
   }
 }
 
 class PlayerLeftGame {
-  final String title;
-  final String nickname;
+  final String roomId;
+  final int playerId;
 
   PlayerLeftGame({
-    required this.title, 
-    required this.nickname
+    required this.roomId,
+    required this.playerId
   });
   
   factory PlayerLeftGame.fromJson(Map<String, dynamic> json) {
     return PlayerLeftGame(
-      title: json['title'],
-      nickname: json['nickname']
+      roomId: json['roomId'],
+      playerId: json['playerId']
     );
   }
 }
@@ -1583,14 +1603,14 @@ class GameLobbyChatPlayer {
 }
 
 class PlayerRole {
-  final String nickname;
+  final int id;
   final String role;
 
-  PlayerRole({required this.nickname, required this.role});
+  PlayerRole({required this.id, required this.role});
 
   factory PlayerRole.fromJson(Map<String, dynamic> json) {
     return PlayerRole(
-      nickname: json['nickname'] ?? '',
+      id: json['id'] ?? 0,
       role: json['role'] ?? '',
     );
   }
@@ -1631,9 +1651,59 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   late Map<String, bool> mainRoles;
   List<String> roles = <String>[];
 
+  late StreamSubscription<String> roomStateData;
+
   @override
   void initState() {
     super.initState();
+
+    // roomStateData = EventRouterService()
+    //     .subscribe(ServerEvent.roomStateData)
+    //     .listen((payload) {
+    //   print('----- LOBBY ROOMS DATA -----');
+    //   print(payload);
+    //   final roleFlags = {
+    //     'Spy': hasSpy,
+    //     'Barman': hasBartender,
+    //     'Bodyguard': hasBodyguard,
+    //     'Doctor': hasDoctor,
+    //     'Informant': hasInformant,
+    //     'Journalist': hasJournalist,
+    //     'Beauty': hasLover,
+    //     'Terrorist': hasTerrorist,
+    //   };
+
+    //   final extras = roleFlags.entries
+    //     .where((entry) => entry.value)
+    //     .map((entry) => entry.key)
+    //     .toList();
+
+    //   Navigator.of(context, rootNavigator: true).push(
+    //     MaterialPageRoute(builder: (context) => GameLobbyScreen(
+    //         game: Game(
+    //           id: '',
+    //           title: roomName, 
+    //           minPlayers: minPlayers,
+    //           maxPlayers: maxPlayers,
+    //           status: 'Waiting',
+    //           extraRoles: extras, 
+    //           hasPassword: false, 
+    //           players: [
+    //             Player(
+    //               id: authorizedUser.id,
+    //               nickname: authorizedUser.nickname, 
+    //               avatarUrl: authorizedUser.avatarUrl, 
+    //               isAlive: true
+    //             )
+    //           ]
+    //         ),
+    //         //!!!!!!!!! CHANGE
+    //         password: '',
+    //       )
+    //     ),
+    //   );
+    // });
+
     rolesL10 = {};
   }
 
@@ -1699,31 +1769,13 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     //     extraRoles: extras
     //   )
     // );
+  }
 
-    
-    Navigator.of(context, rootNavigator: true).push(
-      MaterialPageRoute(builder: (context) => GameLobbyScreen(
-          game: Game(
-            title: roomName, 
-            minPlayers: minPlayers,
-            maxPlayers: maxPlayers,
-            status: 'Waiting',
-            extraRoles: extras, 
-            hasPassword: false, 
-            players: [
-              Player(
-                nickname: authorizedUser.nickname, 
-                avatarUrl: authorizedUser.avatarUrl, 
-                isAlive: true
-              )
-            ]
-          ),
-          //!!!!!!!!! CHANGE
-          password: '',
-        )
-      ),
-    );
-    
+  @override
+  void dispose() {
+    super.dispose();
+
+    roomStateData.cancel();
   }
 
   @override
@@ -3611,13 +3663,14 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     for (var player in widget.game.players) {
       log('nickname: ${player.nickname} | avatar url: ${player.avatarUrl} | isAlive: ${player.isAlive}');
       gameLobbyPlayers.add(LobbyPlayer(
+        id: player.id,
         nickname: player.nickname, 
         avatarUrl: player.avatarUrl, 
         isAlive: player.isAlive
       ));
     }
 
-    // DONE
+    // DONE+
     roomStateData = EventRouterService()
         .subscribe(ServerEvent.roomStateData)
         .listen((payload) {
@@ -3625,7 +3678,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       print(payload);
     });
 
-    // DONE
+    // DONE+
     roomPlayerJoined = EventRouterService()
         .subscribe(ServerEvent.roomPlayerJoined)
         .listen((payload) {
@@ -3640,6 +3693,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       setState(() {
         gameLobbyPlayers.add(player);
         widget.game.players.add(Player(
+          id: player.id,
           avatarUrl: player.avatarUrl, 
           nickname: player.nickname, 
           isAlive: true
@@ -3655,32 +3709,32 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       });
     });
 
-    // DONE
+    // DONE+
     roomPlayerLeft = EventRouterService()
         .subscribe(ServerEvent.roomPlayerLeft)
         .listen((payload) {
       if (payload.isEmpty) return;
 
-      final String nickname = json.decode(payload)['nickname'];
+      final int id = json.decode(payload)['id'];
 
       setState(() {
-        gameLobbyPlayers.removeWhere((player) => player.nickname == nickname);
-        widget.game.players.removeWhere((player) => player.nickname == nickname);
         gameLobbyChatMessages.add(
           ChatMessage(
             isSystemMessage: true, 
-            nickname: nickname, 
+            nickname: gameLobbyPlayers.firstWhere((player) => player.id == id).nickname, 
             avatarUrl: gameLobbyPlayers[0].avatarUrl,
-            text: '[$nickname] ${AppLocalizations.of(context)!.hasLeft}'
+            text: '[${gameLobbyPlayers.firstWhere((player) => player.id == id).nickname}] ${AppLocalizations.of(context)!.hasLeft}'
           )
         );
+        gameLobbyPlayers.removeWhere((player) => player.id == id);
+        widget.game.players.removeWhere((player) => player.id == id);
         if (gameLobbyPlayers.length < widget.game.minPlayers) {
           remainingTime = -1;
         }
       });
     });
 
-    // DONE
+    // DONE+
     roomTimerUpdate = EventRouterService()
         .subscribe(ServerEvent.roomTimerUpdate)
         .listen((payload) {
@@ -3693,7 +3747,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       });
     });
 
-    // DONE
+    // DONE+
     roomNewMessage = EventRouterService()
         .subscribe(ServerEvent.roomNewMessage)
         .listen((payload) {
@@ -3998,9 +4052,19 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                       PopupManager().show(
                                         context: context,
                                         id: 'inviteFriendPopup',
-                                        builder: (_) => InviteFriendPopup(
-                                          friendsList: players,
-                                        ),
+                                        builder: (_) { 
+                                          List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+                                            "all_friends_list",
+                                            (json) => Friendship.fromJson(json as Map<String, dynamic>),
+                                          );
+
+                                          currentFriends ??= [];
+
+                                          return InviteFriendPopup(
+                                            friendsList: currentFriends,
+                                            inGamePlayers: widget.game.players,
+                                          );
+                                        }
                                       );
                                     },
                                     child: Container(
@@ -4078,7 +4142,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                     Container(
                       margin: EdgeInsets.only(top: 260.h),
                       width: double.maxFinite,
-                      height: 450.h,
+                      height: 452.h,
                       decoration: BoxDecoration(
                         color: const Color(0xFF2B2B2B),
                         borderRadius: BorderRadius.circular(20.r),
@@ -4282,7 +4346,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                     GestureDetector(
                       onTap: () {
                         TcpClientService().sendMessage(ClientCommand.leaveRoom.value, "");
-                        widget.game.players.removeWhere((e) => e.nickname == authorizedUser.nickname);
+                        widget.game.players.removeWhere((e) => e.id == authorizedUser.id);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -4645,15 +4709,40 @@ class _MessageInputFieldState extends State<MessageInputField> {
 
 
 class InviteFriendPopup extends StatefulWidget {
-  final List<Player> friendsList;
+  final List<Friendship> friendsList;
+  final List<Player> inGamePlayers;
 
-  InviteFriendPopup({super.key, required this.friendsList});
+  const InviteFriendPopup({
+    super.key, 
+    required this.friendsList,
+    required this.inGamePlayers
+  });
 
   @override
   State<InviteFriendPopup> createState() => _InviteFriendPopupState();
 }
 
 class _InviteFriendPopupState extends State<InviteFriendPopup> {
+
+  List<Friendship> possibleFriendsForInvitation = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    for (var friend in widget.friendsList) {
+      if (friend.isOnline) {
+        possibleFriendsForInvitation.add(friend);
+      }
+    }
+
+    for (var player in widget.inGamePlayers) {
+      if (possibleFriendsForInvitation.any((friend) => friend.id == player.id)) {
+        possibleFriendsForInvitation.removeWhere((friend) => friend.id == player.id);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -4699,14 +4788,28 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                   )
                 ],
               ),
-        
-              Container(
+
+              (possibleFriendsForInvitation.isEmpty)
+              ? Container(
+                margin: EdgeInsets.only(top: 90.h),
+                child: Text(
+                  AppLocalizations.of(context)!.noFriendsFound,
+                  softWrap: true,
+                  maxLines: 2,
+                  style: TextStyle(
+                    fontSize: 25.sp,
+                    fontFamily: 'CenturyGothic',
+                    color: const Color(0xFFFFFFFF)
+                  ),
+                ),
+              )
+              : Container(
                 margin: EdgeInsets.only(top: 10.h),
                 height: 250.h,
                 child: ListView.builder(
                   padding: EdgeInsets.only(left: 20.w, right: 20.w),
                   shrinkWrap: true,
-                  itemCount: widget.friendsList.length,
+                  itemCount: possibleFriendsForInvitation.length,
                   itemBuilder: (context, index) {
                     return Container(
                       margin: EdgeInsets.only(top: 5.h),
@@ -4718,25 +4821,48 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                               //? CIRCLE AVATAR AND NICKNAME
                               Row(
                                 children: [
+                                  //? AVATAR
                                   CircleAvatar(
-                                    radius: 15.r,
-                                    backgroundImage: NetworkImage(widget.friendsList[index].avatarUrl),
+                                    radius: 20.r,
+                                    backgroundImage: NetworkImage(possibleFriendsForInvitation[index].avatarUrl),
                                   ),
+
                                   SizedBox(width: 10.w),
-                                  Text(
-                                    widget.friendsList[index].nickname, 
-                                    style: TextStyle(
-                                      fontSize: 15.sp, 
-                                      fontFamily: 'CenturyGothic',
-                                      color: const Color(0xFFFFFFFF)
-                                    )
-                                  ),
+
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // TEXT:    NICKNAME
+                                      Text(
+                                        possibleFriendsForInvitation[index].nickname, 
+                                        style: TextStyle(
+                                          height: 0.h,
+                                          fontSize: 16.sp, 
+                                          fontFamily: 'CenturyGothic',
+                                          color: const Color(0xFFFFFFFF)
+                                        )
+                                      ),
+
+                                      // TEXT:    IS IN GAME OR LOBBY
+                                      Text(
+                                        possibleFriendsForInvitation[index].gameTitle.isNotEmpty ? AppLocalizations.of(context)!.inGame : AppLocalizations.of(context)!.lobby,
+                                        style: TextStyle(
+                                          height: 0.h,
+                                          fontSize: 14.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          fontStyle: FontStyle.italic,
+                                          color:widget.friendsList[index].isOnline ? const Color(0xFFFFB000) : const Color(0xFFFFFFFF).withOpacity(0.6)
+                                        )
+                                      ),
+                                    ],
+                                  )
                                 ],
                               ),
                                           
                               // BUTTON:    Invite or Invited
                               GestureDetector(
                                 onTap: () {
+                                  if (!widget.friendsList[index].isOnline) return;
                                   // TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, jsonEncode({
                                   //   'type': 'friendInvitation',
                                   //   'toNickname': value[index].nickname
@@ -4745,11 +4871,14 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
-                                  height: 40.h,
-                                  width: 115.w,
+                                  height: 37.h,
+                                  width: 105.w,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(34.sp),
-                                    border: Border.all(color: const Color(0xFFFFFFFF), width: 1)
+                                    border: Border.all(
+                                      color: widget.friendsList[index].isOnline ? const Color(0xFFFFFFFF) : const Color(0xFFFFFFFF).withOpacity(0.6), 
+                                      width: 1
+                                    )
                                   ),
                                   child: Text(
                                     "Invite",
@@ -4757,7 +4886,7 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                                     style: TextStyle(
                                       fontSize: 15.sp,
                                       fontFamily: 'CenturyGothic',
-                                      color: const Color(0xFFFFFFFF),
+                                      color: widget.friendsList[index].isOnline ? const Color(0xFFFFFFFF) : const Color(0xFFFFFFFF).withOpacity(0.6),
                                     )
                                   ),
                                 ),

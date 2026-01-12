@@ -62,11 +62,13 @@ class Friend extends _Player{
 }
 
 class LobbyPlayer {
+  final int id;
   final String nickname;
   final String avatarUrl;
   final bool isAlive;
 
   LobbyPlayer({
+    required this.id,
     required this.nickname, 
     required this.avatarUrl, 
     required this.isAlive
@@ -74,6 +76,7 @@ class LobbyPlayer {
 
   factory LobbyPlayer.fromJson(Map<String, dynamic> json) {
     return LobbyPlayer(
+      id: json['id'],
       nickname: json['nickname'],
       avatarUrl: json['avatarUrl'],
       isAlive: json['isAlive'] == null ? true : json['isAlive'] as bool

@@ -384,5 +384,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "inGame": "in game"
 }

@@ -2048,6 +2048,12 @@ abstract class AppLocalizations {
   /// **'[{firstPlayerNickname}] and [{secondPlayerNickname}] are on same teams'**
   String firstplayernicknameAndSecondplayernicknameAreOnSameTeams(
       String firstPlayerNickname, String secondPlayerNickname);
+
+  /// No description provided for @inGame.
+  ///
+  /// In en, this message translates to:
+  /// **'in game'**
+  String get inGame;
 }
 
 class _AppLocalizationsDelegate

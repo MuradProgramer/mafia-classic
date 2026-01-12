@@ -138,7 +138,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
       return DateFormat('dd.MM.yyyy').format(lastSeen.toLocal());
     }
   }
-  
+
   void _loadPlayerInfo() async {
     final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo(widget.id);
     print(playerInfoData.toString());
@@ -662,9 +662,9 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         : Column(
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(top: 8.h),
+                              padding: EdgeInsets.only(top: 4.h),
                               child: Text(
-                                "${S.of(context).currentlyArePlayingIn}:",
+                                S.of(context).currentlyArePlayingIn,
                                 style: GoogleFonts.playfairDisplay(
                                   fontSize: 20.sp,
                                   color: const Color(0xFF4F4F4F)
@@ -673,7 +673,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             ),
 
                             Padding(
-                              padding: EdgeInsets.only(left: 15.w, right: 15.w, top: 10.h, bottom: 5.h),
+                              padding: EdgeInsets.only(left: 15.w, right: 15.w, top: 5.h, bottom: 5.h),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -779,7 +779,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         //? OVERALL STATS
                         Container(
                           height: 27.h,
-                          margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
+                          margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 6.h),
                           decoration: BoxDecoration(
                             color: const Color(0xFFAF977E),
                             borderRadius: BorderRadius.circular(12.sp)
@@ -1198,7 +1198,7 @@ class PlayerInfo {
 
       gameLobbyTitle: json['room'] == null ? '' : json['room']['title'] ?? '',
       gameLobbyStatus: json['room'] == null ? '' : json['room']['state'] ?? '',
-      gameLobbyPlayerCount: json['room'] == null ? -1 : json['room']['playerCount'] ?? -1,
+      gameLobbyPlayerCount: json['room'] == null ? -1 : json['room']['playersCount'] ?? -1,
     );
   }
 

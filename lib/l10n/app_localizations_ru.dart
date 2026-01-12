@@ -1094,4 +1094,7 @@ class AppLocalizationsRu extends AppLocalizations {
       String firstPlayerNickname, String secondPlayerNickname) {
     return '[$firstPlayerNickname] и [$secondPlayerNickname] находятся в одной команде';
   }
+
+  @override
+  String get inGame => 'in game';
 }

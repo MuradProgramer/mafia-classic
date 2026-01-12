@@ -323,5 +323,6 @@
   "terroristTriedToBombTargetplayerButBodyguardSavedHimher": "Terrorist tried to bomb [{targetPlayer}], but bodyguard saved him/her",
   "terroristBombardedTargetplayer": "Terrorist bombarded [{targetPlayer}]",
   "firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams": "[{firstPlayerNickname}] and [{secondPlayerNickname}] are on different teams",
-  "firstplayernicknameAndSecondplayernicknameAreOnSameTeams": "[{firstPlayerNickname}] and [{secondPlayerNickname}] are on same teams"
+  "firstplayernicknameAndSecondplayernicknameAreOnSameTeams": "[{firstPlayerNickname}] and [{secondPlayerNickname}] are on same teams",
+  "inGame": "in game"
 }

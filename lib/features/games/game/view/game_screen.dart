@@ -87,8 +87,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   bool canIUseSkill = false;
   bool iUsedSkill = false;
 
-  List<String> toWhomIUsedSkill = []; // +
-  List<String> specialForJournalist = []; // +
+  List<int> toWhomIUsedSkillId = []; // +
+  List<int> specialForJournalistId = []; // +
 
   List<PlayerRole> namesOfRevealed = []; // +
   List<PlayerRole> namesOfDead = []; // +
@@ -140,10 +140,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
   List<InGameMessage> inGameMessages = [];
 
-  void votePlayer(String votedPlayerNickname) async {
+  void votePlayer(int votedPlayerId) async {
     if (!isAliveMyself) return;
 
-    if (!inGamePlayers.value.firstWhere((el) => el.nickname == votedPlayerNickname).isAlive) return;
+    if (!inGamePlayers.value.firstWhere((el) => el.id == votedPlayerId).isAlive) return;
 
     if (markNames.any((el) => el == 'Satisfied')) return;
 
@@ -165,7 +165,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     try {
 
-      TcpClientService().sendMessage(ClientCommand.submitGameVote.value, json.encode({'target': votedPlayerNickname}));
+      TcpClientService().sendMessage(ClientCommand.submitGameVote.value, json.encode({'targetId': votedPlayerId}));
       /*
       await GetIt.I<ApiService>().gameHubConnection.invoke('Vote', args: <Object>[
         votedPlayerNickname
@@ -176,15 +176,15 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     }
   }
   
-  void useSkill(List<String> influencedBySkillPlayersNickname, bool state) async {
+  void useSkill(List<int> influencedBySkillPlayersId, bool state) async {
     if (!isAliveMyself) return;
 
     if (markNames.any((el) => el == 'Satisfied')) return;
 
     if (iUsedSkill) return;
 
-    for (var element in influencedBySkillPlayersNickname) { //!
-      if (!inGamePlayers.value.firstWhere((el) => el.nickname == element).isAlive) return; 
+    for (var element in influencedBySkillPlayersId) { //!
+      if (!inGamePlayers.value.firstWhere((el) => el.id == element).isAlive) return; 
     }
 
     // NOTE:    CHECKING ROLES
@@ -214,14 +214,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     }
   
     if (['sheriff', 'informant'].any((e) => e == widget.role.toLowerCase())) {
-      for (var nickname in influencedBySkillPlayersNickname) {
-        toWhomIUsedSkill.add(nickname);
+      for (var ids in influencedBySkillPlayersId) {
+        toWhomIUsedSkillId.add(ids);
       }
     }
 
-    if ('journalist' == widget.role.toLowerCase() && influencedBySkillPlayersNickname.length >= 2) {
-      for (var nickname in influencedBySkillPlayersNickname) {
-        toWhomIUsedSkill.add(nickname);
+    if ('journalist' == widget.role.toLowerCase() && influencedBySkillPlayersId.length >= 2) {
+      for (var ids in influencedBySkillPlayersId) {
+        toWhomIUsedSkillId.add(ids);
       }
     }
 
@@ -232,7 +232,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     //!!!!!!!!!!!!!!!
     if (state) {
-      TcpClientService().sendMessage(ClientCommand.useGameAbility.value, json.encode({'targets': influencedBySkillPlayersNickname}));
+      TcpClientService().sendMessage(ClientCommand.useGameAbility.value, json.encode({'targets': influencedBySkillPlayersId}));
       canIUseSkill = false;
     }
   }
@@ -280,7 +280,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     
     //inGamePlayers.value.removeWhere((p) => p.nickname == authorizedUser.nickname);
     //inGamePlayers.value.insert(0, authorizedPlayer);
-    filteredPlayers = inGamePlayers.value.where((p) => p.nickname != authorizedUser.nickname);
+    filteredPlayers = inGamePlayers.value.where((p) => p.id != authorizedUser.id);
     //filteredPlayers = inGamePlayers.value.where((p) => p.nickname != '${authorizedUser.nickname}ahgziiqedqw');
     // _audioPlayer.setAsset('assets/sounds/sawtrack.m4a');
 
@@ -389,6 +389,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
           inGamePlayers.value.add(
             InGamePlayer(
+              id: authorizedUser.id,
               nickname: authorizedUser.nickname,
               isAlive: isAlive,
               avatarUrl: authorizedUser.avatarUrl,
@@ -399,11 +400,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           );
 
           for (PlayersFromAfk el in players) {
-            List<String> playerVotesTEMP = [];
+            List<int> playerVotesTEMP = [];
 
             for (Vote vote in votes) {
-              if (vote.target == el.nickname) {
-                playerVotesTEMP.add(vote.from);
+              if (vote.targetId == el.id) {
+                playerVotesTEMP.add(vote.fromId);
               }
             }
 
@@ -412,6 +413,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
             inGamePlayers.value.add(
               InGamePlayer(
+                id: el.id,
                 nickname: el.nickname,
                 isAlive: el.isAlive,
                 avatarUrl: el.avatarUrl,
@@ -422,17 +424,17 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             );
 
             if ((role == 'Sheriff' || role == 'Informant') && el.isMarked == true) {
-              namesOfRevealed.add(PlayerRole(nickname: el.nickname, role: el.role!));
+              namesOfRevealed.add(PlayerRole(id: el.id, role: el.role!));
             }
 
             if (!el.isAlive) {
-              namesOfDead.add(PlayerRole(nickname: el.nickname, role: el.role!));
+              namesOfDead.add(PlayerRole(id: el.id, role: el.role!));
             }
 
             if (el.isMarked == true) {
-              toWhomIUsedSkill.add(el.nickname);
+              toWhomIUsedSkillId.add(el.id);
               if (role == 'Journalist') {
-                specialForJournalist.add(el.nickname);
+                specialForJournalistId.add(el.id);
               }
             }
           }
@@ -684,19 +686,19 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         
         var data = json.decode(payload);
 
-        bool colorHasOpacity = false;
+        bool colorHasOpacity = data['isAlive'] as bool ? false : true;
         
-        if (inGamePlayers.value.any((player) => player.nickname == data['nickname'])) {
-          if (!inGamePlayers.value.firstWhere((player) => player.nickname == data['nickname']).isAlive) {
-            colorHasOpacity = true;
-          }
-        } else {
-          if (data['nickname'] == authorizedUser.nickname) {
-            if (!isAliveMyself) {
-              colorHasOpacity = true;
-            }
-          }
-        }
+        // if (inGamePlayers.value.any((player) => player.nickname == data['nickname'])) {
+        //   if (!inGamePlay ers.value.firstWhere((player) => player.nickname == data['nickname']).isAlive) {
+        //     colorHasOpacity = true;
+        //   }
+        // } else {
+        //   if (data['nickname'] == authorizedUser.nickname) {
+        //     if (!isAliveMyself) {
+        //       colorHasOpacity = true;
+        //     }
+        //   }
+        // }
         
         setState(() {
           inGameMessages.add(InGameMessage(
@@ -720,10 +722,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         if (payload.isEmpty) return;
         var data = json.decode(payload);
         
-        final String from = data['from'];
-        final String target = data['target'];
+        final int from = data['fromId'];
+        final int target = data['targetId'];
         setState(() {
-          inGamePlayers.value.firstWhere((el) => el.nickname == target).votesOfPlayer!.add(from);
+          inGamePlayers.value.firstWhere((el) => el.id == target).votesOfPlayer!.add(from);
           inGamePlayers.notifyListeners();
           //print('Voted: $from -> $target');
         });
@@ -734,7 +736,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     void playerDeadEvent(PlayerRole playerDead) {
       setState(() {
-        if (playerDead.nickname == authorizedUser.nickname) {
+        if (playerDead.id == authorizedUser.id) {
           youAreDead();
           if (['Mafia', 'Terrorist', 'Beauty', 'Barman'].any((e) => e == playerDead.role)) {
             mafiaAlive -= 1;
@@ -745,13 +747,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           checkIfEligibleToSendMessage();
           return;
         }
-      
-        inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isAlive = false;
-        inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).role = playerDead.role;
-        inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).isRevealed = true;
-        inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == playerDead.nickname).votesOfPlayer = [];
+
+        inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).isAlive = false;
+        inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).role = playerDead.role;
+        inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).isRevealed = true;
+        inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).votesOfPlayer = [];
         inGamePlayers.notifyListeners();
-        namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
+        namesOfDead.add(PlayerRole(id: playerDead.id, role: playerDead.role));
       
         if (['Mafia', 'Terrorist', 'Barman', 'Informant'].any((s) => s == playerDead.role)) {
           mafiaAlive -= 1;
@@ -771,13 +773,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         }
         
         var data = json.decode(payload);
-        final String nickname = data['nickname'];
+        final String nickname = inGamePlayers.value.firstWhere((el) => el.id == data['id']).nickname;
         final String role = data['role'];
         final String phaseCheck = data['phase'];
         log('------------- $phaseCheck --------------');
         log('------------- ${phaseCheck == 'NightVoting'} --------------');
         
-        playerDeadEvent(PlayerRole(nickname: nickname, role: role));
+        playerDeadEvent(PlayerRole(id: data['id'], role: role));
 
         setState(() {
           inGameMessages.add(InGameMessage(
@@ -807,16 +809,16 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
         var data = json.decode(payload);
 
-        final String terroristNickname = data['terroristNickname'];
+        final int terroristId = data['terroristId'];
         PlayerRole targetPlayer = PlayerRole.fromJson(data['targetPlayer'] as Map<String, dynamic>);
         final bool isProtected = data['targetProtected'] as bool;
         
-        String content = AppLocalizations.of(context)!.terroristTriedToBombTargetplayerButBodyguardSavedHimher(targetPlayer.nickname);
+        String content = AppLocalizations.of(context)!.terroristTriedToBombTargetplayerButBodyguardSavedHimher(inGamePlayers.value.firstWhere((el) => el.id == targetPlayer.id).nickname);
         if (!isProtected) {
-          content = AppLocalizations.of(context)!.terroristBombardedTargetplayer(targetPlayer.nickname);
+          content = AppLocalizations.of(context)!.terroristBombardedTargetplayer(inGamePlayers.value.firstWhere((el) => el.id == targetPlayer.id).nickname);
           playerDeadEvent(targetPlayer);
         }
-        playerDeadEvent(PlayerRole(nickname: terroristNickname, role: 'Terrorist'));
+        playerDeadEvent(PlayerRole(id: terroristId, role: 'Terrorist'));
         
         setState(() {
           inGameMessages.add(InGameMessage(
@@ -842,9 +844,12 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
         var data = json.decode(payload);
 
-        final String firstPlayerNickname = data['firstPlayerNickname'];
-        final String secondPlayerNickname = data['secondPlayerNickname'];
+        final int firstPlayerId = data['firstPlayerId'];
+        final int secondPlayerId = data['secondPlayerId'];
         final bool areSameTeam = data['areSameTeam'] as bool;
+
+        final String firstPlayerNickname = inGamePlayers.value.firstWhere((el) => el.id == firstPlayerId).nickname;
+        final String secondPlayerNickname = inGamePlayers.value.firstWhere((el) => el.id == secondPlayerId).nickname;
 
         String content = AppLocalizations.of(context)!.firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams(firstPlayerNickname, secondPlayerNickname);
         if (areSameTeam) {
@@ -865,7 +870,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         log('EXCEPTION IN:     gameJournalistInterview - GAME SCREEN: ${e.toString()}');
       }
     });
-
     
     // DONE 
     gameEffectApplied = EventRouterService()
@@ -927,9 +931,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         PlayerRole player = PlayerRole.fromJson(playerDto);
         
         setState(() {
-          inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == player.nickname).isRevealed = true;
-          inGamePlayers.value.firstWhere((inplayer) => inplayer.nickname == player.nickname).role = player.role.toLowerCase();
-          namesOfRevealed.add(PlayerRole(nickname: player.nickname, role: player.role.toLowerCase()));
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.id == player.id).isRevealed = true;
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.id == player.id).role = player.role.toLowerCase();
+          namesOfRevealed.add(PlayerRole(id: player.id, role: player.role.toLowerCase()));
         });
       } on Exception catch (e) {
         log('EXCEPTION IN:     MYSTERY EVENT - GAME SCREEN: ${e.toString()}');
@@ -1187,10 +1191,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       });
       */
     } else {
-      Map<String, String> roleMap = {};
+      Map<int, String> roleMap = {};
       if (widget.playersRole != null) {
         for (var element in widget.playersRole!) {
-          roleMap[element.nickname] = element.role;
+          roleMap[element.id] = element.role;
         }
       }
 
@@ -1198,10 +1202,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //if (item.nickname == authorizedUser.nickname) continue;
         inGamePlayers.value.add(InGamePlayer(
+          id: item.id,
           nickname: item.nickname,
           isAlive: true,
-          isRevealed: roleMap[item.nickname] == null ? false : true,
-          role: roleMap[item.nickname] ?? 'undef',
+          isRevealed: roleMap[item.id] == null ? false : true,
+          role: roleMap[item.id] ?? 'undef',
           avatarUrl: item.avatarUrl,
           votesOfPlayer: []
         ));
@@ -1781,11 +1786,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
   bool checkSecondIfEligibleToUseSkill(InGamePlayer player) {
     if (widget.role == 'Journalist') {
-      if (specialForJournalist.any((el) => el == player.nickname)) {
+      if (specialForJournalistId.any((el) => el == player.id)) {
         return false;
       }
     } else {
-      if(toWhomIUsedSkill.contains(player.nickname)) {
+      if(toWhomIUsedSkillId.contains(player.id)) {
         return false;
       }
     }
@@ -1864,7 +1869,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     */
   }
 
-
   String getCardImage(InGamePlayer player) {
     if (player.role == '') {
       return "assets/images/default.png";
@@ -1874,7 +1878,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       return 'assets/images/${player.role!.toLowerCase()}-dead.png';
     }
 
-    if (player.nickname == authorizedUser.nickname) {
+    if (player.id == authorizedUser.id) {
       return 'assets/images/${player.role!.toLowerCase()}.png';
     }
 
@@ -2171,7 +2175,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                       
                             SizedBox(height: 10.w),
                             
-                            //? DAY AND NIGHT PART
+                            //? DAY AND NIGHT PART ++++++
                             //DONE:    DYNAMIC
                             Container(
                               width: double.maxFinite,
@@ -2524,7 +2528,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                       aliveCivilianCount: civilianAlive,
                                                       timerNotifier: phaseTimeNotifier,
                                                       civilianCount: widget.civilianCount,
-                                                      toWhomIUsedSkill: toWhomIUsedSkill,
+                                                      toWhomIUsedSkillId: toWhomIUsedSkillId,
                                                     )
                                                   );
                                                   
@@ -2613,6 +2617,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 5.h),
                                   decoration: BoxDecoration(
                                     color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFECC5) : const Color(0xFF1E1E1E),
                                     border: Border.all(
@@ -3439,8 +3444,8 @@ class VotePopup extends StatefulWidget {
   final List<String> markNames;
   final ValueNotifier<int> timerNotifier;
   final ValueNotifier<List<InGamePlayer>> inGamePlayers;
-  final void Function(String votedPlayerNickname) votePlayer;
-  final void Function(List<String> toWhomIUsedSkill, bool state) useSkill;
+  final void Function(int votedPlayerNickname) votePlayer;
+  final void Function(List<int> toWhomIUsedSkill, bool state) useSkill;
 
   const VotePopup({
     super.key, 
@@ -3470,7 +3475,7 @@ class VotePopup extends StatefulWidget {
 class _VotePopupState extends State<VotePopup> {
   bool iVotedCompletely = false;
   bool iVotedPartially = false;
-  String toWhomIVoted = '';
+  int toWhomIVotedId = -1;
 
   bool isPopupClosed = false;
 
@@ -3504,7 +3509,7 @@ class _VotePopupState extends State<VotePopup> {
   bool canIVotePopup(InGamePlayer player) {
     if (!widget.isAliveMyself) return false;
 
-    if (widget.inGamePlayers.value[0].nickname == player.nickname) return false;
+    if (widget.inGamePlayers.value[0].id == player.id) return false;
 
     if (!player.isAlive) return false;
 
@@ -3915,7 +3920,7 @@ class _VotePopupState extends State<VotePopup> {
                                                                 ? Colors.black 
                                                                 : Colors.white,
                                                                 fontFamily: 'CenturyGothic',
-                                                                fontWeight: player.nickname == authorizedUser.nickname ? FontWeight.w700 : FontWeight.w400
+                                                                fontWeight: player.id == authorizedUser.id ? FontWeight.w700 : FontWeight.w400
                                                               )
                                                             ),
                                                           ],
@@ -3941,25 +3946,25 @@ class _VotePopupState extends State<VotePopup> {
                                                             ),
                                                             
                                                             SizedBox(
-                                                              width: (player.nickname != authorizedUser.nickname) ? 90.w : 70.w,
-                                                              height: (player.nickname != authorizedUser.nickname) ? 37.h : 20.h,
-                                                              child: (player.nickname != authorizedUser.nickname) 
+                                                              width: (player.id != authorizedUser.id) ? 90.w : 70.w,
+                                                              height: (player.id != authorizedUser.id) ? 37.h : 20.h,
+                                                              child: (player.id != authorizedUser.id) 
                                                               ? ElevatedButton(
                                                                 onPressed: () {
                                                                   setState(() {
                                                                     if (canIVotePopup(player)) {
                                                                       iVotedPartially = true;
-                                                                      toWhomIVoted = player.nickname;
+                                                                      toWhomIVotedId = player.id;
                                                                     }
                                                                   });
                                                                   //!
                                                                 },
                                                                 style: ElevatedButton.styleFrom(
                                                                   backgroundColor: canIVotePopup(player) 
-                                                                    ? iVotedPartially && !iVotedCompletely && toWhomIVoted == player.nickname
+                                                                    ? iVotedPartially && !iVotedCompletely && toWhomIVotedId == player.id
                                                                       ? const Color(0xFFFFB000)
                                                                       : Colors.transparent
-                                                                    : toWhomIVoted == player.nickname 
+                                                                    : toWhomIVotedId == player.id 
                                                                       ? const Color(0xFFFFB000) 
                                                                       : Colors.transparent, //! DYNAMIC
                                                                   shadowColor: Colors.transparent,
@@ -4028,7 +4033,7 @@ class _VotePopupState extends State<VotePopup> {
                                                       final voter = player.votesOfPlayer![index];
                                                   
                                                       final playerData = widget.inGamePlayers.value.firstWhere(
-                                                        (e) => e.nickname == voter,
+                                                        (e) => e.id == voter,
                                                       );
                                                   
                                                       return Row(
@@ -4050,7 +4055,7 @@ class _VotePopupState extends State<VotePopup> {
                                                           SizedBox(
                                                             width: 80.w,
                                                             child: Text(
-                                                              voter,
+                                                              widget.inGamePlayers.value.firstWhere((e) => e.id == voter).nickname,
                                                               textAlign: TextAlign.center,
                                                               softWrap: true,
                                                               maxLines: 2,
@@ -4129,10 +4134,10 @@ class _VotePopupState extends State<VotePopup> {
                                           });
                                   
                                           if (widget.role.toLowerCase() == 'terrorist') {
-                                            widget.useSkill([toWhomIVoted], true);
+                                            widget.useSkill([toWhomIVotedId], true);
                                             return;
                                           }
-                                          widget.votePlayer(toWhomIVoted);
+                                          widget.votePlayer(toWhomIVotedId);
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.white,
@@ -4208,12 +4213,12 @@ class SkillPopup extends StatefulWidget {
 
   final bool iUsedSkill;
   final bool canIUseSkill;
-  final List<String> toWhomIUsedSkill;
+  final List<int> toWhomIUsedSkillId;
   
   final ValueNotifier<int> timerNotifier;
   final ValueNotifier<List<InGamePlayer>> inGamePlayers;
 
-  final void Function(List<String> influencedBySkillPlayersNickname, bool state) useSkill;
+  final void Function(List<int> influencedBySkillPlayersId, bool state) useSkill;
 
   const SkillPopup({
     super.key, 
@@ -4228,7 +4233,7 @@ class SkillPopup extends StatefulWidget {
     required this.timerNotifier,
     required this.inGamePlayers,
     required this.aliveMafiaCount,
-    required this.toWhomIUsedSkill,
+    required this.toWhomIUsedSkillId,
     required this.aliveCivilianCount
   });
 
@@ -4237,7 +4242,7 @@ class SkillPopup extends StatefulWidget {
 }
 
 class _SkillPopupState extends State<SkillPopup> {
-  List<String> toWhomIVotedNow = [];
+  List<int> toWhomIVotedNow = [];
   bool tempStateIUsedSkill = false;
 
   bool isPopupClosed = false;
@@ -4572,10 +4577,10 @@ class _SkillPopupState extends State<SkillPopup> {
                                               if (tempStateIUsedSkill || widget.iUsedSkill) {
                                                 return;
                                               }
-                                              if (toWhomIVotedNow.contains(player.nickname)) {
+                                              if (toWhomIVotedNow.contains(player.id)) {
                                                 return;
                                               }
-                                              if (widget.toWhomIUsedSkill.contains(player.nickname)) {
+                                              if (widget.toWhomIUsedSkillId.contains(player.id)) {
                                                 return;
                                               }
                                               if (!player.isAlive) {
@@ -4586,7 +4591,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                               //   log('toWhomIUsedSkill: $nick');
                                               // }
                                               // print('iUsedSkill: ${widget.iUsedSkill}');
-                                              toWhomIVotedNow.add(player.nickname);
+                                              toWhomIVotedNow.add(player.id);
 
                                               if (widget.role != 'Journalist') {
                                                 tempStateIUsedSkill = true;
@@ -4624,12 +4629,12 @@ class _SkillPopupState extends State<SkillPopup> {
                                               // print('+++++++++++++++++++++++++++');
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: toWhomIVotedNow.contains(player.nickname) && player.isAlive ? const Color(0xFFFFB000) : Colors.transparent,
+                                              backgroundColor: toWhomIVotedNow.contains(player.id) && player.isAlive ? const Color(0xFFFFB000) : Colors.transparent,
                                               shadowColor: Colors.transparent,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(34.r),
                                                 side: BorderSide(
-                                                  color: (!tempStateIUsedSkill && !widget.iUsedSkill) && !widget.toWhomIUsedSkill.contains(player.nickname) && player.isAlive
+                                                  color: (!tempStateIUsedSkill && !widget.iUsedSkill) && !widget.toWhomIUsedSkillId.contains(player.id) && player.isAlive
                                                     ? (!fromMafiaTeam ? Colors.black : Colors.white)
                                                     : (!fromMafiaTeam ? Colors.black.withOpacity(0.4) : Colors.white.withOpacity(0.4)),
                                                   width: 1,
@@ -4643,7 +4648,7 @@ class _SkillPopupState extends State<SkillPopup> {
                                               style: TextStyle(
                                                 fontSize: 15.sp,
                                                 fontFamily: 'CenturyGothic',
-                                                color: (!tempStateIUsedSkill && !widget.iUsedSkill) && !widget.toWhomIUsedSkill.contains(player.nickname) && player.isAlive
+                                                color: (!tempStateIUsedSkill && !widget.iUsedSkill) && !widget.toWhomIUsedSkillId.contains(player.id) && player.isAlive
                                                   ? (!fromMafiaTeam ? Colors.black : Colors.white)
                                                   : (!fromMafiaTeam ? Colors.black.withOpacity(0.4) : Colors.white.withOpacity(0.4)),
                                               ),
@@ -4755,6 +4760,7 @@ class _AnimatedImageButtonState extends State<AnimatedImageButton> with SingleTi
 }
 
 class PlayersFromAfk {
+  final int id;
   final String nickname;
   bool isAlive;
   String? role;
@@ -4762,6 +4768,7 @@ class PlayersFromAfk {
   bool? isMarked;
 
   PlayersFromAfk({
+    required this.id,
     required this.nickname, 
     required this.isAlive, 
     required this.role,
@@ -4772,6 +4779,7 @@ class PlayersFromAfk {
   factory PlayersFromAfk.fromJson(Map<String, dynamic> json) {
 
     return PlayersFromAfk(
+      id: json['id'],
       nickname: json['nickname'],
       isAlive: json['isAlive'],    
       role: json['role'],    
@@ -4782,15 +4790,15 @@ class PlayersFromAfk {
 }
 
 class Vote {
-  final String from;
-  final String target;
+  final int fromId;
+  final int targetId;
 
-  Vote({required this.from, required this.target});
+  Vote({required this.fromId, required this.targetId});
 
   factory Vote.fromJson(Map<String, dynamic> json) {
     return Vote(
-      from: json['from'] ?? '',
-      target: json['target'] ?? '',
+      fromId: json['fromId'] ?? 0,
+      targetId: json['targetId'] ?? 0,
     );
   }
 }

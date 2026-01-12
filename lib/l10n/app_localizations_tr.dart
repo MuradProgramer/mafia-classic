@@ -1101,4 +1101,7 @@ class AppLocalizationsTr extends AppLocalizations {
       String firstPlayerNickname, String secondPlayerNickname) {
     return '[$firstPlayerNickname] and [$secondPlayerNickname] are on same teams';
   }
+
+  @override
+  String get inGame => 'in game';
 }

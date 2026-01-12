@@ -11,67 +11,74 @@ import 'package:mafia_classic/utils/popup_utils.dart';
 
 List<PlayerRole> players = [
   PlayerRole(
-    nickname: 'Player1001',
+    id: -1,
     role: 'Doctor'
   ),
   PlayerRole(
-    nickname: 'Player2',
+    id: -2,
     role: 'Citizen'
   ),
   PlayerRole(
-    nickname: 'Player3aaaa',
+    id: -3,
     role: 'Mafia'
   ),
   PlayerRole(
-    nickname: 'Player4', 
+    id: -4,
     role: 'Citizen'
   ),
   PlayerRole(
-    nickname: 'Pl5',
+    id: -5,
     role: 'Citizen'
   ),
   PlayerRole(
-    nickname: 'Player6',
+    id: -6,
     role: 'Terrorist'
   ),
   PlayerRole(
-    nickname: 'Player7',
+    id: -7,
     role: 'Barman'
   ),
 ];
 
 List<Player> allPlayers = [
   Player(
+    id: -1,
     nickname: 'Player1001',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
   Player(
+    id: -2,
     nickname: 'Player2',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
   Player(
+    id: -3,
     nickname: 'Player3aaaa',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
   Player(
+    id: -4,
     nickname: 'Player4',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
   Player(
+    id: -5,
     nickname: 'Pl5',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
   Player(
+    id: -6,
     nickname: 'Player6',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'
   ),
   Player(
+    id: -7,
     nickname: 'Player7',
     isAlive: true,
     avatarUrl: 'https://www.w3schools.com/w3images/avatar6.png'

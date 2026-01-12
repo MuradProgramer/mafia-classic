@@ -323,5 +323,6 @@
   "terroristTriedToBombTargetplayerButBodyguardSavedHimher": "Террорист попытался взорвать [{targetPlayer}], но телохранитель спас его/её",
   "terroristBombardedTargetplayer": "Террорист взорвал [{targetPlayer}]",
   "firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams": "[{firstPlayerNickname}] и [{secondPlayerNickname}] находятся в разных командах",
-  "firstplayernicknameAndSecondplayernicknameAreOnSameTeams": "[{firstPlayerNickname}] и [{secondPlayerNickname}] находятся в одной команде"
+  "firstplayernicknameAndSecondplayernicknameAreOnSameTeams": "[{firstPlayerNickname}] и [{secondPlayerNickname}] находятся в одной команде",
+  "inGame": "in game"
 }
