@@ -862,6 +862,56 @@ class ApiService extends TokenAwareService {
     return status;
   }
 
+
+  // DONE partially
+  Future<bool> acceptInviteToRoom(String roomId) async {
+    bool status = false;
+    await executeWithTokenCheck((accessToken) async {
+      final response = await GetIt.I<DioService>().dio.post(
+        'room/$roomId/accept',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        status = true;
+      } else if (response.statusCode == 409) {
+        // 
+      } 
+    });
+    return status;
+  }
+
+  // DONE partially
+  Future<bool> sendInviteToRoom(int friendId) async {
+    bool status = false;
+    await executeWithTokenCheck((accessToken) async {
+    try {
+        final response = await GetIt.I<DioService>().dio.post(
+          'room/invite/$friendId',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          status = true;
+        } else if (response.statusCode == 400) {
+          // 
+        } 
+      } catch (e) {
+        log("Send Invite Error: ${e.toString()}");
+      }
+    });
+    return status;
+  }
+
+
   // CHAAAAAAAAAAAAAAAAAAATTT
 
   // token, nickname         token nickname - chati   -   GET CHAT

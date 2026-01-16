@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/utils/snackbar.dart';
 
 class EnterMessage extends StatefulWidget {
   final TextEditingController messageController;
@@ -50,12 +51,18 @@ class _EnterMessageState extends State<EnterMessage> {
             ),
           ),
         ),
-        widget.canISendMessage 
-          ? IconButton(
-            icon: Icon(Icons.send, color: Colors.white, size: 25.sp),
-            onPressed: widget.sendMessage,
-          ) 
-          : const SizedBox(),
+        //widget.canISendMessage 
+        IconButton(
+          icon: Icon(Icons.send, color: Colors.white, size: 25.sp),
+          onPressed: () {
+            if (widget.canISendMessage) {
+              widget.sendMessage();
+              return;
+            }
+            TopSnackBarManager.show({"message": "You are not elligible to send message right now"}, 1);
+          },
+        ) 
+          //: const SizedBox(),
       ],
     );
   }

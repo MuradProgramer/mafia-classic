@@ -72,6 +72,17 @@ class FriendRequestDeclinedEvent {
   FriendRequestDeclinedEvent(this.playerId);
 }
 
+class FriendJoinedRoomEvent {
+  final int friendId;
+  final String gameTitle;
+  FriendJoinedRoomEvent(this.friendId, this.gameTitle);
+}
+
+class FriendLeftRoomEvent {
+  final int friendId;
+  FriendLeftRoomEvent(this.friendId);
+}
+
 // class FriendUnreadMessagesEvent {
 //   final int id;
 //   final int unreadCount;

@@ -31,7 +31,7 @@ class GeneralCacheService {
     }
     
     if (data is List) {
-      print("GENERAL CACHE SERVICE LOG: $data");
+      //print("GENERAL CACHE SERVICE LOG: $data");
       await _saveList(key, data);
       return;
     }
@@ -79,7 +79,7 @@ class GeneralCacheService {
 
     final decoded = jsonDecode(stored);
 
-    print("Decoded in loadList: $decoded");
+    //print("Decoded in loadList: $decoded");
 
     if (decoded is List) {
       final mappedList = decoded.map((item) => fromJson(item)).toList();
@@ -107,7 +107,7 @@ class GeneralCacheService {
     
     if (data.first is JsonModel) {
       final list = data.map((e) => (e as JsonModel).toJson()).toList();
-      print("GENERAL CACHE SERVICE LOG - SAVING LIST OF MODELS: ${jsonEncode(list)}}");
+      //print("GENERAL CACHE SERVICE LOG - SAVING LIST OF MODELS: ${jsonEncode(list)}}");
       await _prefs.setString(key, jsonEncode(list));
       return;
     }

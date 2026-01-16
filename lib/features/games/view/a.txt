@@ -1,0 +1,583 @@
+class GamesScreen extends StatefulWidget {
+  final User user;
+
+  const GamesScreen({
+    super.key, 
+    required this.user
+  });
+
+  @override
+  State<GamesScreen> createState() => _GamesScreenState();
+}
+
+class _GamesScreenState extends State<GamesScreen> {
+  String text = '';
+
+  List<Game>? allGames = [];
+  List<Game>? searchedGames = [];
+
+  GameFilters currentFilters = GameFilters(
+    accessState: 0,
+
+    minPlayers: 5,
+    maxPlayers: 8,
+
+    hasSpy: false,
+    hasLover: false,
+    hasBodyguard: false,
+    hasJournalist: false,
+    hasTerrorist: false,
+    hasBartender: false,
+    hasInformant: false,
+
+    roomsWithSpace: false,
+  );
+
+  void applyFilters(GameFilters filters) {
+    setState(() {
+      currentFilters = filters;
+      if (allGames != null) {
+        searchedGames = allGames!.where((game) {
+          if (game.players.length < filters.minPlayers || game.players.length > filters.maxPlayers) return false;
+          if (game.players.length == filters.maxPlayers) return false; // || OR GAME IS STARTED
+          if (filters.accessState == 1 && game.hasPassword) return false;
+          if (filters.accessState == 2 && !game.hasPassword) return false;
+
+          List<String> requiredRoles = [];
+          if (filters.hasBodyguard) requiredRoles.add('Bodyguard');
+          if (filters.hasLover) requiredRoles.add('Beauty');
+          if (filters.hasTerrorist) requiredRoles.add('Journalist');
+          if (filters.hasTerrorist) requiredRoles.add('Spy');
+
+          if (filters.hasTerrorist) requiredRoles.add('Terrorist');
+          if (filters.hasTerrorist) requiredRoles.add('Informant');
+          if (filters.hasTerrorist) requiredRoles.add('Barman');
+
+          if (requiredRoles.isNotEmpty) {
+            for (final role in requiredRoles) {
+              if (!game.extraRoles.contains(role)) return false;
+            }
+          }
+
+          return true;
+        }).toList();
+      }
+    });
+  }
+
+  Future<void> openFilterizationScreen() async {
+    final filters = await Navigator.push<GameFilters>(
+      context,
+      MaterialPageRoute(builder: (_) => FilterizationScreen(filters: currentFilters)),
+    );
+
+    if (filters != null) {
+      applyFilters(filters);
+    }
+  }
+
+  final TextEditingController _searchController = TextEditingController();
+
+
+  //? STREAMS
+  late StreamSubscription<String> lobbyRooms;
+  late StreamSubscription<String> lobbyRoomCreated;
+  late StreamSubscription<String> lobbyPlayerEnteredRoom;
+  late StreamSubscription<String> lobbyPlayerExitedRoom;
+  late StreamSubscription<String> lobbyPlayerGameStarted;
+  late StreamSubscription<String> lobbyPlayerEliminated;
+  late StreamSubscription<String> lobbyGameOver;
+  late StreamSubscription<String> lobbyRoomClosed;
+
+  void loadStreamsAndData() {
+    TcpClientService().sendMessage(ClientCommand.getRooms.value, ""); //? lobbyRooms
+    log('*************SEND MESSAGE IS SUCCEFULL*************');
+
+    // DONE +
+    lobbyRooms = EventRouterService()
+        .subscribe(ServerEvent.lobbyRooms)
+        .listen((payload) {
+      final List<dynamic> jsonData = json.decode(payload)['rooms'];
+      setState(() {
+        final games = jsonData.map((gameJson) {
+          return Game.fromJson(gameJson as Map<String, dynamic>);
+        }).toList();
+
+        final List<Game>? gamesList = games;
+
+        if (gamesList != null) {
+          setState(() {
+            allGames = gamesList;
+            searchedGames = allGames;
+          });
+        }
+      });
+    });
+
+    // DONE +a
+    lobbyRoomCreated = EventRouterService()
+        .subscribe(ServerEvent.lobbyRoomCreated)
+        .listen((payload) {
+      try {
+        final Map<String, dynamic> jsonData = json.decode(payload);
+
+        final Game? game = Game.fromJson(jsonData);
+        if (game != null) {
+        setState(() {
+          allGames?.add(game);
+          searchedGames = allGames;
+        });
+      }
+      } catch (e) {
+        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\n$e");
+        return;
+      }
+    });
+
+    // DONE +a
+    lobbyPlayerEnteredRoom = EventRouterService()
+        .subscribe(ServerEvent.lobbyPlayerEnteredRoom)
+        .listen((payload) {
+      if (payload.isEmpty) {
+        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\nNo data received.");
+        return;
+      }
+
+      try {
+        final dynamic jsonData = json.decode(payload);
+
+        final PlayerJoinedGame? playerJoinedToGame = PlayerJoinedGame.fromJson(jsonData as Map<String, dynamic>);
+
+        if (playerJoinedToGame != null && allGames != null) {
+          if (!allGames!
+            .firstWhere((game) => game.id == playerJoinedToGame.roomId)
+            .players.any((player) => player.id == playerJoinedToGame.player.id)) {
+            setState(() {
+              allGames!
+              .firstWhere((game) => game.id == playerJoinedToGame.roomId)
+              .players.add(playerJoinedToGame.player);
+              searchedGames = allGames;
+            });
+          }
+        }
+      } catch (e) {
+        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\n$e");
+        return;
+      }
+    });
+
+    // DONE +a
+    lobbyPlayerExitedRoom = EventRouterService()
+        .subscribe(ServerEvent.lobbyPlayerExitedRoom)
+        .listen((payload) {
+      if (payload.isEmpty) {
+        log("Event Router Service Error: GAMES SCREEN | LOBBY PLAYER EXITED ROOM\nNo data received.");
+        return;
+      }
+
+      try {
+        final dynamic jsonData = json.decode(payload);
+
+        final PlayerLeftGame? playerLeftGame = PlayerLeftGame.fromJson(jsonData as Map<String, dynamic>);
+
+        if (playerLeftGame != null && allGames != null) {
+          if (allGames!
+            .firstWhere((game) => game.id == playerLeftGame.roomId)
+            .players.any((player) => player.id == playerLeftGame.playerId)) {
+
+            setState(() {
+              allGames!
+              .firstWhere((game) => game.id == playerLeftGame.roomId)
+              .players.removeWhere((player) => player.id == playerLeftGame.playerId);
+              searchedGames = allGames;
+            });
+          }
+          else {
+            log('Event Router Service Info: GAMES SCREEN | LOBBY PLAYER EXITED ROOM -> There is no player with this nickname');
+          }
+        }
+      } catch (e) {
+        log("Event Router Service Error: GAMES SCREEN | LOBBY PLAYER EXITED ROOM\n$e");
+        return;
+      }
+    });
+    
+    // DONE +a
+    lobbyPlayerGameStarted = EventRouterService()
+        .subscribe(ServerEvent.lobbyGameStarted)
+        .listen((payload) {
+      final String? roomId = json.decode(payload)['roomId'];
+
+      if (roomId != null && allGames != null) {
+        if (allGames!.any((game) => game.id == roomId)) {
+          setState(() {
+            allGames!.firstWhere((game) => game.id == roomId).status = 'Started';
+            searchedGames = allGames;
+          });
+        }
+      }
+    });
+
+    // PARTIALLY DONE +
+    lobbyPlayerEliminated = EventRouterService()
+        .subscribe(ServerEvent.lobbyPlayerEliminated)
+        .listen((payload) {
+      try {
+        if (payload.isEmpty) {
+          log("Event Router Service Error: GAMES SCREEN | LOBBY PLAYER ELIMINATED\nNo data received.");
+          return;
+        }
+        
+        var data = json.decode(payload);
+        
+        final int playerId = data['playerId'];
+        final String roomId = data['roomId'];
+        
+        setState(() {
+          allGames!
+            .firstWhere((e) => e.id == roomId).players
+            .firstWhere((e) => e.id == playerId).isAlive = false;
+          searchedGames = allGames;
+        });
+      } on Exception catch (e) {
+        log('Event Router Service Error: GAMES SCREEN | LOBBY PLAYER ELIMINATED\n${e.toString()}');
+      }
+    });
+
+    // DONE +a
+    lobbyGameOver = EventRouterService()
+        .subscribe(ServerEvent.lobbyGameOver)
+        .listen((payload) {
+      final String? roomId = json.decode(payload)['roomId'];
+
+      if (roomId != null && allGames != null) {
+        if (allGames!.any((game) => game.id == roomId)) {
+          setState(() {
+            allGames!.firstWhere((game) => game.id == roomId).status = 'Wating';
+            searchedGames = allGames;
+          });
+        }
+      }
+    });
+
+    // DONE +a
+    lobbyRoomClosed = EventRouterService()
+        .subscribe(ServerEvent.lobbyRoomClosed)
+        .listen((payload) {
+      final String? roomId = json.decode(payload)['roomId'];
+
+      if (roomId != null && allGames != null) {
+        if (allGames!.any((game) => game.id == roomId)) {
+          setState(() {
+            allGames!.removeWhere((game) => game.id == roomId);
+            searchedGames = allGames;
+          });
+        }
+      }
+    });
+
+    authorizedUser = widget.user;
+    //allGames = games;
+    searchedGames = allGames;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadStreamsAndData();    
+  }
+
+  @override
+  void dispose() {
+    lobbyRooms.cancel();
+    lobbyRoomCreated.cancel();
+    lobbyPlayerEnteredRoom.cancel();
+    lobbyPlayerExitedRoom.cancel();
+    lobbyPlayerGameStarted.cancel();
+    lobbyPlayerEliminated.cancel();
+    lobbyGameOver.cancel();
+    lobbyRoomClosed.cancel();
+    super.dispose();
+  }
+
+  void _loadGames() async {
+    // final fetchedGames = await GetIt.I<ApiService>().getGames();
+    // setState(() {
+    //   //games = fetchedGames;
+    // });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double ornamentSize = 45.sp;
+    final double ornamentMargin = 12.sp;
+    const String ornament = "assets/images/game-ornament-night.png";
+
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        image: DecorationImage(image: AssetImage("assets/images/background-games&filter.png"), fit: BoxFit.fill),
+      ),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Padding(
+          padding: EdgeInsets.only(top: 50.h, right: 20.w, left: 20.w),
+          child: Column(
+            children: [
+
+              // BUTTONS
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // BUTTON:    HOME
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Image.asset(
+                      "assets/images/home-icon.png",
+                      scale: 2.8,
+                    ),
+                  ),
+
+                  // BUTTON:    FILTER
+                  GestureDetector(
+                    onTap: () {
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (_) => FilterizationScreen(filters: currentFilters),
+                      //   )
+                      // );
+                      openFilterizationScreen();
+                    },
+                    child: Image.asset(
+                      "assets/images/filter-icon.png",
+                      scale: 3,
+                    ),
+                  ),
+                ],
+              ),
+            
+              //? INFO PART
+              Container(
+                margin: EdgeInsets.only(top: 25.h),
+                width: double.maxFinite,
+                height: 200.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF121212),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: Stack(
+                  children: [
+        
+                    //? ORNAMENTS
+                    Stack(
+                      children: [
+                        // Top-left ornament
+                        Positioned(
+                          top: ornamentMargin,
+                          left: ornamentMargin,
+                          child: Image.asset(
+                            ornament,
+                            width: ornamentSize,
+                            height: ornamentSize,
+                          ),
+                        ),
+                        // Top-right ornament (rotated 90 degrees)
+                        Positioned(
+                          top: ornamentMargin,
+                          right: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                        // Bottom-left ornament (rotated 270 degrees)
+                        Positioned(
+                          bottom: ornamentMargin,
+                          left: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                        // Bottom-right ornament (rotated 180 degrees)
+                        Positioned(
+                          bottom: ornamentMargin,
+                          right: ornamentMargin,
+                          child: Transform.rotate(
+                            angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                            child: Image.asset(
+                              ornament,
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(),
+
+                        Column(
+                          children: [
+
+                            //? TITLE
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h),
+                              child: Text(
+                                AppLocalizations.of(context)!.lobby,
+                                style: GoogleFonts.playfairDisplay(
+                                  fontSize: 42.sp,
+                                  color: const Color(0xFFFFB000)
+                                ),
+                              ),
+                            ),
+
+                            //? SEARCH
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h, left: 25.w, right: 20.w),
+                              child: Container(
+                                height: 40.h,
+                                width: 290.w,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white, width: 1.5),
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // INPUT:    SEARCH
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.h),
+                                        child: TextField(
+                                          cursorColor: Colors.white,
+                                          cursorHeight: 20.h,
+                                          onTapOutside: (PointerDownEvent event) {
+                                            FocusScope.of(context).unfocus();
+                                          },
+                                          onChanged: (value) {
+                                            setState(() {
+                                              if (value.isEmpty) {
+                                                searchedGames = allGames;
+                                              }
+                                              else {
+                                                searchedGames = allGames?.where((game) => game.title.toLowerCase().contains(value.toLowerCase())).toList() ?? [];
+                                              }
+                                            });
+                                          },
+                                          controller: _searchController,
+                                          style: TextStyle(color: Colors.white, fontSize: 16.sp, fontFamily: 'CenturyGothic'),
+                                          decoration: InputDecoration(
+                                            hintText: ' ${AppLocalizations.of(context)!.search}',
+                                            hintStyle: const TextStyle(color: Color.fromARGB(255, 166, 166, 166), fontFamily: 'CenturyGothic'),
+                                            border: InputBorder.none,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // BUTTON:    SEARCH
+                                    Padding(
+                                      padding: EdgeInsets.only(right: 10.w),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                      
+                                        },
+                                        child: Icon(
+                                          Icons.search,
+                                          color: Colors.white,
+                                          size: 25.sp,
+                                        ),
+                                      ),
+                                    ),
+                                    
+                                  ],
+                                ),
+                              ),
+                            ),
+                          
+                            //? FILTER OFF
+                            Padding(
+                              padding: EdgeInsets.only(top: 15.h, left: 25.w, right: 20.w),
+                              child: Text(
+                                AppLocalizations.of(context)!.filterOff,
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: Colors.white,
+                                  fontFamily: 'CenturyGothic',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox()
+                      ],
+                    )
+                  ],
+                ),
+              ),
+
+              //? GAMES
+              Expanded(
+                child: 
+                Container(
+                  margin: EdgeInsets.only(top: 10.h),
+                  height: 500.h,
+                  width: double.maxFinite,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(12.sp),
+                  ),
+                  child: (searchedGames!.isEmpty)
+                  ? Padding(
+                      padding: EdgeInsets.only(top: 40.h),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Text(
+                          AppLocalizations.of(context)!.noAvailableGames,
+                          style: GoogleFonts.playfairDisplay(
+                            color: Colors.white,
+                            fontSize: 22
+                          ),
+                        )
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: searchedGames!.length,
+                      itemBuilder: (context, index) {
+                        return GameCard(game: searchedGames![index], loadStreamsAndData: loadStreamsAndData,);
+                      },
+                    ),
+                ),
+              ),
+            ],
+          ),
+        )
+
+        // ListView.builder(
+        //   //! AllGames
+        //   itemCount: (allGames == null || allGames!.isNotEmpty) ? allGames!.length : 0, 
+        //   itemBuilder: (context, index) {
+        //     if (allGames == null || allGames!.isNotEmpty)
+        //     {
+        //       return GameCard(game: allGames![index]);
+        //     }
+        //   },
+        // ),
+      ),
+    );
+  }
+}

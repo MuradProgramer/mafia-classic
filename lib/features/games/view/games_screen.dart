@@ -16,12 +16,14 @@ import 'package:mafia_classic/features/widgets/validation_popup.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/models/player.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/signalr_service.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
+import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
@@ -70,22 +72,31 @@ List<Game> games = [
 */
 
 //!!!!!!!!!!!!!!!!!!!!!!!
-late User authorizedUser;
+//late User authorizedUser;
 //User authorizedUser = User(id: 1123123123, email: "asdasd", nickname: "musayev", avatarUrl: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg", accessToken: "accessToken", refreshToken: "refreshToken", expirationDate: DateTime.now());
 
 class GamesScreen extends StatefulWidget {
   final User user;
+  final ValueNotifier<int> tabIndexNotifier;
+  final int tabIndex;
 
   const GamesScreen({
     super.key, 
-    required this.user
+    required this.user,
+    required this.tabIndexNotifier,
+    required this.tabIndex
   });
 
   @override
   State<GamesScreen> createState() => _GamesScreenState();
 }
 
-class _GamesScreenState extends State<GamesScreen> {
+class _GamesScreenState extends State<GamesScreen> with RouteAware {
+  bool _routeVisible = false;
+  bool _tabVisible = false;
+
+  bool get _isActive => _routeVisible && _tabVisible;
+
   String text = '';
 
   List<Game>? allGames = [];
@@ -153,16 +164,27 @@ class _GamesScreenState extends State<GamesScreen> {
 
   final TextEditingController _searchController = TextEditingController();
 
-
   //? STREAMS
-  late StreamSubscription<String> lobbyRooms;
-  late StreamSubscription<String> lobbyRoomCreated;
-  late StreamSubscription<String> lobbyPlayerEnteredRoom;
-  late StreamSubscription<String> lobbyPlayerExitedRoom;
-  late StreamSubscription<String> lobbyPlayerGameStarted;
-  late StreamSubscription<String> lobbyPlayerEliminated;
-  late StreamSubscription<String> lobbyGameOver;
-  late StreamSubscription<String> lobbyRoomClosed;
+  StreamSubscription<String>? lobbyRooms;
+  StreamSubscription<String>? lobbyRoomCreated;
+  StreamSubscription<String>? lobbyPlayerEnteredRoom;
+  StreamSubscription<String>? lobbyPlayerExitedRoom;
+  StreamSubscription<String>? lobbyPlayerGameStarted;
+  StreamSubscription<String>? lobbyPlayerEliminated;
+  StreamSubscription<String>? lobbyGameOver;
+  StreamSubscription<String>? lobbyRoomClosed;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      appRouteObserver.subscribe(this, route);
+    }
+
+    widget.tabIndexNotifier.addListener(_onTabChanged);
+  }
 
   void loadStreamsAndData() {
     TcpClientService().sendMessage(ClientCommand.getRooms.value, ""); //? lobbyRooms
@@ -359,20 +381,79 @@ class _GamesScreenState extends State<GamesScreen> {
   @override
   void initState() {
     super.initState();
-    loadStreamsAndData();    
+    //loadStreamsAndData();    
+  }
+
+  /// FIRST TIME tab becomes visible
+  @override
+  void didPush() {
+    _routeVisible = true;
+    _evaluateState();
+  }
+
+  /// coming back to this tab
+  @override
+  void didPopNext() {
+    _routeVisible = true;
+    _evaluateState();
+  }
+
+  /// leaving this tab (switch tab or push)
+  @override
+  void didPushNext() {
+    _routeVisible = false;
+    _evaluateState();
+  }
+
+  void _onTabChanged() {
+    final visible = widget.tabIndexNotifier.value == widget.tabIndex;
+
+    if (visible != _tabVisible) {
+      _tabVisible = visible;
+      _evaluateState();
+    }
+  }
+
+  void _evaluateState() {
+    if (_isActive) {
+      _onActive();
+    } else {
+      _onInactive();
+    }
   }
 
   @override
   void dispose() {
-    lobbyRooms.cancel();
-    lobbyRoomCreated.cancel();
-    lobbyPlayerEnteredRoom.cancel();
-    lobbyPlayerExitedRoom.cancel();
-    lobbyPlayerGameStarted.cancel();
-    lobbyPlayerEliminated.cancel();
-    lobbyGameOver.cancel();
-    lobbyRoomClosed.cancel();
+    widget.tabIndexNotifier.removeListener(_onTabChanged);
+    appRouteObserver.unsubscribe(this);
     super.dispose();
+  }
+
+  void _onActive() {
+    // if (_active) return;
+    // _active = true;
+
+    loadStreamsAndData();
+
+    print('GamesScreen ACTIVE');
+    // TcpClientService().connect(widget.user.id);
+  }
+
+  void _onInactive() {
+    // if (!_active) return;
+    // _active = false;
+
+    lobbyRooms?.cancel();
+    lobbyRoomCreated?.cancel();
+    lobbyPlayerEnteredRoom?.cancel();
+    lobbyPlayerExitedRoom?.cancel();
+    lobbyPlayerGameStarted?.cancel();
+    lobbyPlayerEliminated?.cancel();
+    lobbyGameOver?.cancel();
+    lobbyRoomClosed?.cancel();
+
+    print('GamesScreen INACTIVE');
+    // TcpClientService().disconnect();
   }
 
   void _loadGames() async {
@@ -696,7 +777,7 @@ class Game {
       //currentPlayers: json['currentPlayers'],
       minPlayers: json['minCapacity'],    
       maxPlayers: json['maxCapacity'],    
-      hasPassword: json['hasPassword'], 
+      hasPassword: json['hasPassword'],
       status: json['state'],
       players: json['players'].isEmpty ? <Player>[] : (json['players'] as List)
           .map((playerJson) => Player.fromJson(playerJson))
@@ -741,7 +822,6 @@ class Game {
 //   )
 // ];
 
-
 ////////// GAMECARD ///////////
 
 class GameCard extends StatefulWidget {
@@ -760,8 +840,12 @@ class _GameCardState extends State<GameCard> {
   bool isCardExpanded = false;
 
   late StreamSubscription<String> passwordIsWrong;
-  late StreamSubscription<String> roomStateData;
   bool canBeNavigated = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
 
   void showExceptionPopup(String content) {
     showBouncingPopupFromTop(
@@ -778,51 +862,6 @@ class _GameCardState extends State<GameCard> {
 
   @override
   void initState() {
-    //? 1007
-    // DONE
-    roomStateData = EventRouterService()
-        .subscribe(ServerEvent.roomStateData)
-        .listen((payload) {
-      print('----- LOBBY ROOMS DATA -----');
-      try {
-        if (payload.isEmpty) return;
-        
-        var data = json.decode(payload);
-
-        final allPlayers = (data['players'] as List<dynamic>?)
-            ?.map((e) => Player.fromJson(e))
-            .toList() ?? [];
-
-        if (!mounted) return;
-
-        Navigator.of(context, rootNavigator: true).push(
-          MaterialPageRoute(builder: (context) => 
-            GameLobbyScreen(
-              game: Game(
-                id: widget.game.id,
-                title: widget.game.title, 
-                minPlayers: widget.game.minPlayers, 
-                maxPlayers: widget.game.maxPlayers, 
-                status: widget.game.status, 
-                extraRoles: widget.game.extraRoles, 
-                hasPassword: widget.game.hasPassword, 
-                players: allPlayers
-              ),
-              //! ------------------- CHANGE -------------------
-              //password: widget.game.hasPassword ? 'password' : '',
-              password: password,
-            )
-          ),
-        ).then((value) {
-          if (mounted) {
-            widget.loadStreamsAndData();
-          }
-        });
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     RoomStateData EVENT - GAME SCREEN: ${e.toString()}');
-      }
-    });
-
     passwordIsWrong = EventRouterService()
         .subscribe(ServerEvent.clientError)
         .listen((payload) {
@@ -838,6 +877,7 @@ class _GameCardState extends State<GameCard> {
       }
     });
 
+
     if (widget.game.players.any((e) => e.id == authorizedUser.id)) {
       if (widget.game.players.firstWhere((e) => e.id == authorizedUser.id).isAlive) {
         text = 'You Are Playing Here';
@@ -852,7 +892,6 @@ class _GameCardState extends State<GameCard> {
   void dispose() {
     super.dispose();
     passwordIsWrong.cancel();
-    roomStateData.cancel();
   }
 
 
@@ -1617,14 +1656,26 @@ class PlayerRole {
 }
 
 class CreateGameScreen extends StatefulWidget {
-  const CreateGameScreen({super.key});
+  final ValueNotifier<int> tabIndexNotifier;
+  final int tabIndex;
+
+  const CreateGameScreen({
+    super.key,
+    required this.tabIndexNotifier,
+    required this.tabIndex
+  });
 
   @override
   State<CreateGameScreen> createState() => _CreateGameScreenState();
 }
 
 //// LOGIC ////
-class _CreateGameScreenState extends State<CreateGameScreen> {
+class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
+  bool _routeVisible = false;
+  bool _tabVisible = false;
+
+  bool get _isActive => _routeVisible && _tabVisible;
+  
   String roomName = '';
   int minPlayers = 5;
   int maxPlayers = 7;
@@ -1651,65 +1702,24 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   late Map<String, bool> mainRoles;
   List<String> roles = <String>[];
 
-  late StreamSubscription<String> roomStateData;
+  //StreamSubscription<String>? roomStateData;
 
   @override
   void initState() {
     super.initState();
-
-    // roomStateData = EventRouterService()
-    //     .subscribe(ServerEvent.roomStateData)
-    //     .listen((payload) {
-    //   print('----- LOBBY ROOMS DATA -----');
-    //   print(payload);
-    //   final roleFlags = {
-    //     'Spy': hasSpy,
-    //     'Barman': hasBartender,
-    //     'Bodyguard': hasBodyguard,
-    //     'Doctor': hasDoctor,
-    //     'Informant': hasInformant,
-    //     'Journalist': hasJournalist,
-    //     'Beauty': hasLover,
-    //     'Terrorist': hasTerrorist,
-    //   };
-
-    //   final extras = roleFlags.entries
-    //     .where((entry) => entry.value)
-    //     .map((entry) => entry.key)
-    //     .toList();
-
-    //   Navigator.of(context, rootNavigator: true).push(
-    //     MaterialPageRoute(builder: (context) => GameLobbyScreen(
-    //         game: Game(
-    //           id: '',
-    //           title: roomName, 
-    //           minPlayers: minPlayers,
-    //           maxPlayers: maxPlayers,
-    //           status: 'Waiting',
-    //           extraRoles: extras, 
-    //           hasPassword: false, 
-    //           players: [
-    //             Player(
-    //               id: authorizedUser.id,
-    //               nickname: authorizedUser.nickname, 
-    //               avatarUrl: authorizedUser.avatarUrl, 
-    //               isAlive: true
-    //             )
-    //           ]
-    //         ),
-    //         //!!!!!!!!! CHANGE
-    //         password: '',
-    //       )
-    //     ),
-    //   );
-    // });
-
     rolesL10 = {};
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      appRouteObserver.subscribe(this, route);
+    }
+
+    widget.tabIndexNotifier.addListener(_onTabChanged);
     
     rolesL10 = {
       AppLocalizations.of(context)!.mistress: false,
@@ -1773,9 +1783,117 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
   @override
   void dispose() {
+    appRouteObserver.unsubscribe(this);
+    widget.tabIndexNotifier.removeListener(_onTabChanged);
     super.dispose();
 
-    roomStateData.cancel();
+    //roomStateData.cancel();
+  }
+
+  void _onTabChanged() {
+    final visible = widget.tabIndexNotifier.value == widget.tabIndex;
+
+    if (visible != _tabVisible) {
+      _tabVisible = visible;
+      _evaluateState();
+    }
+  }
+
+  void _evaluateState() {
+    if (_isActive) {
+      _onActive();
+    } else {
+      _onInactive();
+    }
+  }
+
+  /// FIRST TIME tab becomes visible
+  @override
+  void didPush() {
+    _routeVisible = true;
+    _evaluateState();
+  }
+
+  /// coming back to this tab
+  @override
+  void didPopNext() {
+    _routeVisible = true;
+    _evaluateState();
+  }
+
+  /// leaving this tab (switch tab or push)
+  @override
+  void didPushNext() {
+    _routeVisible = false;
+    _evaluateState();
+  }
+
+  void _onActive() {
+    // if (_active) return;
+    // _active = true;
+
+    /*
+    roomStateData = EventRouterService()
+        .subscribe(ServerEvent.roomStateData)
+        .listen((payload) {
+      print('----- LOBBY ROOMS DATA:  CreateGameScreen -----');
+      
+      //print(payload);
+      final roleFlags = {
+        'Spy': hasSpy,
+        'Barman': hasBartender,
+        'Bodyguard': hasBodyguard,
+        'Doctor': hasDoctor,
+        'Informant': hasInformant,
+        'Journalist': hasJournalist,
+        'Beauty': hasLover,
+        'Terrorist': hasTerrorist,
+      };
+
+      final extras = roleFlags.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
+
+      Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute(builder: (context) => GameLobbyScreen(
+            game: Game(
+              id: '',
+              title: roomName, 
+              minPlayers: minPlayers,
+              maxPlayers: maxPlayers,
+              status: 'Waiting',
+              extraRoles: extras, 
+              hasPassword: false, 
+              players: [
+                Player(
+                  id: authorizedUser.id,
+                  nickname: authorizedUser.nickname, 
+                  avatarUrl: authorizedUser.avatarUrl, 
+                  isAlive: true
+                )
+              ]
+            ),
+            //!!!!!!!!! CHANGE
+            password: '',
+          )
+        ),
+      );
+    
+    });
+    */
+    print('Create GamesScreen ACTIVE');
+    // TcpClientService().connect(widget.user.id);
+  }
+
+  void _onInactive() {
+    // if (!_active) return;
+    // _active = false;
+
+    //roomStateData?.cancel();
+
+    print('Create GamesScreen INACTIVE');
+    // TcpClientService().disconnect();
   }
 
   @override
@@ -3674,7 +3792,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     roomStateData = EventRouterService()
         .subscribe(ServerEvent.roomStateData)
         .listen((payload) {
-      print('----- LOBBY ROOMS DATA -----');
+      print('\n\n----- LOBBY ROOMS DATA: GAME LOBBY SCREEN -----\n\n');
       print(payload);
     });
 
@@ -3823,7 +3941,6 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
 
   @override
   void dispose() {
-    //!roomStateData.cancel();
     roomStateData.cancel();
     roomPlayerJoined.cancel();
     roomPlayerLeft.cancel();
@@ -4725,6 +4842,12 @@ class InviteFriendPopup extends StatefulWidget {
 class _InviteFriendPopupState extends State<InviteFriendPopup> {
 
   List<Friendship> possibleFriendsForInvitation = [];
+  List<int> sendedInvitationList = [];
+
+  StreamSubscription? _eventSubscriptionFriendOnline;
+  StreamSubscription? _eventSubscriptionFriendOffline;
+  StreamSubscription? _eventSubscriptionFriendJoinedRoom;
+  StreamSubscription? _eventSubscriptionFriendLeftRoom;
 
   @override
   void initState() {
@@ -4741,6 +4864,42 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
         possibleFriendsForInvitation.removeWhere((friend) => friend.id == player.id);
       }
     }
+
+    _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
+      setState(() {
+        possibleFriendsForInvitation.add(widget.friendsList.firstWhere((friend) => friend.id == event.friendId));
+      });
+    });
+
+    _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
+      setState(() {
+        if (possibleFriendsForInvitation.any((friend) => friend.id == event.friendId)) {
+          possibleFriendsForInvitation.removeWhere((friend) => friend.id == event.friendId);
+        }
+      });
+    });
+
+    _eventSubscriptionFriendJoinedRoom = EventBus().on<FriendJoinedRoomEvent>().listen((event) {
+      setState(() {
+        possibleFriendsForInvitation.firstWhere((friend) => friend.id == event.friendId).gameTitle = event.gameTitle;
+      });
+    });
+
+    _eventSubscriptionFriendLeftRoom = EventBus().on<FriendLeftRoomEvent>().listen((event) {
+      setState(() {
+        possibleFriendsForInvitation.firstWhere((friend) => friend.id == event.friendId).gameTitle = "";
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _eventSubscriptionFriendOnline?.cancel();
+    _eventSubscriptionFriendOffline?.cancel();
+    _eventSubscriptionFriendJoinedRoom?.cancel();
+    _eventSubscriptionFriendLeftRoom?.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -4844,15 +5003,30 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                                       ),
 
                                       // TEXT:    IS IN GAME OR LOBBY
-                                      Text(
-                                        possibleFriendsForInvitation[index].gameTitle.isNotEmpty ? AppLocalizations.of(context)!.inGame : AppLocalizations.of(context)!.lobby,
-                                        style: TextStyle(
-                                          height: 0.h,
-                                          fontSize: 14.sp,
-                                          fontFamily: 'CenturyGothic',
-                                          fontStyle: FontStyle.italic,
-                                          color:widget.friendsList[index].isOnline ? const Color(0xFFFFB000) : const Color(0xFFFFFFFF).withOpacity(0.6)
-                                        )
+                                      Row(
+                                        children: [
+                                          if (possibleFriendsForInvitation[index].gameTitle.isNotEmpty)
+                                            Text(
+                                              "${AppLocalizations.of(context)!.inGame} ",
+                                              style: TextStyle(
+                                                height: 0.h,
+                                                fontSize: 14.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                color: const Color(0xFFFFFFFF)
+                                              )
+                                            ),
+                                          
+                                          Text(
+                                            possibleFriendsForInvitation[index].gameTitle.isNotEmpty ? possibleFriendsForInvitation[index].gameTitle : AppLocalizations.of(context)!.lobby,
+                                            style: TextStyle(
+                                              height: 0.h,
+                                              fontSize: 14.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              fontStyle: FontStyle.italic,
+                                              color: const Color(0xFFFFB000)
+                                            )
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   )
@@ -4860,14 +5034,30 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                               ),
                                           
                               // BUTTON:    Invite or Invited
-                              GestureDetector(
+                              (sendedInvitationList.any((id) => id == possibleFriendsForInvitation[index].id))
+                              ? Text(
+                                  "Sent",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 17.sp,
+                                    fontFamily: 'CenturyGothic',
+                                    color: const Color(0xFFFFB000),
+                                  )
+                                )
+                              : possibleFriendsForInvitation[index].gameTitle.isNotEmpty
+                              ? const SizedBox()
+                              : GestureDetector(
                                 onTap: () {
-                                  if (!widget.friendsList[index].isOnline) return;
+                                  //if (!widget.friendsList[index].isOnline) return;
                                   // TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, jsonEncode({
                                   //   'type': 'friendInvitation',
                                   //   'toNickname': value[index].nickname
                                   // }));
                                   // Navigator.of(context).pop();
+                                  if (possibleFriendsForInvitation[index].gameTitle.isNotEmpty) return;
+                                  GetIt.I<ApiService>().sendInviteToRoom(possibleFriendsForInvitation[index].id);
+                                  sendedInvitationList.add(possibleFriendsForInvitation[index].id);
+                                  setState(() {});
                                 },
                                 child: Container(
                                   alignment: Alignment.center,
@@ -4876,7 +5066,7 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(34.sp),
                                     border: Border.all(
-                                      color: widget.friendsList[index].isOnline ? const Color(0xFFFFFFFF) : const Color(0xFFFFFFFF).withOpacity(0.6), 
+                                      color: possibleFriendsForInvitation[index].isOnline ? const Color(0xFFFFFFFF) : const Color(0xFFFFFFFF).withOpacity(0.6), 
                                       width: 1
                                     )
                                   ),
@@ -4886,7 +5076,7 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                                     style: TextStyle(
                                       fontSize: 15.sp,
                                       fontFamily: 'CenturyGothic',
-                                      color: widget.friendsList[index].isOnline ? const Color(0xFFFFFFFF) : const Color(0xFFFFFFFF).withOpacity(0.6),
+                                      color:possibleFriendsForInvitation[index].isOnline ? const Color(0xFFFFFFFF) : const Color(0xFFFFFFFF).withOpacity(0.6),
                                     )
                                   ),
                                 ),
@@ -4916,6 +5106,184 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
           ),
         ),
       )
+    );
+  }
+}
+
+class AcceptRoomInvitePopup extends StatefulWidget {
+  final String gameTitle;
+  final String friendNickname;
+
+  const AcceptRoomInvitePopup({
+    super.key,
+    required this.gameTitle,
+    required this.friendNickname
+  });
+
+  @override
+  State<AcceptRoomInvitePopup> createState() => _AcceptRoomInvitePopupState();
+}
+
+class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 21.w),
+        width: double.maxFinite,
+        height: 200.h,
+        child: Material(
+          borderRadius: BorderRadius.circular(12.sp),
+          color: const Color(0xFF111111),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              //? TITLE
+              Text(
+                "Invititation To Game",
+                softWrap: true,
+                maxLines: 2,
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  color: const Color(0xFFFFB000),
+                  fontFamily: 'CenturyGothic'
+                ),
+              ),
+
+              //? Invitation
+              ((widget.friendNickname.length + widget.gameTitle.length) < 18)
+              ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.friendNickname,
+                    softWrap: true,
+                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: const Color(0xFFFFB000),
+                      fontFamily: 'CenturyGothic'
+                    ),
+                  ),
+
+                  Text(
+                    " invited you to the game ",
+                    softWrap: true,
+                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: const Color(0xFFFFFFFF),
+                      fontFamily: 'CenturyGothic'
+                    ),
+                  ),
+
+                  Text(
+                    widget.gameTitle,
+                    softWrap: true,
+                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: const Color(0xFFFFB000),
+                      fontFamily: 'CenturyGothic'
+                    ),
+                  ),
+                ],
+              )
+              : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.friendNickname,
+                    softWrap: true,
+                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: const Color(0xFFFFB000),
+                      fontFamily: 'CenturyGothic'
+                    ),
+                  ),
+
+                  Text(
+                    " invited you to the game ",
+                    softWrap: true,
+                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: const Color(0xFFFFFFFF),
+                      fontFamily: 'CenturyGothic'
+                    ),
+                  ),
+
+                  Text(
+                    widget.gameTitle,
+                    softWrap: true,
+                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: const Color(0xFFFFB000),
+                      fontFamily: 'CenturyGothic'
+                    ),
+                  ),
+                ],
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // BUTTON:    DECLINE
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(false),
+                    child: Container(
+                      height: 45.h,
+                      width: 100.h,
+                      margin: EdgeInsets.all(5.sp),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.sp),
+                        color: const Color(0xFFFFFFFF)
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Decline",
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            color: const Color(0xFF000000),
+                            fontFamily: 'CenturyGothic'
+                          ),
+                        ),
+                      )
+                    ),
+                  ),
+
+                  // BUTTON:    ACCEPT
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(true),
+                    child: Container(
+                      height: 45.h,
+                      width: 100.h,
+                      margin: EdgeInsets.all(5.sp),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.sp),
+                        color: const Color(0xFFFFB000)
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Accept",
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            color: const Color(0xFFFFFFFF),
+                            fontFamily: 'CenturyGothic'
+                          ),
+                        ),
+                      )
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
+        )
+      ),
     );
   }
 }

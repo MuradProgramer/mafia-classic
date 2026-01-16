@@ -4,7 +4,10 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mafia_classic/features/games/game/view/game_screen.dart';
+import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/profile/ratings-/view/ratings_screen.dart';
@@ -14,13 +17,16 @@ import 'package:mafia_classic/features/settings/view/settings_screen.dart';
 import 'package:mafia_classic/features/widgets/player_info_popup.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
-import 'package:mafia_classic/models/models.dart' hide Message;
+import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/models/models.dart' hide Message, Player;
+import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/utils/popup_utils.dart';
+import 'package:mafia_classic/utils/snackbar.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
@@ -45,9 +51,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late StreamSubscription<String> friendshipFriendJoinedRoom;
   late StreamSubscription<String> friendshipFriendLeftRoom;
   late StreamSubscription<String> friendshipFriendNewMessage; 
+  late StreamSubscription<String> roomInvite;
+
+  late StreamSubscription<String> roomStateData;
 
   @override
   void initState() {
+
+    roomStateData = EventRouterService()
+        .subscribe(ServerEvent.roomStateData)
+        .listen((payload) {
+      print('\n\n----- LOBBY ROOMS DATA: GAMES SCREEN  -----\n\n');
+      try {
+        if (payload.isEmpty) return;
+        
+        var data = json.decode(payload);
+
+        final allPlayers = (data['players'] as List<dynamic>?)
+            ?.map((e) => Player.fromJson(e))
+            .toList() ?? [];
+
+        if (!mounted) return;
+
+        Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(builder: (context) => 
+            GameLobbyScreen(
+              game: Game(
+                id: '',
+                title: data['title'], 
+                minPlayers: data['minCapacity'], 
+                maxPlayers: data['maxCapacity'], 
+                status: 'Waiting', 
+                extraRoles: data['extraGameRoles'].isEmpty ? <String>[] : data['extraGameRoles'].cast<String>(), 
+                hasPassword: false, 
+                players: allPlayers
+              ),
+              //! ------------------- CHANGE -------------------
+              //password: widget.game.hasPassword ? 'password' : '',
+              password: '',
+            )
+          ),
+        ).then((value) {
+          // if (mounted) {
+          //   loadStreamsAndData();
+          // }
+        });
+      } on Exception catch (e) {
+        log('EXCEPTION IN:     RoomStateData EVENT - GAME SCREEN: ${e.toString()}');
+      }
+    });
+
+
+    roomInvite = EventRouterService()
+        .subscribe(ServerEvent.friendshipRoomInvite)
+        .listen((payload) async {
+          var data = json.decode(payload);
+
+          // await AppLifecycle.instance.ready;
+
+          // final context = rootNavigatorKey.currentContext;
+          // if (context == null) return;
+
+          // final bool? isAccepted = await PopupManager().show<bool>(
+          //   context: context,
+          //   id: 'acceptInviteToRoomPopup',
+          //   builder: (_) {
+          //     return AcceptRoomInvitePopup(
+          //       friendNickname: data['nickname'] ?? "",
+          //       gameTitle: data['roomTitle'] ?? "",
+          //     );
+          //   },
+          // );
+
+          // if (isAccepted == true) {
+          //   await GetIt.I<ApiService>()
+          //       .acceptInviteToRoom(data['roomId']);
+          // }
+    });
 
     // DONE partial
     friendshipFriends = EventRouterService()
@@ -68,24 +148,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
         }
 
-        for (var friend in allFriends) {
-          print('ID: ${friend.id} |||||| Loaded friend: ${friend.nickname}, Online: ${friend.isOnline}');
-        }
+        // for (var friend in allFriends) {
+        //   print('ID: ${friend.id} |||||| Loaded friend: ${friend.nickname}, Online: ${friend.isOnline}');
+        // }
 
         await GeneralCacheService().save('all_friends_list', allFriends);
 
         EventBus().fire(LoadFriendsEvent());
         
-        List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
-          "all_friends_list",
-          (json) => Friendship.fromJson(json as Map<String, dynamic>),
-        );
+        // List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+        //   "all_friends_list",
+        //   (json) => Friendship.fromJson(json as Map<String, dynamic>),
+        // );
         
-        currentFriends ??= [];
+        // currentFriends ??= [];
         
-        for (var friend in currentFriends) {
-          log('ID: ${friend.id} |||||| Loaded friend: ${friend.nickname}, Online: ${friend.isOnline}');
-        }
+        // for (var friend in currentFriends) {
+        //   log('ID: ${friend.id} |||||| Loaded friend: ${friend.nickname}, Online: ${friend.isOnline}');
+        // }
       } on Exception catch (e) {
         log('EXCEPTION IN:     friendshipFriends: ${e.toString()}');
       }
@@ -95,35 +175,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     friendshipNewFriend = EventRouterService()
         .subscribe(ServerEvent.friendshipNewFriend)
         .listen((payload) async {
-      try {
-        final Map<String, dynamic> jsonData = json.decode(payload)['friend'];
+      // try {
+      //   final Map<String, dynamic> jsonData = json.decode(payload)['friend'];
 
-        final newFriend = Friendship.fromJson(jsonData);
+      //   final newFriend = Friendship.fromJson(jsonData);
 
-        List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
-          "all_friends_list",
-          (json) => Friendship.fromJson(json as Map<String, dynamic>),
-        );
+      //   List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+      //     "all_friends_list",
+      //     (json) => Friendship.fromJson(json as Map<String, dynamic>),
+      //   );
 
-        currentFriends ??= [];
-        currentFriends.add(newFriend);
+      //   currentFriends ??= [];
+      //   currentFriends.add(newFriend);
 
-        await GeneralCacheService().save<List<Friendship>?>(
-          "all_friends_list",
-          currentFriends,
-        );
-        EventBus().fire(NewFriendAddedEvent(newFriend));
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     friendshipNewFriend: ${e.toString()}');
-      }
+      //   await GeneralCacheService().save<List<Friendship>?>(
+      //     "all_friends_list",
+      //     currentFriends,
+      //   );
+
+      //   EventBus().fire(NewFriendAddedEvent(newFriend));
+      //   final nav = rootNavigatorKey.currentState;
+      //   if (nav == null) return;
+      //   showTopSnackBar(nav.overlay!.context, "${newFriend.nickname} Accepted your friend request");
+      // } on Exception catch (e) {
+      //   log('EXCEPTION IN:     friendshipNewFriend: ${e.toString()}');
+      // }
     });
 
     // DONE partial
     friendshipRequestFriendship = EventRouterService()
         .subscribe(ServerEvent.friendshipRequestFriendship)
         .listen((payload) async {
-      print("SNACKBAR: REQUEST FRIENDSHIP RECEIVED");
-      EventBus().fire(FriendRequestReceivedEvent(json.decode(payload)));
+      // print("SNACKBAR: REQUEST FRIENDSHIP RECEIVED");
+      // EventBus().fire(FriendRequestReceivedEvent(json.decode(payload)));
     });
 
     friendshipRequestDeclined = EventRouterService()
@@ -171,9 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         print("");
         currentFriends.firstWhere((friend) => friend.id == id).isOnline = true;
         EventBus().fire(FriendOnlineEvent(id));
-        log("ICINE AZZARIM OLSUN....2222");
         await GeneralCacheService().save<List<Friendship>?>("all_friends_list", currentFriends);
-        log("ICINE AZZARIM OLSUN....2222");
       } on Exception catch (e) {
         log('EXCEPTION IN:     friendshipFriendOnline: ${e.toString()}');
       }
@@ -218,7 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         currentFriends ??= [];
         currentFriends.firstWhere((friend) => friend.id == id).gameTitle = roomTitle;
 
-        //EventBus().fire(FriendOnlineEvent(nicknameJoined));
+        EventBus().fire(FriendJoinedRoomEvent(id, roomTitle));
 
         await GeneralCacheService().save<List<Friendship>?>("all_friends_list", currentFriends);
         
@@ -244,7 +326,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         currentFriends ??= [];
         currentFriends.firstWhere((friend) => friend.id == id).gameTitle = "";
 
-        //EventBus().fire(FriendOnlineEvent(id));
+        EventBus().fire(FriendLeftRoomEvent(id));
 
         await GeneralCacheService().save<List<Friendship>?>("all_friends_list", currentFriends);
         
@@ -257,19 +339,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     friendshipFriendNewMessage = EventRouterService()
         .subscribe(ServerEvent.friendshipFriendNewMessage)
         .listen((payload) async {
-      try {
-        print("\n\nNEW MESSAGE PAYLOAD: $payload\n\n");
-        final Map<String, dynamic> decodedPayload = json.decode(payload);
-        final newMessage = Message.fromJson(decodedPayload['message']);
-        final int friendId = json.decode(payload)['id'] as int;
+      // try {
+      //   final Map<String, dynamic> decodedPayload = json.decode(payload);
+      //   final newMessage = Message.fromJson(decodedPayload['message']);
+      //   final int friendId = json.decode(payload)['id'] as int;
 
-        //? SNACKBAR HERE
+      //   //? SNACKBAR HERE
 
-        EventBus().fire(FriendNewMessageEvent(newMessage, friendId));
+      //   EventBus().fire(FriendNewMessageEvent(newMessage, friendId));
         
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     friendshipFriendNewMessage: ${e.toString()}');
-      }
+      // } on Exception catch (e) {
+      //   log('EXCEPTION IN:     friendshipFriendNewMessage: ${e.toString()}');
+      // }
     });
 
     //TcpClientService().sendMessage(ClientCommand.getFriends.value, "");

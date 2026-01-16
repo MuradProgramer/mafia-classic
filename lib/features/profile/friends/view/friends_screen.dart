@@ -15,6 +15,7 @@ import 'package:mafia_classic/features/widgets/player_info_popup.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
 
 //import 'package:mafia_classic/blocs/player_bloc.dart';
 // import 'package:mafia_classic/blocs/player_event.dart';
@@ -518,37 +519,45 @@ class _FriendsTabState extends State<FriendsTab> {
 
   @override
   void initState() {
+    log("*********** INIT STATE OF FRIEND TAB ***********");
     _loadFriends();
 
     filteredFriends = friends;
 
     _eventSubscriptionLoadFriends = EventBus().on<LoadFriendsEvent>().listen((event) {
       setState(() {
+        log("****** LOAD FRIEND ******");
         _loadFriends();
+        filteredFriends = _filterFriends(searchController.text.trim());
       });
     });
   
     _eventSubscriptionNewFriend = EventBus().on<NewFriendAddedEvent>().listen((event) {
       setState(() {
+        log("****** NEW FRIEND ******");
         friends.insert(0, event.requestData); 
+        filteredFriends = _filterFriends(searchController.text.trim());
       });
     });
 
     _eventSubscriptionNewFriendMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
       setState(() {
         friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount++;
+        filteredFriends = _filterFriends(searchController.text.trim());
       });
     });
     
     _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
       setState(() {
         friends.removeWhere((friend) => friend.id == event.friendId); 
+        filteredFriends = _filterFriends(searchController.text.trim());
       });
     });
     
     _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
       setState(() {
         friends.firstWhere((friend) => friend.id == event.friendId).isOnline = true;
+        filteredFriends = _filterFriends(searchController.text.trim());
       });
     });
 
@@ -557,12 +566,14 @@ class _FriendsTabState extends State<FriendsTab> {
         Friendship friend = friends.firstWhere((friend) => friend.id == event.friendId);
         friend.isOnline = false;
         friend.lastSeen = DateTime.now();
+        filteredFriends = _filterFriends(searchController.text.trim());
       });
     });
 
     _eventSubscriptionFriendMessagesReaded = EventBus().on<FriendMessagesReadedEvent>().listen((event) {
       setState(() {
         friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount = 0;
+        filteredFriends = _filterFriends(searchController.text.trim());
       });
     });
     
@@ -628,7 +639,7 @@ class _FriendsTabState extends State<FriendsTab> {
       //   friends = updated.whereType<Friendship>().toList();
       // }
       friends = updated ?? [];
-      print('FRIENDS LOADED FROM CACHE: ${friends.length}');
+      //print('FRIENDS LOADED FROM CACHE: ${friends.length}');
     });
   }
 
@@ -1632,6 +1643,24 @@ class _FriendChatState extends State<FriendChat> {
           _scrollController.position.pixels < threshold;
   }
 
+  String formatLastSeen(DateTime lastSeen) {
+    final now = DateTime.now();
+    final difference = now.difference(lastSeen);
+
+    if (difference.inSeconds < 59) {
+      return "less than a minute";
+    } else if (difference.inMinutes < 60) {
+      return "${difference.inMinutes} mins ago";
+    } else if (difference.inHours < 24) {
+      return "${difference.inHours} hours ago";
+    } else if (difference.inDays < 31) {
+      return "${difference.inDays} days ago";
+    } else {
+      return DateFormat('dd.MM.yyyy').format(lastSeen.toLocal());
+    }
+  }
+
+
   bool _autoScroll = true;
   bool _userDragging = false;
 
@@ -1871,7 +1900,7 @@ class _FriendChatState extends State<FriendChat> {
 
                           // TEXT:    IS ONLINE
                           Text(
-                            widget.friend.isOnline ? AppLocalizations.of(context)!.online : DateFormat('yyyy.MM.dd HH:mm').format(widget.friend.lastSeen),
+                            widget.friend.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(widget.friend.lastSeen),
                             style: TextStyle(
                               fontSize: 16.sp, 
                               color: Colors.white,

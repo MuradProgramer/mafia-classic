@@ -76,12 +76,12 @@ class TcpClientService {
     
     ServerEvent eventType = ServerEventExtension.fromValue(typeId) ?? ServerEvent.errorEvent;
 
-    if (!(eventType == ServerEvent.gameTimerUpdate || eventType == ServerEvent.roomTimerUpdate)) {
-      print('Type ID: $typeId');
-      log('----------- ON MESSAGE HANDLER ----------');
-      log('🔔 Это приветственное сообщение: \n$payload');
-      log('----------------------------------------');
-    }
+    // if (!(eventType == ServerEvent.gameTimerUpdate || eventType == ServerEvent.roomTimerUpdate)) {
+    //   print('Type ID: $typeId');
+    //   log('----------- ON MESSAGE HANDLER ----------');
+    //   log('🔔 Это приветственное сообщение: \n$payload');
+    //   log('----------------------------------------');
+    // }
 
     EventRouterService().dispatch(eventType, payload);
   }

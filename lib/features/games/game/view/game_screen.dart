@@ -37,17 +37,17 @@ Map<String, BuildContext> popupContexts = {};
 
 class GameScreen extends StatefulWidget {
   final String title;
-  String role;
-  int mafiaCount;
-  int civilianCount;
+  final String role;
+  final int mafiaCount;
+  final int civilianCount;
   final List<PlayerRole>? playersRole;
   final List<Player> allPlayers;
   final bool gameIsReadyWidget;
-  String phase;
+  final String phase;
 
   final bool cameBackFromAfk;
 
-  GameScreen({
+  const GameScreen({
     super.key, 
     required this.title, 
     required this.playersRole, 
@@ -72,9 +72,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   int civilianAlive = 0; // +
   ValueNotifier<List<InGamePlayer>> inGamePlayers = ValueNotifier<List<InGamePlayer>>([]); // +
 
+  String role = "";
+  int mafiaCount = 0;
+  int civilianCount = 0;
+  String phase = "";
+
   List<String> markNames = []; // + //!
   bool isAliveMyself = true; // +
-  bool canISendMessage = true;
+  bool canISendMessage = true; 
   int votesOnMe = 0; // +
 
   // DEF:    VOTE VARIABLES
@@ -147,14 +152,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     if (markNames.any((el) => el == 'Satisfied')) return;
 
-    if (widget.role == 'Terrorist') return;
+    if (role == 'Terrorist') return;
 
     if (gamePhase == 'Day') {
       return;
     }
     else if (gamePhase == 'Night') {
-      if ('Mafia' != widget.role) {
-        if ((widget.role.toLowerCase() == 'informant') && canNightVote) {
+      if ('Mafia' != role) {
+        if ((role.toLowerCase() == 'informant') && canNightVote) {
           
         } else {
           return;
@@ -189,37 +194,37 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     // NOTE:    CHECKING ROLES
 
-    if (widget.role == 'Mafia' || widget.role == 'Civilian' || widget.role == 'Spy') {
+    if (role == 'Mafia' || role == 'Civilian' || role == 'Spy') {
       return;
     }
 
     if (gamePhase == 'Day') {
-      if (widget.role != 'Bodyguard') return;
+      if (role != 'Bodyguard') return;
     }
 
     if (gamePhase == 'DayVoting') {
-      if (widget.role != 'Terrorist') return;
+      if (role != 'Terrorist') return;
     }
 
     if (gamePhase == 'Night') {
-      if (!['Barman', 'Informant', 'Journalist', 'Beauty'].any((el) => el == widget.role)) {
+      if (!['Barman', 'Informant', 'Journalist', 'Beauty'].any((el) => el == role)) {
         return;
       }
     }
 
     if (gamePhase == 'NightVoting') {
-      if (!['Doctor', 'Sheriff'].any((el) => el == widget.role)) {
+      if (!['Doctor', 'Sheriff'].any((el) => el == role)) {
         return;
       }
     }
   
-    if (['sheriff', 'informant'].any((e) => e == widget.role.toLowerCase())) {
+    if (['sheriff', 'informant'].any((e) => e == role.toLowerCase())) {
       for (var ids in influencedBySkillPlayersId) {
         toWhomIUsedSkillId.add(ids);
       }
     }
 
-    if ('journalist' == widget.role.toLowerCase() && influencedBySkillPlayersId.length >= 2) {
+    if ('journalist' == role.toLowerCase() && influencedBySkillPlayersId.length >= 2) {
       for (var ids in influencedBySkillPlayersId) {
         toWhomIUsedSkillId.add(ids);
       }
@@ -276,9 +281,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    //final authorizedPlayer = inGamePlayers.value.firstWhere((p) => p.nickname == authorizedUser.nickname);
+    //final authorizedPlayer = inGamePlayers.value.firstWhere((p) => p.id == authorizedUser.id);
     
-    //inGamePlayers.value.removeWhere((p) => p.nickname == authorizedUser.nickname);
+    //inGamePlayers.value.removeWhere((p) => p.id == authorizedUser.id);
     //inGamePlayers.value.insert(0, authorizedPlayer);
     filteredPlayers = inGamePlayers.value.where((p) => p.id != authorizedUser.id);
     //filteredPlayers = inGamePlayers.value.where((p) => p.nickname != '${authorizedUser.nickname}ahgziiqedqw');
@@ -291,6 +296,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     //     });
     //   }
     // });
+
+    mafiaCount = widget.mafiaCount;
+    civilianCount = widget.civilianCount;
+    role = widget.role;
 
     mafiaAlive = widget.mafiaCount;
     civilianAlive = widget.civilianCount;
@@ -364,11 +373,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
         setState(() {
           gameIsReady = true;
-          widget.role = role;
+          this.role = role;
           gamePhase = phase;
           isAliveMyself = isAlive;
-          widget.mafiaCount = mafiaCount;
-          widget.civilianCount = civilianCount;
+          this.mafiaCount = mafiaCount;
+          this.civilianCount = civilianCount;
           mafiaAlive = aliveMafiaCount;
           civilianAlive = aliveCivilianCount;
           dayNumber = day;
@@ -439,7 +448,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             }
           }
 
-
           for (var element in inGamePlayers.value) {
             print('Name: ${element.nickname}  |  Role: ${element.role} \n');
           }
@@ -448,7 +456,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             // inGamePlayers.value.removeWhere((p) => p.nickname == authorizedUser.nickname);
             // inGamePlayers.value.insert(0, authorizedPlayer);
 
-          if ((gamePhase == 'NightVoting' && (widget.role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
+          if ((gamePhase == 'NightVoting' && (role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
             //!!!!!!!!!!!
             // inGamePlayers.value.insert(0, InGamePlayer(
             //   nickname: authorizedUser.nickname,
@@ -463,7 +471,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               context: context,
               id: 'votePopup',
               builder: (_) => VotePopup(
-                role: widget.role,
+                role: role,
                   canIVote: canIVote,
                   useSkill: useSkill,
                   dayCount: dayNumber,
@@ -506,7 +514,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
           gamePhase = phase;
         
-          if (widget.role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
+          if (role != 'Mafia' && gamePhase == 'NightVoting' || gamePhase == 'Day') {
             votesAreVisibleToMe = false;
           }
           else if (gamePhase == 'DayVoting') {
@@ -517,7 +525,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                   votesAreVisibleToMe = true;
                 }
           }
-          else if ((widget.role != 'Mafia' && gamePhase == 'Night')) {
+          else if ((role != 'Mafia' && gamePhase == 'Night')) {
             votesAreVisibleToMe = false;
           }
           else {
@@ -557,7 +565,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             dayNumber += 1;
           }
 
-          if ((gamePhase == 'NightVoting' && (widget.role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
+          if ((gamePhase == 'NightVoting' && (role == 'Mafia' || canNightVote)) || gamePhase == 'DayVoting') {
             //!!!!!!!!!!!!!!!!!!!!
             // inGamePlayers.value.insert(0, InGamePlayer(
             //   nickname: authorizedUser.nickname,
@@ -625,7 +633,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               context: context,
               id: 'votePopup',
               builder: (_) => VotePopup(
-                role: widget.role,
+                role: role,
                   canIVote: canIVote,
                   useSkill: useSkill,
                   dayCount: dayNumber,
@@ -1198,9 +1206,21 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         }
       }
 
+      final me = widget.allPlayers.firstWhere((player) => player.id == authorizedUser.id);
+
+      inGamePlayers.value.add(InGamePlayer(
+        id: me.id,
+        nickname: me.nickname,
+        isAlive: true,
+        isRevealed: roleMap[me.id] == null ? false : true,
+        role: roleMap[me.id] ?? 'undef',
+        avatarUrl: me.avatarUrl,
+        votesOfPlayer: []
+      ));
+
       for (var item in widget.allPlayers) {
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //if (item.nickname == authorizedUser.nickname) continue;
+        if (item.id == authorizedUser.id) continue;
         inGamePlayers.value.add(InGamePlayer(
           id: item.id,
           nickname: item.nickname,
@@ -1694,7 +1714,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       return;
     }
 
-    if (widget.role == 'Terrorist') {
+    if (role == 'Terrorist') {
       changeVoteState(false);
       return;
     }
@@ -1716,7 +1736,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       }
       return;
     } else if (gamePhase == 'NightVoting') {
-      if ('Mafia' != widget.role) {
+      if ('Mafia' != role) {
         changeVoteState(false);
         return;
       }
@@ -1748,34 +1768,34 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       return;
     }
 
-    if (widget.role == 'Mafia' || widget.role == 'Civilian' || widget.role == 'Spy') {
+    if (role == 'Mafia' || role == 'Civilian' || role == 'Spy') {
       changeSkillState(false);
       return;
     }
 
     if (gamePhase == 'Day') {
-      if (widget.role != 'Bodyguard') {
+      if (role != 'Bodyguard') {
         changeSkillState(false);
         return;
       }
     }
 
     if (gamePhase == 'DayVoting') {
-      if (widget.role != 'Terrorist') {
+      if (role != 'Terrorist') {
         changeSkillState(false);
         return;
       }
     }
 
     if (gamePhase == 'Night') {
-      if (!['Informant', 'Journalist', 'Barman', 'Beauty'].any((el) => el == widget.role)) {
+      if (!['Informant', 'Journalist', 'Barman', 'Beauty'].any((el) => el == role)) {
         changeSkillState(false);
         return;
       }
     }
 
     if (gamePhase == 'NightVoting') {
-      if (!['Doctor', 'Sheriff'].any((el) => el == widget.role)) {
+      if (!['Doctor', 'Sheriff'].any((el) => el == role)) {
         changeSkillState(false);
         return;
       }
@@ -1785,7 +1805,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   bool checkSecondIfEligibleToUseSkill(InGamePlayer player) {
-    if (widget.role == 'Journalist') {
+    if (role == 'Journalist') {
       if (specialForJournalistId.any((el) => el == player.id)) {
         return false;
       }
@@ -1815,7 +1835,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       changeSendMessageState(true);
     }
     else if (gamePhase == 'Night') {
-      if (['Mafia', 'Informant'].any((e) => e == widget.role)) {
+      if (['Mafia', 'Informant'].any((e) => e == role)) {
         changeSendMessageState(true);
       } else {
         changeSendMessageState(false);
@@ -1824,7 +1844,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   bool checkSecondIfEligibleToVote(InGamePlayer player) {
-    if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
+    if (['Mafia', 'Terrorist'].any((el) => el == player.role) && role == 'Mafia' && gamePhase == 'NightVoting') {
       return false;
     }
 
@@ -1886,7 +1906,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       return 'assets/images/${player.role!.toLowerCase()}.png';
     }
 
-    if (widget.role == 'Mafia') {
+    if (role == 'Mafia') {
       if (['Terrorist', 'Mafia'].any((e) => e == player.role)) {
         return 'assets/images/${player.role!.toLowerCase()}.png';
       }
@@ -1912,7 +1932,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         PopupManager().show(
           context: context,
           id: 'roleInformationPopup',
-          builder: (_) => RoleCardPopup(roleName: widget.role.toLowerCase(), closeType: 2,)
+          builder: (_) => RoleCardPopup(roleName: role.toLowerCase(), closeType: 2,)
         );
         isOpened = true;
       }
@@ -1937,7 +1957,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                 if (sizes.maxWidth < 360) {
                   return const Spacer();
                 } else if (sizes.maxWidth < 600) {
-                  int playersCount = widget.civilianCount + widget.mafiaCount;
+                  int playersCount = civilianCount + mafiaCount;
                   return SingleChildScrollView(
                     child: Align(
                       alignment: AlignmentGeometry.center,
@@ -2096,7 +2116,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                         )
                                                       ),
                                                       Text(
-                                                        '$mafiaAlive|${widget.mafiaCount}',
+                                                        '$mafiaAlive|$mafiaCount',
                                                         style: TextStyle(
                                                           height: 1,
                                                           color: const Color(0xFFFFB000),
@@ -2117,7 +2137,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                         )
                                                       ),
                                                       Text(
-                                                        '$civilianAlive|${widget.civilianCount}',
+                                                        '$civilianAlive|$civilianCount',
                                                         style: TextStyle(
                                                           height: 1,
                                                           color: const Color(0xFFFFB000),
@@ -2416,7 +2436,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                       children: [
                                         //? ROLE
                                         Text(
-                                          widget.role,
+                                          role,
                                           style: GoogleFonts.playfairDisplay(
                                             fontSize: 19.sp,
                                             color: const Color(0xFFFFB000),
@@ -2440,7 +2460,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                     
                                         //? ROLE CARD IMAGE
                                         RoleCard(
-                                          roleName: widget.role.toLowerCase(), 
+                                          roleName: role.toLowerCase(), 
                                           width: deviceWidth * 0.174, 
                                           height: deviceHeight * 0.106,
                                           isMini: false,
@@ -2486,7 +2506,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                       context: context, 
                                                       id: 'votePopup', 
                                                       builder: (_) => VotePopup(
-                                                        role: widget.role,
+                                                        role: role,
                                                           canIVote: canIVote,
                                                           useSkill: useSkill,
                                                           dayCount: dayNumber,
@@ -2516,7 +2536,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                     context: context,
                                                     id: 'skillPopup',
                                                     builder: (_) => SkillPopup(
-                                                      role: widget.role,
+                                                      role: role,
                                                       useSkill: useSkill,
                                                       title: widget.title,
                                                       gamePhase: gamePhase,
@@ -2524,10 +2544,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                       canIUseSkill: canIUseSkill,
                                                       aliveMafiaCount: mafiaAlive,
                                                       inGamePlayers: inGamePlayers,
-                                                      mafiaCount: widget.mafiaCount,
+                                                      mafiaCount: mafiaCount,
                                                       aliveCivilianCount: civilianAlive,
                                                       timerNotifier: phaseTimeNotifier,
-                                                      civilianCount: widget.civilianCount,
+                                                      civilianCount: civilianCount,
                                                       toWhomIUsedSkillId: toWhomIUsedSkillId,
                                                     )
                                                   );
@@ -3460,12 +3480,12 @@ class VotePopup extends StatefulWidget {
     required this.votePlayer, 
     required this.timerNotifier, 
     required this.inGamePlayers, 
-    required this.isAliveMyself, 
-    required this.changeVoteState, 
-    required this.votesAreVisibleToMe, 
-    required this.checkSecondIfEligibleToVote, 
+    required this.isAliveMyself,
+    required this.changeVoteState,
+    required this.votesAreVisibleToMe,
+    required this.checkSecondIfEligibleToVote,
     required this.canNightVote, 
-    required this.iVoted, 
+    required this.iVoted,
   });
   
   @override
@@ -4245,6 +4265,8 @@ class _SkillPopupState extends State<SkillPopup> {
   List<int> toWhomIVotedNow = [];
   bool tempStateIUsedSkill = false;
 
+  Iterable<InGamePlayer> filteredPlayers = [];
+
   bool isPopupClosed = false;
 
   void sleep(int seconds) async {
@@ -4267,6 +4289,7 @@ class _SkillPopupState extends State<SkillPopup> {
   void initState() {
     super.initState();
     widget.timerNotifier.addListener(handleTimerChange);
+    filteredPlayers = widget.inGamePlayers.value.where((p) => p.id != authorizedUser.id);
   }
 
   void handleTimerChange() {
@@ -4501,9 +4524,9 @@ class _SkillPopupState extends State<SkillPopup> {
                   builder: (context, value, child) {
                     return ListView.builder(
                       padding: EdgeInsets.zero,
-                      itemCount: value.length,
+                      itemCount: value.length - 1,
                       itemBuilder: (context, index) {
-                        final player = value[index];
+                        final player = value[index + 1];
 
                         //final hasVotes = player["votes"] > 0;
                         return Container(
@@ -4564,7 +4587,16 @@ class _SkillPopupState extends State<SkillPopup> {
                                     ),
                           
                                     //BUTTON:    CHOOSE
-                                    Row(
+                                    (player.id == authorizedUser.id)
+                                    ? Text(
+                                      AppLocalizations.of(context)!.itIsYou,
+                                      style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontFamily: 'CenturyGothic',
+                                        color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white)
+                                      ),
+                                    )
+                                    : Row(
                                       children: [         
                                         SizedBox(
                                           width: 100.w,
@@ -5019,7 +5051,7 @@ class PopupManager {
 
   final Map<String, _PopupData> _popupMap = {};
 
-  void show({
+  Future<T?> show<T>({
     required BuildContext context,
     required String id,
     required WidgetBuilder builder,
@@ -5029,10 +5061,12 @@ class PopupManager {
     Curve curve = Curves.elasticOut,
     Curve reverseCurve = Curves.easeInBack,
   }) {
-    if (_popupMap.containsKey(id)) return;
+     if (_popupMap.containsKey(id)) {
+      return (_popupMap[id] as _PopupData<T>).completer.future;
+    }
 
-    final overlay = Overlay.of(context);
-    if (overlay == null) return;
+    final overlay = rootNavigatorKey.currentState?.overlay;
+    if (overlay == null) return Future.value(null);
 
     final navigator = Navigator.of(context);
     if (navigator is! TickerProvider) {
@@ -5055,6 +5089,8 @@ class PopupManager {
       begin: slideBegin,
       end: Offset.zero,
     ).animate(animation);
+
+    final completer = Completer<T?>();
 
     final entry = OverlayEntry(
       builder: (_) => GestureDetector(
@@ -5084,12 +5120,30 @@ class PopupManager {
     overlay.insert(entry);
     controller.forward();
 
-    _popupMap[id] = _PopupData(entry, controller);
+    _popupMap[id] = _PopupData<T>(entry, controller, completer);
+
+    return completer.future;
   }
+
+  void closeWithResult<T>(String id, T result) {
+    final popup = _popupMap[id] as _PopupData<T>?;
+    if (popup == null) return;
+
+    popup.completer.complete(result);
+
+    popup.controller.reverse().then((_) {
+      popup.entry.remove();
+      popup.controller.dispose();
+      _popupMap.remove(id);
+    });
+  }
+
 
   void close(String id) {
     final popup = _popupMap[id];
     if (popup == null) return;
+
+    popup.completer.complete(null);
 
     popup.controller.reverse().then((_) {
       popup.entry.remove();
@@ -5105,9 +5159,10 @@ class PopupManager {
   }
 }
 
-class _PopupData {
+class _PopupData<T> {
   final OverlayEntry entry;
   final AnimationController controller;
+  final Completer<T?> completer;
 
-  _PopupData(this.entry, this.controller);
+  _PopupData(this.entry, this.controller, this.completer);
 }

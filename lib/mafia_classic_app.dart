@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,10 +10,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
+import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
+import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
 
@@ -23,15 +26,21 @@ import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/features/features.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/repositories/repositories.dart';
+import 'package:mafia_classic/utils/popup_utils.dart';
+import 'package:mafia_classic/utils/snackbar.dart';
 
 import 'blocs/sign_in/sign_in_bloc.dart';
 import 'blocs/sign_up/sign_up_bloc.dart';
+
+List<String> whoInvitedMe = [];
 
 void buildApiService(accessToken, refreshToken, expirationDate) {
   GetIt.I.registerSingleton(ApiService(accessToken, accessToken, accessToken));
 }
 
-final GlobalKey<NavigatorState> rootNavKey = GlobalKey<NavigatorState>();
+final RouteObserver<PageRoute> appRouteObserver = RouteObserver<PageRoute>();
+
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class MafiaClassicApp extends StatefulWidget {
   const MafiaClassicApp({super.key});
@@ -52,43 +61,121 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
     WidgetsBinding.instance.addObserver(this);
     GeneralStreams.languageStream.add(const Locale("en"));
 
-    _globalSub = EventRouterService().globalStream.listen((entry) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppLifecycle.instance.markReady();
+    });
+
+    _globalSub = EventRouterService().globalStream.listen((entry) async {
       final event = entry.key;
       final payload = entry.value;
 
+      //? Friendship Invite
       if (event == ServerEvent.friendshipRoomInvite) {
         final data = jsonDecode(payload) as Map<String, dynamic>;
-        _showInviteDialog(
-          data['senderName'] as String?,
-          data['roomName'] as String?,
-        );
+        final nav = rootNavigatorKey.currentState;
+        if (nav == null) return;
+
+        if (whoInvitedMe.any((key) => key == data['roomId'])) {
+          return;
+        }
+
+        whoInvitedMe.add(data['roomId']);
+
+        showBouncingPopupFromLeft<bool>(
+          nav.overlay!.context, 
+          AcceptRoomInvitePopup(
+            friendNickname: data['nickname'] ?? "",
+            gameTitle: data['roomTitle'] ?? "",
+          )
+        ).then((status) async {
+          if (status == null) return;
+
+          if (status) {
+            await GetIt.I<ApiService>().acceptInviteToRoom(data['roomId']);
+          }
+
+          whoInvitedMe.remove(data['roomId']);
+        });
+      }
+
+      if (event == ServerEvent.friendshipNewFriend) {
+        try {
+          final Map<String, dynamic> jsonData = json.decode(payload)['friend'];
+
+          final newFriend = Friendship.fromJson(jsonData);
+
+          List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+            "all_friends_list",
+            (json) => Friendship.fromJson(json as Map<String, dynamic>),
+          );
+
+          currentFriends ??= [];
+          currentFriends.add(newFriend);
+
+          await GeneralCacheService().save<List<Friendship>?>(
+            "all_friends_list",
+            currentFriends,
+          );
+
+          EventBus().fire(NewFriendAddedEvent(newFriend));
+
+          TopSnackBarManager.show({"message": "[${newFriend.nickname}] Accepted your friend request"}, 1);
+        } on Exception catch (e) {
+          log('EXCEPTION IN:     friendshipNewFriend: ${e.toString()}');
+        }
+      }
+
+      if (event == ServerEvent.friendshipRequestFriendship) {
+        EventBus().fire(FriendRequestReceivedEvent(json.decode(payload)));
+        TopSnackBarManager.show({"message": "New friend request recieved"}, 1);
+      }
+
+      if (event == ServerEvent.friendshipFriendNewMessage) {
+        try {
+          final Map<String, dynamic> decodedPayload = json.decode(payload);
+          final newMessage = Message.fromJson(decodedPayload['message']);
+          final int friendId = json.decode(payload)['id'] as int;
+          final String friendNickname = json.decode(payload)['nickname'];
+          final String avatarUrl = json.decode(payload)['avatarUrl'];
+
+          TopSnackBarManager.show({
+            "content": newMessage.text,
+            "nickname": friendNickname, 
+            "avatarUrl": avatarUrl
+          }, 2);
+
+          EventBus().fire(FriendNewMessageEvent(newMessage, friendId));
+          
+        } on Exception catch (e) {
+          log('EXCEPTION IN:     friendshipFriendNewMessage: ${e.toString()}');
+        }
       }
     });
 
     super.initState();
   }
 
-  void _showInviteDialog(String? sender, String? room) {
-    final nav = rootNavKey.currentState;
-    if (nav == null) return;
-    showDialog(
-      context: nav.overlay!.context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('🎉 Invitation'),
-        content: Text('${sender ?? "Friend"} invited you to "${room ?? "room"}"'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Decline')),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              // Навигация в комнату, отправка join-команды и т.п.
-            },
-            child: const Text('Join'),
-          ),
-        ],
-      ),
-    );
-  }
+  // void _showInviteDialog(String? sender, String? room) {
+  //   final nav = rootNavigatorKey.currentState;
+  //   if (nav == null) return;
+  //   showDialog(
+  //     context: nav.overlay!.context,
+  //     builder: (ctx) => AlertDialog(
+  //       title: const Text('🎉 Invitation'),
+  //       content: Text('${sender ?? "Friend"} invited you to "${room ?? "room"}"'),
+  //       actions: [
+  //         TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Decline')),
+  //         ElevatedButton(
+  //           onPressed: () {
+  //             Navigator.of(ctx).pop();
+  //             // Навигация в комнату, отправка join-команды и т.п.
+  //           },
+  //           child: const Text('Join'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   void dispose() {
@@ -131,6 +218,8 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
             child: MaterialApp(
+              navigatorKey: rootNavigatorKey,
+              navigatorObservers: [appRouteObserver],
               key: MafiaClassicApp.globalKey,
               debugShowCheckedModeBanner: false,
               localizationsDelegates: const [
@@ -153,6 +242,8 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
   }
 }
 
+late User authorizedUser;
+
 class HomeScreen extends StatefulWidget {
 
   final User user;
@@ -166,7 +257,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
+  final ValueNotifier<int> tabIndexNotifier = ValueNotifier(0);
   //late List<Widget> _widgetOptions;
 
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
@@ -196,9 +287,9 @@ class _HomeScreenState extends State<HomeScreen> {
         return ProfileScreen(user: widget.user);
       case 1:
         //TcpClientService().sendMessage(2, "");
-        return GamesScreen(user: widget.user);
+        return GamesScreen(user: widget.user, tabIndexNotifier: tabIndexNotifier, tabIndex: 1);
       case 2:
-        return const CreateGameScreen();
+        return CreateGameScreen(tabIndexNotifier: tabIndexNotifier, tabIndex: 2);
       case 3:
         return const FriendsScreen();
       default:
@@ -209,6 +300,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    authorizedUser = widget.user;
 
     //////////////////////////
     //setup(widget.user);
@@ -224,6 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      tabIndexNotifier.value = index;
     });
   }
 
@@ -332,6 +426,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+class AppLifecycle {
+  static final AppLifecycle instance = AppLifecycle._();
+  AppLifecycle._();
+
+  final Completer<void> _readyCompleter = Completer<void>();
+
+  Future<void> get ready => _readyCompleter.future;
+
+  void markReady() {
+    if (!_readyCompleter.isCompleted) {
+      _readyCompleter.complete();
+    }
+  }
+}
 
 
 class CreatePage extends StatelessWidget {
