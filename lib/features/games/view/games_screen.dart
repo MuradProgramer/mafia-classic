@@ -380,7 +380,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
 
   @override
   void initState() {
-    super.initState();
+    super.initState(); 
     //loadStreamsAndData();    
   }
 
@@ -846,20 +846,7 @@ class _GameCardState extends State<GameCard> {
   void didChangeDependencies() {
     super.didChangeDependencies();
   }
-
-  void showExceptionPopup(String content) {
-    showBouncingPopupFromTop(
-      context, 
-      ValidationPopup(
-        height: 170.h, 
-        width: 270.w, 
-        popupType: 2, 
-        statusCode: 111, 
-        content: content
-      )
-    );
-  }
-
+  
   @override
   void initState() {
     passwordIsWrong = EventRouterService()
@@ -869,9 +856,6 @@ class _GameCardState extends State<GameCard> {
         setState(() {
           canBeNavigated = false;
         });
-
-        showExceptionPopup("Password is incorrect, try another one!");
-
       } on Exception catch (e) {
         log('EXCEPTION IN:     : ${e.toString()}');
       }
@@ -1017,7 +1001,7 @@ class _GameCardState extends State<GameCard> {
                       Navigator.of(context, rootNavigator: true).push(
                         MaterialPageRoute(
                           builder: (context) {
-                            return GameScreen(title: widget.game.title, playersRole: [], role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",);
+                            return GameScreen(title: widget.game.title, playersRole: [] , role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",);
                           }
                         )
                       ).then((result) {
@@ -1505,9 +1489,18 @@ class _PlayersPopupState extends State<PlayersPopup> {
                                   //? CIRCLE AVATAR AND NICKNAME
                                   Row(
                                     children: [
-                                      CircleAvatar(
-                                        radius: 15,
-                                        backgroundImage: NetworkImage(value[index].avatarUrl),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 0.7.sp,
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: CircleAvatar(
+                                          radius: 15,
+                                          backgroundImage: NetworkImage(value[index].avatarUrl),
+                                        ),
                                       ),
                                       SizedBox(width: 10.w),
                                       Text(
@@ -3618,7 +3611,6 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                 ],
                               ),
                             ),
-
                           ],
                         ),
                       ),
@@ -4295,7 +4287,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(50.r),
                                               border: Border.all(
-                                                width: 1.w,
+                                                width: 0.7.w,
                                                 color: const Color(0xFFFFFFFF)
                                               )
                                             ),
@@ -4738,8 +4730,17 @@ class _ChatWidgetState extends State<ChatWidget> {
         }
 
         return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(message.avatarUrl),
+          leading: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.white,
+                width: 0.7.sp,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(message.avatarUrl),
+            ),
           ),
           title: Text(
             message.nickname, 

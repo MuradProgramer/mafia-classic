@@ -227,6 +227,13 @@ class _TopBounceSnackBarNewMessage extends State<TopBounceSnackBarNewMessage> wi
   late Animation<Offset> _offsetAnimation;
   Timer? _timer;
 
+  String get displayContent {
+    if (widget.content.length > 100) {
+      return '${widget.content.substring(0, 70)}...';
+    }
+    return widget.content;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -329,7 +336,7 @@ class _TopBounceSnackBarNewMessage extends State<TopBounceSnackBarNewMessage> wi
                             ),
                           ),
                           Text(
-                            widget.content,
+                            displayContent,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14.sp,

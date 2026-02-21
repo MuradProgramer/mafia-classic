@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 class InGameMessage {
+  final int? playerId;
   final String? nickname;
   final String content;
   String? avatarUrl;
@@ -10,6 +11,7 @@ class InGameMessage {
   
 
   InGameMessage({
+    required this.playerId,
     required this.nickname,
     required this.content,
     required this.avatarUrl,
@@ -20,6 +22,7 @@ class InGameMessage {
 
   factory InGameMessage.fromJson(Map<String, dynamic> json) {
     return InGameMessage(
+      playerId: json['playerId'],
       nickname: json['nickname'] ?? '',
       content: json['content'] ?? '',
       type: json['type'] ?? '',

@@ -7,7 +7,15 @@ import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/widgets/widgets.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/models/user.dart';
+import 'package:mafia_classic/services/api_service.dart';
+import 'package:mafia_classic/services/shared_preferences/auth/auth_cache_service.dart';
+import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
+import 'package:mafia_classic/services/tcp/general_service.dart';
+import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/utils/popup_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 List<PlayerRole> players = [
   PlayerRole(
@@ -98,11 +106,43 @@ class _SplashScreenState extends State<SplashScreen> {
     final height = MediaQuery.sizeOf(context).height;
     //final width = MediaQuery.of(context).size.width;
 
-    Timer(const Duration(seconds: 1), () {
+    void initGeneralServiceForAuthorizedUser(User authorized) async {
+      await GeneralService(authorized).init();
+    }
+
+    Timer(const Duration(seconds: 1), () async {
+      final authorized = await AuthService.hasValidSession();
+
+      if (!mounted) return;
       Navigator.push(context, 
         MaterialPageRoute(
           fullscreenDialog: true,
-          builder: (context) => const SignInScreen()   // TRUEEE
+          builder: (context) { 
+            if (authorized) {
+              User alreadyUser = User(
+                id: SharedPrefsService.getUserId() ?? -1, 
+                email: SharedPrefsService.getUserEmail() ?? '', 
+                nickname: SharedPrefsService.getUserNickname() ?? '', 
+                avatarUrl: SharedPrefsService.getUserAvatarUrl() ?? '', 
+                accessToken: SharedPrefsService.getAccessToken() ?? '', 
+                refreshToken: SharedPrefsService.getRefreshToken() ?? '', 
+                expirationDate: SharedPrefsService.getAccessTokenExpiryUtc()!
+              );
+              setup(alreadyUser);
+              initGeneralServiceForAuthorizedUser(alreadyUser);
+              print("\n\n------------------------------");
+              print('Already authorized id: ${alreadyUser.id}');
+              print('Already authorized nickname: ${alreadyUser.nickname}');
+              print('Already authorized access token: ${alreadyUser.accessToken}');
+              print('Already authorized refresh token: ${alreadyUser.refreshToken}');
+              print('Already authorized expiration date: ${alreadyUser.expirationDate.toLocal().toIso8601String()}');
+              print("------------------------------\n\n");
+              return HomeScreen(user: alreadyUser);
+            }
+            else {
+              return const SignInScreen();
+            }
+          }
           
           // builder: (context) => FriendChat(friend: 
           //   Friendship(

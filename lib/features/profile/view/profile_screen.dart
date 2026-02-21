@@ -371,351 +371,363 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onWillPop: () async {
         return false; // Prevent back navigation
       },
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          image: DecorationImage(image: AssetImage("assets/images/temp-home-background.png"), fit: BoxFit.fill, opacity: 1),
-        ),
-        child: Scaffold(
-          /*
-          appBar: AppBar(
-            backgroundColor: theme.appBarTheme.backgroundColor,
-            title: Text(widget.title, style: theme.appBarTheme.titleTextStyle),
-            automaticallyImplyLeading: false,
-            centerTitle: true,
-          ),
-          */
-          
-          body: Container(
-            margin: EdgeInsets.only(top: 50.h),
-            child: Column(
-              children: [
-                //? MAFIA CLASSIC TEXT
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: 125.h,
-                      width: 300.w,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Stack(
-                        children: [
-                          // TEXT:    MAFIA
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.mafia,
-                                style: GoogleFonts.playfairDisplay(
-                                  fontSize: 55.sp,
-                                  height: 0,
-                                  color: const Color(0xFFFFB000),
-                                ),
-                              ),
-                            ],
-                          ),
-                    
-                          // TEXT:    CLASSIC
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(top: 70.h),
-                                child: Text(
-                                  AppLocalizations.of(context)!.classic,
-                                  style: TextStyle(
-                                    fontSize: 26.sp,
-                                    height: 0,
-                                    fontFamily: 'CenturyGothic',
-                                    fontWeight: FontWeight.w200,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              
-                //? WELCOME TEXT
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 285.h),
-                      height: 110.h,
-                      width: 310.w,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(12.0),
-                        //border: Border.all(color: Colors.white, width: 1)
-                      ),
-                      child: Stack(
-                        children: [
-
-                          //? ORNAMENTS
-                          Stack(
-                            children: [
-                              Positioned(
-                                bottom: ornamentMargin,
-                                left: ornamentMargin / 2 + 5,
-                                child: Transform.rotate(
-                                  angle: -45 * 3.14159 / 180,
-                                  child: Image.asset(
-                                    ornament,
-                                    width: ornamentSize,
-                                    height: ornamentSize,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: ornamentMargin,
-                                right: ornamentMargin / 2 + 5,
-                                child: Transform.rotate(
-                                  angle: -225 * 3.14159 / 180,
-                                  child: Image.asset(
-                                    ornament,
-                                    width: ornamentSize,
-                                    height: ornamentSize,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                  
-                          //? WELCOME
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "${AppLocalizations.of(context)!.welcome},",
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 32.sp,
-                                      height: 0,
-                                      color: const Color(0xFFFFB000),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    widget.user.nickname,
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 32.sp,
-                                      height: 0,
-                                      color: const Color(0xFFFFB000),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )
-
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              
-                //? BUTTONS
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 20.h),
-                      height: 150.h,
-                      width: 310.w,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(12.sp),
-                        //border: Border.all(color: Colors.white, width: 1)
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              // BUTTON:    RATING
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const RatingsScreen(),
-                                    )
-                                  );
-                                },
-                                child: Container(
-                                  width: 110.w,
-                                  height: 40.h,
-                                  margin: EdgeInsets.only(top: marginButtons, left: 30.w),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(71.sp),
-                                    border: Border.all(color: Colors.white, width: 1.5)
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      AppLocalizations.of(context)!.ratings,
-                                      style: TextStyle(
-                                        fontSize: 23.sp,
-                                        color: Colors.white,
-                                        fontFamily: 'CenturyGothic'
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              // BUTTON:    SETTINGS
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const SettingsScreen(),
-                                    )
-                                  );
-                                },
-                                child: Container(
-                                  width: 110.w,
-                                  height: 40.h,
-                                  margin: EdgeInsets.only(top: marginButtons, left: 30.w),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(71.sp),
-                                    border: Border.all(color: Colors.white, width: 1.5)
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      AppLocalizations.of(context)!.settings,
-                                      style: TextStyle(
-                                        fontSize: 23.sp,
-                                        color: Colors.white,
-                                        fontFamily: 'CenturyGothic'
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          Row(
-                            children: [
-                              // BUTTON:    ROLES
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const RolesScreen(),
-                                    )
-                                  );
-                                },
-                                child: Container(
-                                  width: 110.w,
-                                  height: 40.h,
-                                  margin: EdgeInsets.only(top: marginButtons, left: 30.w),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(71.sp),
-                                    border: Border.all(color: Colors.white, width: 1.5)
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      AppLocalizations.of(context)!.roles,
-                                      style: TextStyle(
-                                        fontSize: 23.sp,
-                                        color: Colors.white,
-                                        fontFamily: 'CenturyGothic'
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              // BUTTON:    CHAT
-                              //!!!!!!!!!!!!!!!!
-                              GestureDetector(
-                                onTap: () {
-                                  showBouncingPopupFromLeft(
-                                    context, 
-                                    PlayerInfoPopup(
-                                      id: 2,
-                                      height: 727.h, 
-                                      width: 405.w, 
-                                      nickname: "Admin",
-                                      /*
-                                      playerInfo: PlayerInfo(
-                                        nickname: 'Tony Stark', 
-                                        avatarUrl: 'https://img.freepik.com/premium-vector/mafia-logo_74829-29.jpg', 
-                                        isOnline: false, 
-                                        lastSeen: DateTime(2025, 8, 15, 17, 36),
-                                        joinDate: DateTime.now(), 
-                                        friendshipStatus: 'None',
-                                        inGameLobby: false, 
-                                        
-                                        overall: 2429 + 1230, 
-                                        wins: 2429, 
-                                        loses: 1230, 
-                                        mafiaWins: 1120, 
-                                        civilianWins: 1309,
-                                        playedRoles: {
-                                          "Civilian": 177,
-                                          "Mafia": 54,
-                                          "Doctor": 682,
-                                          "Sheriff": 254,
-                                          "Bodyguard": 365,
-                                          "Beauty": 45,
-                                          "Journalist": 24,
-                                          "Spy": 76,
-                                          "Terrorist": 245,
-                                          "Informant": 343,
-                                          "Barman": 543
-                                        }, 
-                                        gameLobbyTitle: null, 
-                                        gameLobbyStatus: null, 
-                                        gameLobbyPlayerCount: null
-                                      ),
-                                      */
-                                    )
-                                  );
-                                },
-                                child: Container(
-                                  width: 110.w,
-                                  height: 40.h,
-                                  margin: EdgeInsets.only(top: marginButtons, left: 30.w),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(71.sp),
-                                    border: Border.all(color: Colors.white, width: 1.5)
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      AppLocalizations.of(context)!.chat,
-                                      style: TextStyle(
-                                        fontSize: 23.sp,
-                                        color: Colors.white,
-                                        fontFamily: 'CenturyGothic'
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      )
-                    )
-                  ],
-                )
-              ],
+      child: Stack(
+        children: [
+          Positioned(
+            top: 65.h,
+            left: 0,
+            right: 0,
+            bottom: -65.h,
+            child: Image.asset(
+              "assets/images/temp-home-background.png",
+              fit: BoxFit.cover,
             ),
-          )
-        ),
+          ),
+          Scaffold(
+            /*
+            appBar: AppBar(
+              backgroundColor: theme.appBarTheme.backgroundColor,
+              title: Text(widget.title, style: theme.appBarTheme.titleTextStyle),
+              automaticallyImplyLeading: false,
+              centerTitle: true,
+            ),
+            */
+            
+            body: Container(
+              margin: EdgeInsets.only(top: 50.h),
+              child: Column(
+                children: [
+                  //? MAFIA CLASSIC TEXT
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 125.h,
+                        width: 300.w,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Stack(
+                          children: [
+                            // TEXT:    MAFIA
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)!.mafia,
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 55.sp,
+                                    height: 0,
+                                    color: const Color(0xFFFFB000),
+                                  ),
+                                ),
+                              ],
+                            ),
+                      
+                            // TEXT:    CLASSIC
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(top: 70.h),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.classic,
+                                    style: TextStyle(
+                                      fontSize: 26.sp,
+                                      height: 0,
+                                      fontFamily: 'CenturyGothic',
+                                      fontWeight: FontWeight.w200,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                
+                  //? WELCOME TEXT
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 275.h),
+                        height: 110.h,
+                        width: 310.w,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(12.0),
+                          //border: Border.all(color: Colors.white, width: 1)
+                        ),
+                        
+                        child: Stack(
+                          children: [
+                            
+                            //? ORNAMENTS
+                            Stack(
+                              children: [
+                                Positioned(
+                                  bottom: ornamentMargin,
+                                  left: ornamentMargin / 2 + 5,
+                                  child: Transform.rotate(
+                                    angle: -45 * 3.14159 / 180,
+                                    child: Image.asset(
+                                      ornament,
+                                      width: ornamentSize,
+                                      height: ornamentSize,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: ornamentMargin,
+                                  right: ornamentMargin / 2 + 5,
+                                  child: Transform.rotate(
+                                    angle: -225 * 3.14159 / 180,
+                                    child: Image.asset(
+                                      ornament,
+                                      width: ornamentSize,
+                                      height: ornamentSize,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                    
+                            //? WELCOME
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "${AppLocalizations.of(context)!.welcome},",
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 32.sp,
+                                        height: 0,
+                                        color: const Color(0xFFFFB000),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      widget.user.nickname,
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 32.sp,
+                                        height: 0,
+                                        color: const Color(0xFFFFB000),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                    
+                          ],
+                        ),
+                        
+                      )
+                    ],
+                  ),
+                  
+                    
+                  //? BUTTONS
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 25.h),
+                        height: 150.h,
+                        width: 310.w,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(12.sp),
+                          //border: Border.all(color: Colors.white, width: 1)
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                // BUTTON:    RATING
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const RatingsScreen(),
+                                      )
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 110.w,
+                                    height: 40.h,
+                                    margin: EdgeInsets.only(top: marginButtons, left: 30.w),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(71.sp),
+                                      border: Border.all(color: Colors.white, width: 1.5)
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.ratings,
+                                        style: TextStyle(
+                                          fontSize: 23.sp,
+                                          color: Colors.white,
+                                          fontFamily: 'CenturyGothic'
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                    
+                                // BUTTON:    SETTINGS
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const SettingsScreen(),
+                                      )
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 110.w,
+                                    height: 40.h,
+                                    margin: EdgeInsets.only(top: marginButtons, left: 30.w),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(71.sp),
+                                      border: Border.all(color: Colors.white, width: 1.5)
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.settings,
+                                        style: TextStyle(
+                                          fontSize: 23.sp,
+                                          color: Colors.white,
+                                          fontFamily: 'CenturyGothic'
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                    
+                            Row(
+                              children: [
+                                // BUTTON:    ROLES
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const RolesScreen(),
+                                      )
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 110.w,
+                                    height: 40.h,
+                                    margin: EdgeInsets.only(top: marginButtons, left: 30.w),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(71.sp),
+                                      border: Border.all(color: Colors.white, width: 1.5)
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.roles,
+                                        style: TextStyle(
+                                          fontSize: 23.sp,
+                                          color: Colors.white,
+                                          fontFamily: 'CenturyGothic'
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                    
+                                // BUTTON:    CHAT
+                                //!!!!!!!!!!!!!!!!
+                                GestureDetector(
+                                  onTap: () {
+                                    showBouncingPopupFromLeft(
+                                      context, 
+                                      PlayerInfoPopup(
+                                        id: 2,
+                                        height: 727.h, 
+                                        width: 405.w, 
+                                        nickname: "Admin",
+                                        /*
+                                        playerInfo: PlayerInfo(
+                                          nickname: 'Tony Stark', 
+                                          avatarUrl: 'https://img.freepik.com/premium-vector/mafia-logo_74829-29.jpg', 
+                                          isOnline: false, 
+                                          lastSeen: DateTime(2025, 8, 15, 17, 36),
+                                          joinDate: DateTime.now(), 
+                                          friendshipStatus: 'None',
+                                          inGameLobby: false, 
+                                          
+                                          overall: 2429 + 1230, 
+                                          wins: 2429, 
+                                          loses: 1230, 
+                                          mafiaWins: 1120, 
+                                          civilianWins: 1309,
+                                          playedRoles: {
+                                            "Civilian": 177,
+                                            "Mafia": 54,
+                                            "Doctor": 682,
+                                            "Sheriff": 254,
+                                            "Bodyguard": 365,
+                                            "Beauty": 45,
+                                            "Journalist": 24,
+                                            "Spy": 76,
+                                            "Terrorist": 245,
+                                            "Informant": 343,
+                                            "Barman": 543
+                                          }, 
+                                          gameLobbyTitle: null, 
+                                          gameLobbyStatus: null, 
+                                          gameLobbyPlayerCount: null
+                                        ),
+                                        */
+                                      )
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 110.w,
+                                    height: 40.h,
+                                    margin: EdgeInsets.only(top: marginButtons, left: 30.w),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(71.sp),
+                                      border: Border.all(color: Colors.white, width: 1.5)
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.chat,
+                                        style: TextStyle(
+                                          fontSize: 23.sp,
+                                          color: Colors.white,
+                                          fontFamily: 'CenturyGothic'
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        )
+                      )
+                    ],
+                  )
+                ],
+              ),
+            )
+          ),
+        ],
       ),
     );
   }

@@ -54,7 +54,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
     if (popupCount == 0) {
       showBouncingPopupFromTop(
-        context, 
         ValidationPopup(
           height: 105.h, 
           width: 295.w, 
@@ -70,7 +69,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void showExceptionPopup(String content) {
     showBouncingPopupFromTop(
-      context, 
       ValidationPopup(
         height: 170.h, 
         width: 270.w, 

@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
+import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 import 'package:mafia_classic/services/tcp/general_service.dart';
 
 class AuthRepository {
@@ -31,7 +32,16 @@ class AuthRepository {
           avatarUrl: data['avatarUrl'],
           accessToken: data['accessToken'], 
           refreshToken: data['refreshToken'], 
-          expirationDate: DateTime.parse(data['expiration'])
+          expirationDate: DateTime.parse(data['expiration']).toUtc()
+        );
+        await SharedPrefsService.saveTokens(
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          expiration: user.expirationDate,
+          nickname: user.nickname,
+          avatarUrl: user.avatarUrl,
+          email: user.email,
+          id: user.id,
         );
         setup(user);
         await GeneralService(user).init();
@@ -105,9 +115,18 @@ class AuthRepository {
         avatarUrl: data['avatarUrl'],
         accessToken: data['accessToken'], 
         refreshToken: data['refreshToken'], 
-        expirationDate: DateTime.parse(data['expiration'])
+        expirationDate: DateTime.parse(data['expiration']).toUtc()
       );
       setup(user);
+      await SharedPrefsService.saveTokens(
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+        expiration: user.expirationDate,
+        nickname: user.nickname,
+        avatarUrl: user.avatarUrl,
+        email: user.email,
+        id: user.id,
+      );
       await GeneralService(user).init();
       return user;
     } else if (statusCodeOfResponse == 400) {

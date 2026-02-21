@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,9 +12,14 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
+import 'package:mafia_classic/features/widgets/player_info_popup.dart';
+import 'package:mafia_classic/features/widgets/validation_popup.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
+import 'package:mafia_classic/services/locale/locale_service.dart';
+import 'package:mafia_classic/services/shared_preferences/extensions/language_prefs.dart';
+import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
@@ -33,6 +39,7 @@ import 'blocs/sign_in/sign_in_bloc.dart';
 import 'blocs/sign_up/sign_up_bloc.dart';
 
 List<String> whoInvitedMe = [];
+int isInFriendIdChatGlobal = -1;
 
 void buildApiService(accessToken, refreshToken, expirationDate) {
   GetIt.I.registerSingleton(ApiService(accessToken, accessToken, accessToken));
@@ -43,7 +50,8 @@ final RouteObserver<PageRoute> appRouteObserver = RouteObserver<PageRoute>();
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class MafiaClassicApp extends StatefulWidget {
-  const MafiaClassicApp({super.key});
+  final LocaleService localeService;
+  const MafiaClassicApp({super.key, required this.localeService});
 
   static final GlobalKey<_MafiaClassicAppState> globalKey =
       GlobalKey<_MafiaClassicAppState>();
@@ -56,10 +64,29 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
 
   late final StreamSubscription _globalSub;
 
+  void setLocale() async {
+    
+  }
+
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
-    GeneralStreams.languageStream.add(const Locale("en"));
+
+    String languageCode =
+      SharedPrefsService().getSavedLanguageCode() ??
+      PlatformDispatcher.instance.locale.languageCode;
+
+    const supported = ['en', 'ru', 'az', 'tr'];
+
+    if (!supported.contains(languageCode)) {
+      languageCode = 'en';
+    }
+
+    final locale = L10n.locals.firstWhere(
+      (l) => l.languageCode == languageCode,
+    );
+
+    GeneralStreams.languageStream.add(const Locale('ru'));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppLifecycle.instance.markReady();
@@ -138,22 +165,59 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
           final String friendNickname = json.decode(payload)['nickname'];
           final String avatarUrl = json.decode(payload)['avatarUrl'];
 
-          TopSnackBarManager.show({
-            "content": newMessage.text,
-            "nickname": friendNickname, 
-            "avatarUrl": avatarUrl
-          }, 2);
-
+          if (isInFriendIdChatGlobal != friendId) {
+            TopSnackBarManager.show({
+              "content": newMessage.text,
+              "nickname": friendNickname, 
+              "avatarUrl": avatarUrl
+            }, 2);
+          }
+          
           EventBus().fire(FriendNewMessageEvent(newMessage, friendId));
           
         } on Exception catch (e) {
           log('EXCEPTION IN:     friendshipFriendNewMessage: ${e.toString()}');
         }
       }
+
+      if (event == ServerEvent.clientError) {
+        //print("EVENT TYPE: CLIENT ERROR PAYLOAD: $payload");
+        switch (json.decode(payload)['errorType'] as int) {
+          case 1007:
+            showExceptionPopup("Password is incorrect, try another one!");
+            break;
+          case 403:
+            showExceptionPopup("You don't have permission to perform this action.");
+            break;
+          case 404:
+            showExceptionPopup("Requested resource was not found.");
+            break;
+          case 500:
+            showExceptionPopup("Server error occurred. Please, try again later.");
+            break;
+          default:
+            showExceptionPopup("An unexpected error occurred. Please, try again.");
+            break;
+        }
+        //showExceptionPopup("Password is incorrect, try another one!");
+      }
     });
 
     super.initState();
   }
+
+  void showExceptionPopup(String content) {
+    showBouncingPopupFromTop(
+      ValidationPopup(
+        height: 170.h, 
+        width: 270.w, 
+        popupType: 2, 
+        statusCode: 111, 
+        content: content
+      )
+    );
+  }
+
 
   // void _showInviteDialog(String? sender, String? room) {
   //   final nav = rootNavigatorKey.currentState;
@@ -195,7 +259,7 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
       
     } else if (state == AppLifecycleState.detached) {
       print("App engine detached. Clearing all cache...");
-      GeneralCacheService().clearAllData();
+      //GeneralCacheService().clearCacheExceptLanguage();
     } else if (state == AppLifecycleState.hidden) {
       print("App is hidden.");
     }
@@ -212,8 +276,8 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
           create: (context) => SignUpBloc(authRepository: GetIt.I<AuthRepository>()),
         ),
       ],
-      child: StreamBuilder<Locale>(
-        stream: GeneralStreams.languageStream.stream,
+      child: AnimatedBuilder(
+        animation: widget.localeService,
         builder: (context, snapshot) {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
@@ -229,7 +293,7 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
                 GlobalCupertinoLocalizations.delegate,
                 AppLocalizations.delegate,
               ],
-              locale: snapshot.data,
+              locale: widget.localeService.locale,
               supportedLocales: L10n.locals,
               //title: 'Flutter Demo',
               theme: theme,
@@ -256,11 +320,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
-  final ValueNotifier<int> tabIndexNotifier = ValueNotifier(0);
+  int _selectedIndex = 2;
+  final ValueNotifier<int> tabIndexNotifier = ValueNotifier(2);
   //late List<Widget> _widgetOptions;
 
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
@@ -284,13 +349,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _getInitialPageForIndex(int index) {
     switch (index) {
       case 0:
-        return ProfileScreen(user: widget.user);
+        return MyProfileScreen(
+          id: widget.user.id,
+          height: 700.h, 
+          width: 390.w, 
+          nickname: widget.user.nickname,
+          tabIndexNotifier: tabIndexNotifier, tabIndex: 0
+        );
       case 1:
         //TcpClientService().sendMessage(2, "");
         return GamesScreen(user: widget.user, tabIndexNotifier: tabIndexNotifier, tabIndex: 1);
       case 2:
-        return CreateGameScreen(tabIndexNotifier: tabIndexNotifier, tabIndex: 2);
+        return ProfileScreen(user: widget.user);
       case 3:
+        return CreateGameScreen(tabIndexNotifier: tabIndexNotifier, tabIndex: 3);
+      case 4:
         return const FriendsScreen();
       default:
         return Container();
@@ -322,25 +395,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNavItem(String assetPath, int index, String text) {
-    //final isSelected = _selectedIndex == index;
-    return GestureDetector(
-      onTap: () => _onItemTapped(index),
-      child: SizedBox(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              assetPath,
-              scale: 2.8
-            ),
-            Text(
-              text,
-              style: GoogleFonts.playfairDisplay(
-                color: Colors.white,
-                fontSize: 16.sp
+    final isSelected = _selectedIndex == index;
+    return Opacity(
+      opacity: isSelected ? 1 : 0.7,
+      child: GestureDetector(
+        onTap: () => _onItemTapped(index),
+        child: SizedBox(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 45.h,
+                width: 45.w,
+                child: Image.asset(
+                  assetPath,
+                ),
               ),
-            )
-          ],
+              Text(
+                text,
+                style: GoogleFonts.playfairDisplay(
+                  color: Colors.white,
+                  fontSize: 16.sp
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -354,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       body: Stack(
         children: List.generate(
-          4,
+          5,
           (index) => _buildOffstageNavigator(index),
         ),
       ),
@@ -371,8 +450,9 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildNavItem('assets/images/icon-profile.png', 0, S.of(context).profile),
               _buildNavItem('assets/images/icon-games.png', 1, S.of(context).games),
-              _buildNavItem('assets/images/icon-create.png', 2, S.of(context).create),
-              _buildNavItem('assets/images/icon-friends.png', 3, S.of(context).friends),
+              _buildNavItem('assets/images/icon-home.png', 2, "Home"),
+              _buildNavItem('assets/images/icon-create.png', 3, S.of(context).create),
+              _buildNavItem('assets/images/icon-friends.png', 4, S.of(context).friends),
             ],
           ),
         ),

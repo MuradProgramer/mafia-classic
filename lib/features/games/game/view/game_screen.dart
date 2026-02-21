@@ -20,6 +20,7 @@ import 'package:mafia_classic/features/games/popups/game_information_popup.dart'
 import 'package:mafia_classic/features/games/popups/game_player_dead_popup.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/role_card.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/role_card_popup.dart';
+import 'package:mafia_classic/features/widgets/player_info_popup.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
@@ -29,6 +30,7 @@ import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
+import 'package:mafia_classic/utils/popup_utils.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 import '../../popups/game_over_popup.dart';
@@ -554,6 +556,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           };
         
           inGameMessages.add(InGameMessage(
+            playerId: authorizedUser.id,
             nickname: authorizedUser.nickname,
             content: phaseMessages[phase] ?? '',
             avatarUrl: authorizedUser.avatarUrl,
@@ -710,6 +713,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         
         setState(() {
           inGameMessages.add(InGameMessage(
+            playerId: data['senderId'],
             nickname: data['nickname'], 
             content: data['content'], 
             avatarUrl: data['avatarUrl'],
@@ -791,6 +795,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
         setState(() {
           inGameMessages.add(InGameMessage(
+            playerId: -1,
             nickname: '', 
             content: phaseCheck == 'NightVoting'
               ? AppLocalizations.of(context)!.nicknameDidNotSurviveTheNight(nickname)
@@ -830,6 +835,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         
         setState(() {
           inGameMessages.add(InGameMessage(
+            playerId: -1,
             nickname: '', 
             content: content, 
             avatarUrl: '',
@@ -866,6 +872,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         
         setState(() {
           inGameMessages.add(InGameMessage(
+            playerId: -1,
             nickname: '', 
             content: content, 
             avatarUrl: '',
@@ -2405,15 +2412,30 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                               margin: EdgeInsets.only(top: 2.h),
                                               width: 75.w,
                                               height: 40.h,
-                                              child: Text(
-                                                player.nickname,
-                                                textAlign: TextAlign.center,
-                                                softWrap: true,
-                                                maxLines: 2,
-                                                style: TextStyle(
-                                                  height: 0,
-                                                  fontSize: 15.sp,
-                                                  fontFamily: 'CenturyGothic',
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  showBouncingPopupFromLeft(
+                                                    context, 
+                                                    PlayerInfoPopup(
+                                                      id: player.id,
+                                                      height: 727.h, 
+                                                      width: 405.w, 
+                                                      nickname: player.nickname,
+                                                    )
+                                                  ).then((_) {
+                                                    
+                                                  });
+                                                },
+                                                child: Text(
+                                                  player.nickname,
+                                                  textAlign: TextAlign.center,
+                                                  softWrap: true,
+                                                  maxLines: 2,
+                                                  style: TextStyle(
+                                                    height: 0,
+                                                    fontSize: 15.sp,
+                                                    fontFamily: 'CenturyGothic',
+                                                  ),
                                                 ),
                                               ),
                                             ),

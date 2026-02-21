@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
 
-void showBouncingPopupFromTop(BuildContext context, Widget child) {
+void showBouncingPopupFromTop(Widget child) {
+  final context = rootNavigatorKey.currentContext;
+
+  if (context == null) return;
+  
   showGeneralDialog(
     context: context,
     barrierDismissible: true,

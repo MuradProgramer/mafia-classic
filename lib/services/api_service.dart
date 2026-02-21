@@ -14,6 +14,7 @@ import 'package:mafia_classic/main.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
+import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:signalr_netcore/ihub_protocol.dart';
 import 'package:signalr_netcore/signalr_client.dart';
@@ -490,26 +491,46 @@ class ApiService extends TokenAwareService {
 
   @override
   bool isTokenExpired() {
-    return DateTime.now().isAfter(_expiration);
+    return DateTime.now().toUtc().isAfter(_expiration);
   }
 
   @override
   Future<void> refreshToken() async {
+    log(
+        '@@@@@@@@Access token expired. Attempting to refresh NO 1... AuthService@@@@@@@@',
+      );
     final response = await GetIt.I<DioService>().dio.post(
-      'Account/UpdateRefreshToken',
+      'Account/RefreshToken',
       options: Options(
         headers: {
           'Authorization': 'Bearer $_refreshToken'
         }
       )
     );
+
+    log(
+        '@@@@@@@@Access token expired. Attempting to refresh NO 2... AuthService@@@@@@@@',
+      );
     
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.data.toString());
+      final Map<String, dynamic> data = response.data as Map<String, dynamic>;
+
       _accessToken = data['accessToken'];
-      _expiration = DateTime.parse(data['expiration']);
+      _expiration = DateTime.parse(data['expiration']).toUtc();
       _refreshToken = data['refreshToken'];
+      await SharedPrefsService.saveTokens(
+        accessToken: _accessToken,
+        refreshToken: _refreshToken,
+        expiration: _expiration,
+        nickname: SharedPrefsService.getUserNickname()!,
+        avatarUrl: SharedPrefsService.getUserAvatarUrl()!,
+        email: SharedPrefsService.getUserEmail()!,
+        id: SharedPrefsService.getUserId()!,
+      );
     } else if(response.statusCode == 401) {
+      log(
+        '@@@@@@@@Access token expired. Attempting to refresh NO 401... AuthService@@@@@@@@',
+      );
       // go to sign in page
     } else {
       throw Exception('Failed to refresh token');
@@ -643,25 +664,93 @@ class ApiService extends TokenAwareService {
   // DONE partially
   Future<PlayerInfo> getPlayerInfo(int id) async {
     PlayerInfo? playerInfo;
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.get(
-        'profile/$id',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
-      );
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.get(
+          'profile/$id',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken'
+            }
+          )
+        );
 
-      if (response.statusCode == 200) {
-        log(response.data.toString());
-        final data = response.data as Map<String, dynamic>;
-        
-        playerInfo = PlayerInfo.fromJson(data);
-      } else {
-        throw Exception('Failed to load friends');
-      }
-    });
+        if (response.statusCode == 200) {
+          log(response.data.toString());
+          final data = response.data as Map<String, dynamic>;
+          
+          playerInfo = PlayerInfo.fromJson(data);
+        } else {
+          throw Exception('Failed to load friends');
+        }
+      });
+    
+    } catch (e) {
+      print("ERROR IN GET PLAYER INFO: ${e.toString()}");
+    }
+    
+    return playerInfo!;
+  }
+
+  Future<PlayerInfo> getMyInfo() async {
+    PlayerInfo? playerInfo;
+    /*
+     = PlayerInfo(
+      civilianRolePlayedGames: 0, 
+      sheriffRolePlayedGames: 0, 
+      doctorRolePlayedGames: 0, 
+      beautyRolePlayedGames: 0, 
+      bodyguardRolePlayedGames: 0, 
+      spyRolePlayedGames: 0, 
+      journalistRolePlayedGames: 0, 
+      mafiaRolePlayedGames: 0, 
+      informantRolePlayedGames: 0, 
+      barmanRolePlayedGames: 0, 
+      terroristRolePlayedGames: 0, 
+      id: 0, 
+      nickname: '', 
+      avatarUrl: '', 
+      isOnline: true, 
+      lastSeen: DateTime.now(), 
+      joinDate: DateTime.now(), 
+      friendshipStatus: '', 
+      inGameLobby: false, 
+      overall: 0, 
+      wins: 0, 
+      loses: 0, 
+      mafiaWins: 0, 
+      civilianWins: 0, 
+      gameLobbyTitle: '', 
+      gameLobbyStatus: '', 
+      gameLobbyPlayerCount: 0,
+       unreadMessagesCount: 0);
+       */
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.get(
+          'profile/me',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken'
+            }
+          )
+        );
+
+        if (response.statusCode == 200) {
+          log(response.data.toString());
+          final data = response.data as Map<String, dynamic>;
+          log('1');
+          playerInfo = PlayerInfo.fromJson(data);
+          log('2');
+        } else {
+          throw Exception('Failed to load my info');
+        }
+      });
+    
+    } catch (e) {
+      print("ERROR IN GET MY INFO: ${e.toString()}");
+    }
+    
     return playerInfo!;
   }
 
@@ -952,11 +1041,13 @@ class ApiService extends TokenAwareService {
 }
 
 void setup(User user) {
-  GetIt.I.registerSingleton<ApiService>(
-    ApiService(
-      user.accessToken,
-      user.expirationDate,
-      user.refreshToken,
-    ),
-  );
+  if (!GetIt.I.isRegistered<ApiService>()) {
+    GetIt.I.registerSingleton<ApiService>(
+      ApiService(
+        user.accessToken,
+        user.expirationDate,
+        user.refreshToken,
+      ),
+    );
+  }
 }

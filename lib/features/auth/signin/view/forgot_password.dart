@@ -115,7 +115,6 @@ class _WriteEmailTabState extends State<WriteEmailTab> {
 
     if (popupCount == 0) {
       showBouncingPopupFromTop(
-        context, 
         ValidationPopup(
           height: 105.h, 
           width: 295.w, 
@@ -131,7 +130,6 @@ class _WriteEmailTabState extends State<WriteEmailTab> {
 
   void showExceptionPopup(String content) {
     showBouncingPopupFromTop(
-      context, 
       ValidationPopup(
         height: 170.h, 
         width: 270.w, 
@@ -404,7 +402,6 @@ class _SmsCodeTabState extends State<SmsCodeTab> {
 
     if (popupCount == 0) {
       showBouncingPopupFromTop(
-        context, 
         ValidationPopup(
           height: 105.h, 
           width: 295.w, 
@@ -420,7 +417,6 @@ class _SmsCodeTabState extends State<SmsCodeTab> {
 
   void showExceptionPopup(String content) {
     showBouncingPopupFromTop(
-      context, 
       ValidationPopup(
         height: 170.h, 
         width: 270.w, 
@@ -651,7 +647,6 @@ class _NewPasswordTabState extends State<NewPasswordTab> {
 
     if (popupCount == 0) {
       showBouncingPopupFromTop(
-        context, 
         ValidationPopup(
           height: 105.h, 
           width: 295.w, 
@@ -667,7 +662,6 @@ class _NewPasswordTabState extends State<NewPasswordTab> {
 
   void showExceptionPopup(String content) {
     showBouncingPopupFromTop(
-      context, 
       ValidationPopup(
         height: 170.h, 
         width: 270.w, 

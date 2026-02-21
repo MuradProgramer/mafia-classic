@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mafia_classic/features/games/game/models/models.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
+import 'package:mafia_classic/features/widgets/player_info_popup.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/utils/popup_utils.dart';
 
 class InGameChatBox extends StatefulWidget {
   final List<InGameMessage> messages;
@@ -12,6 +15,7 @@ class InGameChatBox extends StatefulWidget {
   final bool isAlive;
   final String gamePhase;
   final List<Player> players;
+
 
   const InGameChatBox({
     super.key, 
@@ -107,17 +111,35 @@ class _InGameChatBoxState extends State<InGameChatBox> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white),
-                    width: 1.sp,
+              GestureDetector(
+                onTap: () {
+                  if (message.playerId == null) return;
+                  if (message.playerId! <= 0) return;
+                  if (message.playerId == authorizedUser.id) return;
+                  showBouncingPopupFromLeft(
+                    context, 
+                    PlayerInfoPopup(
+                      id: message.playerId!,
+                      height: 727.h, 
+                      width: 405.w, 
+                      nickname: message.nickname ?? '',
+                    )
+                  ).then((_) {
+                    
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: (['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white),
+                      width: 0.7.sp,
+                    ),
+                    shape: BoxShape.circle,
                   ),
-                  shape: BoxShape.circle,
-                ),
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(message.avatarUrl ?? ''), //!!!!!!!!!!!
-                  radius: 20.sp,
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(message.avatarUrl ?? ''), //!!!!!!!!!!!
+                    radius: 20.sp,
+                  ),
                 ),
               ),
               SizedBox(width: 8.w),

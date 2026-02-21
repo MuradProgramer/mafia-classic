@@ -758,7 +758,7 @@ class _FriendsTabState extends State<FriendsTab> {
             ),
           ),
         ),
-      
+
         //? FRIENDS LIST
         (filteredFriends.isEmpty)
         ? 
@@ -1667,11 +1667,14 @@ class _FriendChatState extends State<FriendChat> {
   @override
   void initState() {
     super.initState();
+    isInFriendIdChatGlobal = widget.friend.id;
 
     eventSubscriptionNewMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
       setState(() {
-        messages.add(event.message);
-        GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
+        if (widget.friend.id == event.friendId) {
+          messages.add(event.message);
+          GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
+        }
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1774,11 +1777,14 @@ class _FriendChatState extends State<FriendChat> {
         _autoScroll = true;
       }
     });
+
+    scrollToBottom();
   }
 
   @override
   void dispose() {
     super.dispose();
+    isInFriendIdChatGlobal = -1;
     eventSubscriptionNewMessage?.cancel();
     _eventSubscriptionFriendOnline?.cancel();
     _eventSubscriptionFriendOffline?.cancel();

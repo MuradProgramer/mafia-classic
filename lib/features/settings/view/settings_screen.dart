@@ -10,6 +10,9 @@ import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/services/locale/locale_service.dart';
+import 'package:mafia_classic/services/shared_preferences/extensions/language_prefs.dart';
+import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
 import 'package:mafia_classic/utils/utils.dart';
 import 'package:mafia_classic/features/widgets/validation_popup.dart';
@@ -37,6 +40,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ];
 
   String selectedCode = "en";
+
+  @override
+  void initState() {
+    selectedCode = SharedPrefsService().getSavedLanguageCode() ?? "en";
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -350,9 +359,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onChanged: (value) async {
                               log('value: $value');
                               if (value != null) {
-                                GeneralStreams.languageStream.add(
-                                  L10n.locals.firstWhere((locale) => locale.languageCode == value)
-                                );
+                                // await SharedPrefsService().saveLanguageCode(value);
+
+                                // GeneralStreams.languageStream.add(
+                                //   L10n.locals.firstWhere((locale) => locale.languageCode == value)
+                                // );
+                                await LocaleService().setLocale(value);
                               }
                               setState(() {
                                 selectedCode = value!;
@@ -1052,7 +1064,6 @@ class _ChangeNicknamePopupState extends State<ChangeNicknamePopup> {
 
     if (popupCount == 0) {
       showBouncingPopupFromTop(
-        context, 
         ValidationPopup(
           height: 105.h, 
           width: 295.w, 
@@ -1068,7 +1079,6 @@ class _ChangeNicknamePopupState extends State<ChangeNicknamePopup> {
 
   void showExceptionPopup(String content) {
     showBouncingPopupFromTop(
-      context, 
       ValidationPopup(
         height: 170.h, 
         width: 270.w, 
@@ -1408,7 +1418,6 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
 
     if (popupCount == 0) {
       showBouncingPopupFromTop(
-        context, 
         ValidationPopup(
           height: 105.h, 
           width: 295.w, 
@@ -1424,7 +1433,6 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
 
   void showExceptionPopup(String content) {
     showBouncingPopupFromTop(
-      context, 
       ValidationPopup(
         height: 170.h, 
         width: 270.w, 
@@ -1922,7 +1930,6 @@ class _ReportPopupState extends State<ReportPopup> {
 
     if (popupCount == 0) {
       showBouncingPopupFromTop(
-        context, 
         ValidationPopup(
           height: 105.h, 
           width: 295.w, 
@@ -1938,7 +1945,6 @@ class _ReportPopupState extends State<ReportPopup> {
 
   void showExceptionPopup(String content) {
     showBouncingPopupFromTop(
-      context, 
       ValidationPopup(
         height: 170.h, 
         width: 270.w, 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:mafia_classic/services/shared_preferences/extensions/language_prefs.dart';
 import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 
 abstract class JsonModel {
@@ -118,4 +119,13 @@ class GeneralCacheService {
   Future<void> clearAllData() async {
     await _prefs.clear();
   }
+
+  Future<void> clearCacheExceptLanguage() async {
+    final lang = SharedPrefsService().getSavedLanguageCode();
+    await SharedPrefsService().clear(); // clears everything
+    if (lang != null) {
+      await SharedPrefsService().saveLanguageCode(lang);
+    }
+  }
+
 }

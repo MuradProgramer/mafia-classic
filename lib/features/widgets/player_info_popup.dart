@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/tcp/event_bus.dart';
@@ -1069,22 +1070,22 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
 }
 
 class PlayerInfo {
-  final int id;
-  final String nickname;
-  final String avatarUrl;
+  final int id; //
+  final String nickname; //
+  final String avatarUrl; //
   bool isOnline;
   DateTime? lastSeen;
-  final DateTime joinDate;
+  final DateTime joinDate; //
   String friendshipStatus;
-  final String? gameLobbyTitle;
+  final String? gameLobbyTitle; 
   final String? gameLobbyStatus;
   final int? gameLobbyPlayerCount;
   final bool inGameLobby;
-  final int overall;
-  final int wins;
-  final int loses;
-  final int mafiaWins;
-  final int civilianWins;
+  final int overall; //
+  final int wins; //
+  final int loses; //
+  final int mafiaWins; //
+  final int civilianWins; //
   int unreadMessagesCount;
   
   final int civilianRolePlayedGames;
@@ -1173,7 +1174,7 @@ class PlayerInfo {
       nickname: json['nickname'] ?? '',
       avatarUrl: json['avatarUrl'] ?? '',
       isOnline: json['isOnline'] ?? false,
-      lastSeen: parsedLastSeen,
+      lastSeen: parsedLastSeen ?? DateTime.now(),
       joinDate: parsedJoinDate,
       friendshipStatus: json['friendshipStatus'] ?? '',
       inGameLobby: json['inRoom'] ?? false,
@@ -1330,4 +1331,649 @@ class WinRole extends StatelessWidget {
       ],
     );
   }
+}
+
+
+
+class MyProfileScreen extends StatefulWidget {
+  final int id;
+  final String nickname;
+  final double height;
+  final double width;
+  final ValueNotifier<int> tabIndexNotifier;
+  final int tabIndex;
+
+  const MyProfileScreen({
+    super.key, 
+    required this.id, 
+    required this.nickname, 
+    required this.height, 
+    required this.width, 
+    required this.tabIndexNotifier,
+    required this.tabIndex
+  });
+
+  @override
+  State<MyProfileScreen> createState() => _MyProfileScreenState();
+}
+
+class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
+  bool _routeVisible = false;
+  bool _tabVisible = false;
+
+  bool get _isActive => _routeVisible && _tabVisible;
+  PlayerInfo? playerInfo;
+  final double ornamentSize = 50.sp;
+  final double ornamentMargin = 5.sp;
+
+  final double cardsMargin = 20.w;
+
+  @override
+  void initState() {
+    //_loadPlayerInfo();
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      appRouteObserver.subscribe(this, route);
+    }
+    
+    widget.tabIndexNotifier.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    final visible = widget.tabIndexNotifier.value == widget.tabIndex;
+
+    if (visible != _tabVisible) {
+      _tabVisible = visible;
+      _evaluateState();
+    }
+  }
+
+  /// FIRST TIME tab becomes visible
+  @override
+  void didPush() {
+    _routeVisible = true;
+    _evaluateState();
+  }
+
+  /// coming back to this tab
+  @override
+  void didPopNext() {
+    _routeVisible = true;
+    _evaluateState();
+  }
+
+  /// leaving this tab (switch tab or push)
+  @override
+  void didPushNext() {
+    _routeVisible = false;
+    _evaluateState();
+  }
+
+  void _evaluateState() {
+    if (_isActive) {
+      _onActive();
+    } else {
+      _onInactive();
+    }
+  }
+
+  void _onActive() {
+    print('My Profile Screen ACTIVE');
+    _loadPlayerInfo();
+  }
+
+  void _onInactive() {
+    print('My Profile Screen INACTIVE');
+  }
+  
+  void _loadPlayerInfo() async {
+    final playerInfoData = await GetIt.I<ApiService>().getMyInfo();
+    print(playerInfoData.toString());
+    setState(() {
+      playerInfo = PlayerInfo.from(playerInfoData);
+    });
+    print('-----------------');
+    print(playerInfo.toString());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    appRouteObserver.unsubscribe(this);
+    widget.tabIndexNotifier.removeListener(_onTabChanged);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (playerInfo == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        margin: EdgeInsets.only(top: 10.h),
+        height: widget.height,
+        width: widget.width,
+        child: Material(
+          color: Colors.transparent,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              image: DecorationImage(image: AssetImage('assets/images/background_player_info_popup.png'), fit: BoxFit.fill)
+            ),
+            child: Container(
+              margin: EdgeInsets.only(top: 5.h, bottom: 15.h, left: 5.w, right: 5.w),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(
+                  color: const Color(0xFF2A2723),
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+            
+                  //? ORNAMENTS
+                  Stack(
+                    children: [
+                      // Top-left ornament
+                      Positioned(
+                        top: ornamentMargin,
+                        left: ornamentMargin,
+                        child: Image.asset(
+                          "assets/images/game-ornament-day.png",
+                          width: ornamentSize,
+                          height: ornamentSize,
+                        ),
+                      ),
+                      // Top-right ornament (rotated 90 degrees)
+                      Positioned(
+                        top: ornamentMargin,
+                        right: ornamentMargin,
+                        child: Transform.rotate(
+                          angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                          child: Image.asset(
+                            "assets/images/game-ornament-day.png",
+                            width: ornamentSize,
+                            height: ornamentSize,
+                          ),
+                        ),
+                      ),
+                      // Bottom-left ornament (rotated 270 degrees)
+                      Positioned(
+                        bottom: ornamentMargin,
+                        left: ornamentMargin,
+                        child: Transform.rotate(
+                          angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                          child: Image.asset(
+                            "assets/images/game-ornament-day.png",
+                            width: ornamentSize,
+                            height: ornamentSize,
+                          ),
+                        ),
+                      ),
+                      // Bottom-right ornament (rotated 180 degrees)
+                      Positioned(
+                        bottom: ornamentMargin,
+                        right: ornamentMargin,
+                        child: Transform.rotate(
+                          angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                          child: Image.asset(
+                            "assets/images/game-ornament-day.png",
+                            width: ornamentSize,
+                            height: ornamentSize,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  //? CONTENT
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 15.h),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(
+                        color: const Color(0xFF2A2723),
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(85.0),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // TEXT:    Profile
+                        Text(
+                          S.of(context).profile,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 32.sp,
+                            color: const Color(0xFF000000)
+                          )
+                        ),
+                    
+                        //? OLINE STATUS  |  AVATAR  |  JOIN DATE
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              //? ONLINE STATUS
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      //? BADGE
+                                      Container(
+                                        height: 20.h,
+                                        width: 20.w,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color:  const Color(0xFF896A44),
+                                          border: Border.all(
+                                            color: const Color(0xFFB98744),
+                                            width: 2.sp
+                                          )
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.star,
+                                            size: 13.sp,
+                                            color: Colors.white
+                                          ),
+                                        ),
+                                      ),
+                                  
+                                      SizedBox(width: 4.w),
+                                  
+                                      // TEXT:    IS ONLINE
+                                      Text(
+                                        S.of(context).online,
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              //? AVATAR
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(35.sp),
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    playerInfo!.avatarUrl
+                                  ),
+                                  radius: 35.sp,
+                                )
+                              ),
+                          
+                              //? JOIN DATE
+                              Column(
+                                children: [
+                                  // TEXT:    JOIN DATE
+                                  Text(
+                                    S.of(context).joinDate,
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      color: Colors.black,
+                                      height: 0
+                                    )
+                                  ),
+                                  
+                                  //? JOIN DATE
+                                  Text(
+                                    DateFormat('dd.MM.yyyy').format(playerInfo!.joinDate),
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      color: Colors.black,
+                                      height: 0
+                                    )
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      
+                        //? NICKNAME
+                        Padding(
+                          padding: EdgeInsets.only(top: 8.h),
+                          child: Text(
+                            playerInfo!.nickname,
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 20.sp,
+                              color: Colors.black
+                            ),
+                          ),
+                        ),
+
+                        //? DIVIDER
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15.w),
+                          child: Divider(
+                            thickness: 2.h,
+                            color: const Color(0xFF494239),
+                          ),
+                        ),
+                      
+                        ////? STATS
+                        // TEXT:    STATS
+                        Text(
+                          S.of(context).stats,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 20.sp,
+                            color: Colors.black
+                          ),
+                        ),
+                        
+                        //? OVERALL STATS
+                        Container(
+                          height: 27.h,
+                          margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 6.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFAF977E),
+                            borderRadius: BorderRadius.circular(12.sp)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // TEXT:    OVERALL
+                              Text(
+                                S.of(context).overall,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontFamily: 'CenturyGothic',
+                                  color: Colors.black
+                                ),
+                              ),
+
+                              SizedBox(width: 50.w,),
+
+                              //? OVERALL STATS
+                              Text(
+                                playerInfo!.overall.toString(),
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontFamily: 'CenturyGothic',
+                                  color: Colors.black
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      
+                        //? SPECIFIC STATS
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              //? WINS AND LOSES
+                              Row(
+                                children: [
+                                  //? TEXTS
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // TEXT:    WINS
+                                      Text(
+                                        S.of(context).wins,
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      ),
+                                                        
+                                      SizedBox(height: 10.h),
+                                                        
+                                      // TEXT:    WINS
+                                      Text(
+                                        S.of(context).loses,
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                                        
+                                  SizedBox(width: 12.w),
+                                
+                                  //? DIVIDER
+                                  Container(
+                                    width: 2.w,
+                                    height: 45.h,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        right: BorderSide(
+                                          color: const Color(0xFF494239),
+                                          width: 2.w
+                                        )
+                                      )
+                                    ),
+                                  ),
+                                                        
+                                  SizedBox(width: 12.w),
+                                                        
+                                  //? STATS
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      //? WINS
+                                      Text(
+                                        playerInfo!.wins.toString(),
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      ),
+                                                        
+                                      SizedBox(height: 10.h),
+                                                        
+                                      //? LOSES
+                                      Text(
+                                        playerInfo!.loses.toString(),
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              //? TEAM WINS
+                              Row(
+                                children: [
+                                  //? TEXTS
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // TEXT:    MAFIA WINS
+                                      Text(
+                                        S.of(context).mafiaWins,
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      ),
+                                                        
+                                      SizedBox(height: 10.h),
+                                                        
+                                      // TEXT:    CIVILIAN WINS
+                                      Text(
+                                        S.of(context).civilianWins,
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                                        
+                                  SizedBox(width: 12.w),
+                                
+                                  //? DIVIDER
+                                  Container(
+                                    width: 2.w,
+                                    height: 45.h,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        right: BorderSide(
+                                          color: const Color(0xFF494239),
+                                          width: 2.w
+                                        )
+                                      )
+                                    ),
+                                  ),
+                                                        
+                                  SizedBox(width: 12.w),
+                                                        
+                                  //? STATS
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      //? MAFIA WINS
+                                      Text(
+                                        playerInfo!.mafiaWins.toString(),
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      ),
+                                                        
+                                      SizedBox(height: 10.h),
+                                                        
+                                      //? CIVILIAN WINS
+                                      Text(
+                                        playerInfo!.civilianWins.toString(),
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        //? DIVIDER
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15.w),
+                          child: Divider(
+                            thickness: 2.h,
+                            color: const Color(0xFF494239),
+                          ),
+                        ),
+                      
+                        // TEXT:    PLAYED ROLES
+                        Text(
+                          S.of(context).playedRoles,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 20.sp,
+                            color: Colors.black
+                          )
+                        ),
+
+                        SizedBox(height: 10.h),
+                        
+                        //? PLAYED ROLES - CIVILIAN TEAM
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            //? CIVILIAN
+                            WinRole(role: 'Civilian', winCount: playerInfo!.civilianRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? DOCTOR
+                            WinRole(role: 'Doctor', winCount: playerInfo!.doctorRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? SHERIFF
+                            WinRole(role: 'Sheriff', winCount: playerInfo!.sheriffRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? BODYGUARD
+                            WinRole(role: 'Bodyguard', winCount: playerInfo!.bodyguardRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? BEAUTY
+                            WinRole(role: 'Beauty', winCount: playerInfo!.beautyRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? JOURNALIST
+                            WinRole(role: 'Journalist', winCount: playerInfo!.journalistRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? SPY
+                            WinRole(role: 'Spy', winCount: playerInfo!.spyRolePlayedGames),
+                          ],
+                        ),
+                      
+                        SizedBox(height: 10.h),
+
+                        //? PLAYED ROLES - MAFIA TEAM
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            //? MAFIA
+                            WinRole(role: 'Mafia', winCount: playerInfo!.mafiaRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? TERRORIST
+                            WinRole(role: 'Terrorist', winCount: playerInfo!.terroristRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? INFORMANT
+                            WinRole(role: 'Informant', winCount: playerInfo!.informantRolePlayedGames),
+                            SizedBox(width: cardsMargin),
+
+                            //? BARMAN
+                            WinRole(role: 'Barman', winCount: playerInfo!.barmanRolePlayedGames)
+                          ],
+                        )
+                      
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
 }
