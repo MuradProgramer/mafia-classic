@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mafia_classic/features/games/view/view.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/models/models.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/widgets/widgets.dart';
 import 'package:mafia_classic/generated/intl/messages_en.dart';
+import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/main.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
@@ -1033,6 +1036,39 @@ class ApiService extends TokenAwareService {
     return messages;
   }
 
+  Future<String> uploadAvatar(XFile imageFile) async {
+    String avatar = "";
+    await executeWithTokenCheck((accessToken) async {
+      final file = File(imageFile.path);
+
+      final formData = FormData.fromMap({
+        'avatarFile': await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+        ),
+      });
+      
+      final response = await GetIt.I<DioService>().dio.post(
+        'Account/ChangeAvatar',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        //log('URL OF AVATAR: $response');
+        print("AND THIS IS API SERVICE RESPONSE: ${response.toString()}");
+        avatar = response.toString();
+      } else {
+        throw Exception('Failed to load avatar');
+      }
+    });
+    return avatar;
+  }
 
   // sendMessage (token, nickname, date, )
 

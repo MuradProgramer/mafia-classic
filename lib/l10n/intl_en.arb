@@ -385,5 +385,6 @@
       }
     }
   },
-  "inGame": "in game"
+  "inGame": "in game",
+  "enterTheTitle": "Enter the title"
 }

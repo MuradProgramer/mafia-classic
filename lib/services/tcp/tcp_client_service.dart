@@ -12,13 +12,17 @@ class TcpClientService {
   static final TcpClientService _instance = TcpClientService._internal();
   factory TcpClientService() => _instance;
   TcpClientService._internal();
+  Timer? _keepAliveTimer;
 
   SecureSocket? _socket;
   final _controller = StreamController<String>.broadcast();
 
   Stream<String> get messages => _controller.stream;
 
+  bool get isConnected => _socket != null;
+
   Future<void> connect(String host, int port, User user) async {
+    if (_socket != null) return;
     log('[TCP] Connecting to $host:$port...');
     _socket = await SecureSocket.connect(
       host, 
@@ -37,8 +41,11 @@ class TcpClientService {
     sendMessage(ClientCommand.authorize.value, user.accessToken);
     //sendMessage(10000, "");
 
-    Timer.periodic(const Duration(seconds: 30), (t) {
-      sendMessage(ClientCommand.ping.value, "");
+    _keepAliveTimer?.cancel();
+    _keepAliveTimer =Timer.periodic(const Duration(seconds: 30), (t) {
+      if (_socket != null) {
+        sendMessage(ClientCommand.ping.value, "");
+      }
     });
   }
   
@@ -88,7 +95,7 @@ class TcpClientService {
 
   void sendMessage(int messageTypeId, String payload) {
     if (_socket == null) return;
-
+    // add try catch if error occurs disconnect the tcp (server is not answering)
     final payloadBytes = utf8.encode(payload);
     final length = payloadBytes.length;
 
@@ -108,6 +115,8 @@ class TcpClientService {
     _socket?.destroy();
     _socket = null;
     _controller.close();
+    _keepAliveTimer?.cancel();
+    _keepAliveTimer = null;
     GeneralCacheService().clearAllData();
   }
 }

@@ -324,5 +324,6 @@
   "terroristBombardedTargetplayer": "Terrorist bombarded [{targetPlayer}]",
   "firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams": "[{firstPlayerNickname}] and [{secondPlayerNickname}] are on different teams",
   "firstplayernicknameAndSecondplayernicknameAreOnSameTeams": "[{firstPlayerNickname}] and [{secondPlayerNickname}] are on same teams",
-  "inGame": "in game"
+  "inGame": "in game",
+  "enterTheTitle": "Enter the title"
 }

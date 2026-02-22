@@ -1104,4 +1104,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get inGame => 'in game';
+
+  @override
+  String get enterTheTitle => 'Enter the title';
 }

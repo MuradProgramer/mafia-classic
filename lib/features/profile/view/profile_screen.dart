@@ -543,7 +543,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.only(top: 25.h),
+                        margin: EdgeInsets.only(top: 40.h),
                         height: 150.h,
                         width: 310.w,
                         decoration: BoxDecoration(
@@ -553,6 +553,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Column(
                           children: [
+                            /*
                             Row(
                               children: [
                                 // BUTTON:    RATING
@@ -614,8 +615,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                 ),
+                              
                               ],
                             ),
+                            */
                     
                             Row(
                               children: [
@@ -648,9 +651,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                 ),
-                    
+
+                                // BUTTON:    SETTINGS
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const SettingsScreen(),
+                                      )
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 110.w,
+                                    height: 40.h,
+                                    margin: EdgeInsets.only(top: marginButtons, left: 30.w),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(71.sp),
+                                      border: Border.all(color: Colors.white, width: 1.5)
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.settings,
+                                        style: TextStyle(
+                                          fontSize: 23.sp,
+                                          color: Colors.white,
+                                          fontFamily: 'CenturyGothic'
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              
                                 // BUTTON:    CHAT
                                 //!!!!!!!!!!!!!!!!
+                                /*
                                 GestureDetector(
                                   onTap: () {
                                     showBouncingPopupFromLeft(
@@ -716,6 +750,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                 ),
+                                */
                               ],
                             )
                           ],

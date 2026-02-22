@@ -2054,6 +2054,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'in game'**
   String get inGame;
+
+  /// No description provided for @enterTheTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the title'**
+  String get enterTheTitle;
 }
 
 class _AppLocalizationsDelegate

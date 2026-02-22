@@ -324,5 +324,6 @@
   "terroristBombardedTargetplayer": "Террорист взорвал [{targetPlayer}]",
   "firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams": "[{firstPlayerNickname}] и [{secondPlayerNickname}] находятся в разных командах",
   "firstplayernicknameAndSecondplayernicknameAreOnSameTeams": "[{firstPlayerNickname}] и [{secondPlayerNickname}] находятся в одной команде",
-  "inGame": "in game"
+  "inGame": "in game",
+  "enterTheTitle": "Enter the title"
 }

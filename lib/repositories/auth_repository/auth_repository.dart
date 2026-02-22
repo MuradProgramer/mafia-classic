@@ -25,6 +25,7 @@ class AuthRepository {
     switch (response.statusCode) {
       case 200:
         final data = response.data as Map<String, dynamic>;
+        print("YOUR DATA AVATAR URL IS:  ${data['avatarUrl']}");
         User user = User(
           id: data['id'],
           email: data['email'], 

@@ -100,6 +100,10 @@ class SharedPrefsService {
     );
   }
 
+  static Future<void> setAvatarUrl(String avatarUrl) async {
+    await _prefs?.setString('user_avatar_url', avatarUrl);
+  }
+
   static Future<void> saveTokens({
     required String accessToken,
     required String nickname,

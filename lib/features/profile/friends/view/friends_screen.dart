@@ -67,10 +67,11 @@ class _FriendsScreenState extends State<FriendsScreen> {
         resizeToAvoidBottomInset: false,
 
         body: Container(
-          padding: EdgeInsets.only(top: 60.h, left: 10.w, right: 10.w, bottom: 10.h),
+          padding: EdgeInsets.only(top: 40.h, left: 10.w, right: 10.w, bottom: 10.h),
           child: Column(
             children: [
               //? BUTTON GO HOME
+              /*
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -88,6 +89,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                   const SizedBox()
                 ],
               ),
+              */
 
               Padding(
                 padding: EdgeInsets.only(top: 10.h),
@@ -1684,14 +1686,18 @@ class _FriendChatState extends State<FriendChat> {
 
     _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
       setState(() {
-        widget.friend.isOnline = true;
+        if (event.friendId == widget.friend.id) {
+          widget.friend.isOnline = true;
+        }
       });
     });
 
     _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
       setState(() {
-        widget.friend.isOnline = false;
-        widget.friend.lastSeen = DateTime.now();
+        if (event.friendId == widget.friend.id) {
+          widget.friend.isOnline = false;
+          widget.friend.lastSeen = DateTime.now();
+        }
       });
     });
 
@@ -1702,6 +1708,7 @@ class _FriendChatState extends State<FriendChat> {
         .subscribe(ServerEvent.friendshipFriendMessagesReaded)
         .listen((payload) async {
       try {
+        
         if (mounted) {
           setState(() {
             for (var msg in messages) {

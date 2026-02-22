@@ -14,6 +14,7 @@ import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/widgets/player_info_popup.dart';
 import 'package:mafia_classic/features/widgets/validation_popup.dart';
+import 'package:mafia_classic/global_data.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
@@ -23,6 +24,8 @@ import 'package:mafia_classic/services/shared_preferences/shared_preferences.dar
 import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
+import 'package:mafia_classic/services/tcp/general_service.dart';
+import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
 
 import 'package:mafia_classic/theme/theme.dart';
@@ -259,9 +262,43 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
       
     } else if (state == AppLifecycleState.detached) {
       print("App engine detached. Clearing all cache...");
+      TcpClientService().disconnect();
       //GeneralCacheService().clearCacheExceptLanguage();
     } else if (state == AppLifecycleState.hidden) {
       print("App is hidden.");
+    } else if (state == AppLifecycleState.resumed) {
+        _handleAppResumed();
+    }
+  }
+
+  void initGeneralServiceForAuthorizedUser(User authorized) async {
+    await GeneralService(authorized).init();
+  }
+
+  Future<void> _reconnect() async {
+    User alreadyUser = User(
+      id: SharedPrefsService.getUserId() ?? -1, 
+      email: SharedPrefsService.getUserEmail() ?? '', 
+      nickname: SharedPrefsService.getUserNickname() ?? '', 
+      avatarUrl: SharedPrefsService.getUserAvatarUrl() ?? '', 
+      accessToken: SharedPrefsService.getAccessToken() ?? '', 
+      refreshToken: SharedPrefsService.getRefreshToken() ?? '', 
+      expirationDate: SharedPrefsService.getAccessTokenExpiryUtc()!
+    );
+    setup(alreadyUser);
+    initGeneralServiceForAuthorizedUser(alreadyUser);
+    await TcpClientService().connect(serverIP, serverPort, alreadyUser);
+  }
+
+  void _handleAppResumed() {
+    // Check if the service still has an active socket
+    if (!TcpClientService().isConnected) {
+      log('🔄 Socket was lost in background. Reconnecting...');
+      _reconnect();
+    } else {
+      // Sometimes the socket is 'dead' but hasn't realized it yet.
+      // Sending a ping forces the OS to realize the pipe is broken.
+      TcpClientService().sendMessage(ClientCommand.ping.value, "wakeup");
     }
   }
 
@@ -397,14 +434,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNavItem(String assetPath, int index, String text) {
     final isSelected = _selectedIndex == index;
     return Opacity(
-      opacity: isSelected ? 1 : 0.7,
+      opacity: isSelected ? 1 : 0.55,
       child: GestureDetector(
         onTap: () => _onItemTapped(index),
         child: SizedBox(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
+              Container(
+                // decoration: BoxDecoration(
+                //   borderRadius: BorderRadius.circular(5.sp),
+                //   border: Border.all(color: isSelected ?  const Color(0xFFFFB000) : Colors.transparent, width: 1.5.sp)
+                // ),
                 height: 45.h,
                 width: 45.w,
                 child: Image.asset(

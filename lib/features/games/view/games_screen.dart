@@ -485,6 +485,8 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // BUTTON:    HOME
+                  const SizedBox(),
+                  /*
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
@@ -494,6 +496,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
                       scale: 2.8,
                     ),
                   ),
+                  */
 
                   // BUTTON:    FILTER
                   GestureDetector(
@@ -1902,8 +1905,9 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
           padding: EdgeInsets.only(top: 50.h),
           child: Column(
             children: [
-              
+            
               // BUTTON:   HOME
+              /*
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1922,7 +1926,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                   const SizedBox()
                 ],
               ),
-            
+              */
+
               // TEXT:    Create Game
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1936,6 +1941,8 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                   )
                 ],
               ),
+
+              SizedBox(height: 27.h),
             
               //? TITLE AND PASSWORD
               Container(
@@ -1974,7 +1981,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                         controller: _titleController,
                         style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
                         decoration: InputDecoration(
-                          hintText: ' ${AppLocalizations.of(context)!.enterTheName}',
+                          hintText: ' ${AppLocalizations.of(context)!.enterTheTitle}',
                           hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
                           border: InputBorder.none,
                           counterText: '',

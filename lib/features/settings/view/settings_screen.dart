@@ -4,12 +4,14 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/extensions/context_extension.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
+import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/locale/locale_service.dart';
 import 'package:mafia_classic/services/shared_preferences/extensions/language_prefs.dart';
 import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
@@ -791,7 +793,7 @@ class UploadAvatarPopup extends StatefulWidget {
 
 class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
   bool _uploadAnother = false;
-  String _currentAvatarUrl = "https://www.w3schools.com/w3images/avatar6.png";
+  final String _currentAvatarUrl = SharedPrefsService.getUserAvatarUrl() ?? "https://www.w3schools.com/w3images/avatar6.png";
   XFile? pickedImage;
   
   @override
@@ -959,10 +961,6 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                       // BUTTON:    UPLOAD ANOTHER
                       GestureDetector(
                         onTap: () async {
-                          setState(() {
-                            _uploadAnother = false;
-                          });
-
                           final ImagePicker picker = ImagePicker();
                           final XFile? image = await picker.pickImage(
                             source: ImageSource.gallery,
@@ -976,7 +974,7 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                         },
                         child: Container(
                           height: 35.h,
-                          width: 120.w,
+                          width: 140.w,
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFFFFF),
                             border: Border.all(
@@ -1000,6 +998,19 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
 
                       // BUTTON:    CONFIRM
                       GestureDetector(
+                        onTap: () async {
+                          setState(() {
+                            _uploadAnother = false;
+                          });
+                          if (pickedImage != null) {
+                            String avatar = await GetIt.I<ApiService>().uploadAvatar(pickedImage!);
+                            print("SETTED NEW AVATAR IN SETTINGS SCREEN: $avatar");
+                            setState(() {
+                              authorizedUser.avatarUrl = avatar;
+                              SharedPrefsService.setAvatarUrl(avatar);
+                            });
+                          }
+                        },
                         child: Container(
                           height: 35.h,
                           width: 120.w,
