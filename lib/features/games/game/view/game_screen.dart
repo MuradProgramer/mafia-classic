@@ -31,6 +31,7 @@ import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
 import 'package:mafia_classic/utils/popup_utils.dart';
+import 'package:mafia_classic/utils/snackbar.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 import '../../popups/game_over_popup.dart';
@@ -832,6 +833,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           playerDeadEvent(targetPlayer);
         }
         playerDeadEvent(PlayerRole(id: terroristId, role: 'Terrorist'));
+
+        TopSnackBarManager.show({"content": content}, 6);
         
         setState(() {
           inGameMessages.add(InGameMessage(

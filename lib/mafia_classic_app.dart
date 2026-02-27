@@ -149,15 +149,23 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
 
           EventBus().fire(NewFriendAddedEvent(newFriend));
 
-          TopSnackBarManager.show({"message": "[${newFriend.nickname}] Accepted your friend request"}, 1);
+          TopSnackBarManager.show(
+            {
+              "nickname": newFriend.nickname,
+              "avatarUrl": newFriend.avatarUrl,
+            }, 4);
         } on Exception catch (e) {
           log('EXCEPTION IN:     friendshipNewFriend: ${e.toString()}');
         }
       }
 
       if (event == ServerEvent.friendshipRequestFriendship) {
-        EventBus().fire(FriendRequestReceivedEvent(json.decode(payload)));
-        TopSnackBarManager.show({"message": "New friend request recieved"}, 1);
+        Map<String, dynamic> data = json.decode(payload);
+        EventBus().fire(FriendRequestReceivedEvent(data));
+        TopSnackBarManager.show({
+            "nickname": data['nickname'],
+            "avatarUrl": data['avatarUrl'],
+          }, 3);
       }
 
       if (event == ServerEvent.friendshipFriendNewMessage) {

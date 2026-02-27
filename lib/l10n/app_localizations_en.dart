@@ -418,7 +418,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lobby => 'Lobby';
 
   @override
-  String get search => ' Search...';
+  String get search => ' Search';
 
   @override
   String get filterOff => 'Filter Off';

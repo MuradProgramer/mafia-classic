@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/auth/auth.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/widgets/widgets.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
@@ -173,13 +175,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
     return DecoratedBox(
       decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/2-moons-night-buildings.png"), fit: BoxFit.cover, opacity: 0.5),
+        image: DecorationImage(image: AssetImage("assets/images/temp-home-background.png"), fit: BoxFit.cover, opacity: 0.8),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            /*
             Container(
               margin: EdgeInsets.symmetric(vertical: height * 0.2),
               
@@ -241,6 +244,64 @@ class _SplashScreenState extends State<SplashScreen> {
                 )
               )
             ),
+            */
+            //? MAFIA CLASSIC TEXT
+            Padding(
+              padding: EdgeInsets.only(top: 50.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 125.h,
+                    width: 300.w,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Stack(
+                      children: [
+                        // TEXT:    MAFIA
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.mafia,
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 55.sp,
+                                height: 0,
+                                color: const Color(0xFFFFB000),
+                              ),
+                            ),
+                          ],
+                        ),
+                  
+                        // TEXT:    CLASSIC
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 70.h),
+                              child: Text(
+                                AppLocalizations.of(context)!.classic,
+                                style: TextStyle(
+                                  fontSize: 26.sp,
+                                  height: 0,
+                                  fontFamily: 'CenturyGothic',
+                                  fontWeight: FontWeight.w200,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+                
+                
             Text(
               'Powered by CORPORAZ', 
               style: TextStyle(

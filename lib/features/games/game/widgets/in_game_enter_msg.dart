@@ -59,7 +59,7 @@ class _EnterMessageState extends State<EnterMessage> {
               widget.sendMessage();
               return;
             }
-            TopSnackBarManager.show({"message": "You are not elligible to send message right now"}, 1);
+            TopSnackBarManager.show({"content": "You are not elligible to send message right now"}, 5);
           },
         ) 
           //: const SizedBox(),

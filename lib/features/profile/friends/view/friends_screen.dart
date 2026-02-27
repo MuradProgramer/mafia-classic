@@ -1415,6 +1415,7 @@ class _SearchTabState extends State<SearchTab> {
                     child: TextField(
                       cursorColor: const Color(0xFF3E3E3E),
                       cursorHeight: 20.h,
+                      
                       onTapOutside: (PointerDownEvent event) {
                         FocusScope.of(context).unfocus();
                       },
@@ -1889,9 +1890,15 @@ class _FriendChatState extends State<FriendChat> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           //? PROFILE PHOTO
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(widget.friend.avatarUrl),
-                            radius: 50.r,
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.white, width: 1.w),
+                              borderRadius: BorderRadius.circular(55.r)
+                            ),
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(widget.friend.avatarUrl),
+                              radius: 50.r,
+                            ),
                           ),
             
                           SizedBox(height: 10.h),

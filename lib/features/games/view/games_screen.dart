@@ -105,8 +105,8 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
   GameFilters currentFilters = GameFilters(
     accessState: 0,
 
-    minPlayers: 5,
-    maxPlayers: 8,
+    minPlayers: 4,
+    maxPlayers: 21,
 
     hasSpy: false,
     hasLover: false,
@@ -1673,11 +1673,11 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
   bool get _isActive => _routeVisible && _tabVisible;
   
   String roomName = '';
-  int minPlayers = 5;
-  int maxPlayers = 7;
+  int minPlayers = 7;
+  int maxPlayers = 14;
 
-  int showedMinPlayers = 5;
-  int showedMaxPlayers = 7;
+  int showedMinPlayers = 7;
+  int showedMaxPlayers = 14;
   
   String password = '';
   final TextEditingController _titleController = TextEditingController();
@@ -2043,46 +2043,64 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                       ],
                     ),
                   
-                    isPasswordVisible
-                    ?
-                    // INPUT:    PASSWORD
-                    Padding(
-                      padding: EdgeInsets.only(top: 15.h, bottom: 8.h),
-                      child: Container(
-                        height: 37.h,
-                        width: 230.w,
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD1C3A6),
-                          border: Border.all(color: Colors.white, width: 1.5),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: TextField(
-                          cursorColor: Colors.white,
-                          cursorHeight: 20.h,
-                          textAlign: TextAlign.center,
-                          onTapOutside: (PointerDownEvent event) {
-                            FocusScope.of(context).unfocus();
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              password = value;
-                            });
-                          },
-                          controller: _passwordController,
-                          style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
-                          decoration: InputDecoration(
-                            hintText: ' ${AppLocalizations.of(context)!.enterThePassword}',
-                            hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
-                            border: InputBorder.none,
-                            counterText: '',
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SizeTransition(
+                            sizeFactor: animation,
+                            child: child,
                           ),
-                          maxLength: 12,
+                        );
+                      },
+                    child:
+                      isPasswordVisible
+                      ?
+                      // INPUT:    PASSWORD
+                      Padding(
+                        padding: EdgeInsets.only(top: 15.h, bottom: 8.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 37.h,
+                              width: 230.w,
+                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD1C3A6),
+                                border: Border.all(color: Colors.white, width: 1.5),
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: TextField(
+                                cursorColor: Colors.white,
+                                cursorHeight: 20.h,
+                                textAlign: TextAlign.center,
+                                onTapOutside: (PointerDownEvent event) {
+                                  FocusScope.of(context).unfocus();
+                                },
+                                onChanged: (value) {
+                                  setState(() {
+                                    password = value;
+                                  });
+                                },
+                                controller: _passwordController,
+                                style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
+                                decoration: InputDecoration(
+                                  hintText: ' ${AppLocalizations.of(context)!.enterThePassword}',
+                                  hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
+                                  border: InputBorder.none,
+                                  counterText: '',
+                                ),
+                                maxLength: 12,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      )
+                      :
+                      const SizedBox.shrink(key: ValueKey('empty')),
                     )
-                    :
-                    const SizedBox(),
                   ],
                 ),
               ),
@@ -2786,8 +2804,8 @@ class FilterizationScreen extends StatefulWidget {
 
 //// LOGIC ////
 class _FilterizationScreenState extends State<FilterizationScreen> {
-  int minPlayers = 5;
-  int maxPlayers = 7;
+  int minPlayers = 4;
+  int maxPlayers = 21;
 
   bool friendsInRoom = false;
   bool roomsWithSpace = false;
@@ -2865,8 +2883,8 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
     void resetFilters() {
       setState(() {
         isReseted = true;
-        minPlayers = 5;
-        maxPlayers = 8;
+        minPlayers = 4;
+        maxPlayers = 21;
         friendsInRoom = false;
         roomsWithSpace = false;
         // roomsWithoutPassword = false;
@@ -3052,9 +3070,9 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                           ),
                           child: RangeSlider(
                             values: RangeValues(minPlayers.toDouble(), maxPlayers.toDouble()),
-                            min: 5,
-                            max: 20,
-                            divisions: 15,
+                            min: 4,
+                            max: 21,
+                            divisions: 17,
                             
                             activeColor: const Color(0xFFFFB000),
                             inactiveColor: Colors.white,

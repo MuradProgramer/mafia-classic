@@ -6,9 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:mafia_classic/features/games/game/view/game_screen.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
+import 'package:mafia_classic/l10n/app_localizations_az.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
@@ -249,7 +252,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         color: const Color(0xFF2A2723),
                         width: 2,
                       ),
-                      borderRadius: BorderRadius.circular(85.0),
+                      borderRadius: BorderRadius.circular(85.r),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -262,8 +265,11 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             color: const Color(0xFF000000)
                           )
                         ),
+
+                        SizedBox(height: 20.h,),
                     
                         //? OLINE STATUS  |  AVATAR  |  JOIN DATE
+                        /*
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 15.w),
                           child: Row(
@@ -328,6 +334,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(35.sp),
+                                  border: Border.all(color: Colors.white, width: 1.w),
                                 ),
                                 child: CircleAvatar(
                                   backgroundImage: NetworkImage(
@@ -366,8 +373,104 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             ],
                           ),
                         ),
-                      
+                        */
+                        
+                        //? AVATAR  |  NICKNAME  |  STATUS
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              
+                              //? ONLINE STATUS  |  AVATAR 
+                              Row(
+                                children: [
+                                  //? AVATAR
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(35.sp),
+                                      border: Border.all(color: Colors.white, width: 1.w),
+                                    ),
+                                    child: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                        playerInfo!.avatarUrl
+                                      ),
+                                      radius: 35.sp,
+                                    )
+                                  ),
+
+                                  SizedBox(width: 10.w),
+
+                                  //? JOIN DATE AND NICKNAME TEXTS
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // TEXT:    NICKNAME
+                                      Text(
+                                        "Nickname:  ",
+                                        style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black
+                                        ),
+                                      ),
+                                      
+                                      // TEXT:    JOIN DATE
+                                      Text(
+                                        playerInfo!.isOnline ? "Status:  " : "Last seen:  ",
+                                        style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black,
+                                          height: 0
+                                        )
+                                      ),
+                                    ],
+                                  ),
+                            
+                                ],
+                              ),
+
+                              SizedBox(width: 3.w),
+                          
+                              
+                              //? JOIN DATE AND NICKNAME TEXTS
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  // TEXT:    NICKNAME
+                                  Text(
+                                    playerInfo!.nickname,
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black
+                                    ),
+                                  ),
+                                  
+                                  // TEXT:    JOIN DATE
+                                  Text(
+                                    playerInfo!.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(playerInfo!.lastSeen!),
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black,
+                                      height: 0
+                                    )
+                                  ),
+                                ],
+                              )
+                            
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 10.h),
+
                         //? NICKNAME
+                        /*
                         Padding(
                           padding: EdgeInsets.only(top: 8.h),
                           child: Text(
@@ -378,6 +481,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             ),
                           ),
                         ),
+                        */
                     
                         //? REPORT  |  ADD FRIENDS  |  CHAT
                         Padding(
@@ -639,6 +743,8 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                           ),
                         ),
                     
+                        SizedBox(height: 10.h),
+
                         //? DIVIDER
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -778,6 +884,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         ),
                         
                         //? OVERALL STATS
+                        /*
                         Container(
                           height: 27.h,
                           margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 6.h),
@@ -812,7 +919,8 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             ],
                           ),
                         ),
-                      
+                        */
+
                         //? SPECIFIC STATS
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -1260,14 +1368,131 @@ PlayerInfo(
       
 }
 
-class WinRole extends StatelessWidget {
+class WinRole extends StatefulWidget  {
   final String role;
   final int winCount;
 
   const WinRole({super.key, required this.role, required this.winCount});
 
+  @override
+  State<WinRole> createState() => _WinRoleState();
+}
+
+class _WinRoleState extends State<WinRole> with SingleTickerProviderStateMixin {
+  OverlayEntry? _overlayEntry;
+  late AnimationController _controller;
+  late Animation<double> _scale;
+  late Animation<double> _opacity;
+  late Animation<Offset> _slide;
+
+  Map<String, String> get rolesLocalizaitons => {
+    'mafia': AppLocalizations.of(context)!.mafia,
+    'civilian': AppLocalizations.of(context)!.civilian,
+    'spy': AppLocalizations.of(context)!.spy,
+    'doctor': AppLocalizations.of(context)!.doctor,
+    'beauty': AppLocalizations.of(context)!.beauty,
+    'bodyguard': AppLocalizations.of(context)!.bodyguard,
+    'barman': AppLocalizations.of(context)!.barman,
+    'informant': AppLocalizations.of(context)!.informant,
+    'sheriff': AppLocalizations.of(context)!.sheriff,
+    'journalist': AppLocalizations.of(context)!.journalist,
+    'terrorist': AppLocalizations.of(context)!.terrorist,
+    'undef': AppLocalizations.of(context)!.uknown
+  };
+  
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+      reverseDuration: const Duration(milliseconds: 200),
+    );
+
+    _scale = Tween<double>(begin: 0.7, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+
+    _opacity = Tween<double>(begin: 0, end: 1).animate(_controller);
+
+    _slide = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  void _showTooltip() {
+    if (_overlayEntry != null) return;
+
+    final overlay = Overlay.of(context);
+    final renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          left: offset.dx + renderBox.size.width / 2 - 40,
+          top: offset.dy - 40,
+          child: Material(
+            color: Colors.transparent,
+            child: SlideTransition(
+              position: _slide,
+              child: ScaleTransition(
+                scale: _scale,
+                child: FadeTransition(
+                  opacity: _opacity,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.6),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: Text(
+                      rolesLocalizaitons[widget.role.toLowerCase()]!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    overlay.insert(_overlayEntry!);
+    _controller.forward();
+
+    // Auto hide
+    Future.delayed(const Duration(seconds: 1), () => _hideTooltip());
+  }
+
+  void _hideTooltip() async {
+    if (_overlayEntry == null) return;
+    await _controller.reverse();
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   String getAssetByRole() {
-    switch (role) {
+    switch (widget.role) {
       case "Mafia":
         return 'assets/images/role-card-mark-mafia.png';
 
@@ -1311,17 +1536,26 @@ class WinRole extends StatelessWidget {
     return Column(
       children: [
         //? MINI ROLE CARD
-        Image.asset(
-          getAssetByRole(),
-          height: 36.h,
-          width: 27.w,
+        GestureDetector(
+          onTap: () {
+            if (_overlayEntry != null) {
+              _hideTooltip();
+            } else {
+              _showTooltip();
+            }
+          },
+          child: Image.asset(
+            getAssetByRole(),
+            height: 36.h,
+            width: 27.w,
+          ),
         ),
         
         SizedBox(height: 5.h),
 
         //? WIN COUNT
         Text(
-          winCount.toString(),
+          widget.winCount.toString(),
           style: TextStyle(
             fontSize: 13.sp,
             fontFamily: 'CenturyGothic',
@@ -1562,8 +1796,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                             color: const Color(0xFF000000)
                           )
                         ),
+
+                        SizedBox(height: 20.h),
                     
                         //? OLINE STATUS  |  AVATAR  |  JOIN DATE
+                        /*
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 15.w),
                           child: Row(
@@ -1615,6 +1852,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(35.sp),
+                                  border: Border.all(color: Colors.white, width: 1.w),
                                 ),
                                 child: CircleAvatar(
                                   backgroundImage: NetworkImage(
@@ -1653,8 +1891,94 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                             ],
                           ),
                         ),
+                        */
+
+                        //? AVATAR  |  NICKNAME  |  JOIN DATE
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              //? AVATAR
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(35.sp),
+                                  border: Border.all(color: Colors.white, width: 1.w),
+                                ),
+                                child: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    playerInfo!.avatarUrl
+                                  ),
+                                  radius: 35.sp,
+                                )
+                              ),
+
+                              SizedBox(width: 3.w),
+                          
+                              //? JOIN DATE AND NICKNAME TEXTS
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // TEXT:    NICKNAME
+                                  Text(
+                                    "Nickname:  ",
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      color: Colors.black
+                                    ),
+                                  ),
+                                  
+                                  // TEXT:    JOIN DATE
+                                  Text(
+                                    "${S.of(context).joinDate}:  ",
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      color: Colors.black,
+                                      height: 0
+                                    )
+                                  ),
+                                ],
+                              ),
+                            
+                              //? JOIN DATE AND NICKNAME TEXTS
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  // TEXT:    NICKNAME
+                                  Text(
+                                    playerInfo!.nickname,
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black
+                                    ),
+                                  ),
+                                  
+                                  // TEXT:    JOIN DATE
+                                  Text(
+                                    DateFormat('dd.MM.yyyy').format(playerInfo!.joinDate),
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black,
+                                      height: 0
+                                    )
+                                  ),
+                                ],
+                              )
+                            
+                            ],
+                          ),
+                        ),
                       
+
                         //? NICKNAME
+                        /*
                         Padding(
                           padding: EdgeInsets.only(top: 8.h),
                           child: Text(
@@ -1665,6 +1989,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                             ),
                           ),
                         ),
+                        */
+
+                        SizedBox(height: 20.h),
 
                         //? DIVIDER
                         Padding(
@@ -1674,6 +2001,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                             color: const Color(0xFF494239),
                           ),
                         ),
+
+                        SizedBox(height: 7.h),
                       
                         ////? STATS
                         // TEXT:    STATS
@@ -1686,6 +2015,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                         ),
                         
                         //? OVERALL STATS
+                        /*
                         Container(
                           height: 27.h,
                           margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 6.h),
@@ -1720,10 +2050,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                             ],
                           ),
                         ),
-                      
+                        */
+
                         //? SPECIFIC STATS
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -1896,6 +2227,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                             color: const Color(0xFF494239),
                           ),
                         ),
+
+                        SizedBox(height: 15.h),
                       
                         // TEXT:    PLAYED ROLES
                         Text(
@@ -1906,7 +2239,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                           )
                         ),
 
-                        SizedBox(height: 10.h),
+                        SizedBox(height: 25.h),
                         
                         //? PLAYED ROLES - CIVILIAN TEAM
                         Row(
@@ -1976,4 +2309,19 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
     );
   }
 
+}
+
+
+class RoleMiniCardTooltip extends StatefulWidget {
+  const RoleMiniCardTooltip({super.key});
+
+  @override
+  State<RoleMiniCardTooltip> createState() => _RoleMiniCardTooltipState();
+}
+
+class _RoleMiniCardTooltipState extends State<RoleMiniCardTooltip> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
 }

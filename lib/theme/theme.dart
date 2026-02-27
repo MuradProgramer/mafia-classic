@@ -18,7 +18,9 @@ final theme = ThemeData(
   cardColor: const Color(0xff03DAC5),
 
 
-
+  textSelectionTheme: const TextSelectionThemeData(
+    selectionHandleColor: Color(0xFF3E3E3E), 
+  ),
   iconTheme: const IconThemeData(color: Colors.white),
   useMaterial3: true,
   scaffoldBackgroundColor: Colors.transparent,

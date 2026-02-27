@@ -757,6 +757,51 @@ class ApiService extends TokenAwareService {
     return playerInfo!;
   }
 
+  // INCOMPLETE
+  Future<void> report(String title, String description) async {
+    await executeWithTokenCheck((accessToken) async {
+      final response = await GetIt.I<DioService>().dio.post(
+        'report',
+        data: {
+          "title": title,
+          "description": description
+        },
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken'
+          }
+        )
+      );
+
+      if (response.statusCode == 200) {
+        
+      } else {
+        print('Failed to report: ${response.statusCode}');
+        throw Exception('Failed to report');
+      }
+    });
+  }
+
+  // INCOMPLETE
+  Future<void> logOut() async {
+    await executeWithTokenCheck((accessToken) async {
+      final response = await GetIt.I<DioService>().dio.post(
+        'Account/Logout',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken'
+          }
+        )
+      );
+
+      if (response.statusCode == 200) {
+        await SharedPrefsService().clear();
+      } else {
+        print('Failed to log out: ${response.statusCode}');
+        throw Exception('Failed to log out');
+      }
+    });
+  }
 
   // DONE partially
   Future<bool> deleteFriend(int id) async {
@@ -1068,6 +1113,30 @@ class ApiService extends TokenAwareService {
       }
     });
     return avatar;
+  }
+
+  Future<String> changeNickname(String nickname) async {
+    String nickname = "";
+    await executeWithTokenCheck((accessToken) async {
+      final formDataObject = FormData.fromMap({'nickname': nickname});
+
+      final response = await GetIt.I<DioService>().dio.get(
+        'Account/',
+        data: formDataObject,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        nickname = response.toString();
+      } else {
+        throw Exception('Failed to load messages');
+      }
+    });
+    return nickname;
   }
 
   // sendMessage (token, nickname, date, )

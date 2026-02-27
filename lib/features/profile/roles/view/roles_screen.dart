@@ -47,6 +47,8 @@ class _RolesScreenState extends State<RolesScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  const SizedBox(), 
+                  
                   // BUTTON:    HOME
                   GestureDetector(
                     onTap: () {
@@ -58,8 +60,6 @@ class _RolesScreenState extends State<RolesScreen> {
                       height: 30.h,
                     ),
                   ),
-                
-                  const SizedBox()
                 ],
               ),
               

@@ -74,8 +74,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     padding: EdgeInsets.only(right: 15.w, top: 40.h),
                     child: Image.asset(
                       'assets/images/home-icon.png',
-                      width: 35.w,
-                      height: 35.h,
+                      width: 30.w,
+                      height: 30.h,
                     ),
                   ),
                 ),
@@ -245,8 +245,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         )
                       ],
                     ),
-
+                    
                     //? PASSWORD
+                    /*
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -297,6 +298,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         )
                       ],
                     ),
+                    */
 
                     //? LANGUAGE
                     Row(
@@ -419,6 +421,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           
             //? SOUND EFFECTS
+            /*
             Container(
               height: 70.h,
               width: double.maxFinite,
@@ -535,6 +538,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 )
               ),
             ),
+            */
 
             //? REPORT & LOG OUT & DELETE ACCOUNT
             Align(
