@@ -437,6 +437,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedIndex = index;
       tabIndexNotifier.value = index;
     });
+    if (_navigatorKeys[index].currentState == null) return;
+      _navigatorKeys[index].currentState!.popUntil((route) => route.isFirst);
   }
 
   Widget _buildNavItem(String assetPath, int index, String text) {

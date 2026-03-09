@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:mafia_classic/extensions/context_extension.dart';
+import 'package:mafia_classic/features/auth/signin/view/sign_in_screen.dart';
 import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/l10n/l10n.dart';
@@ -15,6 +17,7 @@ import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/locale/locale_service.dart';
 import 'package:mafia_classic/services/shared_preferences/extensions/language_prefs.dart';
 import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
+import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
 import 'package:mafia_classic/utils/utils.dart';
 import 'package:mafia_classic/features/widgets/validation_popup.dart';
@@ -35,17 +38,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _soundEffectsOn = true;
 
   final List<Map<String, String>> languages = [
-    {"code": "en", "label": "English", "flag": "🇬🇧"},
-    {"code": "az", "label": "Az", "flag": "🇦🇿"},
-    {"code": "ru", "label": "Русский", "flag": "🇷🇺"},
-    {"code": "tr", "label": "Tr", "flag": "🇹🇷"},
+    {"code": "en", "label": "ENG", "flag": "🇬🇧", "show": "English"},
+    {"code": "az", "label": "AZE", "flag": "🇦🇿", "show": "Azərbaycan"},
+    {"code": "ru", "label": "RUS", "flag": "🇷🇺", "show": "Русский"},
+    {"code": "tr", "label": "TUR", "flag": "🇹🇷", "show": "Türkçe"},
   ];
 
   String selectedCode = "en";
 
   @override
   void initState() {
-    selectedCode = SharedPrefsService().getSavedLanguageCode() ?? "en";
+    selectedCode = SharedPrefsService().getSavedLanguageCode() ?? globalLangCode;
     super.initState();
   }
 
@@ -168,8 +171,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             );
                           },
                           child: Container(
-                            height: 33.h,
-                            width: 115.w,
+                            height: 37.h,
+                            width: 125.w,
                             margin: EdgeInsets.only(right: 25.w),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -220,8 +223,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             );
                           },
                           child: Container(
-                            height: 33.h,
-                            width: 115.w,
+                            height: 37.h,
+                            width: 125.w,
                             margin: EdgeInsets.only(right: 25.w),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -327,8 +330,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               fontFamily: 'CenturyGothic'
                             ),
                             customButton: Container(
-                              height: 33.h,
-                              width: 115.w,
+                              height: 37.h,
+                              width: 125.w,
                               margin: EdgeInsets.only(right: 25.w),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.black),
@@ -337,7 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               child: Center(
                                 child: Text(
-                                  languages.firstWhere((lang) => lang["code"] == selectedCode)["label"]!,
+                                  languages.firstWhere((lang) => lang["code"] == selectedCode)["show"]!,
                                   style: TextStyle(
                                     fontSize: 16.w, 
                                     color: Colors.black,
@@ -375,7 +378,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               });
                             },
                             dropdownStyleData: DropdownStyleData(
-                              width: 115.w,
+                              width: 125.w,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 color: Colors.white,
@@ -582,25 +585,135 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
 
                       // BUTTON:    LOG OUT
-                      Container(
-                        height: 40.h,
-                        width: 170.w,
-                        margin: EdgeInsets.only(top: 20.h, right: 10.w),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFFFFF),
-                          border: Border.all(
-                            color: Colors.black, 
-                            width: 1.sp
+                      GestureDetector(
+                        onTap: () {
+                          showBouncingPopupFromLeft(context, 
+                            Align(
+                              alignment: Alignment.center,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Container(
+                                  width: 320.w,
+                                  height: 200.h,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF111111),
+                                    borderRadius: BorderRadius.circular(18.r),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      // TEXT:   ARE YOU SURE?
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 50.h),
+                                        child: Text(
+                                          "Are you sure?",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 22.sp,
+                                            fontFamily: 'CenturyGothic'
+                                          ),
+                                        ),
+                                      ),
+                                
+                                      //? YES & NO BUTTONS
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          // BUTTON:    NO
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context, rootNavigator: true).pop();
+                                            },
+                                            child: Container(
+                                              height: 40.h,
+                                              width: 120.w,
+                                              margin: EdgeInsets.only(top: 20.h, right: 10.w),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFFFFFFF),
+                                                border: Border.all(
+                                                  color: Colors.black, 
+                                                  width: 1.sp
+                                                ),
+                                                borderRadius: BorderRadius.circular(12.r),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  "No",
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 20.sp,
+                                                    fontFamily: 'CenturyGothic'
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        
+                                          // BUTTON:    YES
+                                          GestureDetector(
+                                            onTap: () async {
+                                              Navigator.of(context, rootNavigator: true).pop();
+                                              await SharedPrefsService().clear();
+                                              TcpClientService().disconnect();
+                                              //GetIt.I<ApiService>().logout();
+                                              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                                                MaterialPageRoute(builder: (_) => const SignInScreen()), 
+                                                (route) => false,
+                                              );
+                                            },
+                                            child: Container(
+                                              height: 40.h,
+                                              width: 120.w,
+                                              margin: EdgeInsets.only(top: 20.h, left: 10.w),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFFFB000),
+                                                border: Border.all(
+                                                  color: Colors.white, 
+                                                  width: 1.sp
+                                                ),
+                                                borderRadius: BorderRadius.circular(12.r),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  "Yes",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20.sp,
+                                                    fontFamily: 'CenturyGothic'
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          
+                          );
+                        },
+                        child: Container(
+                          height: 40.h,
+                          width: 170.w,
+                          margin: EdgeInsets.only(top: 20.h, right: 10.w),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFFFF),
+                            border: Border.all(
+                              color: Colors.black, 
+                              width: 1.sp
+                            ),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Center(
-                          child: Text(
-                            S.of(context).logOut,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20.sp,
-                              fontFamily: 'CenturyGothic'
+                          child: Center(
+                            child: Text(
+                              S.of(context).logOut,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.sp,
+                                fontFamily: 'CenturyGothic'
+                              ),
                             ),
                           ),
                         ),
@@ -926,14 +1039,38 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                         });
 
                         final ImagePicker picker = ImagePicker();
+                        
                         final XFile? image = await picker.pickImage(
                           source: ImageSource.gallery,
                           imageQuality: 85,
                         );
+
                         if (image != null) {
-                          setState(() {
-                            pickedImage = image;
-                          });
+                          final croppedFile = await ImageCropper().cropImage(
+                            sourcePath: image.path,
+                            aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1), 
+                            uiSettings: [
+                              AndroidUiSettings(
+                                toolbarTitle: 'Edit Avatar',
+                                toolbarColor: Colors.deepPurple,
+                                toolbarWidgetColor: Colors.white,
+                                initAspectRatio: CropAspectRatioPreset.square,
+                                lockAspectRatio: true,
+                              ),
+                              IOSUiSettings(
+                                title: 'Edit Avatar',
+                                aspectRatioLockEnabled: true,
+                                resetButtonHidden: false,
+                                aspectRatioPickerButtonHidden: true,
+                              ),
+                            ],
+                          );
+
+                          if (croppedFile != null) {
+                            setState(() {
+                              pickedImage = XFile(croppedFile.path);
+                            });
+                          }
                         }
                       },
                       child: Container(
@@ -965,15 +1102,43 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                       // BUTTON:    UPLOAD ANOTHER
                       GestureDetector(
                         onTap: () async {
+                          setState(() {
+                            _uploadAnother = true;
+                          });
+
                           final ImagePicker picker = ImagePicker();
+                          
                           final XFile? image = await picker.pickImage(
                             source: ImageSource.gallery,
                             imageQuality: 85,
                           );
+
                           if (image != null) {
-                            setState(() {
-                              pickedImage = image;
-                            });
+                            final croppedFile = await ImageCropper().cropImage(
+                              sourcePath: image.path,
+                              aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+                              uiSettings: [
+                                AndroidUiSettings(
+                                  toolbarTitle: 'Edit Avatar',
+                                  toolbarColor: Colors.deepPurple,
+                                  toolbarWidgetColor: Colors.white,
+                                  initAspectRatio: CropAspectRatioPreset.square,
+                                  lockAspectRatio: true,
+                                ),
+                                IOSUiSettings(
+                                  title: 'Edit Avatar',
+                                  aspectRatioLockEnabled: true,
+                                  resetButtonHidden: false,
+                                  aspectRatioPickerButtonHidden: true,
+                                ),
+                              ],
+                            );
+
+                            if (croppedFile != null) {
+                              setState(() {
+                                pickedImage = XFile(croppedFile.path);
+                              });
+                            }
                           }
                         },
                         child: Container(

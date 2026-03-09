@@ -696,8 +696,8 @@ class ApiService extends TokenAwareService {
   }
 
   Future<PlayerInfo> getMyInfo() async {
-    PlayerInfo? playerInfo;
-    /*
+    PlayerInfo playerInfo
+    
      = PlayerInfo(
       civilianRolePlayedGames: 0, 
       sheriffRolePlayedGames: 0, 
@@ -727,7 +727,7 @@ class ApiService extends TokenAwareService {
       gameLobbyStatus: '', 
       gameLobbyPlayerCount: 0,
        unreadMessagesCount: 0);
-       */
+       
     try {
       await executeWithTokenCheck((accessToken) async {
         final response = await GetIt.I<DioService>().dio.get(
@@ -754,7 +754,7 @@ class ApiService extends TokenAwareService {
       print("ERROR IN GET MY INFO: ${e.toString()}");
     }
     
-    return playerInfo!;
+    return playerInfo;
   }
 
   // INCOMPLETE

@@ -3988,668 +3988,671 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
     final double ornamentMargin = 10.sp;
     const String ornament = "assets/images/game-ornament-night.png";
 
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        image: DecorationImage(image: AssetImage("assets/images/background-waiting-lobby.png"), fit: BoxFit.cover),
-      ),
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        /*
-        appBar: AppBar(
-          title: Text(widget.game.title),
-          actions: [
-            Row(
-              children: widget.game.extraRoles.map((role) => const Icon(Icons.person)).toList(),
-            ),
-          ],
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(30.0),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('${AppLocalizations.of(context)!.playersInRoom} [${gameLobbyPlayers.length}/${widget.game.maxPlayers}]'),
+    return PopScope(
+      canPop: false,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          image: DecorationImage(image: AssetImage("assets/images/background-waiting-lobby.png"), fit: BoxFit.cover),
+        ),
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          /*
+          appBar: AppBar(
+            title: Text(widget.game.title),
+            actions: [
+              Row(
+                children: widget.game.extraRoles.map((role) => const Icon(Icons.person)).toList(),
+              ),
+            ],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(30.0),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text('${AppLocalizations.of(context)!.playersInRoom} [${gameLobbyPlayers.length}/${widget.game.maxPlayers}]'),
+              ),
             ),
           ),
-        ),
-       */
-
-        body: SingleChildScrollView(
-          child: Stack(
-            children: [
-              
-          
-              Padding(
-                padding: EdgeInsets.only(top: 50.h, right: 7.w, left: 7.w),
-                child: Stack(
-                  children: [
-                    
-              
-                    //? INFO PART
-                    Container(
-                      margin: EdgeInsets.only(top: 50.h),
-                      width: double.maxFinite,
-                      height: 150.h,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2C2C2C),
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: Stack(
-                        children: [
-
-                          //? ORNAMENTS
-                          Stack(
-                            children: [
-                              // Top-left ornament
-                              Positioned(
-                                top: ornamentMargin,
-                                left: ornamentMargin,
-                                child: Image.asset(
-                                  ornament,
-                                  width: ornamentSize,
-                                  height: ornamentSize,
-                                ),
-                              ),
-                              // Top-right ornament (rotated 90 degrees)
-                              Positioned(
-                                top: ornamentMargin,
-                                right: ornamentMargin,
-                                child: Transform.rotate(
-                                  angle: 90 * 3.14159 / 180, // 90 degrees in radians
+         */
+      
+          body: SingleChildScrollView(
+            child: Stack(
+              children: [
+                
+            
+                Padding(
+                  padding: EdgeInsets.only(top: 50.h, right: 7.w, left: 7.w),
+                  child: Stack(
+                    children: [
+                      
+                
+                      //? INFO PART
+                      Container(
+                        margin: EdgeInsets.only(top: 50.h),
+                        width: double.maxFinite,
+                        height: 150.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2C2C2C),
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Stack(
+                          children: [
+      
+                            //? ORNAMENTS
+                            Stack(
+                              children: [
+                                // Top-left ornament
+                                Positioned(
+                                  top: ornamentMargin,
+                                  left: ornamentMargin,
                                   child: Image.asset(
                                     ornament,
                                     width: ornamentSize,
                                     height: ornamentSize,
                                   ),
                                 ),
-                              ),
-                              // Bottom-left ornament (rotated 270 degrees)
-                              Positioned(
-                                bottom: ornamentMargin,
-                                left: ornamentMargin,
-                                child: Transform.rotate(
-                                  angle: 270 * 3.14159 / 180, // 270 degrees in radians
-                                  child: Image.asset(
-                                    ornament,
-                                    width: ornamentSize,
-                                    height: ornamentSize,
-                                  ),
-                                ),
-                              ),
-                              // Bottom-right ornament (rotated 180 degrees)
-                              Positioned(
-                                bottom: ornamentMargin,
-                                right: ornamentMargin,
-                                child: Transform.rotate(
-                                  angle: 180 * 3.14159 / 180, // 180 degrees in radians
-                                  child: Image.asset(
-                                    ornament,
-                                    width: ornamentSize,
-                                    height: ornamentSize,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              const SizedBox(),
-              
-                              Column(
-                                children: [
-              
-                                  //? TITLE
-                                  Text(
-                                    widget.game.title, 
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 32.sp,
-                                      color: const Color(0xFFFFB000)
+                                // Top-right ornament (rotated 90 degrees)
+                                Positioned(
+                                  top: ornamentMargin,
+                                  right: ornamentMargin,
+                                  child: Transform.rotate(
+                                    angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                                    child: Image.asset(
+                                      ornament,
+                                      width: ornamentSize,
+                                      height: ornamentSize,
                                     ),
                                   ),
-
-                                  //? MIN AND MAX
-                                  Row(
-                                    children: [
-                                                
-                                      //? MIN COUNT
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "${widget.game.minPlayers}",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.sp,
-                                              fontFamily: 'CenturyGothic',
-                                              height: 0
-                                            ),
-                                          ),
-                                                
-                                          Text(
-                                            "Min",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.sp,
-                                              fontFamily: 'CenturyGothic',
-                                              height: 0
-                                            ),
-                                          )
-                                        ],
+                                ),
+                                // Bottom-left ornament (rotated 270 degrees)
+                                Positioned(
+                                  bottom: ornamentMargin,
+                                  left: ornamentMargin,
+                                  child: Transform.rotate(
+                                    angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                                    child: Image.asset(
+                                      ornament,
+                                      width: ornamentSize,
+                                      height: ornamentSize,
+                                    ),
+                                  ),
+                                ),
+                                // Bottom-right ornament (rotated 180 degrees)
+                                Positioned(
+                                  bottom: ornamentMargin,
+                                  right: ornamentMargin,
+                                  child: Transform.rotate(
+                                    angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                                    child: Image.asset(
+                                      ornament,
+                                      width: ornamentSize,
+                                      height: ornamentSize,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                const SizedBox(),
+                
+                                Column(
+                                  children: [
+                
+                                    //? TITLE
+                                    Text(
+                                      widget.game.title, 
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 32.sp,
+                                        color: const Color(0xFFFFB000)
                                       ),
-                                                
-                                      //? ACTUAL COUNT
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                                        child: Column(
+                                    ),
+      
+                                    //? MIN AND MAX
+                                    Row(
+                                      children: [
+                                                  
+                                        //? MIN COUNT
+                                        Column(
                                           children: [
                                             Text(
-                                              "${gameLobbyPlayers.length}",
-                                              style: GoogleFonts.playfairDisplay(
-                                                color: const Color(0xFFFFB000),
-                                                fontSize: 32.sp,
+                                              "${widget.game.minPlayers}",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                height: 0
                                               ),
                                             ),
-                                            SizedBox(height: 15.h,)
+                                                  
+                                            Text(
+                                              "Min",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                height: 0
+                                              ),
+                                            )
                                           ],
                                         ),
-                                      ),
-                                                
-                                      //? MAX COUNT
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "${widget.game.maxPlayers}",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.sp,
-                                              fontFamily: 'CenturyGothic',
-                                              height: 0
-                                            ),
+                                                  
+                                        //? ACTUAL COUNT
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                                "${gameLobbyPlayers.length}",
+                                                style: GoogleFonts.playfairDisplay(
+                                                  color: const Color(0xFFFFB000),
+                                                  fontSize: 32.sp,
+                                                ),
+                                              ),
+                                              SizedBox(height: 15.h,)
+                                            ],
                                           ),
-                                                
-                                          Text(
-                                            "Max",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15.sp,
-                                              fontFamily: 'CenturyGothic',
-                                              height: 0
+                                        ),
+                                                  
+                                        //? MAX COUNT
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "${widget.game.maxPlayers}",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                height: 0
+                                              ),
                                             ),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-
-                                  // BUTTON:    INVITE FRIEND
-                                  GestureDetector(
-                                    onTap: () {
-                                      PopupManager().show(
-                                        context: context,
-                                        id: 'inviteFriendPopup',
-                                        builder: (_) { 
-                                          List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
-                                            "all_friends_list",
-                                            (json) => Friendship.fromJson(json as Map<String, dynamic>),
-                                          );
-
-                                          currentFriends ??= [];
-
-                                          return InviteFriendPopup(
-                                            friendsList: currentFriends,
-                                            inGamePlayers: widget.game.players,
-                                          );
-                                        }
-                                      );
-                                    },
-                                    child: Container(
-                                      width: AppLocalizations.of(context)!.inviteFriend.length <= 13 ? 120.w : 155.w,
-                                      height: 35.h,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(71.sp),
-                                        border: Border.all(color: const Color(0xFFFFFFFF), width: 1.5)
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          AppLocalizations.of(context)!.inviteFriend,
-                                          style: TextStyle(
-                                            fontSize: 15.sp,
-                                            color: const Color(0xFFFFFFFF),
-                                            fontFamily: 'CenturyGothic'
+                                                  
+                                            Text(
+                                              "Max",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                height: 0
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+      
+                                    // BUTTON:    INVITE FRIEND
+                                    GestureDetector(
+                                      onTap: () {
+                                        PopupManager().show(
+                                          context: context,
+                                          id: 'inviteFriendPopup',
+                                          builder: (_) { 
+                                            List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+                                              "all_friends_list",
+                                              (json) => Friendship.fromJson(json as Map<String, dynamic>),
+                                            );
+      
+                                            currentFriends ??= [];
+      
+                                            return InviteFriendPopup(
+                                              friendsList: currentFriends,
+                                              inGamePlayers: widget.game.players,
+                                            );
+                                          }
+                                        );
+                                      },
+                                      child: Container(
+                                        width: AppLocalizations.of(context)!.inviteFriend.length <= 13 ? 120.w : 155.w,
+                                        height: 35.h,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(71.sp),
+                                          border: Border.all(color: const Color(0xFFFFFFFF), width: 1.5)
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            AppLocalizations.of(context)!.inviteFriend,
+                                            style: TextStyle(
+                                              fontSize: 15.sp,
+                                              color: const Color(0xFFFFFFFF),
+                                              fontFamily: 'CenturyGothic'
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  )
-                                
-                                ],
+                                    )
+                                  
+                                  ],
+                                ),
+                
+                                const SizedBox()
+                              ],
+                            )
+                          
+                          ],
+                        ),
+                      ),
+                    
+                      //? CARDS PART
+                      Container(
+                        margin: EdgeInsets.only(top: 215.h),
+                        height: 80,
+                        alignment: Alignment.center,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final int count = widget.game.extraRoles.length;
+                            final double cardWidth = 60.w;
+                            const double overlap = 20.0;
+            
+                            final double totalWidth = count > 0
+                              ? cardWidth + (count - 1) * (cardWidth - overlap)
+                              : 0;
+            
+                            return SizedBox(
+                              height: 80.h,
+                              width: totalWidth,
+                              child: Stack(
+                                children: List.generate(count, (i) {
+                                  int index = i; // инверсия: 4, 3, 2, 1, 0
+                                  
+                                  final leftOffset = index * (cardWidth - overlap);
+                                          
+                                  return Positioned(
+                                    left: leftOffset,
+                                    child: RoleCard(
+                                      roleName: widget.game.extraRoles[index].toLowerCase(), 
+                                      width: cardWidth, 
+                                      height: 80.h, 
+                                      isMini: false
+                                    )
+                                  );
+                                }),
                               ),
-              
-                              const SizedBox()
-                            ],
-                          )
-                        
-                        ],
+                            );
+                          }
+                        ),
                       ),
-                    ),
-                  
-                    //? CARDS PART
-                    Container(
-                      margin: EdgeInsets.only(top: 215.h),
-                      height: 80,
-                      alignment: Alignment.center,
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final int count = widget.game.extraRoles.length;
-                          final double cardWidth = 60.w;
-                          const double overlap = 20.0;
-          
-                          final double totalWidth = count > 0
-                            ? cardWidth + (count - 1) * (cardWidth - overlap)
-                            : 0;
-          
-                          return SizedBox(
-                            height: 80.h,
-                            width: totalWidth,
-                            child: Stack(
-                              children: List.generate(count, (i) {
-                                int index = i; // инверсия: 4, 3, 2, 1, 0
-                                
-                                final leftOffset = index * (cardWidth - overlap);
-                                        
-                                return Positioned(
-                                  left: leftOffset,
-                                  child: RoleCard(
-                                    roleName: widget.game.extraRoles[index].toLowerCase(), 
-                                    width: cardWidth, 
-                                    height: 80.h, 
-                                    isMini: false
-                                  )
-                                );
-                              }),
-                            ),
-                          );
-                        }
-                      ),
-                    ),
-              
-                    //? CHAT, PLAYERS, TIMER
-                    Container(
-                      margin: EdgeInsets.only(top: 260.h),
-                      width: double.maxFinite,
-                      height: 452.h,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2B2B2B),
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              //? PLAYERS
-                              SizedBox(
-                                width: 230.w,
-                                height: 130.h,
-                                child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  //   crossAxisCount: 2,
-                                  //   childAspectRatio: 2.5,
-                                  //   crossAxisSpacing: 5,
-                                  //   mainAxisSpacing: 5,
-                                  // ),
-                                  itemCount: gameLobbyPlayers.length,
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: EdgeInsetsGeometry.only(bottom: 10.h),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          SizedBox(width: 7.5.w),
-                                                
-                                          //? AVATAR
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(50.r),
-                                              border: Border.all(
-                                                width: 0.7.w,
-                                                color: const Color(0xFFFFFFFF)
+                
+                      //? CHAT, PLAYERS, TIMER
+                      Container(
+                        margin: EdgeInsets.only(top: 260.h),
+                        width: double.maxFinite,
+                        height: 452.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2B2B2B),
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                //? PLAYERS
+                                SizedBox(
+                                  width: 230.w,
+                                  height: 130.h,
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    //   crossAxisCount: 2,
+                                    //   childAspectRatio: 2.5,
+                                    //   crossAxisSpacing: 5,
+                                    //   mainAxisSpacing: 5,
+                                    // ),
+                                    itemCount: gameLobbyPlayers.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: EdgeInsetsGeometry.only(bottom: 10.h),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            SizedBox(width: 7.5.w),
+                                                  
+                                            //? AVATAR
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(50.r),
+                                                border: Border.all(
+                                                  width: 0.7.w,
+                                                  color: const Color(0xFFFFFFFF)
+                                                )
+                                              ),
+                                              child: CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                  gameLobbyPlayers[index].avatarUrl
+                                                ),
+                                                radius: 18.sp,
                                               )
                                             ),
-                                            child: CircleAvatar(
-                                              backgroundImage: NetworkImage(
-                                                gameLobbyPlayers[index].avatarUrl
-                                              ),
-                                              radius: 18.sp,
-                                            )
-                                          ),
-                                          SizedBox(width: 4.w),
-                                                
-                                          //? NICKNAME
-                                          Container(
-                                            child: Text(
-                                              gameLobbyPlayers[index].nickname,
-                                              softWrap: true,
-                                              overflow: TextOverflow.fade,
-                                              style: TextStyle(
-                                                fontSize: 18.sp,
-                                                fontFamily: 'CenturyGothic',
+                                            SizedBox(width: 4.w),
+                                                  
+                                            //? NICKNAME
+                                            Container(
+                                              child: Text(
+                                                gameLobbyPlayers[index].nickname,
+                                                softWrap: true,
+                                                overflow: TextOverflow.fade,
+                                                style: TextStyle(
+                                                  fontSize: 18.sp,
+                                                  fontFamily: 'CenturyGothic',
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ),
-              
-                              //? TIMER
-                              Container(
-                                margin: EdgeInsets.only(top: 10.h, right: 10.w),
-                                width: 130.w,
-                                height: 130.h,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF1E1E1E),
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 1.5.w
-                                  )
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    remainingTime != -1
-                                    ? Text(
-                                      AppLocalizations.of(context)!.starting,
-                                      style: GoogleFonts.playfairDisplay(
-                                        color: const Color(0xFFFFB000),
-                                        fontSize: 22.sp,
-                                        height: 0
-                                      ),
+                
+                                //? TIMER
+                                Container(
+                                  margin: EdgeInsets.only(top: 10.h, right: 10.w),
+                                  width: 130.w,
+                                  height: 130.h,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1E1E1E),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 1.5.w
                                     )
-                                    : const SizedBox(),
-                                    
-              
-                                    Padding(
-                                      padding: remainingTime == -1 ? EdgeInsets.only(bottom: 5.h) : EdgeInsets.only(bottom: 0.h),
-                                      child: Text(
-                                        textAlign: TextAlign.center,
-                                        remainingTime != -1 ? '$remainingTime\n${AppLocalizations.of(context)!.seconds}' : AppLocalizations.of(context)!.waiting.replaceAll(' ', '\n'),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      remainingTime != -1
+                                      ? Text(
+                                        AppLocalizations.of(context)!.starting,
                                         style: GoogleFonts.playfairDisplay(
                                           color: const Color(0xFFFFB000),
                                           fontSize: 22.sp,
                                           height: 0
                                         ),
-                                      ),
-                                    )
-                                  ],
+                                      )
+                                      : const SizedBox(),
+                                      
+                
+                                      Padding(
+                                        padding: remainingTime == -1 ? EdgeInsets.only(bottom: 5.h) : EdgeInsets.only(bottom: 0.h),
+                                        child: Text(
+                                          textAlign: TextAlign.center,
+                                          remainingTime != -1 ? '$remainingTime\n${AppLocalizations.of(context)!.seconds}' : AppLocalizations.of(context)!.waiting.replaceAll(' ', '\n'),
+                                          style: GoogleFonts.playfairDisplay(
+                                            color: const Color(0xFFFFB000),
+                                            fontSize: 22.sp,
+                                            height: 0
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
+                            //? CHAT
+                            Container(
+                              margin: EdgeInsets.all(10.sp),
+                              width: double.maxFinite,
+                              height: 290.h,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E1E1E),
+                                borderRadius: BorderRadius.circular(12.0),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 1.5.w
+                                )
+                              ),
+                              child: ChatWidget(messages: gameLobbyChatMessages),
+                            )
+                          ],
+                        ),
+                      ),
+                    
+                      //? INPUT FIELD
+                      Container(
+                        margin: EdgeInsets.only(top: 715.h),
+                        width: double.maxFinite,
+                        height: 55.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2B2B2B),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Row(
+                          children: [
+                            //? MICROFON
+                            Container(
+                              margin: EdgeInsets.only(left: 4.w, right: 4.w),
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: Image.asset(
+                                  'assets/images/icon-disabled-micro.png',
+                                  width: 35.h,
+                                  height: 35.h,
                                 ),
                               ),
-                            ],
-                          ),
-                          
-                          //? CHAT
-                          Container(
-                            margin: EdgeInsets.all(10.sp),
-                            width: double.maxFinite,
-                            height: 290.h,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1E1E1E),
-                              borderRadius: BorderRadius.circular(12.0),
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 1.5.w
-                              )
                             ),
-                            child: ChatWidget(messages: gameLobbyChatMessages),
-                          )
-                        ],
+                            
+                            //? INPUT
+                            SizedBox(
+                              width: 330.w,
+                              height: 55.h,
+                              child: MessageInputField(onSend: sendMessage),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  
-                    //? INPUT FIELD
-                    Container(
-                      margin: EdgeInsets.only(top: 715.h),
-                      width: double.maxFinite,
-                      height: 55.h,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2B2B2B),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Row(
-                        children: [
-                          //? SMILES
-                          Container(
-                            margin: EdgeInsets.only(left: 7.w, right: 7.w),
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: Image.asset(
-                                'assets/images/game-stickers-icon.png',
-                                width: 30.h,
-                                height: 30.h,
-                              ),
-                            ),
-                          ),
-                          
-                          //? INPUT
-                          SizedBox(
-                            width: 330.w,
-                            height: 55.h,
-                            child: MessageInputField(onSend: sendMessage),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            
-              IgnorePointer(
-                child: ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.white,
-                        Colors.transparent
-                      ],
-                      stops: [0.7, 1.0],
-                    ).createShader(bounds);
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: Image.asset(
-                    "assets/images/light-waiting-lobby.png",
-                    fit: BoxFit.cover,
-                    height: 300.h,
-                    width: double.maxFinite,
+                    ],
                   ),
                 ),
-              ),
-            
-              // BUTTON:    GO BACK
-              Padding(
-                padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(),
-                              
-                    GestureDetector(
-                      onTap: () {
-                        TcpClientService().sendMessage(ClientCommand.leaveRoom.value, "");
-                        widget.game.players.removeWhere((e) => e.id == authorizedUser.id);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: 33.w,
-                        height: 33.w,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFB000).withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(8.sp),
-                        ),
-                        child: Icon(
-                          Icons.keyboard_double_arrow_left,
-                          color: Colors.white,
-                          size: 33.sp,
-                        ),
-                      ),
-                    )
-                  
-                  ],
+              
+                IgnorePointer(
+                  child: ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white,
+                          Colors.transparent
+                        ],
+                        stops: [0.7, 1.0],
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: Image.asset(
+                      "assets/images/light-waiting-lobby.png",
+                      fit: BoxFit.cover,
+                      height: 300.h,
+                      width: double.maxFinite,
+                    ),
+                  ),
                 ),
+              
+                // BUTTON:    GO BACK
+                Padding(
+                  padding: EdgeInsets.only(top: 50.h, right: 15.w, left: 15.w),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(),
+                                
+                      GestureDetector(
+                        onTap: () {
+                          TcpClientService().sendMessage(ClientCommand.leaveRoom.value, "");
+                          widget.game.players.removeWhere((e) => e.id == authorizedUser.id);
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: 33.w,
+                          height: 33.w,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFB000).withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(8.sp),
+                          ),
+                          child: Icon(
+                            Icons.keyboard_double_arrow_left,
+                            color: Colors.white,
+                            size: 33.sp,
+                          ),
+                        ),
+                      )
+                    
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+          
+          /*
+          Column(
+            children: [
+              // Тimer: before the game starts
+        
+              // DEF:     TIMER
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Text(
+                      remainingTime != -1 ? '${AppLocalizations.of(context)!.remainingTime}: $remainingTime ${AppLocalizations.of(context)!.seconds}' : "Waiting",
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  // SizedBox(
+                  //   width: 60,
+                  //   height: 50,
+                  //   child: ElevatedButton(    
+                  //     onPressed: () {
+                  //       List<PlayerRole> playerRoles = [
+                  //         PlayerRole(
+                  //           nickname: 'Player1',
+                  //           role: 'Doctor'
+                  //         ),
+                  //         PlayerRole(
+                  //           nickname: 'Player2',
+                  //           role: 'Citizen'
+                  //         ),
+                  //         PlayerRole(
+                  //           nickname: 'Player3',
+                  //           role: 'Mafia'
+                  //         ),
+                  //         PlayerRole(
+                  //           nickname: 'Player4', 
+                  //           role: 'Citizen'
+                  //         ),
+                  //         PlayerRole(
+                  //           nickname: 'Player5',
+                  //           role: 'Citizen'
+                  //         ),
+                  //         PlayerRole(
+                  //           nickname: 'Player6',
+                  //           role: 'Mafia'
+                  //         ),
+                  //         PlayerRole(
+                  //           nickname: 'Player7',
+                  //           role: 'Barman'
+                  //         ),
+                  //       ];
+      
+                  //       Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: widget.game.players, cameBackFromAfk: false))
+                  //       );
+                  //     },
+                  //     child: Text(AppLocalizations.of(context)!.join),
+                  //   ),
+                  // ),
+                
+                ],
+              ),
+        
+              // DEF:     Players Table
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                  ),
+                  child: PlayerTableWidget(playersInRoom: gameLobbyPlayers),
+                ),
+              ),
+        
+              // DEF:     Chat
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                  ),
+                  child: ChatWidget(messages: gameLobbyChatMessages),
+                ),
+              ),
+      
+              // Expanded(
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       border: Border.all(),
+              //     ),
+              //     child: StreamBuilder<List<Game>>(
+              //       stream: GetIt.I<ApiService>().gamesStream,
+              //       builder: (context, snapshot) {
+              //         if (snapshot.connectionState == ConnectionState.waiting) {
+              //           return const Center(child: CircularProgressIndicator());
+              //         } else if (snapshot.hasError) {
+              //           return Center(child: Text('Error: ${snapshot.error}'));
+              //         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              //           return const Center(child: Text('No games available.'));
+              //         } else {
+              //           final gamesSnap = snapshot.data!;
+              //           return ListView.builder(
+              //             itemCount: gamesSnap.length, 
+              //             itemBuilder: (context, index) {
+              //               return GameCard(game: gamesSnap[index]);
+              //             },
+              //           );
+              //         }
+              //       },
+              //     ),
+              //   ),
+              // ),
+      
+              //! STREAM
+              // body: 
+              // StreamBuilder<List<Game>>(
+              //   stream: GetIt.I<ApiService>().gamesStream,
+              //   builder: (context, snapshot) {
+              //     if (snapshot.connectionState == ConnectionState.waiting) {
+              //       return const Center(child: CircularProgressIndicator());
+              //     } else if (snapshot.hasError) {
+              //       return Center(child: Text('Error: ${snapshot.error}'));
+              //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              //       return const Center(child: Text('No games available.'));
+              //     } else {
+              //       final gamesSnap = snapshot.data!;
+              //       return ListView.builder(
+              //         itemCount: gamesSnap.length, 
+              //         itemBuilder: (context, index) {
+              //           return GameCard(game: gamesSnap[index]);
+              //         },
+              //       );
+              //     }
+              //   },
+              // ),
+        
+              // INPUT:     Enter the message
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                ),
+                child: MessageInputField(onSend: sendMessage),
               ),
             ],
           ),
-        )
-        
-        /*
-        Column(
-          children: [
-            // Тimer: before the game starts
-      
-            // DEF:     TIMER
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Text(
-                    remainingTime != -1 ? '${AppLocalizations.of(context)!.remainingTime}: $remainingTime ${AppLocalizations.of(context)!.seconds}' : "Waiting",
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-                // SizedBox(
-                //   width: 60,
-                //   height: 50,
-                //   child: ElevatedButton(    
-                //     onPressed: () {
-                //       List<PlayerRole> playerRoles = [
-                //         PlayerRole(
-                //           nickname: 'Player1',
-                //           role: 'Doctor'
-                //         ),
-                //         PlayerRole(
-                //           nickname: 'Player2',
-                //           role: 'Citizen'
-                //         ),
-                //         PlayerRole(
-                //           nickname: 'Player3',
-                //           role: 'Mafia'
-                //         ),
-                //         PlayerRole(
-                //           nickname: 'Player4', 
-                //           role: 'Citizen'
-                //         ),
-                //         PlayerRole(
-                //           nickname: 'Player5',
-                //           role: 'Citizen'
-                //         ),
-                //         PlayerRole(
-                //           nickname: 'Player6',
-                //           role: 'Mafia'
-                //         ),
-                //         PlayerRole(
-                //           nickname: 'Player7',
-                //           role: 'Barman'
-                //         ),
-                //       ];
-
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute(builder: (context) => GameScreen(title: 'game name', playersRole: playerRoles, mafiaCount: 5, citizenCount: 7, role: 'Mafia', allPlayers: widget.game.players, cameBackFromAfk: false))
-                //       );
-                //     },
-                //     child: Text(AppLocalizations.of(context)!.join),
-                //   ),
-                // ),
-              
-              ],
-            ),
-      
-            // DEF:     Players Table
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(),
-                ),
-                child: PlayerTableWidget(playersInRoom: gameLobbyPlayers),
-              ),
-            ),
-      
-            // DEF:     Chat
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(),
-                ),
-                child: ChatWidget(messages: gameLobbyChatMessages),
-              ),
-            ),
-
-            // Expanded(
-            //   child: Container(
-            //     decoration: BoxDecoration(
-            //       border: Border.all(),
-            //     ),
-            //     child: StreamBuilder<List<Game>>(
-            //       stream: GetIt.I<ApiService>().gamesStream,
-            //       builder: (context, snapshot) {
-            //         if (snapshot.connectionState == ConnectionState.waiting) {
-            //           return const Center(child: CircularProgressIndicator());
-            //         } else if (snapshot.hasError) {
-            //           return Center(child: Text('Error: ${snapshot.error}'));
-            //         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            //           return const Center(child: Text('No games available.'));
-            //         } else {
-            //           final gamesSnap = snapshot.data!;
-            //           return ListView.builder(
-            //             itemCount: gamesSnap.length, 
-            //             itemBuilder: (context, index) {
-            //               return GameCard(game: gamesSnap[index]);
-            //             },
-            //           );
-            //         }
-            //       },
-            //     ),
-            //   ),
-            // ),
-
-            //! STREAM
-            // body: 
-            // StreamBuilder<List<Game>>(
-            //   stream: GetIt.I<ApiService>().gamesStream,
-            //   builder: (context, snapshot) {
-            //     if (snapshot.connectionState == ConnectionState.waiting) {
-            //       return const Center(child: CircularProgressIndicator());
-            //     } else if (snapshot.hasError) {
-            //       return Center(child: Text('Error: ${snapshot.error}'));
-            //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            //       return const Center(child: Text('No games available.'));
-            //     } else {
-            //       final gamesSnap = snapshot.data!;
-            //       return ListView.builder(
-            //         itemCount: gamesSnap.length, 
-            //         itemBuilder: (context, index) {
-            //           return GameCard(game: gamesSnap[index]);
-            //         },
-            //       );
-            //     }
-            //   },
-            // ),
-      
-            // INPUT:     Enter the message
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(),
-              ),
-              child: MessageInputField(onSend: sendMessage),
-            ),
-          ],
+          */
         ),
-        */
       ),
     );
   }

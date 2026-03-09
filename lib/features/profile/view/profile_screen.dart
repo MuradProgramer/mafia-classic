@@ -505,7 +505,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      "${AppLocalizations.of(context)!.welcome},",
+                                      AppLocalizations.of(context)!.welcome,
                                       style: GoogleFonts.playfairDisplay(
                                         fontSize: 32.sp,
                                         height: 0,

@@ -528,6 +528,7 @@ class _FriendsTabState extends State<FriendsTab> {
 
     _eventSubscriptionLoadFriends = EventBus().on<LoadFriendsEvent>().listen((event) {
       setState(() {
+        if (!mounted) return;
         log("****** LOAD FRIEND ******");
         _loadFriends();
         filteredFriends = _filterFriends(searchController.text.trim());
@@ -536,6 +537,7 @@ class _FriendsTabState extends State<FriendsTab> {
   
     _eventSubscriptionNewFriend = EventBus().on<NewFriendAddedEvent>().listen((event) {
       setState(() {
+        if (!mounted) return;
         log("****** NEW FRIEND ******");
         friends.insert(0, event.requestData); 
         filteredFriends = _filterFriends(searchController.text.trim());
@@ -544,6 +546,7 @@ class _FriendsTabState extends State<FriendsTab> {
 
     _eventSubscriptionNewFriendMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
       setState(() {
+        if (!mounted) return;
         friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount++;
         filteredFriends = _filterFriends(searchController.text.trim());
       });
@@ -551,6 +554,7 @@ class _FriendsTabState extends State<FriendsTab> {
     
     _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
       setState(() {
+        if (!mounted) return;
         friends.removeWhere((friend) => friend.id == event.friendId); 
         filteredFriends = _filterFriends(searchController.text.trim());
       });
@@ -558,6 +562,7 @@ class _FriendsTabState extends State<FriendsTab> {
     
     _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
       setState(() {
+        if (!mounted) return;
         friends.firstWhere((friend) => friend.id == event.friendId).isOnline = true;
         filteredFriends = _filterFriends(searchController.text.trim());
       });
@@ -565,6 +570,7 @@ class _FriendsTabState extends State<FriendsTab> {
 
     _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
       setState(() {
+        if (!mounted) return;
         Friendship friend = friends.firstWhere((friend) => friend.id == event.friendId);
         friend.isOnline = false;
         friend.lastSeen = DateTime.now();
@@ -574,6 +580,7 @@ class _FriendsTabState extends State<FriendsTab> {
 
     _eventSubscriptionFriendMessagesReaded = EventBus().on<FriendMessagesReadedEvent>().listen((event) {
       setState(() {
+        if (!mounted) return;
         friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount = 0;
         filteredFriends = _filterFriends(searchController.text.trim());
       });
@@ -624,15 +631,21 @@ class _FriendsTabState extends State<FriendsTab> {
   }
 
   void _loadFriends() {
-    final updated = GeneralCacheService().loadList<Friendship>(
-      "all_friends_list",
-      (json) { 
-        // if ((json as Map<String, dynamic>)['id'] == null) {
-        //   return null;
-        // }
-        return Friendship.fromJson(json);
-      },
-    );
+    if (!mounted) return;
+    List<Friendship>? updated;
+    try {
+      updated = GeneralCacheService().loadList<Friendship>(
+        "all_friends_list",
+        (json) { 
+          // if ((json as Map<String, dynamic>)['id'] == null) {
+          //   return null;
+          // }
+          return Friendship.fromJson(json);
+        },
+      );
+    } on Exception catch (e) {
+      log("Error _loadFriends() | friends_tab | from cache: ${e.toString()}");
+    }
     
     setState(() {
       // if (updated == null) {
@@ -646,6 +659,7 @@ class _FriendsTabState extends State<FriendsTab> {
   }
 
   void _deleteFriend(String nickname) async {
+    if (!mounted) return;
     TcpClientService().sendMessage(ClientCommand.deleteFriendship.value, json.encode({'nickname': nickname}));
     friends.removeWhere((friend) => friend.nickname == nickname);
     await GeneralCacheService().save('all_friends_list', friends);
@@ -654,6 +668,7 @@ class _FriendsTabState extends State<FriendsTab> {
 
   @override
   void dispose() {
+    if (!mounted) return;
     _eventSubscriptionLoadFriends?.cancel();
     _eventSubscriptionNewFriend?.cancel();
     _eventSubscriptionNewFriendMessage?.cancel();
@@ -905,6 +920,7 @@ class _FriendsTabState extends State<FriendsTab> {
                                           ),
                                         ),
                                       ),
+                                  
                                   ],
                                 )
                               ),
@@ -1890,14 +1906,40 @@ class _FriendChatState extends State<FriendChat> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           //? PROFILE PHOTO
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white, width: 1.w),
-                              borderRadius: BorderRadius.circular(55.r)
-                            ),
-                            child: CircleAvatar(
-                              backgroundImage: NetworkImage(widget.friend.avatarUrl),
-                              radius: 50.r,
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context, 
+                                builder: (context) => Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  child: Container(
+                                    width: 300.w,
+                                    height: 300.h,
+                                    decoration: BoxDecoration(
+                                      //borderRadius: BorderRadius.circular(12.sp),
+                                      border: Border.all(color: Colors.white, width: 2.w),
+                                      shape: BoxShape.circle
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(300.sp),
+                                      child: Image.network(
+                                        widget.friend.avatarUrl,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white, width: 1.w),
+                                borderRadius: BorderRadius.circular(55.r)
+                              ),
+                              child: CircleAvatar(
+                                backgroundImage: NetworkImage(widget.friend.avatarUrl),
+                                radius: 50.r,
+                              ),
                             ),
                           ),
             

@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+String globalLangCode = 'en';
+
 class LocaleService extends ChangeNotifier {
   static const _key = 'language_code';
   static LocaleService? _instance;
@@ -18,17 +20,20 @@ class LocaleService extends ChangeNotifier {
     _prefs ??= await SharedPreferences.getInstance();
 
     // Read saved language
-    String? code = _prefs!.getString(_key);
+    String? savedCode = _prefs!.getString(_key);
 
-    // fallback to device language
-    code ??= PlatformDispatcher.instance.locale.languageCode;
+    if (savedCode != null) {
+      _locale = Locale(savedCode);
+    } else {
+      String deviceCode = PlatformDispatcher.instance.locale.languageCode.split('_')[0];
 
-    // validate
-    if (!['en', 'ru', 'az', 'tr'].contains(code)) {
-      code = 'ru';
+      if (['en', 'ru', 'az', 'tr'].contains(deviceCode)) {
+        _locale = Locale(deviceCode);
+        globalLangCode = deviceCode;
+      } else {
+        _locale = const Locale('ru');
+      }
     }
-
-    _locale = Locale(code);
   }
 
   Future<void> setLocale(String code) async {

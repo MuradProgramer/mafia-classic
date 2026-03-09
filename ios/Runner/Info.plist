@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
+	<dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your gallery so you can choose and crop your profile avatar.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera if you want to take a new photo for your avatar.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Used for video recording if required.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

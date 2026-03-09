@@ -386,20 +386,46 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                               Row(
                                 children: [
                                   //? AVATAR
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(35.sp),
-                                      border: Border.all(color: Colors.white, width: 1.w),
-                                    ),
-                                    child: CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                        playerInfo!.avatarUrl
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context, 
+                                        builder: (context) => Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          child: Container(
+                                            width: 300.w,
+                                            height: 300.h,
+                                            decoration: BoxDecoration(
+                                              //borderRadius: BorderRadius.circular(12.sp),
+                                              border: Border.all(color: Colors.white, width: 2.w),
+                                              shape: BoxShape.circle
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(300.sp),
+                                              child: Image.network(
+                                                playerInfo!.avatarUrl,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(35.sp),
+                                        border: Border.all(color: Colors.white, width: 1.w),
                                       ),
-                                      radius: 35.sp,
-                                    )
+                                      child: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          playerInfo!.avatarUrl
+                                        ),
+                                        radius: 35.sp,
+                                      )
+                                    ),
                                   ),
 
-                                  SizedBox(width: 10.w),
+                                  SizedBox(width: 15.w),
 
                                   //? JOIN DATE AND NICKNAME TEXTS
                                   Column(
@@ -431,9 +457,8 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 ],
                               ),
 
-                              SizedBox(width: 3.w),
+                              SizedBox(width: 5.w),
                           
-                              
                               //? JOIN DATE AND NICKNAME TEXTS
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -490,6 +515,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               // BUTTON:    REPORT
+                              /*
                               GestureDetector(
                                 child: Container(
                                   width: 70.h,
@@ -514,7 +540,8 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   ),
                                 ),
                               ),
-                          
+                              */
+
                               //? FRIENDSHIP STATUS
                               playerInfo!.friendshipStatus == 'None'
                               ? GestureDetector(
@@ -524,11 +551,12 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 },
                                 child: Container(
                                   height: 35.h,
+                                  width: 150.w,
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: const Color(0xFF00da07),
                                     border: Border.all(
-                                      color: Colors.black,
-                                      width: 1
+                                      color: Colors.transparent,
+                                      width: 0
                                     ),
                                     borderRadius: BorderRadius.circular(12.sp)
                                   ),
@@ -540,7 +568,8 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
-                                          color: Colors.black
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w800
                                         ),
                                       ),
                                     ),
@@ -557,6 +586,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 },
                                 child: Container(
                                   height: 35.h,
+                                  width: 140.w,
                                   decoration: BoxDecoration(
                                     color: Colors.redAccent,
                                     border: Border.all(
@@ -584,6 +614,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                               ?
                                 //? BUTTONS:     REJECT AND ACCEPT
                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     GestureDetector(
                                       onTap: () async {
@@ -592,13 +623,34 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         });
                                         await GetIt.I<ApiService>().approveFriend(playerInfo!.id, true);
                                       },
-                                      child: Icon(
-                                        Icons.handshake_outlined,
-                                        color: const Color(0xFF302B25),
-                                        size: 30.sp,
-                                      )
+                                      child: Container(
+                                        height: 35.h,
+                                        width: 150.w,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF00da07),
+                                          border: Border.all(
+                                            color: Colors.transparent,
+                                            width: 0
+                                          ),
+                                          borderRadius: BorderRadius.circular(12.sp)
+                                        ),
+                                        child: Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                            child: Text(
+                                              "Accept request",
+                                              style: TextStyle(
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w800
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    SizedBox(width: 5.w),
+                                    //SizedBox(width: 5.w),
                                     GestureDetector(
                                       onTap: () async {
                                         setState(() {
@@ -607,35 +659,66 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         await GetIt.I<ApiService>().approveFriend(playerInfo!.id, false);
                                       },
                                       child: Container(
-                                        width: 30.w,
-                                        height: 30.h,
+                                        height: 35.h,
+                                        width: 150.w,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF302B25),
-                                          borderRadius: BorderRadius.circular(5.sp),
+                                          color: const Color(0xFFd63a3a),
+                                          border: Border.all(
+                                            color: Colors.transparent,
+                                            width: 0
+                                          ),
+                                          borderRadius: BorderRadius.circular(12.sp)
                                         ),
-                                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                                         child: Center(
-                                          child: Container(
-                                            height: 5.h,
-                                            width: 20.w,
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFFE0D0BC),
-                                              borderRadius: BorderRadius.circular(5.sp),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                            child: Text(
+                                              "Cancel request",
+                                              style: TextStyle(
+                                                fontSize: 15.sp,
+                                                fontFamily: 'CenturyGothic',
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w800
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      )
+                                      ),
                                     ),
                                   ],
                                 )
                               
                               :
-                              Text(
-                                playerInfo!.friendshipStatus,
-                                style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  color: Colors.black
+                              GestureDetector(
+                                onTap: () async {
+                                  await GetIt.I<ApiService>().sendRequest(playerInfo!.id);
+                                  _loadPlayerInfo();
+                                },
+                                child: Container(
+                                  height: 35.h,
+                                  width: 150.w,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFd63a3a),
+                                    border: Border.all(
+                                      color: Colors.transparent,
+                                      width: 0
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.sp)
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                      child: Text(
+                                        "Cancel request",
+                                        style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w800
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                     
@@ -683,7 +766,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     children: [
                                       // BUTTON:    CHAT
                                       Container(
-                                        width: 70.h,
+                                        width: 140.h,
                                         height: 35.h,
                                         margin: EdgeInsets.only(top: 5.h, right: 5.w),
                                         decoration: BoxDecoration(
@@ -1527,7 +1610,7 @@ class _WinRoleState extends State<WinRole> with SingleTickerProviderStateMixin {
         return 'assets/images/role-card-mark-intoxicated.png';
 
       default:
-      return '';
+        return '';
     }
   }
 
@@ -1692,620 +1775,707 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
       );
     }
 
-    return Align(
-      alignment: Alignment.center,
-      child: Container(
-        margin: EdgeInsets.only(top: 10.h),
-        height: widget.height,
-        width: widget.width,
-        child: Material(
-          color: Colors.transparent,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              image: DecorationImage(image: AssetImage('assets/images/background_player_info_popup.png'), fit: BoxFit.fill)
-            ),
-            child: Container(
-              margin: EdgeInsets.only(top: 5.h, bottom: 15.h, left: 5.w, right: 5.w),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                border: Border.all(
-                  color: const Color(0xFF2A2723),
-                  width: 2,
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            "assets/images/background_my_profile.png",
+            fit: BoxFit.cover,
+          ),
+        ),
+        
+        Align(
+          alignment: Alignment.center,
+          child: Container(
+            margin: EdgeInsets.only(top: 10.h),
+            height: widget.height,
+            width: widget.width,
+            child: Material(
+              color: Colors.transparent,
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                  //color: Colors.transparent,
+                  image: DecorationImage(image: AssetImage('assets/images/background_player_info_popup.png'), fit: BoxFit.fill)
                 ),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-            
-                  //? ORNAMENTS
-                  Stack(
-                    children: [
-                      // Top-left ornament
-                      Positioned(
-                        top: ornamentMargin,
-                        left: ornamentMargin,
-                        child: Image.asset(
-                          "assets/images/game-ornament-day.png",
-                          width: ornamentSize,
-                          height: ornamentSize,
-                        ),
-                      ),
-                      // Top-right ornament (rotated 90 degrees)
-                      Positioned(
-                        top: ornamentMargin,
-                        right: ornamentMargin,
-                        child: Transform.rotate(
-                          angle: 90 * 3.14159 / 180, // 90 degrees in radians
-                          child: Image.asset(
-                            "assets/images/game-ornament-day.png",
-                            width: ornamentSize,
-                            height: ornamentSize,
-                          ),
-                        ),
-                      ),
-                      // Bottom-left ornament (rotated 270 degrees)
-                      Positioned(
-                        bottom: ornamentMargin,
-                        left: ornamentMargin,
-                        child: Transform.rotate(
-                          angle: 270 * 3.14159 / 180, // 270 degrees in radians
-                          child: Image.asset(
-                            "assets/images/game-ornament-day.png",
-                            width: ornamentSize,
-                            height: ornamentSize,
-                          ),
-                        ),
-                      ),
-                      // Bottom-right ornament (rotated 180 degrees)
-                      Positioned(
-                        bottom: ornamentMargin,
-                        right: ornamentMargin,
-                        child: Transform.rotate(
-                          angle: 180 * 3.14159 / 180, // 180 degrees in radians
-                          child: Image.asset(
-                            "assets/images/game-ornament-day.png",
-                            width: ornamentSize,
-                            height: ornamentSize,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  //? CONTENT
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 15.h),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      border: Border.all(
-                        color: const Color(0xFF2A2723),
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(85.0),
+                child: Container(
+                  margin: EdgeInsets.only(top: 5.h, bottom: 15.h, left: 5.w, right: 5.w),
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    border: Border.all(
+                      color: const Color(0xFF2A2723),
+                      width: 2,
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // TEXT:    Profile
-                        Text(
-                          S.of(context).profile,
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 32.sp,
-                            color: const Color(0xFF000000)
-                          )
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                
+                      //? ORNAMENTS
+                      Stack(
+                        children: [
+                          // Top-left ornament
+                          Positioned(
+                            top: ornamentMargin,
+                            left: ornamentMargin,
+                            child: Image.asset(
+                              "assets/images/game-ornament-day.png",
+                              width: ornamentSize,
+                              height: ornamentSize,
+                            ),
+                          ),
+                          // Top-right ornament (rotated 90 degrees)
+                          Positioned(
+                            top: ornamentMargin,
+                            right: ornamentMargin,
+                            child: Transform.rotate(
+                              angle: 90 * 3.14159 / 180, // 90 degrees in radians
+                              child: Image.asset(
+                                "assets/images/game-ornament-day.png",
+                                width: ornamentSize,
+                                height: ornamentSize,
+                              ),
+                            ),
+                          ),
+                          // Bottom-left ornament (rotated 270 degrees)
+                          Positioned(
+                            bottom: ornamentMargin,
+                            left: ornamentMargin,
+                            child: Transform.rotate(
+                              angle: 270 * 3.14159 / 180, // 270 degrees in radians
+                              child: Image.asset(
+                                "assets/images/game-ornament-day.png",
+                                width: ornamentSize,
+                                height: ornamentSize,
+                              ),
+                            ),
+                          ),
+                          // Bottom-right ornament (rotated 180 degrees)
+                          Positioned(
+                            bottom: ornamentMargin,
+                            right: ornamentMargin,
+                            child: Transform.rotate(
+                              angle: 180 * 3.14159 / 180, // 180 degrees in radians
+                              child: Image.asset(
+                                "assets/images/game-ornament-day.png",
+                                width: ornamentSize,
+                                height: ornamentSize,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      //? CONTENT
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 15.h),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          border: Border.all(
+                            color: const Color(0xFF2A2723),
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(85.0),
                         ),
-
-                        SizedBox(height: 20.h),
-                    
-                        //? OLINE STATUS  |  AVATAR  |  JOIN DATE
-                        /*
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              //? ONLINE STATUS
-                              Column(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // TEXT:    Profile
+                            /*
+                            Text(
+                              S.of(context).profile,
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 32.sp,
+                                color: const Color(0xFF000000)
+                              )
+                            ),
+                            */
+        
+                            SizedBox(height: 20.h),
+        
+                            //? AVATAR
+                            SizedBox(
+                              height: 130.h,
+                              width: 140.w,
+                              child: Stack(
                                 children: [
-                                  Row(
-                                    children: [
-                                      //? BADGE
-                                      Container(
-                                        height: 20.h,
-                                        width: 20.w,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color:  const Color(0xFF896A44),
-                                          border: Border.all(
-                                            color: const Color(0xFFB98744),
-                                            width: 2.sp
+                                  //? AVATAR GLOW
+                                  Positioned(
+                                    right: 10.w,
+                                    top: 0.h,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(bottom: 20.h),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context, 
+                                            builder: (context) => Dialog(
+                                              backgroundColor: Colors.transparent,
+                                              child: Container(
+                                                width: 300.w,
+                                                height: 300.h,
+                                                decoration: BoxDecoration(
+                                                  //borderRadius: BorderRadius.circular(12.sp),
+                                                  border: Border.all(color: Colors.white, width: 2.w),
+                                                  shape: BoxShape.circle
+                                                ),
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(300.sp),
+                                                  child: Image.network(
+                                                    playerInfo!.avatarUrl,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          );
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            //borderRadius: BorderRadius.circular(35.sp),
+                                            border: Border.all(color: Colors.white, width: 1.w),
+                                            shape: BoxShape.circle
+                                          ),
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              playerInfo!.avatarUrl
+                                            ),
+                                            radius: 60.sp,
                                           )
                                         ),
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.star,
-                                            size: 13.sp,
-                                            color: Colors.white
+                                      ),
+                                    ),
+                                  ),
+                                
+                                  //? ONLINE STATUS BADGE
+                                  Positioned(
+                                    right: 15.w,
+                                    top: 2.h,
+                                    child: Container(
+                                      padding: EdgeInsets.all(4.w),
+                                      constraints: BoxConstraints(
+                                        minWidth: 20.w,
+                                        minHeight: 20.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.white, width: 1.5.w),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "",
+                                          style: TextStyle(
+                                            color: Colors.white ,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'CenturyGothic',
                                           ),
                                         ),
                                       ),
-                                  
-                                      SizedBox(width: 4.w),
-                                  
-                                      // TEXT:    IS ONLINE
+                                    ),
+                                  ),
+                                        
+                                ],
+                              ),
+                            ),
+                        
+                            //? OLINE STATUS  |  AVATAR  |  JOIN DATE
+                            /*
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15.w),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  //? ONLINE STATUS
+                                  Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          //? BADGE
+                                          Container(
+                                            height: 20.h,
+                                            width: 20.w,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color:  const Color(0xFF896A44),
+                                              border: Border.all(
+                                                color: const Color(0xFFB98744),
+                                                width: 2.sp
+                                              )
+                                            ),
+                                            child: Center(
+                                              child: Icon(
+                                                Icons.star,
+                                                size: 13.sp,
+                                                color: Colors.white
+                                              ),
+                                            ),
+                                          ),
+                                      
+                                          SizedBox(width: 4.w),
+                                      
+                                          // TEXT:    IS ONLINE
+                                          Text(
+                                            S.of(context).online,
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+        
+                                  //? AVATAR
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(35.sp),
+                                      border: Border.all(color: Colors.white, width: 1.w),
+                                    ),
+                                    child: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                        playerInfo!.avatarUrl
+                                      ),
+                                      radius: 35.sp,
+                                    )
+                                  ),
+                              
+                                  //? JOIN DATE
+                                  Column(
+                                    children: [
+                                      // TEXT:    JOIN DATE
                                       Text(
-                                        S.of(context).online,
+                                        S.of(context).joinDate,
                                         style: TextStyle(
                                           fontSize: 14.sp,
                                           fontFamily: 'CenturyGothic',
-                                          color: Colors.black
-                                        ),
-                                      )
+                                          color: Colors.black,
+                                          height: 0
+                                        )
+                                      ),
+                                      
+                                      //? JOIN DATE
+                                      Text(
+                                        DateFormat('dd.MM.yyyy').format(playerInfo!.joinDate),
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontFamily: 'CenturyGothic',
+                                          color: Colors.black,
+                                          height: 0
+                                        )
+                                      ),
                                     ],
-                                  ),
+                                  )
                                 ],
                               ),
-
-                              //? AVATAR
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(35.sp),
-                                  border: Border.all(color: Colors.white, width: 1.w),
-                                ),
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    playerInfo!.avatarUrl
-                                  ),
-                                  radius: 35.sp,
-                                )
-                              ),
-                          
-                              //? JOIN DATE
-                              Column(
-                                children: [
-                                  // TEXT:    JOIN DATE
-                                  Text(
-                                    S.of(context).joinDate,
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontFamily: 'CenturyGothic',
-                                      color: Colors.black,
-                                      height: 0
-                                    )
-                                  ),
-                                  
-                                  //? JOIN DATE
-                                  Text(
-                                    DateFormat('dd.MM.yyyy').format(playerInfo!.joinDate),
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontFamily: 'CenturyGothic',
-                                      color: Colors.black,
-                                      height: 0
-                                    )
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                        */
-
-                        //? AVATAR  |  NICKNAME  |  JOIN DATE
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-
-                              //? AVATAR
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(35.sp),
-                                  border: Border.all(color: Colors.white, width: 1.w),
-                                ),
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    playerInfo!.avatarUrl
-                                  ),
-                                  radius: 35.sp,
-                                )
-                              ),
-
-                              SizedBox(width: 3.w),
-                          
-                              //? JOIN DATE AND NICKNAME TEXTS
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // TEXT:    NICKNAME
-                                  Text(
-                                    "Nickname:  ",
-                                    style: TextStyle(
-                                      fontSize: 15.sp,
-                                      fontFamily: 'CenturyGothic',
-                                      color: Colors.black
-                                    ),
-                                  ),
-                                  
-                                  // TEXT:    JOIN DATE
-                                  Text(
-                                    "${S.of(context).joinDate}:  ",
-                                    style: TextStyle(
-                                      fontSize: 15.sp,
-                                      fontFamily: 'CenturyGothic',
-                                      color: Colors.black,
-                                      height: 0
-                                    )
-                                  ),
-                                ],
-                              ),
-                            
-                              //? JOIN DATE AND NICKNAME TEXTS
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  // TEXT:    NICKNAME
-                                  Text(
-                                    playerInfo!.nickname,
-                                    style: TextStyle(
-                                      fontSize: 15.sp,
-                                      fontFamily: 'CenturyGothic',
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.black
-                                    ),
-                                  ),
-                                  
-                                  // TEXT:    JOIN DATE
-                                  Text(
-                                    DateFormat('dd.MM.yyyy').format(playerInfo!.joinDate),
-                                    style: TextStyle(
-                                      fontSize: 15.sp,
-                                      fontFamily: 'CenturyGothic',
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.black,
-                                      height: 0
-                                    )
-                                  ),
-                                ],
-                              )
-                            
-                            ],
-                          ),
-                        ),
-                      
-
-                        //? NICKNAME
-                        /*
-                        Padding(
-                          padding: EdgeInsets.only(top: 8.h),
-                          child: Text(
-                            playerInfo!.nickname,
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: 20.sp,
-                              color: Colors.black
                             ),
-                          ),
-                        ),
-                        */
-
-                        SizedBox(height: 20.h),
-
-                        //? DIVIDER
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15.w),
-                          child: Divider(
-                            thickness: 2.h,
-                            color: const Color(0xFF494239),
-                          ),
-                        ),
-
-                        SizedBox(height: 7.h),
-                      
-                        ////? STATS
-                        // TEXT:    STATS
-                        Text(
-                          S.of(context).stats,
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 20.sp,
-                            color: Colors.black
-                          ),
-                        ),
-                        
-                        //? OVERALL STATS
-                        /*
-                        Container(
-                          height: 27.h,
-                          margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 6.h),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFAF977E),
-                            borderRadius: BorderRadius.circular(12.sp)
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // TEXT:    OVERALL
-                              Text(
-                                S.of(context).overall,
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  color: Colors.black
-                                ),
-                              ),
-
-                              SizedBox(width: 50.w,),
-
-                              //? OVERALL STATS
-                              Text(
-                                playerInfo!.overall.toString(),
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  color: Colors.black
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        */
-
-                        //? SPECIFIC STATS
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              //? WINS AND LOSES
-                              Row(
+                            */
+        
+        
+        
+                            //? AVATAR  |  NICKNAME  |  JOIN DATE
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 30.w),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  //? TEXTS
+                                  //SizedBox(width: 3.w),
+                                  //? JOIN DATE AND NICKNAME TEXTS
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      // TEXT:    WINS
+                                      // TEXT:    NICKNAME
                                       Text(
-                                        S.of(context).wins,
+                                        "Nickname:  ",
                                         style: TextStyle(
-                                          fontSize: 13.sp,
+                                          fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
                                           color: Colors.black
                                         ),
                                       ),
-                                                        
-                                      SizedBox(height: 10.h),
-                                                        
-                                      // TEXT:    WINS
+                                      
+                                      // TEXT:    JOIN DATE
                                       Text(
-                                        S.of(context).loses,
+                                        "${S.of(context).joinDate}:  ",
                                         style: TextStyle(
-                                          fontSize: 13.sp,
+                                          fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
-                                          color: Colors.black
-                                        ),
-                                      )
+                                          color: Colors.black,
+                                          height: 0
+                                        )
+                                      ),
                                     ],
                                   ),
-                                                        
-                                  SizedBox(width: 12.w),
                                 
-                                  //? DIVIDER
-                                  Container(
-                                    width: 2.w,
-                                    height: 45.h,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        right: BorderSide(
-                                          color: const Color(0xFF494239),
-                                          width: 2.w
-                                        )
-                                      )
-                                    ),
-                                  ),
-                                                        
-                                  SizedBox(width: 12.w),
-                                                        
-                                  //? STATS
+                                  //? JOIN DATE AND NICKNAME TEXTS
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      //? WINS
+                                      // TEXT:    NICKNAME
                                       Text(
-                                        playerInfo!.wins.toString(),
+                                        playerInfo!.nickname,
                                         style: TextStyle(
-                                          fontSize: 13.sp,
+                                          fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
+                                          fontWeight: FontWeight.w700,
                                           color: Colors.black
                                         ),
                                       ),
-                                                        
-                                      SizedBox(height: 10.h),
-                                                        
-                                      //? LOSES
+                                      
+                                      // TEXT:    JOIN DATE
                                       Text(
-                                        playerInfo!.loses.toString(),
+                                        DateFormat('dd.MM.yyyy').format(playerInfo!.joinDate),
                                         style: TextStyle(
-                                          fontSize: 13.sp,
+                                          fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
-                                          color: Colors.black
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.black,
+                                          height: 0
+                                        )
+                                      ),
+                                    ],
+                                  )
+                                
+                                ],
+                              ),
+                            ),
+                          
+        
+                            //? NICKNAME
+                            /*
+                            Padding(
+                              padding: EdgeInsets.only(top: 8.h),
+                              child: Text(
+                                playerInfo!.nickname,
+                                style: GoogleFonts.playfairDisplay(
+                                  fontSize: 20.sp,
+                                  color: Colors.black
+                                ),
+                              ),
+                            ),
+                            */
+        
+                            SizedBox(height: 15.h),
+        
+                            //? DIVIDER
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15.w),
+                              child: Divider(
+                                thickness: 2.h,
+                                color: const Color(0xFF494239),
+                              ),
+                            ),
+        
+                            SizedBox(height: 7.h),
+                          
+                            ////? STATS
+                            // TEXT:    STATS
+                            Text(
+                              S.of(context).stats,
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 20.sp,
+                                color: Colors.black
+                              ),
+                            ),
+                            
+                            //? OVERALL STATS
+                            /*
+                            Container(
+                              height: 27.h,
+                              margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 6.h),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFAF977E),
+                                borderRadius: BorderRadius.circular(12.sp)
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // TEXT:    OVERALL
+                                  Text(
+                                    S.of(context).overall,
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      color: Colors.black
+                                    ),
+                                  ),
+        
+                                  SizedBox(width: 50.w,),
+        
+                                  //? OVERALL STATS
+                                  Text(
+                                    playerInfo!.overall.toString(),
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontFamily: 'CenturyGothic',
+                                      color: Colors.black
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            */
+        
+                            //? SPECIFIC STATS
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  //? WINS AND LOSES
+                                  Row(
+                                    children: [
+                                      //? TEXTS
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // TEXT:    WINS
+                                          Text(
+                                            S.of(context).wins,
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          ),
+                                                            
+                                          SizedBox(height: 10.h),
+                                                            
+                                          // TEXT:    WINS
+                                          Text(
+                                            S.of(context).loses,
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                                            
+                                      SizedBox(width: 12.w),
+                                    
+                                      //? DIVIDER
+                                      Container(
+                                        width: 2.w,
+                                        height: 45.h,
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            right: BorderSide(
+                                              color: const Color(0xFF494239),
+                                              width: 2.w
+                                            )
+                                          )
                                         ),
-                                      )
+                                      ),
+                                                            
+                                      SizedBox(width: 12.w),
+                                                            
+                                      //? STATS
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          //? WINS
+                                          Text(
+                                            playerInfo!.wins.toString(),
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          ),
+                                                            
+                                          SizedBox(height: 10.h),
+                                                            
+                                          //? LOSES
+                                          Text(
+                                            playerInfo!.loses.toString(),
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+        
+                                  //? TEAM WINS
+                                  Row(
+                                    children: [
+                                      //? TEXTS
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // TEXT:    MAFIA WINS
+                                          Text(
+                                            S.of(context).mafiaWins,
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          ),
+                                                            
+                                          SizedBox(height: 10.h),
+                                                            
+                                          // TEXT:    CIVILIAN WINS
+                                          Text(
+                                            S.of(context).civilianWins,
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                                            
+                                      SizedBox(width: 12.w),
+                                    
+                                      //? DIVIDER
+                                      Container(
+                                        width: 2.w,
+                                        height: 45.h,
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            right: BorderSide(
+                                              color: const Color(0xFF494239),
+                                              width: 2.w
+                                            )
+                                          )
+                                        ),
+                                      ),
+                                                            
+                                      SizedBox(width: 12.w),
+                                                            
+                                      //? STATS
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          //? MAFIA WINS
+                                          Text(
+                                            playerInfo!.mafiaWins.toString(),
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          ),
+                                                            
+                                          SizedBox(height: 10.h),
+                                                            
+                                          //? CIVILIAN WINS
+                                          Text(
+                                            playerInfo!.civilianWins.toString(),
+                                            style: TextStyle(
+                                              fontSize: 13.sp,
+                                              fontFamily: 'CenturyGothic',
+                                              color: Colors.black
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ],
                               ),
-
-                              //? TEAM WINS
-                              Row(
-                                children: [
-                                  //? TEXTS
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // TEXT:    MAFIA WINS
-                                      Text(
-                                        S.of(context).mafiaWins,
-                                        style: TextStyle(
-                                          fontSize: 13.sp,
-                                          fontFamily: 'CenturyGothic',
-                                          color: Colors.black
-                                        ),
-                                      ),
-                                                        
-                                      SizedBox(height: 10.h),
-                                                        
-                                      // TEXT:    CIVILIAN WINS
-                                      Text(
-                                        S.of(context).civilianWins,
-                                        style: TextStyle(
-                                          fontSize: 13.sp,
-                                          fontFamily: 'CenturyGothic',
-                                          color: Colors.black
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                                        
-                                  SizedBox(width: 12.w),
-                                
-                                  //? DIVIDER
-                                  Container(
-                                    width: 2.w,
-                                    height: 45.h,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        right: BorderSide(
-                                          color: const Color(0xFF494239),
-                                          width: 2.w
-                                        )
-                                      )
-                                    ),
-                                  ),
-                                                        
-                                  SizedBox(width: 12.w),
-                                                        
-                                  //? STATS
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      //? MAFIA WINS
-                                      Text(
-                                        playerInfo!.mafiaWins.toString(),
-                                        style: TextStyle(
-                                          fontSize: 13.sp,
-                                          fontFamily: 'CenturyGothic',
-                                          color: Colors.black
-                                        ),
-                                      ),
-                                                        
-                                      SizedBox(height: 10.h),
-                                                        
-                                      //? CIVILIAN WINS
-                                      Text(
-                                        playerInfo!.civilianWins.toString(),
-                                        style: TextStyle(
-                                          fontSize: 13.sp,
-                                          fontFamily: 'CenturyGothic',
-                                          color: Colors.black
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ],
+                            ),
+        
+                            //? DIVIDER
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15.w),
+                              child: Divider(
+                                thickness: 2.h,
+                                color: const Color(0xFF494239),
                               ),
-                            ],
-                          ),
-                        ),
-
-                        //? DIVIDER
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15.w),
-                          child: Divider(
-                            thickness: 2.h,
-                            color: const Color(0xFF494239),
-                          ),
-                        ),
-
-                        SizedBox(height: 15.h),
-                      
-                        // TEXT:    PLAYED ROLES
-                        Text(
-                          S.of(context).playedRoles,
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 20.sp,
-                            color: Colors.black
-                          )
-                        ),
-
-                        SizedBox(height: 25.h),
-                        
-                        //? PLAYED ROLES - CIVILIAN TEAM
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            //? CIVILIAN
-                            WinRole(role: 'Civilian', winCount: playerInfo!.civilianRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? DOCTOR
-                            WinRole(role: 'Doctor', winCount: playerInfo!.doctorRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? SHERIFF
-                            WinRole(role: 'Sheriff', winCount: playerInfo!.sheriffRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? BODYGUARD
-                            WinRole(role: 'Bodyguard', winCount: playerInfo!.bodyguardRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? BEAUTY
-                            WinRole(role: 'Beauty', winCount: playerInfo!.beautyRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? JOURNALIST
-                            WinRole(role: 'Journalist', winCount: playerInfo!.journalistRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? SPY
-                            WinRole(role: 'Spy', winCount: playerInfo!.spyRolePlayedGames),
+                            ),
+        
+                            SizedBox(height: 15.h),
+                          
+                            // TEXT:    PLAYED ROLES
+                            Text(
+                              S.of(context).playedRoles,
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 20.sp,
+                                color: Colors.black
+                              )
+                            ),
+        
+                            SizedBox(height: 25.h),
+                            
+                            //? PLAYED ROLES - CIVILIAN TEAM
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                //? CIVILIAN
+                                WinRole(role: 'Civilian', winCount: playerInfo!.civilianRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? DOCTOR
+                                WinRole(role: 'Doctor', winCount: playerInfo!.doctorRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? SHERIFF
+                                WinRole(role: 'Sheriff', winCount: playerInfo!.sheriffRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? BODYGUARD
+                                WinRole(role: 'Bodyguard', winCount: playerInfo!.bodyguardRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? BEAUTY
+                                WinRole(role: 'Beauty', winCount: playerInfo!.beautyRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? JOURNALIST
+                                WinRole(role: 'Journalist', winCount: playerInfo!.journalistRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? SPY
+                                WinRole(role: 'Spy', winCount: playerInfo!.spyRolePlayedGames),
+                              ],
+                            ),
+                          
+                            SizedBox(height: 10.h),
+        
+                            //? PLAYED ROLES - MAFIA TEAM
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                //? MAFIA
+                                WinRole(role: 'Mafia', winCount: playerInfo!.mafiaRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? TERRORIST
+                                WinRole(role: 'Terrorist', winCount: playerInfo!.terroristRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? INFORMANT
+                                WinRole(role: 'Informant', winCount: playerInfo!.informantRolePlayedGames),
+                                SizedBox(width: cardsMargin),
+        
+                                //? BARMAN
+                                WinRole(role: 'Barman', winCount: playerInfo!.barmanRolePlayedGames)
+                              ],
+                            )
+                          
                           ],
                         ),
-                      
-                        SizedBox(height: 10.h),
-
-                        //? PLAYED ROLES - MAFIA TEAM
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            //? MAFIA
-                            WinRole(role: 'Mafia', winCount: playerInfo!.mafiaRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? TERRORIST
-                            WinRole(role: 'Terrorist', winCount: playerInfo!.terroristRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? INFORMANT
-                            WinRole(role: 'Informant', winCount: playerInfo!.informantRolePlayedGames),
-                            SizedBox(width: cardsMargin),
-
-                            //? BARMAN
-                            WinRole(role: 'Barman', winCount: playerInfo!.barmanRolePlayedGames)
-                          ],
-                        )
-                      
-                      ],
-                    ),
-                  )
-                ],
+                      )
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -2323,5 +2493,37 @@ class _RoleMiniCardTooltipState extends State<RoleMiniCardTooltip> {
   @override
   Widget build(BuildContext context) {
     return const Placeholder();
+  }
+}
+
+class ShowAvatarPopup extends StatelessWidget {
+  final String avatarUrl;
+  const ShowAvatarPopup({super.key, required this.avatarUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Center(
+          child: Container(
+            height: 300.h,
+            width: 300.w,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: Colors.white, width: 2.w)
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16.r),
+              child: Image.network(
+                avatarUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+          )
+        ),
+      ),
+    );
   }
 }
