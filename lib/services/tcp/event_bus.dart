@@ -41,6 +41,11 @@ class DeleteFriendEvent {
   DeleteFriendEvent(this.friendId);
 }
 
+class CancelFriendRequest {
+  final int playerId;
+  CancelFriendRequest(this.playerId);
+}
+
 class FriendOnlineEvent {
   final int friendId;
   FriendOnlineEvent(this.friendId);

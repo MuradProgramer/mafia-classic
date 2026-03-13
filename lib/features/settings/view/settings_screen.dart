@@ -1046,29 +1046,34 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                         );
 
                         if (image != null) {
-                          final croppedFile = await ImageCropper().cropImage(
-                            sourcePath: image.path,
-                            aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1), 
-                            uiSettings: [
-                              AndroidUiSettings(
-                                toolbarTitle: 'Edit Avatar',
-                                toolbarColor: Colors.deepPurple,
-                                toolbarWidgetColor: Colors.white,
-                                initAspectRatio: CropAspectRatioPreset.square,
-                                lockAspectRatio: true,
-                              ),
-                              IOSUiSettings(
-                                title: 'Edit Avatar',
-                                aspectRatioLockEnabled: true,
-                                resetButtonHidden: false,
-                                aspectRatioPickerButtonHidden: true,
-                              ),
-                            ],
-                          );
+                          CroppedFile? croppedFile;
+                          try {
+                            croppedFile = await ImageCropper().cropImage(
+                              sourcePath: image.path,
+                              aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1), 
+                              uiSettings: [
+                                AndroidUiSettings(
+                                  toolbarTitle: 'Edit Avatar',
+                                  toolbarColor: Colors.deepPurple,
+                                  toolbarWidgetColor: Colors.white,
+                                  initAspectRatio: CropAspectRatioPreset.square,
+                                  lockAspectRatio: true,
+                                ),
+                                IOSUiSettings(
+                                  title: 'Edit Avatar',
+                                  aspectRatioLockEnabled: true,
+                                  resetButtonHidden: false,
+                                  aspectRatioPickerButtonHidden: true,
+                                ),
+                              ],
+                            );
+                          } on Exception catch (e) {
+                            print("THE PROBLEM IS IN THE IMAGE CROPPING");
+                          }
 
                           if (croppedFile != null) {
                             setState(() {
-                              pickedImage = XFile(croppedFile.path);
+                              pickedImage = XFile(croppedFile!.path);
                             });
                           }
                         }
@@ -1175,6 +1180,9 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                             String avatar = await GetIt.I<ApiService>().uploadAvatar(pickedImage!);
                             print("SETTED NEW AVATAR IN SETTINGS SCREEN: $avatar");
                             setState(() {
+                              if (!mounted) {
+                                return;
+                              }
                               authorizedUser.avatarUrl = avatar;
                               SharedPrefsService.setAvatarUrl(avatar);
                             });

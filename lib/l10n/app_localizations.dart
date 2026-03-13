@@ -621,7 +621,7 @@ abstract class AppLocalizations {
   /// No description provided for @enterMessage.
   ///
   /// In en, this message translates to:
-  /// **'Enter message'**
+  /// **'Type here'**
   String get enterMessage;
 
   /// No description provided for @alreadyHaveAnAccount.
@@ -1839,7 +1839,7 @@ abstract class AppLocalizations {
   /// No description provided for @uknown.
   ///
   /// In en, this message translates to:
-  /// **'uknown'**
+  /// **'unknown'**
   String get uknown;
 
   /// No description provided for @gameInformationPopupCured.

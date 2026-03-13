@@ -53,6 +53,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
   StreamSubscription? _eventSubscriptionFriendRequestRecieved;
   StreamSubscription? _eventSubscriptionFriendRequestDeclined;
   StreamSubscription? _eventSubscriptionNewFriendAdded;
+  StreamSubscription? _eventSubscriptionCancelRequest;
 
   @override
   void initState() {
@@ -61,12 +62,14 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
     _loadPlayerInfo();
     
     _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
+      if (!mounted) return;
       setState(() {
         playerInfo!.isOnline = true;
       });
     });
 
     _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
+      if (!mounted) return;
       setState(() {
         playerInfo!.isOnline = false;
         playerInfo!.lastSeen = DateTime.now().toLocal();
@@ -74,24 +77,35 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
     });
 
     _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
+      if (!mounted) return;
+      setState(() {
+        playerInfo!.friendshipStatus = 'None';
+      });
+    });
+
+    _eventSubscriptionDeleteFriend = EventBus().on<CancelFriendRequest>().listen((event) {
+      if (!mounted) return;
       setState(() {
         playerInfo!.friendshipStatus = 'None';
       });
     });
 
     _eventSubscriptionNewFriendMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
+      if (!mounted) return;
       setState(() {
         playerInfo!.unreadMessagesCount++;
       });
     });
 
     _eventSubscriptionFriendMessagesReaded = EventBus().on<FriendMessagesReadedEvent>().listen((event) {
+      if (!mounted) return;
       setState(() {
         playerInfo!.unreadMessagesCount = 0;
       });
     });
 
     _eventSubscriptionNewFriendAdded = EventBus().on<NewFriendAddedEvent>().listen((event) {
+      if (!mounted) return;
       if (event.requestData.id != playerInfo!.id) return;
       setState(() {
         playerInfo!.friendshipStatus = 'Accepted';
@@ -99,6 +113,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
     });
 
     _eventSubscriptionFriendRequestRecieved = EventBus().on<FriendRequestReceivedEvent>().listen((event) {
+      if (!mounted) return;
       if (event.requestData['friendId'] != playerInfo!.id) return;
       setState(() {
         playerInfo!.friendshipStatus = 'ApprovePending';
@@ -106,6 +121,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
     });
 
     _eventSubscriptionFriendRequestDeclined = EventBus().on<FriendRequestDeclinedEvent>().listen((event) {
+      if (!mounted) return;
       if (event.playerId != playerInfo!.id) return;
       setState(() {
         playerInfo!.friendshipStatus = 'None';
@@ -123,6 +139,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
     _eventSubscriptionNewFriendAdded?.cancel();
     _eventSubscriptionFriendRequestRecieved?.cancel();
     _eventSubscriptionFriendRequestDeclined?.cancel();
+    _eventSubscriptionCancelRequest?.cancel();
     super.dispose();
   }
 
@@ -146,6 +163,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
   void _loadPlayerInfo() async {
     final playerInfoData = await GetIt.I<ApiService>().getPlayerInfo(widget.id);
     print(playerInfoData.toString());
+    if (!mounted) return;
     setState(() {
       playerInfo = PlayerInfo.from(playerInfoData);
     });
@@ -259,7 +277,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                       children: [
                         // TEXT:    Profile
                         Text(
-                          S.of(context).profile,
+                          "Player Profile",
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 32.sp,
                             color: const Color(0xFF000000)
@@ -401,7 +419,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                               shape: BoxShape.circle
                                             ),
                                             child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(300.sp),
+                                              //borderRadius: BorderRadius.circular(300.sp),
                                               child: Image.network(
                                                 playerInfo!.avatarUrl,
                                                 fit: BoxFit.cover,
@@ -510,7 +528,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                     
                         //? REPORT  |  ADD FRIENDS  |  CHAT
                         Padding(
-                          padding: EdgeInsets.only(left: 15.w, right: 15.w, top: 10.h, bottom: 5.h),
+                          padding: EdgeInsets.only(left: 15.w, right: 10.w, top: 10.h, bottom: 5.h),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -553,10 +571,10 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   height: 35.h,
                                   width: 150.w,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF00da07),
+                                    color: const Color(0xFFFFB000),
                                     border: Border.all(
-                                      color: Colors.transparent,
-                                      width: 0
+                                      color: Colors.black,
+                                      width: 1.w
                                     ),
                                     borderRadius: BorderRadius.circular(12.sp)
                                   ),
@@ -568,8 +586,8 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w800
+                                          color: Colors.black,
+                                          //fontWeight: FontWeight.w800
                                         ),
                                       ),
                                     ),
@@ -603,7 +621,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
-                                          color: Colors.white
+                                          color: Colors.black
                                         ),
                                       ),
                                     ),
@@ -627,10 +645,10 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         height: 35.h,
                                         width: 150.w,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF00da07),
+                                          color: const Color(0xFFFFB000),
                                           border: Border.all(
-                                            color: Colors.transparent,
-                                            width: 0
+                                            color: Colors.black,
+                                            width: 1.w
                                           ),
                                           borderRadius: BorderRadius.circular(12.sp)
                                         ),
@@ -642,15 +660,15 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                               style: TextStyle(
                                                 fontSize: 15.sp,
                                                 fontFamily: 'CenturyGothic',
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w800
+                                                color: Colors.black,
+                                                //fontWeight: FontWeight.w800
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                    //SizedBox(width: 5.w),
+                                    SizedBox(width: 27.w),
                                     GestureDetector(
                                       onTap: () async {
                                         setState(() {
@@ -662,10 +680,10 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         height: 35.h,
                                         width: 150.w,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFd63a3a),
+                                          color: Colors.redAccent,
                                           border: Border.all(
-                                            color: Colors.transparent,
-                                            width: 0
+                                            color: Colors.black,
+                                            width: 1.w
                                           ),
                                           borderRadius: BorderRadius.circular(12.sp)
                                         ),
@@ -673,12 +691,12 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                           child: Padding(
                                             padding: EdgeInsets.symmetric(horizontal: 8.w),
                                             child: Text(
-                                              "Cancel request",
+                                              "Reject request",
                                               style: TextStyle(
                                                 fontSize: 15.sp,
                                                 fontFamily: 'CenturyGothic',
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w800
+                                                color: Colors.black,
+                                                //fontWeight: FontWeight.w800
                                               ),
                                             ),
                                           ),
@@ -689,19 +707,20 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 )
                               
                               :
+                              // BUTTON:    Cancel request
                               GestureDetector(
                                 onTap: () async {
-                                  await GetIt.I<ApiService>().sendRequest(playerInfo!.id);
+                                  await GetIt.I<ApiService>().cancelFriendRequest(playerInfo!.id);
                                   _loadPlayerInfo();
                                 },
                                 child: Container(
                                   height: 35.h,
                                   width: 150.w,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFd63a3a),
+                                    color: Colors.redAccent,
                                     border: Border.all(
-                                      color: Colors.transparent,
-                                      width: 0
+                                      color: Colors.black,
+                                      width: 1.w
                                     ),
                                     borderRadius: BorderRadius.circular(12.sp)
                                   ),
@@ -713,8 +732,8 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w800
+                                          color: Colors.black,
+                                          //fontWeight: FontWeight.w800
                                         ),
                                       ),
                                     ),

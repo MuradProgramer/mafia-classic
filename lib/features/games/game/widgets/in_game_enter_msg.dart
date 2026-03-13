@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
 import 'package:mafia_classic/generated/l10n.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/utils/snackbar.dart';
 
 class EnterMessage extends StatefulWidget {
@@ -9,13 +10,14 @@ class EnterMessage extends StatefulWidget {
   final Function() sendMessage;
   final bool canISendMessage;
   final String gamePhase;
+  final FocusNode focusNode;
 
   const EnterMessage({
     super.key, 
     required this.messageController, 
     required this.sendMessage, 
     required this.canISendMessage, 
-    required this.gamePhase
+    required this.gamePhase, required this.focusNode
   });
 
   @override
@@ -23,6 +25,7 @@ class EnterMessage extends StatefulWidget {
 }
 
 class _EnterMessageState extends State<EnterMessage> {
+
   @override
   Widget build(BuildContext context) {
     final double deviceHeight = MediaQuery.of(context).size.height;
@@ -39,11 +42,15 @@ class _EnterMessageState extends State<EnterMessage> {
             child: Padding(
               padding: EdgeInsets.only(left: 5.w, bottom: 6.h),
               child: TextField(
+                focusNode: widget.focusNode,
+                onTapOutside: (PointerDownEvent event) {
+                  widget.focusNode.unfocus();
+                },
                 controller: widget.messageController,
                 style: TextStyle(color: ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? Colors.black : Colors.white, fontSize: 15.sp),
                 cursorColor: ['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF),
                 decoration: InputDecoration(
-                  hintText: '${S.of(context).enterMessage}...',
+                  hintText: AppLocalizations.of(context)!.enterMessage,
                   hintStyle: const TextStyle(color: Colors.grey),
                   border: InputBorder.none,
                 ),

@@ -165,7 +165,13 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
         TopSnackBarManager.show({
             "nickname": data['nickname'],
             "avatarUrl": data['avatarUrl'],
-          }, 3);
+          }, 3
+        );
+      }
+
+      if (event == ServerEvent.friendshipCancelRequest) {
+        final int friendId = json.decode(payload)['playerId'] as int;
+        EventBus().fire(CancelFriendRequest(friendId));
       }
 
       if (event == ServerEvent.friendshipFriendNewMessage) {

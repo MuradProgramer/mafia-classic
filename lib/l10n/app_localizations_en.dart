@@ -279,7 +279,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playersInRoom => 'Players in the Room';
 
   @override
-  String get enterMessage => 'Enter message';
+  String get enterMessage => 'Type here';
 
   @override
   String get alreadyHaveAnAccount => 'Already have an account?';
@@ -960,7 +960,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get itIsYou => 'it is you';
 
   @override
-  String get uknown => 'uknown';
+  String get uknown => 'unknown';
 
   @override
   String get gameInformationPopupCured =>

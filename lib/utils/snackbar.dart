@@ -863,3 +863,151 @@ class _TopBounceSnackbarWarningState extends State<TopBounceSnackbarWarning> wit
     );
   }
 }
+
+
+class TopBounceSnackBarSkillUsed extends StatefulWidget {
+  final String nickname;
+  final String avatarUrl;
+
+  final VoidCallback onDismiss;
+
+  const TopBounceSnackBarSkillUsed({
+    super.key, 
+    required this.nickname, 
+    required this.avatarUrl, 
+    required this.onDismiss
+  });
+
+  @override
+  State<TopBounceSnackBarSkillUsed> createState() => _TopBounceSnackBarSkillUsedState();
+}
+
+class _TopBounceSnackBarSkillUsedState extends State<TopBounceSnackBarSkillUsed> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _offsetAnimation;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800), 
+      vsync: this,
+    );
+
+    _offsetAnimation = Tween<Offset>(
+      begin: const Offset(0.0, -2), 
+      end: const Offset(0.0, 0.0),
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.elasticOut,
+      reverseCurve: Curves.elasticOut, 
+    ));
+
+    _controller.forward();
+
+    _timer = Timer(const Duration(seconds: 3), () {
+      _dismiss();
+    });
+  }
+
+  void _dismiss() async {
+    if (!mounted) return;
+    
+    _timer?.cancel();
+
+    await _controller.reverse();
+
+    widget.onDismiss();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Material(
+        color: Colors.transparent,
+        child: GestureDetector(
+          onTap: _dismiss,
+          behavior: HitTestBehavior.translucent, 
+          child: Container(
+            alignment: Alignment.topCenter,
+            padding: const EdgeInsets.only(top: 50, left: 20, right: 20),
+            child: SlideTransition(
+              position: _offsetAnimation,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111111),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 1.sp,
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(widget.avatarUrl),
+                        radius: 20.sp,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.nickname,
+                            style: TextStyle(
+                              color: const Color(0xFFFFB000),
+                              fontSize: 17.sp,
+                              fontFamily: 'CenturyGothic'
+                            ),
+                          ),
+
+                          Text(
+                            " accepted your request",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold, 
+                              fontSize: 17.sp,
+                              fontFamily: 'CenturyGothic'
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+}

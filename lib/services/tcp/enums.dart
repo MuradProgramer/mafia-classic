@@ -43,11 +43,12 @@ enum ServerEvent {
   friendshipFriendLeftRoom(2005),
   friendshipNewFriend(2006), //
   friendshipRequestFriendship(2007), //
-  friendshipRequestDeclined(2008), //
-  friendshipDeleteFriendship(2009), //
-  friendshipFriendNewMessage(2010),
-  friendshipFriendMessagesReaded(2011),
-  friendshipFriendMessagesDelivered(2012),
+  friendshipCancelRequest(2008),
+  friendshipRequestDeclined(2009), //
+  friendshipDeleteFriendship(2010), //
+  friendshipFriendNewMessage(2011),
+  friendshipFriendMessagesReaded(2012),
+  friendshipFriendMessagesDelivered(2013),
   //friendInvitation(5000),
 
   errorEvent(-1);

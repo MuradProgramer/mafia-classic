@@ -113,6 +113,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
 
+  final FocusNode _messageFocusNode = FocusNode();
+
   void _scrollToBottom() {
     if (!_scrollController.hasClients) return;
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -2248,29 +2250,75 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                     //? ICONS +
                                     Row(
                                       children: [
-                                        //? DAY
-                                        GestureDetector(
-                                          //NOTE: FONT SIZE
-                                          child: Icon(
-                                            Icons.sunny,
-                                            color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFB000) : Colors.black,
-                                            size: 25.sp,
+                                        // //? DAY
+                                        // GestureDetector(
+                                        //   //NOTE: FONT SIZE
+                                        //   child: Icon(
+                                        //     Icons.sunny,
+                                        //     color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFB000) : Colors.black,
+                                        //     size: 25.sp,
+                                        //   ),
+                                        // ),
+
+                                        SizedBox(
+                                          width: 23.w,
+                                          height: 23.h,
+                                          child: Image.asset(
+                                            "assets/images/icon-day.png",
+                                            fit: BoxFit.contain,
+                                            color: gamePhase == 'Day' ? const Color(0xFFFFB000) : gamePhase == 'DayVoting' || gamePhase == 'Day' ?  Colors.black : Colors.white,
                                           ),
                                         ),
                         
-                                        SizedBox(width: 8.w),
-                        
-                                        //? NIGHT
-                                        GestureDetector(
-                                          //NOTE: FONT SIZE
-                                          child: Icon(
-                                            Icons.nights_stay,
-                                            color: !['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFB000) : Colors.black,
-                                            size: 20.sp,
+                                        SizedBox(width: 13.w),
+
+                                        SizedBox(
+                                          width: 23.w,
+                                          height: 23.h,
+                                          child: Image.asset(
+                                            "assets/images/icon-day-voting.png",
+                                            fit: BoxFit.contain,
+                                            color: gamePhase == 'DayVoting' ? const Color(0xFFFFB000) : gamePhase == 'DayVoting' || gamePhase == 'Day' ?  Colors.black : Colors.white,
                                           ),
                                         ),
+
+                                        SizedBox(width: 13.w),
+
+                                        SizedBox(
+                                          width: 14.w,
+                                          height: 14.h,
+                                          child: Image.asset(
+                                            "assets/images/icon-night.png",
+                                            fit: BoxFit.contain,
+                                            color: gamePhase == 'Night' ? const Color(0xFFFFB000) : gamePhase == 'DayVoting' || gamePhase == 'Day' ?  Colors.black : Colors.white,
+                                          ),
+                                        ),
+
+                                        SizedBox(width: 13.w),
+
+                                        SizedBox(
+                                          width: 23.w,
+                                          height: 23.h,
+                                          child: Image.asset(
+                                            "assets/images/icon-night-voting.png",
+                                            fit: BoxFit.contain,
+                                            color: gamePhase == 'NightVoting' ? const Color(0xFFFFB000) : gamePhase == 'DayVoting' || gamePhase == 'Day' ?  Colors.black : Colors.white,
+                                          ),
+                                        ),
+
+                                        SizedBox(width: 25.w),
+                        
+                                        // //? NIGHT
+                                        // GestureDetector(
+                                        //   //NOTE: FONT SIZE
+                                        //   child: Icon(
+                                        //     Icons.nights_stay,
+                                        //     color: !['Day', 'DayVoting'].any((e) => e == gamePhase) ? const Color(0xFFFFB000) : Colors.black,
+                                        //     size: 20.sp,
+                                        //   ),
+                                        // ),
                                     
-                                        SizedBox(width: 8.w),
+                                        //SizedBox(width: 8.w),
                                     
                                         //! CHANGE
                                         
@@ -2409,18 +2457,34 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                             children: [
                                               Stack(
                                                 children: [
-                                                  RoleTooltipCard(
-                                                    roleName: player.role!,
-                                                    isAlive: player.isAlive,
-                                                    isRevealed: player.isRevealed,
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        width: 2.w,
+                                                        color: const Color.fromARGB(255, 61, 0, 0)
+                                                      ),
+                                                      borderRadius: BorderRadius.circular(6.r)
+                                                    ),
+                                                    child: RoleTooltipCard(
+                                                      roleName: player.role!,
+                                                      isAlive: player.isAlive,
+                                                      isRevealed: player.isRevealed,
+                                                    ),
                                                   ),
       
                                                   if (!player.isAlive)
                                                     IgnorePointer(
-                                                      child: Image.asset(
-                                                        'assets/images/blood-effect.png',
-                                                        width: 62.w,
-                                                        height: 78.h,
+                                                      child: Positioned(
+                                                        top: -1,
+                                                        left: -1,
+
+                                                        child: Image.asset(
+                                                          'assets/images/blood-effect.png',
+                                                          width: 62.w,
+                                                          height: 78.h,
+                                                          fit: BoxFit.contain,
+                                                          alignment: Alignment.topLeft,
+                                                        ),
                                                       ),
                                                     )
                                                 ],
@@ -2498,11 +2562,25 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                           SizedBox(height: 10.h),
                                                       
                                           //? ROLE CARD IMAGE
-                                          RoleCard(
-                                            roleName: role.toLowerCase(), 
+                                          Container(
                                             width: deviceWidth * 0.174, 
                                             height: deviceHeight * 0.106,
-                                            isMini: false,
+                                            decoration: BoxDecoration(
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: ['mafia', 'informant', 'terrorist', 'barman'].contains(role.toLowerCase()) ? const Color(0xFF000000) : const Color(0xFFFFD77E),
+                                                  blurRadius: 12.0.r, 
+                                                  spreadRadius: -2.r, 
+                                                  offset: Offset.zero, 
+                                                ),
+                                              ],
+                                            ),
+                                            child: RoleCard(
+                                              roleName: role.toLowerCase(), 
+                                              width: deviceWidth * 0.174, 
+                                              height: deviceHeight * 0.106,
+                                              isMini: false,
+                                            ),
                                           ),
                                                       
                                           SizedBox(height: 10.h),
@@ -2724,7 +2802,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                     SizedBox(
                                       width: deviceWidth * 0.83,
                                       height: deviceHeight * 0.06,
-                                      child: EnterMessage(messageController: _messageController, sendMessage: _sendMessage, canISendMessage: canISendMessage, gamePhase: gamePhase,)
+                                      child: EnterMessage(messageController: _messageController, sendMessage: _sendMessage, canISendMessage: canISendMessage, gamePhase: gamePhase, focusNode: _messageFocusNode,)
                                     ),
                                   ],
                                 ),
@@ -4893,8 +4971,7 @@ class RoleTooltipCard extends StatefulWidget {
   State<RoleTooltipCard> createState() => _RoleTooltipCardState();
 }
 
-class _RoleTooltipCardState extends State<RoleTooltipCard>
-    with SingleTickerProviderStateMixin {
+class _RoleTooltipCardState extends State<RoleTooltipCard> with SingleTickerProviderStateMixin {
   OverlayEntry? _overlayEntry;
   late AnimationController _controller;
   late Animation<double> _scale;

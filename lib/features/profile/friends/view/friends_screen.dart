@@ -718,6 +718,7 @@ class _FriendsTabState extends State<FriendsTab> {
           child: Image.asset(
             "assets/images/roles-line.png",
             width: 130.w,
+            color: const Color(0xFF2A2723),
           ),
         ),
 
@@ -748,7 +749,7 @@ class _FriendsTabState extends State<FriendsTab> {
                       controller: searchController,
                       style: TextStyle(color: const Color(0xFF3E3E3E), fontSize: 16.sp),
                       decoration: InputDecoration(
-                        hintText: ' ${AppLocalizations.of(context)!.search}...',
+                        hintText: ' ${AppLocalizations.of(context)!.search}',
                         hintStyle: const TextStyle(color: Color(0xFF3E3E3E)),
                         border: InputBorder.none,
                       ),
@@ -979,6 +980,8 @@ class RequestsTab extends StatefulWidget {
 
 class _RequestsTabState extends State<RequestsTab> {
   StreamSubscription? _eventSubscription;
+  StreamSubscription? _eventSubscriptionCancelRequest;
+  StreamSubscription? _eventSubscriptionDeclineRequest;
   List<FriendRequest> requests = [];
   // List<FriendRequest>? requests = [
   //   FriendRequest(
@@ -1022,13 +1025,27 @@ class _RequestsTabState extends State<RequestsTab> {
     */
 
     _eventSubscription = EventBus().on<FriendRequestReceivedEvent>().listen((event) {
+      if (!mounted) return;
       setState(() {
         // DIRECT UPDATE: Add the new request to the TOP of the list
         requests.insert(0, FriendRequest(id: event.requestData["friendId"], nickname: event.requestData["nickname"], avatarUrl: event.requestData["avatarUrl"])); 
       });
     });
 
-    
+    _eventSubscription = EventBus().on<CancelFriendRequest>().listen((event) {
+      if (!mounted || !(requests.any((request) => request.id == event.playerId))) return;
+      setState(() {
+        requests.removeWhere((player) => player.id == event.playerId);
+      });
+    });
+
+    _eventSubscriptionDeclineRequest = EventBus().on<FriendRequestDeclinedEvent>().listen((event) {
+      if (!mounted) return;
+      // setState(() {
+      //   requests.removeWhere((player) => player.id == event.playerId);
+      // });
+    });
+
     _getRequests();
   }
 
@@ -1036,6 +1053,8 @@ class _RequestsTabState extends State<RequestsTab> {
   void dispose() {
     //friendshipPendingFriendshipRequests.cancel();
     _eventSubscription?.cancel();
+    _eventSubscriptionCancelRequest?.cancel();
+    _eventSubscriptionDeclineRequest?.cancel();
     super.dispose();
   }
 
@@ -1100,6 +1119,7 @@ class _RequestsTabState extends State<RequestsTab> {
           child: Image.asset(
             "assets/images/roles-line.png",
             width: 130.w,
+            color: const Color(0xFF2A2723),
           ),
         ),
       
@@ -1139,7 +1159,9 @@ class _RequestsTabState extends State<RequestsTab> {
                         width: 405.w, 
                         nickname: request.nickname,
                       )
-                    );
+                    ).then((_) {
+                      _getRequests();
+                    });
                   },
                   child: Column(
                     children: [
@@ -1243,6 +1265,11 @@ class SearchTab extends StatefulWidget {
 
 class _SearchTabState extends State<SearchTab> {
   int count = 1;
+  StreamSubscription? _eventSubscription;
+  StreamSubscription? _eventSubscriptionCancelRequest;
+  StreamSubscription? _eventSubscriptionDeleteFriend;
+  StreamSubscription? _eventSubscriptionNewFriend;
+  StreamSubscription? _eventSubscriptionDeclineRequest;
   final TextEditingController _searchController = TextEditingController();
   //bool requestSent = false;
   List<FindFriend>? searchResults = [];
@@ -1273,6 +1300,46 @@ class _SearchTabState extends State<SearchTab> {
   @override
   void initState() {
     super.initState();
+
+    _eventSubscription = EventBus().on<FriendRequestReceivedEvent>().listen((event) {
+      if (!mounted || searchResults == null) return;
+      if (!(searchResults!.any((friend) => friend.id == event.requestData["friendId"]))) return;
+      setState(() {
+        searchResults?.removeWhere((friend) => friend.id == event.requestData["friendId"]);
+      });
+    });
+  
+    _eventSubscriptionCancelRequest = EventBus().on<CancelFriendRequest>().listen((event) {
+      if (!mounted || searchResults == null) return;
+      if (!(searchResults!.any((friend) => friend.id == event.playerId))) return;
+      setState(() {
+        searchResults?.firstWhere((friend) => friend.id == event.playerId).friendshipStatus = "None";
+      });
+    });
+
+    _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
+      if (!mounted || searchResults == null) return;
+      if (!(searchResults!.any((friend) => friend.id == event.friendId))) return;
+      setState(() {
+        searchResults?.firstWhere((friend) => friend.id == event.friendId).friendshipStatus = "None";
+      });
+    });
+
+    _eventSubscriptionNewFriend = EventBus().on<NewFriendAddedEvent>().listen((event) {
+      if (!mounted || searchResults == null) return;
+      if (!(searchResults!.any((friend) => friend.id == event.requestData.id))) return;
+      setState(() {
+        searchResults?.firstWhere((friend) => friend.id == event.requestData.id).friendshipStatus = "Accepted";
+      });
+    });
+
+    _eventSubscriptionDeclineRequest = EventBus().on<FriendRequestDeclinedEvent>().listen((event) {
+      if (!mounted || searchResults == null) return;
+      if (!(searchResults!.any((friend) => friend.id == event.playerId))) return;
+      setState(() {
+        searchResults?.firstWhere((friend) => friend.id == event.playerId).friendshipStatus = "None";
+      });
+    });
 
     /*
     friendshipSearchedPlayers = EventRouterService()
@@ -1319,6 +1386,11 @@ class _SearchTabState extends State<SearchTab> {
   void dispose() {
     super.dispose();
     _searchController.dispose();
+    _eventSubscription?.cancel();
+    _eventSubscriptionCancelRequest?.cancel();
+    _eventSubscriptionDeleteFriend?.cancel();
+    _eventSubscriptionNewFriend?.cancel();
+    _eventSubscriptionDeclineRequest?.cancel();
     //friendshipSearchedPlayers.cancel();
     //friendshipSuggestedFriends.cancel();
   }
@@ -1410,6 +1482,7 @@ class _SearchTabState extends State<SearchTab> {
           child: Image.asset(
             "assets/images/roles-line.png",
             width: 130.w,
+            color: const Color(0xFF2A2723),
           ),
         ),
 
@@ -1441,7 +1514,7 @@ class _SearchTabState extends State<SearchTab> {
                       controller: _searchController,
                       style: TextStyle(color: const Color(0xFF3E3E3E), fontSize: 16.sp),
                       decoration: InputDecoration(
-                        hintText: " ${AppLocalizations.of(context)!.search}...",
+                        hintText: " ${AppLocalizations.of(context)!.search}",
                         hintStyle: const TextStyle(color: Color(0xFF3E3E3E)),
                         border: InputBorder.none,
                       ),
@@ -1471,7 +1544,7 @@ class _SearchTabState extends State<SearchTab> {
       
         //? RESULTS
         Expanded(
-          child: searchResults == null
+          child: searchResults == null || searchResults!.isEmpty
           ? 
           Padding(
             padding: EdgeInsets.only(top: 20.h),
@@ -1506,7 +1579,15 @@ class _SearchTabState extends State<SearchTab> {
                         width: 405.w,
                         nickname: user.nickname,
                       )
-                    );
+                    ).then((value) async {
+                      if (_searchController.text.trim().isEmpty) {
+                        getPossibleFriends();
+                        return;
+                      }
+                      if (!mounted) return;
+                      searchResults = await GetIt.I<ApiService>().findFriend(_searchController.text.trim());
+                      setState(() {});
+                    });
                   },
                   child: Column(
                     children: [

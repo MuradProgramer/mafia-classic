@@ -12,6 +12,7 @@ import 'package:mafia_classic/features/games/game/game.dart';
 import 'package:mafia_classic/features/games/popups/games_popups.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/widgets.dart';
+import 'package:mafia_classic/features/widgets/player_info_popup.dart';
 import 'package:mafia_classic/features/widgets/validation_popup.dart';
 
 import 'package:mafia_classic/generated/l10n.dart';
@@ -102,7 +103,26 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
   List<Game>? allGames = [];
   List<Game>? searchedGames = [];
 
-  GameFilters currentFilters = GameFilters(
+  ValueNotifier<bool> filtersApplied = ValueNotifier<bool>(false);
+
+  ValueNotifier<GameFilters> currentFilters = ValueNotifier<GameFilters>(
+    GameFilters(
+      accessState: 0,
+      minPlayers: 4,
+      maxPlayers: 21,
+
+    hasSpy: false,
+    hasLover: false,
+    hasBodyguard: false,
+    hasJournalist: false,
+    hasTerrorist: false,
+    hasBartender: false,
+    hasInformant: false,
+
+    roomsWithSpace: false,
+  ));
+
+  GameFilters defaultFilters = GameFilters(
     accessState: 0,
 
     minPlayers: 4,
@@ -121,7 +141,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
 
   void applyFilters(GameFilters filters) {
     setState(() {
-      currentFilters = filters;
+      currentFilters.value = filters;
       if (allGames != null) {
         searchedGames = allGames!.where((game) {
           if (game.players.length < filters.minPlayers || game.players.length > filters.maxPlayers) return false;
@@ -154,11 +174,15 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
   Future<void> openFilterizationScreen() async {
     final filters = await Navigator.push<GameFilters>(
       context,
-      MaterialPageRoute(builder: (_) => FilterizationScreen(filters: currentFilters)),
+      MaterialPageRoute(builder: (_) => FilterizationScreen(filters: currentFilters, filtersApplied: filtersApplied)),
     );
 
     if (filters != null) {
       applyFilters(filters);
+      filtersApplied.value = true;
+    }
+    if (filters == defaultFilters) {
+      filtersApplied.value = false;
     }
   }
 
@@ -184,6 +208,8 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
     }
 
     widget.tabIndexNotifier.addListener(_onTabChanged);
+
+    TcpClientService().sendMessage(ClientCommand.getRooms.value, "");
   }
 
   void loadStreamsAndData() {
@@ -207,6 +233,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
             allGames = gamesList;
             searchedGames = allGames;
           });
+          applyFilters(currentFilters.value);
         }
       });
     });
@@ -670,7 +697,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
                             Padding(
                               padding: EdgeInsets.only(top: 15.h, left: 25.w, right: 20.w),
                               child: Text(
-                                AppLocalizations.of(context)!.filterOff,
+                                filtersApplied.value ? "Filter On" : AppLocalizations.of(context)!.filterOff,
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: Colors.white,
@@ -1492,27 +1519,59 @@ class _PlayersPopupState extends State<PlayersPopup> {
                                   //? CIRCLE AVATAR AND NICKNAME
                                   Row(
                                     children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 0.7.sp,
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (value[index].nickname == authorizedUser.nickname) return;
+                                          showBouncingPopupFromLeft(
+                                            context, 
+                                            PlayerInfoPopup(
+                                              id: value[index].id,
+                                              height: 727.h, 
+                                              width: 405.w, 
+                                              nickname: value[index].nickname,
+                                            )
+                                          ).then((_) {
+                                            
+                                          });
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 0.7.sp,
+                                            ),
+                                            shape: BoxShape.circle,
                                           ),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: CircleAvatar(
-                                          radius: 15,
-                                          backgroundImage: NetworkImage(value[index].avatarUrl),
+                                          child: CircleAvatar(
+                                            radius: 15,
+                                            backgroundImage: NetworkImage(value[index].avatarUrl),
+                                          ),
                                         ),
                                       ),
                                       SizedBox(width: 10.w),
-                                      Text(
-                                        value[index].nickname, 
-                                        style: TextStyle(
-                                          fontSize: 15.sp, 
-                                          fontFamily: 'CenturyGothic',
-                                          color: value[index].isAlive == true ? const Color(0xFFFFB000) : const Color(0xFF515151)
-                                        )
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (value[index].nickname == authorizedUser.nickname) return;
+                                          showBouncingPopupFromLeft(
+                                            context, 
+                                            PlayerInfoPopup(
+                                              id: value[index].id,
+                                              height: 727.h, 
+                                              width: 405.w, 
+                                              nickname: value[index].nickname,
+                                            )
+                                          ).then((_) {
+                                            
+                                          });
+                                        },
+                                        child: Text(
+                                          value[index].nickname, 
+                                          style: TextStyle(
+                                            fontSize: 15.sp, 
+                                            fontFamily: 'CenturyGothic',
+                                            color: value[index].isAlive == true ? const Color(0xFFFFB000) : const Color(0xFF515151)
+                                          )
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -2456,7 +2515,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                               width: 190.w,
                               padding: EdgeInsets.only(top: 40.h),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF000000),
+                                color: const Color(0xFF151515),
                                 borderRadius: BorderRadius.circular(12.sp),
                               ),
                               child: Column(
@@ -2794,9 +2853,10 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
 ////// FILTERIZATION /////////
 
 class FilterizationScreen extends StatefulWidget {
-  final GameFilters filters;
+  final ValueNotifier<GameFilters> filters;
+  final ValueNotifier<bool> filtersApplied;
 
-  const FilterizationScreen({super.key, required this.filters});
+  const FilterizationScreen({super.key, required this.filters, required this.filtersApplied});
 
   @override
   State<FilterizationScreen> createState() => _FilterizationScreenState();
@@ -2828,19 +2888,19 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
   @override
   void initState() {
     super.initState();
-    minPlayers = widget.filters.minPlayers;
-    maxPlayers = widget.filters.maxPlayers;
-    friendsInRoom = widget.filters.friendsInRoom;
-    roomsWithSpace = widget.filters.roomsWithSpace;
-    accessState = widget.filters.accessState;
+    minPlayers = widget.filters.value.minPlayers;
+    maxPlayers = widget.filters.value.maxPlayers;
+    friendsInRoom = widget.filters.value.friendsInRoom;
+    roomsWithSpace = widget.filters.value.roomsWithSpace;
+    accessState = widget.filters.value.accessState;
 
-    hasBodyguard = widget.filters.hasBodyguard;
-    hasLover = widget.filters.hasLover;
-    hasSpy = widget.filters.hasSpy;
-    hasJournalist = widget.filters.hasJournalist; 
-    hasTerrorist = widget.filters.hasTerrorist;
-    hasBartender = widget.filters.hasBartender;
-    hasInformant = widget.filters.hasInformant;
+    hasBodyguard = widget.filters.value.hasBodyguard;
+    hasLover = widget.filters.value.hasLover;
+    hasSpy = widget.filters.value.hasSpy;
+    hasJournalist = widget.filters.value.hasJournalist; 
+    hasTerrorist = widget.filters.value.hasTerrorist;
+    hasBartender = widget.filters.value.hasBartender;
+    hasInformant = widget.filters.value.hasInformant;
   }
 
   void confirmFilters() {
@@ -2901,6 +2961,21 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
         hasInformant = false;
 
         additionalRoles.updateAll((key, value) => false);
+
+        widget.filters.value.minPlayers = 4;
+        widget.filters.value.maxPlayers = 21;
+        widget.filters.value.friendsInRoom = false;
+        widget.filters.value.roomsWithSpace = false;
+        widget.filters.value.accessState = 0;
+        widget.filters.value.hasBodyguard = false;
+        widget.filters.value.hasLover = false;
+        widget.filters.value.hasSpy = false;
+        widget.filters.value.hasJournalist = false;
+        widget.filters.value.hasTerrorist = false;
+        widget.filters.value.hasBartender = false;
+        widget.filters.value.hasInformant = false;
+
+        widget.filtersApplied.value = false;
       });
     }
 
@@ -3743,6 +3818,24 @@ class GameFilters {
 
     this.friendsInRoom = false
   });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is GameFilters &&
+      other.accessState == accessState &&
+      other.minPlayers == minPlayers &&
+      other.maxPlayers == maxPlayers &&
+      other.roomsWithSpace == roomsWithSpace &&
+      other.hasBodyguard == hasBodyguard &&
+      other.hasLover == hasLover &&
+      other.hasSpy == hasSpy &&
+      other.hasJournalist == hasJournalist &&
+      other.hasTerrorist == hasTerrorist &&
+      other.hasBartender == hasBartender &&
+      other.hasInformant == hasInformant;
+  }
 }
 
 ///////////// GAMESSSS LOBBY SCRENNN ////////////////
@@ -4310,25 +4403,55 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             SizedBox(width: 7.5.w),
                                                   
                                             //? AVATAR
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(50.r),
-                                                border: Border.all(
-                                                  width: 0.7.w,
-                                                  color: const Color(0xFFFFFFFF)
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (gameLobbyPlayers[index].nickname == authorizedUser.nickname) return;
+                                                showBouncingPopupFromLeft(
+                                                  context, 
+                                                  PlayerInfoPopup(
+                                                    id: gameLobbyPlayers[index].id,
+                                                    height: 727.h, 
+                                                    width: 405.w, 
+                                                    nickname: gameLobbyPlayers[index].nickname,
+                                                  )
+                                                ).then((_) {
+                                                  
+                                                });
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(50.r),
+                                                  border: Border.all(
+                                                    width: 0.7.w,
+                                                    color: const Color(0xFFFFFFFF)
+                                                  )
+                                                ),
+                                                child: CircleAvatar(
+                                                  backgroundImage: NetworkImage(
+                                                    gameLobbyPlayers[index].avatarUrl
+                                                  ),
+                                                  radius: 18.sp,
                                                 )
                                               ),
-                                              child: CircleAvatar(
-                                                backgroundImage: NetworkImage(
-                                                  gameLobbyPlayers[index].avatarUrl
-                                                ),
-                                                radius: 18.sp,
-                                              )
                                             ),
                                             SizedBox(width: 4.w),
                                                   
                                             //? NICKNAME
-                                            Container(
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (gameLobbyPlayers[index].nickname == authorizedUser.nickname) return;
+                                                showBouncingPopupFromLeft(
+                                                  context, 
+                                                  PlayerInfoPopup(
+                                                    id: gameLobbyPlayers[index].id,
+                                                    height: 727.h, 
+                                                    width: 405.w, 
+                                                    nickname: gameLobbyPlayers[index].nickname,
+                                                  )
+                                                ).then((_) {
+                                                  
+                                                });
+                                              },
                                               child: Text(
                                                 gameLobbyPlayers[index].nickname,
                                                 softWrap: true,
@@ -4828,6 +4951,9 @@ class _MessageInputFieldState extends State<MessageInputField> {
             child: Padding(
               padding: EdgeInsets.only(left: 7.w, bottom: 6.h),
               child: TextField(
+                onTapOutside: (PointerDownEvent event) {
+                  FocusScope.of(context).unfocus();
+                },
                 style: const TextStyle(color: Colors.white),
                 cursorColor: const Color(0xFFFFFFFF),
                 controller: _controller,

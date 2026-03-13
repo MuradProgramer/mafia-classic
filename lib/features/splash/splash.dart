@@ -102,6 +102,7 @@ class SplashScreen extends StatefulWidget {
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
+
 class _SplashScreenState extends State<SplashScreen> {
   final int myTargetMilliseconds = 500;
   final ValueNotifier<int> myProgress = ValueNotifier<int>(0);

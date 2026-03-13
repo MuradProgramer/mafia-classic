@@ -843,6 +843,32 @@ class ApiService extends TokenAwareService {
     return status;
   }
 
+  // DONE partially
+  Future<bool> cancelFriendRequest(int id) async {
+    bool status = false;
+    await executeWithTokenCheck((accessToken) async {
+
+      final response = await GetIt.I<DioService>().dio.delete(
+        'Friend/$id/Cancel',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        status = true;
+        EventBus().fire(DeleteFriendEvent(id));
+      } else if (response.statusCode == 404) {
+        throw Exception('No user found');
+      } else {
+        throw Exception('Failed to send POST request');
+      }
+    });
+    return status;
+  }
+
   // DONE partially  
   Future<List<FindFriend>?> findFriend(String? pattern) async {
     List<FindFriend>? userList = [];

@@ -200,6 +200,16 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                       width: double.maxFinite,
                       margin: EdgeInsets.all(10.sp),
                       decoration: BoxDecoration(
+                        gradient: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName)? const RadialGradient(
+                          center: Alignment.center,
+                          radius: 0.8,
+                          colors: [
+                            Color(0xFF323232),
+                            Color(0xFF000000),
+                          ],
+                          stops: [0.0, 1.0],
+                        ) : null,
+                        color: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName)  ? null : const Color(0xFFFFF0D2),
                         border: Border.all(
                           color: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
                             ? const Color(0xFFFFFFFF)
