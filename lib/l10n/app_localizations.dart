@@ -156,11 +156,11 @@ abstract class AppLocalizations {
   /// **'Mafia'**
   String get mafia;
 
-  /// No description provided for @terrorist.
+  /// No description provided for @kamikaze.
   ///
   /// In en, this message translates to:
-  /// **'Terrorist'**
-  String get terrorist;
+  /// **'Kamikaze'**
+  String get kamikaze;
 
   /// No description provided for @barman.
   ///
@@ -228,11 +228,11 @@ abstract class AppLocalizations {
   /// **'The Mafia is a registered character in the game. Each team of Mafiosi knows the players from their country, unlike the citizens of the world, who do not know who is playing for whom. They wake up at night in order to kill one of the inhabitants of the world, also known like them. Doctor and Sheriff.'**
   String get roleMafiaDescription;
 
-  /// No description provided for @roleTerroristDescription.
+  /// No description provided for @roleKamikazeDescription.
   ///
   /// In en, this message translates to:
-  /// **'Terrorist - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the terrorist does not know the identity of the Mafia members. The Terrorist has one special ability. At any time during the day voting, the terrorist can blow up anyone player by killing both himself and the victim. The terrorist cannot be killed by the mafia at night. So the terrorist must help the mafia win using his life. Regardless of whether the terrorist is killed, he will receive experience points at the end of the game if. The mafia will win.'**
-  String get roleTerroristDescription;
+  /// **'Kamikaze - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the kamikaze does not know the identity of the Mafia members. The Kamikaze has one special ability. At any time during the day voting, the kamikaze can blow up anyone player by killing both himself and the victim. The kamikaze cannot be killed by the mafia at night. So the kamikaze must help the mafia win using his life. Regardless of whether the kamikaze is killed, he will receive experience points at the end of the game if. The mafia will win.'**
+  String get roleKamikazeDescription;
 
   /// No description provided for @roleBarmanDescription.
   ///
@@ -279,7 +279,7 @@ abstract class AppLocalizations {
   /// No description provided for @roleBodyguardDescription.
   ///
   /// In en, this message translates to:
-  /// **'Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a terrorist explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Terrorist or Mafioso will decide to kill at night. The Bodyguard\'s protection only applies once, either during the day or at night, if the terrorist did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia\'s shot.'**
+  /// **'Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a kamikaze explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Kamikaze or Mafioso will decide to kill at night. The Bodyguard\'s protection only applies once, either during the day or at night, if the kamikaze did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia\'s shot.'**
   String get roleBodyguardDescription;
 
   /// No description provided for @roleSpyDescription.
@@ -801,13 +801,13 @@ abstract class AppLocalizations {
   /// No description provided for @cure.
   ///
   /// In en, this message translates to:
-  /// **'Cure'**
+  /// **'Save'**
   String get cure;
 
   /// No description provided for @satisfy.
   ///
   /// In en, this message translates to:
-  /// **'Satisfy'**
+  /// **'Charm'**
   String get satisfy;
 
   /// No description provided for @protect.
@@ -825,7 +825,7 @@ abstract class AppLocalizations {
   /// No description provided for @reveale.
   ///
   /// In en, this message translates to:
-  /// **'Reveale'**
+  /// **'Reveal'**
   String get reveale;
 
   /// No description provided for @investigate.
@@ -843,19 +843,19 @@ abstract class AppLocalizations {
   /// No description provided for @mafias.
   ///
   /// In en, this message translates to:
-  /// **'mafias'**
+  /// **'Mafias'**
   String get mafias;
 
   /// No description provided for @civilians.
   ///
   /// In en, this message translates to:
-  /// **'civilians'**
+  /// **'Civilians'**
   String get civilians;
 
   /// No description provided for @pickYourTarget.
   ///
   /// In en, this message translates to:
-  /// **'Mafias pick target - '**
+  /// **'Choose a Victim'**
   String get pickYourTarget;
 
   /// No description provided for @iveChosenNoRegrets.
@@ -897,19 +897,19 @@ abstract class AppLocalizations {
   /// No description provided for @noAvailableGames.
   ///
   /// In en, this message translates to:
-  /// **'No available games..'**
+  /// **'No active games yet… Create one and invite your friends!'**
   String get noAvailableGames;
 
   /// No description provided for @youArePlayingHere.
   ///
   /// In en, this message translates to:
-  /// **'You Are Playing Here'**
+  /// **'You are playing in this room'**
   String get youArePlayingHere;
 
   /// No description provided for @youDiedHere.
   ///
   /// In en, this message translates to:
-  /// **'You Died Here'**
+  /// **'You died in this room'**
   String get youDiedHere;
 
   /// No description provided for @show.
@@ -927,7 +927,7 @@ abstract class AppLocalizations {
   /// No description provided for @areHere.
   ///
   /// In en, this message translates to:
-  /// **'are here'**
+  /// **'roles'**
   String get areHere;
 
   /// No description provided for @defeated.
@@ -1035,7 +1035,7 @@ abstract class AppLocalizations {
   /// No description provided for @includedRoles.
   ///
   /// In en, this message translates to:
-  /// **'Included roles:'**
+  /// **'Extra Roles:'**
   String get includedRoles;
 
   /// No description provided for @lover.
@@ -1131,7 +1131,7 @@ abstract class AppLocalizations {
   /// No description provided for @ridingSoloAintTheWay.
   ///
   /// In en, this message translates to:
-  /// **'Riding solo ain\'t the way.'**
+  /// **'Forward only together'**
   String get ridingSoloAintTheWay;
 
   /// No description provided for @requestPending.
@@ -1215,7 +1215,7 @@ abstract class AppLocalizations {
   /// No description provided for @stats.
   ///
   /// In en, this message translates to:
-  /// **'Stats'**
+  /// **'Statistics'**
   String get stats;
 
   /// No description provided for @overall.
@@ -1233,7 +1233,7 @@ abstract class AppLocalizations {
   /// No description provided for @loses.
   ///
   /// In en, this message translates to:
-  /// **'Loses'**
+  /// **'Losses'**
   String get loses;
 
   /// No description provided for @mafiaWins.
@@ -1392,11 +1392,11 @@ abstract class AppLocalizations {
   /// **'Code must be 6 charactes'**
   String get codeMustBe6Charactes;
 
-  /// No description provided for @gameTerroristExplosion.
+  /// No description provided for @gameKamikazeExplosion.
   ///
   /// In en, this message translates to:
-  /// **'Terrorist tried to bomb [{playerNickname}], but bodyguard saved him/her'**
-  String gameTerroristExplosion(String playerNickname);
+  /// **'Kamikaze tried to bomb [{playerNickname}], but bodyguard saved him/her'**
+  String gameKamikazeExplosion(String playerNickname);
 
   /// No description provided for @timeForDecision.
   ///
@@ -1407,43 +1407,43 @@ abstract class AppLocalizations {
   /// No description provided for @skillsDescriptionsBeauty.
   ///
   /// In en, this message translates to:
-  /// **'Select a player to satisfy. They won\'t be able to vote or use abilities'**
+  /// **'Choose a player to charm. They will be unable to vote or use their ability'**
   String get skillsDescriptionsBeauty;
 
   /// No description provided for @skillsDescriptionsBodyguard.
   ///
   /// In en, this message translates to:
-  /// **'Select a player to protect from the mafia and the terrorist'**
+  /// **'Choose a player to protect from the Mafia and the Kamikaze'**
   String get skillsDescriptionsBodyguard;
 
   /// No description provided for @skillsDescriptionsBarman.
   ///
   /// In en, this message translates to:
-  /// **'Select a player to intoxicate. They won\'t be able to vote, speak, or use abilities'**
+  /// **'Choose a player to intoxicate. They will be unable to vote, speak, or use their ability'**
   String get skillsDescriptionsBarman;
 
   /// No description provided for @skillsDescriptionsDoctor.
   ///
   /// In en, this message translates to:
-  /// **'Select a player to heal from a mafia attack'**
+  /// **'Choose a player to save from a Mafia attack'**
   String get skillsDescriptionsDoctor;
 
   /// No description provided for @skillsDescriptionsInformant.
   ///
   /// In en, this message translates to:
-  /// **'Select a player whose role you want to reveal'**
+  /// **'Choose a player to reveal their role'**
   String get skillsDescriptionsInformant;
 
   /// No description provided for @skillsDescriptionsSheriff.
   ///
   /// In en, this message translates to:
-  /// **'Select a player to investigate and find out their role'**
+  /// **'Choose a player to investigate and learn their role'**
   String get skillsDescriptionsSheriff;
 
   /// No description provided for @skillsDescriptionsJournalist.
   ///
   /// In en, this message translates to:
-  /// **'Select two players to find out if they are on the same team'**
+  /// **'Choose two players tofind out if they are on the same team'**
   String get skillsDescriptionsJournalist;
 
   /// No description provided for @hasJoined.
@@ -1491,7 +1491,7 @@ abstract class AppLocalizations {
   /// No description provided for @rolesGeneralDescriptionBodyguard.
   ///
   /// In en, this message translates to:
-  /// **'You are the bodyguard for the civilians. Use your skills to carefully protect the civilians from attacks by the terrorist or the mafia during the day'**
+  /// **'You are the bodyguard for the civilians. Use your skills to carefully protect the civilians from attacks by the kamikaze or the mafia during the day'**
   String get rolesGeneralDescriptionBodyguard;
 
   /// No description provided for @rolesGeneralDescriptionBarman.
@@ -1518,11 +1518,11 @@ abstract class AppLocalizations {
   /// **'You are the journalist for the civilians. Every night, conduct interviews with two players so that everyone learns whether they are on the same team or on different teams'**
   String get rolesGeneralDescriptionJournalist;
 
-  /// No description provided for @rolesGeneralDescriptionTerrorist.
+  /// No description provided for @rolesGeneralDescriptionKamikaze.
   ///
   /// In en, this message translates to:
-  /// **'You are the Terrorist from the mafia team. You do not know the mafia, but the mafia knows you. During the day vote, you can blow up a civilian, dying along with them'**
-  String get rolesGeneralDescriptionTerrorist;
+  /// **'You are the Kamikaze from the mafia team. You do not know the mafia, but the mafia knows you. During the day vote, you can blow up a civilian, dying along with them'**
+  String get rolesGeneralDescriptionKamikaze;
 
   /// No description provided for @rolesObjectiveMafia.
   ///
@@ -1584,11 +1584,11 @@ abstract class AppLocalizations {
   /// **'Help the civilians eliminate all mafia members by conducting daily reports'**
   String get rolesObjectiveJournalist;
 
-  /// No description provided for @rolesObjectiveTerrorist.
+  /// No description provided for @rolesObjectiveKamikaze.
   ///
   /// In en, this message translates to:
   /// **'Help the mafia members eliminate the civilians by blowing up an important civilian'**
-  String get rolesObjectiveTerrorist;
+  String get rolesObjectiveKamikaze;
 
   /// No description provided for @rolesDayPhaseMafia.
   ///
@@ -1623,7 +1623,7 @@ abstract class AppLocalizations {
   /// No description provided for @rolesDayPhaseBodyguard.
   ///
   /// In en, this message translates to:
-  /// **'Every day, you can choose a player to protect from an attack by the terrorist or the mafia'**
+  /// **'Every day, you can choose a player to protect from an attack by the kamikaze or the mafia'**
   String get rolesDayPhaseBodyguard;
 
   /// No description provided for @rolesDayPhaseBarman.
@@ -1650,11 +1650,11 @@ abstract class AppLocalizations {
   /// **'Participate in discussions and voting, guide the conversation, and support the civilians'**
   String get rolesDayPhaseJournalist;
 
-  /// No description provided for @rolesDayPhaseTerrorist.
+  /// No description provided for @rolesDayPhaseKamikaze.
   ///
   /// In en, this message translates to:
   /// **'You can participate in discussions, but you do not have the right to vote. During the day vote, you can blow up a player; however, if the Bodyguard protects that player, you will die, taking the Bodyguard with you'**
-  String get rolesDayPhaseTerrorist;
+  String get rolesDayPhaseKamikaze;
 
   /// No description provided for @skill.
   ///
@@ -1722,11 +1722,11 @@ abstract class AppLocalizations {
   /// **'Every night, you can interview two players to find out if they are on the same team. The results of the report are visible to everyone in the chat'**
   String get rolesThirdDescriptionJournalist;
 
-  /// No description provided for @rolesThirdDescriptionTerrorist.
+  /// No description provided for @rolesThirdDescriptionKamikaze.
   ///
   /// In en, this message translates to:
   /// **'At night you have nothing to do, rest'**
-  String get rolesThirdDescriptionTerrorist;
+  String get rolesThirdDescriptionKamikaze;
 
   /// No description provided for @rolesWinningConditionMafia.
   ///
@@ -1788,11 +1788,11 @@ abstract class AppLocalizations {
   /// **'You win when no members of the mafia remain alive'**
   String get rolesWinningConditionsJournalist;
 
-  /// No description provided for @rolesWinningConditionsTerrorist.
+  /// No description provided for @rolesWinningConditionsKamikaze.
   ///
   /// In en, this message translates to:
   /// **'You win when no civilians remain alive'**
-  String get rolesWinningConditionsTerrorist;
+  String get rolesWinningConditionsKamikaze;
 
   /// No description provided for @gameplayRules.
   ///
@@ -1842,34 +1842,34 @@ abstract class AppLocalizations {
   /// **'unknown'**
   String get uknown;
 
-  /// No description provided for @gameInformationPopupCured.
-  ///
-  /// In en, this message translates to:
-  /// **'You’re in “safe” hands, the mafia can’t touch you now'**
-  String get gameInformationPopupCured;
-
-  /// No description provided for @gameInformationPopupInterviewed.
-  ///
-  /// In en, this message translates to:
-  /// **'Congrats — you’re now part of their “big investigation,” whether you like it or not. And, as always, everyone’s already gossiping about whether you’re on the same side as the other interviewee'**
-  String get gameInformationPopupInterviewed;
-
   /// No description provided for @underTheEffectYouCannotVoteUseAbilitiesAndYour.
   ///
   /// In en, this message translates to:
   /// **'Under the effect: you cannot vote, use abilities, and your messages appear distorted'**
   String get underTheEffectYouCannotVoteUseAbilitiesAndYour;
 
+  /// No description provided for @gameInformationPopupCured.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re in «safe» hands — the mafia can\'t touch you today'**
+  String get gameInformationPopupCured;
+
+  /// No description provided for @gameInformationPopupInterviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Congrats — you\'re now part of their «big investigation», whether you like it or not. And as always, everyone\'s already gossiping about whether you\'re on the same side as the other interviewee'**
+  String get gameInformationPopupInterviewed;
+
   /// No description provided for @gameInformationPopupIntoxicated.
   ///
   /// In en, this message translates to:
-  /// **'Under the effect: you cannot vote, use abilities, and your messages appear distorted'**
+  /// **'Under the effect: you cannot vote or use skills, and your messages appear distorted'**
   String get gameInformationPopupIntoxicated;
 
   /// No description provided for @gameInformationPopupInvestigated.
   ///
   /// In en, this message translates to:
-  /// **'The sheriff entered your details into the system — now they know who you are'**
+  /// **'The sheriff entered your details into the system and now they know who you are'**
   String get gameInformationPopupInvestigated;
 
   /// No description provided for @gameInformationPopupRevealed.
@@ -1881,55 +1881,55 @@ abstract class AppLocalizations {
   /// No description provided for @gameInformationPopupProtected.
   ///
   /// In en, this message translates to:
-  /// **'While the protection is active, you’re safe from harm.'**
+  /// **'While the protection is active, you\'re safe'**
   String get gameInformationPopupProtected;
 
   /// No description provided for @gameInformationPopupSatisfied.
   ///
   /// In en, this message translates to:
-  /// **'You’ve succumbed to the temptation and cannot vote or use abilities.'**
+  /// **'You\'ve been enchanted — you cannot vote or use abilities'**
   String get gameInformationPopupSatisfied;
 
   /// No description provided for @gameInformationPopupTitleCured.
   ///
   /// In en, this message translates to:
-  /// **'The doctor has cured you'**
+  /// **'The Doctor has saved you'**
   String get gameInformationPopupTitleCured;
 
   /// No description provided for @gameInformationPopupTitleInterviewed.
   ///
   /// In en, this message translates to:
-  /// **'The journalist interviewed you'**
+  /// **'The Journalist interviewed you'**
   String get gameInformationPopupTitleInterviewed;
 
   /// No description provided for @gameInformationPopupTitleIntoxicated.
   ///
   /// In en, this message translates to:
-  /// **'The bartender got you drunk'**
+  /// **'The Barman got you drunk'**
   String get gameInformationPopupTitleIntoxicated;
 
   /// No description provided for @gameInformationPopupTitleInvestigated.
   ///
   /// In en, this message translates to:
-  /// **'The sheriff investigated you.'**
+  /// **'The Sheriff investigated you.'**
   String get gameInformationPopupTitleInvestigated;
 
   /// No description provided for @gameInformationPopupTitleRevealed.
   ///
   /// In en, this message translates to:
-  /// **'The informant revealed your role.'**
+  /// **'The Informant revealed your role.'**
   String get gameInformationPopupTitleRevealed;
 
   /// No description provided for @gameInformationPopupTitleProtected.
   ///
   /// In en, this message translates to:
-  /// **'The bodyguard has protected you.'**
+  /// **'The Bodyguard has protected you.'**
   String get gameInformationPopupTitleProtected;
 
   /// No description provided for @gameInformationPopupTitleSatisfied.
   ///
   /// In en, this message translates to:
-  /// **'The beauty has enchanted you.'**
+  /// **'The Beauty has charmed you.'**
   String get gameInformationPopupTitleSatisfied;
 
   /// No description provided for @gameInformationPopupExpirationCured.
@@ -1989,25 +1989,25 @@ abstract class AppLocalizations {
   /// No description provided for @phaseMessagesDay.
   ///
   /// In en, this message translates to:
-  /// **'The silence of night is over. Now speak.'**
+  /// **'A new day begins. Talk, question and suspect. The mafia walks among you'**
   String get phaseMessagesDay;
 
   /// No description provided for @phaseMessageDayVoting.
   ///
   /// In en, this message translates to:
-  /// **'Choose the imposter of the day'**
+  /// **'Time to decide. Who do you trust least? Cast your vote'**
   String get phaseMessageDayVoting;
 
   /// No description provided for @phaseMessageNight.
   ///
   /// In en, this message translates to:
-  /// **'The night begins. All must rest in silence'**
+  /// **'Night falls over the town. In the darkness, the mafia whispers'**
   String get phaseMessageNight;
 
   /// No description provided for @phaseMessageNightVoting.
   ///
   /// In en, this message translates to:
-  /// **'The Mafia cast their deadly vote.'**
+  /// **'The mafia never sleeps.. someone\'s fate is being decided right now'**
   String get phaseMessageNightVoting;
 
   /// ...
@@ -2025,34 +2025,41 @@ abstract class AppLocalizations {
   /// ...
   ///
   /// In en, this message translates to:
-  /// **'Terrorist tried to bomb [{targetPlayer}], but bodyguard saved him/her'**
-  String terroristTriedToBombTargetplayerButBodyguardSavedHimher(
+  /// **'Kamikaze tried to bomb [{targetPlayer}], but bodyguard saved him/her'**
+  String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer);
 
   /// ...
   ///
   /// In en, this message translates to:
-  /// **'Terrorist bombarded [{targetPlayer}]'**
-  String terroristBombardedTargetplayer(String targetPlayer);
+  /// **'Kamikaze bombarded [{targetPlayer}]'**
+  String kamikazeBombardedTargetplayer(String targetPlayer);
 
   /// ...
   ///
   /// In en, this message translates to:
-  /// **'[{firstPlayerNickname}] and [{secondPlayerNickname}] are on different teams'**
+  /// **'Journalist conducted an interview with [{firstPlayerNickname}] and [{secondPlayerNickname}] — they play on opposite teams'**
   String firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams(
       String firstPlayerNickname, String secondPlayerNickname);
 
   /// ...
   ///
   /// In en, this message translates to:
-  /// **'[{firstPlayerNickname}] and [{secondPlayerNickname}] are on same teams'**
+  /// **'Journalist conducted an interview with [{firstPlayerNickname}] and [{secondPlayerNickname}] — they play on the same team'**
   String firstplayernicknameAndSecondplayernicknameAreOnSameTeams(
       String firstPlayerNickname, String secondPlayerNickname);
+
+  /// ...
+  ///
+  /// In en, this message translates to:
+  /// **'After your investigation, it seems that [{playerNickname}] is [{playerRole}]'**
+  String personalFeedBackToInformantAndSheriff(
+      String playerNickname, String playerRole);
 
   /// No description provided for @inGame.
   ///
   /// In en, this message translates to:
-  /// **'in game'**
+  /// **'in room'**
   String get inGame;
 
   /// No description provided for @enterTheTitle.
@@ -2060,6 +2067,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the title'**
   String get enterTheTitle;
+
+  /// No description provided for @gameRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Roles'**
+  String get gameRoles;
+
+  /// No description provided for @play.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get play;
+
+  /// No description provided for @filterOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter On'**
+  String get filterOn;
+
+  /// No description provided for @gameIsFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Game is Full'**
+  String get gameIsFull;
+
+  /// No description provided for @enterRoomName.
+  ///
+  /// In en, this message translates to:
+  /// **' Enter room name'**
+  String get enterRoomName;
+
+  /// No description provided for @noFriendRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No friend requests'**
+  String get noFriendRequests;
+
+  /// No description provided for @noFriendsToSuggest.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends to suggest'**
+  String get noFriendsToSuggest;
+
+  /// No description provided for @minsAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'mins ago'**
+  String get minsAgo;
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'hours ago'**
+  String get hoursAgo;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'days ago'**
+  String get daysAgo;
+
+  /// No description provided for @lessThanAMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'less than a minute'**
+  String get lessThanAMinute;
+
+  /// No description provided for @playerProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Player Profile'**
+  String get playerProfile;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @lastSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen'**
+  String get lastSeen;
+
+  /// No description provided for @deleteFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete friend'**
+  String get deleteFriend;
+
+  /// No description provided for @acceptRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept request'**
+  String get acceptRequest;
+
+  /// No description provided for @rejectRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject request'**
+  String get rejectRequest;
+
+  /// No description provided for @cancelRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel request'**
+  String get cancelRequest;
+
+  /// No description provided for @sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get sent;
+
+  /// No description provided for @invite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get invite;
+
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// No description provided for @notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification'**
+  String get notification;
+
+  /// No description provided for @sentFriendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **' sent friend request'**
+  String get sentFriendRequest;
+
+  /// No description provided for @acceptedYourRequest.
+  ///
+  /// In en, this message translates to:
+  /// **' accepted your request'**
+  String get acceptedYourRequest;
+
+  /// No description provided for @whoIsNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is Next?'**
+  String get whoIsNext;
+
+  /// No description provided for @invititationToGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Invititation To Room'**
+  String get invititationToGame;
+
+  /// No description provided for @invitedYouToTheGame.
+  ///
+  /// In en, this message translates to:
+  /// **' invited you to the room - '**
+  String get invitedYouToTheGame;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @decline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get decline;
+
+  /// No description provided for @gameInformationPopupLastMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on'**
+  String get gameInformationPopupLastMafia;
+
+  /// No description provided for @gameInformationPopupTitleLastMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Mafia'**
+  String get gameInformationPopupTitleLastMafia;
+
+  /// No description provided for @gameInformationPopupExpirationLastMafia.
+  ///
+  /// In en, this message translates to:
+  /// **'The effect lasts until the end of the game'**
+  String get gameInformationPopupExpirationLastMafia;
+
+  /// No description provided for @youAreNotElligibleToSendMessageRightNow.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not elligible to send message right now'**
+  String get youAreNotElligibleToSendMessageRightNow;
+
+  /// No description provided for @theShadowsHaveConsumedYourLight.
+  ///
+  /// In en, this message translates to:
+  /// **'The shadows have consumed your light.'**
+  String get theShadowsHaveConsumedYourLight;
+
+  /// No description provided for @youAreDead.
+  ///
+  /// In en, this message translates to:
+  /// **'You are dead'**
+  String get youAreDead;
+
+  /// No description provided for @iDeadSituationOneText.
+  ///
+  /// In en, this message translates to:
+  /// **'IDeadSituationOneText - Mafia killed'**
+  String get iDeadSituationOneText;
+
+  /// No description provided for @iDeadSituationTwoText.
+  ///
+  /// In en, this message translates to:
+  /// **'IDeadSituationTwoText - eliminated by towns decision'**
+  String get iDeadSituationTwoText;
+
+  /// No description provided for @iDeadSituationThreeText.
+  ///
+  /// In en, this message translates to:
+  /// **'IDeadSituationThreeText - kamikaze bombarded me'**
+  String get iDeadSituationThreeText;
+
+  /// No description provided for @iDeadSituationFourText.
+  ///
+  /// In en, this message translates to:
+  /// **'iDeadSituationFourText - i am kamikaze and i killed someone and myself'**
+  String get iDeadSituationFourText;
+
+  /// No description provided for @nightVotingCanNotSendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'NightVoting Can Not Send Message'**
+  String get nightVotingCanNotSendMessage;
+
+  /// No description provided for @nightCanNotSendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Night Can Not Send Message'**
+  String get nightCanNotSendMessage;
+
+  /// No description provided for @dayVotingCanNotSendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'DayVoting Can Not Send Message'**
+  String get dayVotingCanNotSendMessage;
+
+  /// No description provided for @unsupportedFileFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported File Format'**
+  String get unsupportedFileFormat;
+
+  /// No description provided for @fileIsTooLargeItMustBe200kb.
+  ///
+  /// In en, this message translates to:
+  /// **'File is too large, it must be 200kb'**
+  String get fileIsTooLargeItMustBe200kb;
 }
 
 class _AppLocalizationsDelegate

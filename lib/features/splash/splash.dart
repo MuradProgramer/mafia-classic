@@ -42,7 +42,7 @@ List<PlayerRole> players = [
   ),
   PlayerRole(
     id: -6,
-    role: 'Terrorist'
+    role: 'Kamikaze'
   ),
   PlayerRole(
     id: -7,
@@ -132,7 +132,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 avatarUrl: SharedPrefsService.getUserAvatarUrl() ?? '', 
                 accessToken: SharedPrefsService.getAccessToken() ?? '', 
                 refreshToken: SharedPrefsService.getRefreshToken() ?? '', 
-                expirationDate: SharedPrefsService.getAccessTokenExpiryUtc()!
+                expirationDate: SharedPrefsService.getAccessTokenExpiryUtc() ?? DateTime.now()
               );
               setup(alreadyUser);
               initGeneralServiceForAuthorizedUser(alreadyUser);
@@ -227,7 +227,7 @@ class _SplashScreenState extends State<SplashScreen> {
                               "Beauty": 45,
                               "Journalist": 24,
                               "Spy": 76,
-                              "Terrorist": 245,
+                              "Kamikaze": 245,
                               "Informant": 343,
                               "Barman": 543
                             }, 
@@ -288,7 +288,7 @@ class _SplashScreenState extends State<SplashScreen> {
                               Padding(
                                 padding: EdgeInsets.only(top: 70.h),
                                 child: Text(
-                                  "classic",
+                                  "classic edition",
                                   style: TextStyle(
                                     fontSize: 26.sp,
                                     height: 0,

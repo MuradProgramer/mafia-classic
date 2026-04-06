@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -19,6 +20,7 @@ import 'package:mafia_classic/services/shared_preferences/extensions/language_pr
 import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/streams/general_stream.dart';
+import 'package:mafia_classic/utils/snackbar.dart';
 import 'package:mafia_classic/utils/utils.dart';
 import 'package:mafia_classic/features/widgets/validation_popup.dart';
 import 'package:mafia_classic/utils/popup_utils.dart';
@@ -112,7 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        S.of(context).settings,
+                        AppLocalizations.of(context)!.settings,
                         style: GoogleFonts.playfairDisplay(
                           color: Colors.black,
                           fontSize: 32.sp
@@ -406,7 +408,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              S.of(context).upload,
+                              AppLocalizations.of(context)!.upload,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 15.sp,
@@ -573,7 +575,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              S.of(context).report,
+                              AppLocalizations.of(context)!.report,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.sp,
@@ -653,7 +655,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             onTap: () async {
                                               Navigator.of(context, rootNavigator: true).pop();
                                               await SharedPrefsService().clear();
-                                              TcpClientService().disconnect();
+                                              TcpClientService().dispose();
                                               //GetIt.I<ApiService>().logout();
                                               Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                                                 MaterialPageRoute(builder: (_) => const SignInScreen()), 
@@ -708,7 +710,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              S.of(context).logOut,
+                              AppLocalizations.of(context)!.logOut,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.sp,
@@ -738,7 +740,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        S.of(context).deleteAccount,
+                        AppLocalizations.of(context)!.deleteAccount,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20.sp,
@@ -755,7 +757,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         )
         /*
         appBar: AppBar(
-          title: Text(S.of(context).settings),
+          title: Text(AppLocalizations.of(context)!.settings),
           automaticallyImplyLeading: false
         ),
         body: Padding(
@@ -766,7 +768,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(S.of(context).language),
+                  Text(AppLocalizations.of(context)!.language),
                   DropdownButton<String>(
                     dropdownColor: const Color.fromARGB(255, 6, 0, 63),
                     value: _selectedLanguage,
@@ -791,7 +793,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(S.of(context).password),
+                  Text(AppLocalizations.of(context)!.password),
                   SizedBox(
                     width: 150.0,
                     child: ElevatedButton(
@@ -800,23 +802,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text(S.of(context).changePassword),
+                              title: Text(AppLocalizations.of(context)!.changePassword),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   TextField(
                                     obscureText: true,
-                                    decoration: InputDecoration(hintText: S.of(context).oldPassword),
+                                    decoration: InputDecoration(hintText: AppLocalizations.of(context)!.oldPassword),
                                   ),
                                   TextField(
                                     obscureText: true,
-                                    decoration: InputDecoration(hintText: S.of(context).newPassword),
+                                    decoration: InputDecoration(hintText: AppLocalizations.of(context)!.newPassword),
                                   ),
                                 ],
                               ),
                               actions: [
                                 ElevatedButton(
-                                  child: Text(S.of(context).change, style: const TextStyle(color: Colors.white)),
+                                  child: Text(AppLocalizations.of(context)!.change, style: const TextStyle(color: Colors.white)),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
@@ -826,7 +828,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         );
                       },
-                      child: Text(S.of(context).change, style: const TextStyle(color: Colors.white)),
+                      child: Text(AppLocalizations.of(context)!.change, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ]
@@ -837,7 +839,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(S.of(context).nickname),
+                  Text(AppLocalizations.of(context)!.nickname),
                   SizedBox(
                     width: 150,
                     child: ElevatedButton(
@@ -846,13 +848,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text(S.of(context).changeNickname),
+                              title: Text(AppLocalizations.of(context)!.changeNickname),
                               content: TextField(
-                                decoration: InputDecoration(hintText: S.of(context).writeNewNickname),
+                                decoration: InputDecoration(hintText: AppLocalizations.of(context)!.writeNewNickname),
                               ),
                               actions: [
                                 ElevatedButton(
-                                  child: Text(S.of(context).change, style: const TextStyle(color: Colors.white)),
+                                  child: Text(AppLocalizations.of(context)!.change, style: const TextStyle(color: Colors.white)),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
@@ -862,7 +864,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         );
                       },
-                      child: Text(S.of(context).change, style: const TextStyle(color: Colors.white)),
+                      child: Text(AppLocalizations.of(context)!.change, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -874,21 +876,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onPressed: () {
                   // change avatar
                 },
-                child: Text(S.of(context).changeAvatar, style: const TextStyle(color: Colors.white)),
+                child: Text(AppLocalizations.of(context)!.changeAvatar, style: const TextStyle(color: Colors.white)),
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
                   // log out
                 },
-                child: Text(S.of(context).logOut, style: const TextStyle(color: Colors.white)),
+                child: Text(AppLocalizations.of(context)!.logOut, style: const TextStyle(color: Colors.white)),
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
                   // delete accaunt
                 },
-                child: Text(S.of(context).deleteAccaunt, style: const TextStyle(color: Colors.white)),
+                child: Text(AppLocalizations.of(context)!.deleteAccaunt, style: const TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -1039,18 +1041,26 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                         });
 
                         final ImagePicker picker = ImagePicker();
-                        
+
                         final XFile? image = await picker.pickImage(
                           source: ImageSource.gallery,
                           imageQuality: 85,
                         );
 
                         if (image != null) {
+                          final String path = image.path.toLowerCase();
+                          final List<String> allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+                          
+                          if (!allowedExtensions.any((ext) => path.endsWith(ext))) {
+                            TopSnackBarManager.show({"content": AppLocalizations.of(context)!.unsupportedFileFormat}, 5);
+                            return;
+                          }
+
                           CroppedFile? croppedFile;
                           try {
                             croppedFile = await ImageCropper().cropImage(
                               sourcePath: image.path,
-                              aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1), 
+                              aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
                               uiSettings: [
                                 AndroidUiSettings(
                                   toolbarTitle: 'Edit Avatar',
@@ -1068,13 +1078,22 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                               ],
                             );
                           } on Exception catch (e) {
-                            print("THE PROBLEM IS IN THE IMAGE CROPPING");
+                            print("THE PROBLEM IS IN THE IMAGE CROPPING: $e");
                           }
 
                           if (croppedFile != null) {
-                            setState(() {
-                              pickedImage = XFile(croppedFile!.path);
-                            });
+                            final Uint8List bytes = await croppedFile.readAsBytes();
+                            final int sizeInBytes = bytes.length;
+                            const int maxSizeInBytes = 200 * 1024; // 200kb
+
+                            if (sizeInBytes <= maxSizeInBytes) {
+                              setState(() {
+                                pickedImage = XFile(croppedFile!.path);
+                              });
+                            } else {
+                              //print("File too large: ${(sizeInBytes / 1024).toStringAsFixed(2)}kb");
+                              TopSnackBarManager.show({"content": AppLocalizations.of(context)!.fileIsTooLargeItMustBe200kb}, 5);
+                            }
                           }
                         }
                       },
@@ -1125,7 +1144,7 @@ class _UploadAvatarPopupState extends State<UploadAvatarPopup> {
                               uiSettings: [
                                 AndroidUiSettings(
                                   toolbarTitle: 'Edit Avatar',
-                                  toolbarColor: Colors.deepPurple,
+                                  toolbarColor: const Color(0xFFFFB000),
                                   toolbarWidgetColor: Colors.white,
                                   initAspectRatio: CropAspectRatioPreset.square,
                                   lockAspectRatio: true,
@@ -1487,17 +1506,17 @@ class _ChangeNicknamePopupState extends State<ChangeNicknamePopup> {
                               validator: (value) {
                                 if (value!.isEmpty) {
                                   //return 'You must write your nickname';
-                                  showValidationPopup(S.of(context).youMustWriteYourNickname, 'nickname');
+                                  showValidationPopup(AppLocalizations.of(context)!.youMustWriteYourNickname, 'nickname');
                                   //return '';
                                   return null;
                                 } else if (value.length < 3) {
                                   //return 'Your nickname must contain at least 3 characters';
-                                  showValidationPopup(S.of(context).yourNicknameMustContainAtLeast3Characters, 'nickname');
+                                  showValidationPopup(AppLocalizations.of(context)!.yourNicknameMustContainAtLeast3Characters, 'nickname');
                                   //return '';
                                   return null;
                                 } else if (!RegExp(r'^[a-zA-Z0-9._-]*$').hasMatch(value)) {
                                   //return 'Your nickname can contain, letters, numbers and . _ -';
-                                  showValidationPopup(S.of(context).yourNicknameCanContainLettersNumbersAnd, 'nickname');
+                                  showValidationPopup(AppLocalizations.of(context)!.yourNicknameCanContainLettersNumbersAnd, 'nickname');
                                   //return '';
                                   return null;
                                 } else {
@@ -1932,11 +1951,11 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               //return 'You must write your password';
-                              showValidationPopup(S.of(context).youMustWriteYourPassword, 'password');
+                              showValidationPopup(AppLocalizations.of(context)!.youMustWriteYourPassword, 'password');
                               return null;
                             } else if (value.length < 6) {
                               //return 'Your password must contain at least 8 characters';
-                              showValidationPopup(S.of(context).yourPasswordMustContainAtLeast6Characters, 'password');
+                              showValidationPopup(AppLocalizations.of(context)!.yourPasswordMustContainAtLeast6Characters, 'password');
                               return null;
                             } else {
                               setState(() {
@@ -2015,11 +2034,11 @@ class _ChangePasswordPopupState extends State<ChangePasswordPopup> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               //return 'You must confirm your password';
-                              showValidationPopup(S.of(context).youMustConfirmYourPassword, 'confirm password');
+                              showValidationPopup(AppLocalizations.of(context)!.youMustConfirmYourPassword, 'confirm password');
                               return null;
                             } else if (value != _passwordController.text) {
                               //return 'Passwords are not matching';
-                              showValidationPopup(S.of(context).passwordsAreNotMatching, 'confirm password');
+                              showValidationPopup(AppLocalizations.of(context)!.passwordsAreNotMatching, 'confirm password');
                               return null;
                             } else {
                               setState(() {
@@ -2448,7 +2467,7 @@ class _ReportPopupState extends State<ReportPopup> {
                           ),
                           child: Center(
                             child: Text(
-                              S.of(context).confirm,
+                              AppLocalizations.of(context)!.confirm,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 15.sp,

@@ -12,6 +12,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:mafia_classic/features/features.dart';
 import 'package:mafia_classic/features/games/game/models/in_game_player.dart';
 import 'package:mafia_classic/features/games/games.dart';
 import 'package:mafia_classic/features/games/game/models/models.dart';
@@ -115,6 +116,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
   final FocusNode _messageFocusNode = FocusNode();
 
+  int playerDeadSituation = -1;
+
   void _scrollToBottom() {
     if (!_scrollController.hasClients) return;
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -129,7 +132,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     //!!!!!!!!!!!!!!!!!!
 
-    TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, json.encode({'message': _messageController.text.trim()}));
+    try {
+      TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, json.encode({'message': _messageController.text.trim()}));
+    } on Exception catch (e) {
+      log('💥 ClientCommand.SendRoomMessage - $e - Client Command 💥');
+    }
     /*
     await GetIt.I<ApiService>().gameHubConnection.invoke("SendMessage", args: <Object>[ 
       _messageController.text.trim()
@@ -157,7 +164,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     if (markNames.any((el) => el == 'Satisfied')) return;
 
-    if (role == 'Terrorist') return;
+    if (role == 'Kamikaze') return;
 
     if (gamePhase == 'Day') {
       return;
@@ -181,8 +188,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         votedPlayerNickname
       ]).then((value) => log('vote playeer method suucesfully'));
       */
-    } on Exception catch (e) {
-      log('Vote Player: $e');
+    } catch (e) {
+      log('💥 ClientCommand.submitGameVote - $e - Client Command 💥');
     }
   }
   
@@ -208,7 +215,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     }
 
     if (gamePhase == 'DayVoting') {
-      if (role != 'Terrorist') return;
+      if (role != 'Kamikaze') return;
     }
 
     if (gamePhase == 'Night') {
@@ -242,7 +249,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     //!!!!!!!!!!!!!!!
     if (state) {
-      TcpClientService().sendMessage(ClientCommand.useGameAbility.value, json.encode({'targets': influencedBySkillPlayersId}));
+      try {
+        TcpClientService().sendMessage(ClientCommand.useGameAbility.value, json.encode({'targets': influencedBySkillPlayersId}));
+      } catch (e) {
+        log('💥 ClientCommand.useGameAbility - $e - Client Command 💥');
+      }
       canIUseSkill = false;
     }
   }
@@ -261,7 +272,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   late StreamSubscription<String> gameNewMessage;
   late StreamSubscription<String> gameVoteRegistered;
   late StreamSubscription<String> gamePlayerEliminated;
-  late StreamSubscription<String> gameTerroristExplosion;
+  late StreamSubscription<String> gameKamikazeExplosion;
   late StreamSubscription<String> gameJournalistInterview;
   late StreamSubscription<String> gameEffectApplied;
   late StreamSubscription<String> gameEffectRemoved;
@@ -508,8 +519,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             );
           }
         });
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     ReconnectGameData EVENT - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game State Data - Game Screen 💥');
       }
     });
 
@@ -678,8 +689,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           //log('game phase: $gamePhase');
         });
         _handlePhaseChange(phase);
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     PHASE EVENT - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game Phase Changed Error - Game Screen 💥');
       }
     });
 
@@ -697,8 +708,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             //print(phaseTimeNotifier.value);
           });
         }
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game Timer Update Error - Game Screen 💥');
       }
     });
 
@@ -735,8 +746,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             colorHasOpacity: colorHasOpacity
           ));
         });
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     RECIEVE MESSAGE EVENT - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game New Message Error - Game Screen 💥');
       }
     });
 
@@ -756,37 +767,43 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           //print('Voted: $from -> $target');
         });
       } catch (e) {
-        log('EXCEPTION IN:     VOTED EVENT - GAME SCREEN: ${e.toString()}');
+        log('💥 Game Vote Registered Error - Game Screen 💥');
       }
     });
 
     void playerDeadEvent(PlayerRole playerDead) {
-      setState(() {
-        if (playerDead.id == authorizedUser.id) {
-          youAreDead();
-          if (['Mafia', 'Terrorist', 'Beauty', 'Barman'].any((e) => e == playerDead.role)) {
+      if (!mounted) return;
+      
+      try {
+        setState(() {
+          if (playerDead.id == authorizedUser.id) {
+            youAreDead();
+            if (['Mafia', 'Kamikaze', 'Beauty', 'Barman'].any((e) => e == playerDead.role)) {
+              mafiaAlive -= 1;
+            } else {
+              civilianAlive -= 1;
+            }
+            isAliveMyself = false;
+            checkIfEligibleToSendMessage();
+            return;
+          }
+        
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).isAlive = false;
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).role = playerDead.role;
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).isRevealed = true;
+          inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).votesOfPlayer = [];
+          inGamePlayers.notifyListeners();
+          namesOfDead.add(PlayerRole(id: playerDead.id, role: playerDead.role));
+        
+          if (['Mafia', 'Kamikaze', 'Barman', 'Informant'].any((s) => s == playerDead.role)) {
             mafiaAlive -= 1;
           } else {
             civilianAlive -= 1;
           }
-          isAliveMyself = false;
-          checkIfEligibleToSendMessage();
-          return;
-        }
-
-        inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).isAlive = false;
-        inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).role = playerDead.role;
-        inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).isRevealed = true;
-        inGamePlayers.value.firstWhere((inplayer) => inplayer.id == playerDead.id).votesOfPlayer = [];
-        inGamePlayers.notifyListeners();
-        namesOfDead.add(PlayerRole(id: playerDead.id, role: playerDead.role));
-      
-        if (['Mafia', 'Terrorist', 'Barman', 'Informant'].any((s) => s == playerDead.role)) {
-          mafiaAlive -= 1;
-        } else {
-          civilianAlive -= 1;
-        }
-      });
+        });
+      } catch (e) {
+        log('💥 Player Dead EVENT Error - $e - Game Screen 💥');
+      }
     }
 
     // DONE -
@@ -802,8 +819,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         final String nickname = inGamePlayers.value.firstWhere((el) => el.id == data['id']).nickname;
         final String role = data['role'];
         final String phaseCheck = data['phase'];
-        log('------------- $phaseCheck --------------');
-        log('------------- ${phaseCheck == 'NightVoting'} --------------');
+
+        if (data['int'] as int == authorizedUser.id) {
+          playerDeadSituation = phaseCheck == 'NightVoting' ? 1 : 2;
+        }
         
         playerDeadEvent(PlayerRole(id: data['id'], role: role));
 
@@ -822,32 +841,38 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         });
         
         //printInGamePlayers();
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     PLAYER DEAD EVENT - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game Player Eliminated Error - Game Screen 💥');
       }
     });
 
     // INCOMPLETE
-    gameTerroristExplosion = EventRouterService()
-        .subscribe(ServerEvent.gameTerroristExplosion)
+    gameKamikazeExplosion = EventRouterService()
+        .subscribe(ServerEvent.gameKamikazeExplosion)
         .listen((payload) {
       try {
         if (payload.isEmpty) return;
 
         var data = json.decode(payload);
 
-        final int terroristId = data['terroristId'];
+        final int kamikazeId = data['kamikazeId'];
         PlayerRole targetPlayer = PlayerRole.fromJson(data['targetPlayer'] as Map<String, dynamic>);
         final bool isProtected = data['targetProtected'] as bool;
         
-        String content = AppLocalizations.of(context)!.terroristTriedToBombTargetplayerButBodyguardSavedHimher(inGamePlayers.value.firstWhere((el) => el.id == targetPlayer.id).nickname);
+        String content = AppLocalizations.of(context)!.kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(inGamePlayers.value.firstWhere((el) => el.id == targetPlayer.id).nickname);
         if (!isProtected) {
-          content = AppLocalizations.of(context)!.terroristBombardedTargetplayer(inGamePlayers.value.firstWhere((el) => el.id == targetPlayer.id).nickname);
+          content = AppLocalizations.of(context)!.kamikazeBombardedTargetplayer(inGamePlayers.value.firstWhere((el) => el.id == targetPlayer.id).nickname);
           playerDeadEvent(targetPlayer);
+          if (targetPlayer.id == authorizedUser.id) {
+            playerDeadSituation = 3;
+          }
         }
-        playerDeadEvent(PlayerRole(id: terroristId, role: 'Terrorist'));
+        if (kamikazeId == authorizedUser.id) {
+          playerDeadSituation = 4;
+        }
+        playerDeadEvent(PlayerRole(id: kamikazeId, role: 'Kamikaze'));
 
-        TopSnackBarManager.show({"content": content}, 6);
+        TopSnackBarManager.show({"content": content}, 7);
         
         setState(() {
           inGameMessages.add(InGameMessage(
@@ -860,8 +885,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             color: (isProtected) ? const Color(0xFF63A361): const Color(0xFFE62727)
           ));
         });
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     gameTerroristExplosion - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game Kamikaze Explosion Error - Game Screen 💥');
       }
     });
 
@@ -897,8 +922,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             color: const Color(0xFF00695C)
           ));
         });
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     gameJournalistInterview - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game Journalist Interview Error - Game Screen 💥');
       }
     });
     
@@ -926,8 +951,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         if (['intoxicated', 'satisfied'].any((e) => e == mark.toLowerCase())) {
           PopupManager().close('skillPopup');
         }
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     MARK EVENT - GAME SCREEN: ${e.toString()}');
+        if (mark.contains('LastMafia')) {
+          canNightVote = true;
+        }
+      } catch (e) {
+        log('💥 Game Effect Applied Error - Game Screen 💥');
       }
     });
 
@@ -944,8 +972,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           markNames.remove(unmark);
           //markNames.remove('sheriff');
         });
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     UNMARK EVENT - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game Effect Removed Error - Game Screen 💥');
       }
     });
 
@@ -960,30 +988,32 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         var playerDto = data as Map<String, dynamic>;
         
         PlayerRole player = PlayerRole.fromJson(playerDto);
+
+        TopSnackBarManager.show({"playerNickname": inGamePlayers.value.firstWhere((e) => e.id == player.id).nickname, "playerRole": player.role.toLowerCase()}, 6);
         
         setState(() {
           inGamePlayers.value.firstWhere((inplayer) => inplayer.id == player.id).isRevealed = true;
           inGamePlayers.value.firstWhere((inplayer) => inplayer.id == player.id).role = player.role.toLowerCase();
           namesOfRevealed.add(PlayerRole(id: player.id, role: player.role.toLowerCase()));
         });
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     MYSTERY EVENT - GAME SCREEN: ${e.toString()}');
+      } catch (e) {
+        log('💥 Game Personal Feedback Error - Game Screen 💥');
       }
     });
 
     // PARTIAL
-    gameNightActionPrompt = EventRouterService()
-        .subscribe(ServerEvent.gameNightActionPrompt)
-        .listen((payload) {
-      try {
-        setState(() {
-          canNightVote = true;
-          log('CAN NIGHT VOTE METHOD: ${DateTime.now().toIso8601String()}');
-        });
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
-      }
-    });
+    // gameNightActionPrompt = EventRouterService()
+    //     .subscribe(ServerEvent.gameNightActionPrompt)
+    //     .listen((payload) {
+    //   try {
+    //     setState(() {
+    //       canNightVote = true;
+    //       log('CAN NIGHT VOTE METHOD: ${DateTime.now().toIso8601String()}');
+    //     });
+    //   } on Exception catch (e) {
+    //     log('EXCEPTION IN:     TIMER EVENT - GAME SCREEN: ${e.toString()}');
+    //   }
+    // });
 
     // PARTIAL
     gameOver = EventRouterService()
@@ -1005,7 +1035,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
         log('WINNER: $winner    |    POINTS: $points');
       } on Exception catch (e) {
-        log('EXCEPTION IN:     GAME OVER EVENT - GAME SCREEN: ${e.toString()}');
+        log('💥 Game Over Error - Game Screen 💥');
       }
     });
 
@@ -1497,7 +1527,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         
           if (playerDead.nickname == authorizedUser.nickname) {
             youAreDead();
-            if (['Mafia', 'Terrorist', 'Beauty', 'Barman'].any((e) => e == playerDead.role)) {
+            if (['Mafia', 'Kamikaze', 'Beauty', 'Barman'].any((e) => e == playerDead.role)) {
               mafiaAlive -= 1;
             } else {
               civilianAlive -= 1;
@@ -1514,7 +1544,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           inGamePlayers.notifyListeners();
           namesOfDead.add(PlayerRole(nickname: playerDead.nickname, role: playerDead.role));
         
-          if (['Mafia', 'Terrorist', 'Barman', 'Informant'].any((s) => s == playerDead.role)) {
+          if (['Mafia', 'Kamikaze', 'Barman', 'Informant'].any((s) => s == playerDead.role)) {
             mafiaAlive -= 1;
           } else {
             civilianAlive -= 1;
@@ -1683,7 +1713,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     gameNewMessage.cancel();
     gameVoteRegistered.cancel();
     gamePlayerEliminated.cancel();
-    gameTerroristExplosion.cancel();
+    gameKamikazeExplosion.cancel();
     gameJournalistInterview.cancel();
     gameEffectApplied.cancel();
     gameEffectRemoved.cancel();
@@ -1737,7 +1767,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       return;
     }
 
-    if (role == 'Terrorist') {
+    if (role == 'Kamikaze') {
       changeVoteState(false);
       return;
     }
@@ -1804,7 +1834,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     }
 
     if (gamePhase == 'DayVoting') {
-      if (role != 'Terrorist') {
+      if (role != 'Kamikaze') {
         changeSkillState(false);
         return;
       }
@@ -1867,7 +1897,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   bool checkSecondIfEligibleToVote(InGamePlayer player) {
-    if (['Mafia', 'Terrorist'].any((el) => el == player.role) && role == 'Mafia' && gamePhase == 'NightVoting') {
+    if (['Mafia', 'Kamikaze'].any((el) => el == player.role) && role == 'Mafia' && gamePhase == 'NightVoting') {
       return false;
     }
 
@@ -1875,15 +1905,12 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   void youAreDead() {
-    PopupManager().close('votePopup');
-    PopupManager().close('skillPopup');
-    PopupManager().close('roleInformationPopup');
-    PopupManager().close('informationPopup');
+    PopupManager().closeAll();
     
     PopupManager().show(
       context: context,
       id: 'playerDeadPopup',
-      builder: (_) => const GamePlayerDeadPopup()
+      builder: (_) => GamePlayerDeadPopup(situationType: playerDeadSituation)
     );
     
     /*
@@ -1930,7 +1957,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     }
 
     if (role == 'Mafia') {
-      if (['Terrorist', 'Mafia'].any((e) => e == player.role)) {
+      if (['Kamikaze', 'Mafia'].any((e) => e == player.role)) {
         return 'assets/images/${player.role!.toLowerCase()}.png';
       }
     }
@@ -2460,10 +2487,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                   Container(
                                                     decoration: BoxDecoration(
                                                       border: Border.all(
-                                                        width: 2.w,
-                                                        color: const Color.fromARGB(255, 61, 0, 0)
+                                                        width: (!player.isAlive) ? 1.5.w : 0.w,
+                                                        color: (!player.isAlive) ? const Color(0xFF831611) : Colors.transparent
                                                       ),
-                                                      borderRadius: BorderRadius.circular(6.r)
+                                                      borderRadius: BorderRadius.circular(4.r)
                                                     ),
                                                     child: RoleTooltipCard(
                                                       roleName: player.role!,
@@ -2474,21 +2501,18 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       
                                                   if (!player.isAlive)
                                                     IgnorePointer(
-                                                      child: Positioned(
-                                                        top: -1,
-                                                        left: -1,
-
-                                                        child: Image.asset(
-                                                          'assets/images/blood-effect.png',
-                                                          width: 62.w,
-                                                          height: 78.h,
-                                                          fit: BoxFit.contain,
-                                                          alignment: Alignment.topLeft,
-                                                        ),
+                                                      child: Image.asset(
+                                                        'assets/images/blood-effect.png',
+                                                        width: 62.w,
+                                                        height: 78.h,
+                                                        fit: BoxFit.fill,
+                                                        alignment: Alignment.topLeft,
                                                       ),
                                                     )
+                                                
                                                 ],
                                               ),
+                                              
                                               Container(
                                                 margin: EdgeInsets.only(top: 2.h),
                                                 width: 75.w,
@@ -2562,25 +2586,45 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                           SizedBox(height: 10.h),
                                                       
                                           //? ROLE CARD IMAGE
-                                          Container(
-                                            width: deviceWidth * 0.174, 
-                                            height: deviceHeight * 0.106,
-                                            decoration: BoxDecoration(
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: ['mafia', 'informant', 'terrorist', 'barman'].contains(role.toLowerCase()) ? const Color(0xFF000000) : const Color(0xFFFFD77E),
-                                                  blurRadius: 12.0.r, 
-                                                  spreadRadius: -2.r, 
-                                                  offset: Offset.zero, 
+                                          Stack(
+                                            children: [
+                                              Container(
+                                                width: deviceWidth * 0.174, 
+                                                height: deviceHeight * 0.106,
+                                                decoration: BoxDecoration(
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: !isAliveMyself ? const Color(0xFF831611) : ['mafia', 'informant', 'kamikaze', 'barman'].contains(role.toLowerCase()) ? const Color(0xFF000000) : const Color(0xFFFFD77E),
+                                                      blurRadius: 12.0.r, 
+                                                      spreadRadius: -2.r, 
+                                                      offset: Offset.zero, 
+                                                    ),
+                                                  ],
+                                                  border: Border.all(
+                                                    width: (!isAliveMyself) ? 1.5.w : 0.w,
+                                                    color: (!isAliveMyself) ? const Color(0xFF831611) : Colors.transparent
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(6.r)
                                                 ),
-                                              ],
-                                            ),
-                                            child: RoleCard(
-                                              roleName: role.toLowerCase(), 
-                                              width: deviceWidth * 0.174, 
-                                              height: deviceHeight * 0.106,
-                                              isMini: false,
-                                            ),
+                                                child: RoleCard(
+                                                  roleName: role.toLowerCase(), 
+                                                  width: deviceWidth * 0.174, 
+                                                  height: deviceHeight * 0.106,
+                                                  isMini: false,
+                                                ),
+                                              ),
+                                            
+                                              if (!isAliveMyself)
+                                                IgnorePointer(
+                                                  child: Image.asset(
+                                                    'assets/images/blood-effect.png',
+                                                    width: deviceWidth * 0.174, 
+                                                    height: deviceHeight * 0.106,
+                                                    fit: BoxFit.fill,
+                                                    alignment: Alignment.topLeft,
+                                                  ),
+                                                )
+                                            ],
                                           ),
                                                       
                                           SizedBox(height: 10.h),
@@ -2722,7 +2766,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                                   ),
                                                       
                                                   child: Text(
-                                                    canIVote.value ? "Vote" : AppLocalizations.of(context)!.useSkill,
+                                                    canIVote.value ? AppLocalizations.of(context)!.vote : AppLocalizations.of(context)!.useSkill,
                                                     style: TextStyle(
                                                       fontSize: 15.sp,
                                                       fontWeight: FontWeight.w600,
@@ -2749,10 +2793,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                 height: deviceHeight * 0.4,
                                 decoration: BoxDecoration(
                                   color: Colors.black.withOpacity(0.4),
-                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
+                                  padding: EdgeInsets.all(12.sp),
                                   child: Container(
                                     padding: EdgeInsets.symmetric(vertical: 5.h),
                                     decoration: BoxDecoration(
@@ -2761,7 +2805,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                         color: ['Day', 'DayVoting'].any((e) => e == gamePhase) ? Colors.black : Colors.white,
                                         width: 1.5,
                                       ),
-                                      borderRadius: BorderRadius.circular(12.0),
+                                      borderRadius: BorderRadius.circular(12.r),
                                     ),
                                     child: InGameChatBox(
                                       messages: inGameMessages, 
@@ -2887,8 +2931,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                           // NOTE:    Event: PlayerDead
                           // setState(() {
                           //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').isAlive = false;
-                          //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').role = 'Terrorist';
-                          //   namesOfDead.add(PlayerRole(nickname: 'Player1', role: 'Terrorist'));
+                          //   inGamePlayers.firstWhere((inplayer) => inplayer.nickname == 'Player1').role = 'Kamikaze';
+                          //   namesOfDead.add(PlayerRole(nickname: 'Player1', role: 'Kamikaze'));
                           //   printInGamePlayers();
                           // });
         
@@ -3224,7 +3268,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                               return;
                                             }
                                             
-                                            if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
+                                            if (['Mafia', 'Kamikaze'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
                                               return;
                                             }
                                               
@@ -3375,7 +3419,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                           color: 
                                             player.isAlive
                                               ? widget.role == 'Mafia'
-                                                ? ['Mafia', 'Terrorist'].any((el) => el == player.role)
+                                                ? ['Mafia', 'Kamikaze'].any((el) => el == player.role)
                                                   ? Colors.purple
                                                   : player.isRevealed
                                                     ? Colors.amber
@@ -3492,7 +3536,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                             return;
                                           }
                                           
-                                          if (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
+                                          if (['Mafia', 'Kamikaze'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') {
                                             return;
                                           }
                                             
@@ -3512,7 +3556,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                             color: //(!iVoted && canIVote) ? Colors.green : Colors.white, 
                                             (!iVoted && canIVote && player.isAlive) 
                                             //!
-                                              ? (['Mafia', 'Terrorist'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') 
+                                              ? (['Mafia', 'Kamikaze'].any((el) => el == player.role) && widget.role == 'Mafia' && gamePhase == 'NightVoting') 
                                                 ? Colors.white 
                                                 : Colors.green 
                                               : Colors.white, 
@@ -3626,7 +3670,7 @@ class _VotePopupState extends State<VotePopup> {
 
   //   if (widget.markNames.any((el) => el == 'Satisfied')) return;
 
-  //   if (widget.role == 'Terrorist') return;
+  //   if (widget.role == 'Kamikaze') return;
 
   //   await GetIt.I<ApiService>().gameHubConnection.invoke('Vote', args: <Object>[
   //     votedPlayerNickname
@@ -3635,7 +3679,7 @@ class _VotePopupState extends State<VotePopup> {
 
   bool checkIfItIsMafiaAndNight(String playerRole, String myRole, String gamePhase) {
     if (gamePhase == 'NightVoting' && myRole.toLowerCase() == 'mafia') {
-      if (playerRole == 'Mafia' || playerRole == 'Terrorist') {
+      if (playerRole == 'Mafia' || playerRole == 'Kamikaze') {
         return true;
       } else {
         return false;
@@ -3657,7 +3701,7 @@ class _VotePopupState extends State<VotePopup> {
     
     if (widget.role.toLowerCase() == 'informant' && widget.canNightVote) return true; 
 
-    if (widget.gamePhase == 'Night' && (player.role == 'Terrorist' || player.role == 'Mafia') && widget.role == 'Mafia') return false;
+    if (widget.gamePhase == 'Night' && (player.role == 'Kamikaze' || player.role == 'Mafia') && widget.role == 'Mafia') return false;
 
     if (checkIfItIsMafiaAndNight(player.role!, widget.role, widget.gamePhase)) {
       return false;
@@ -3986,7 +4030,7 @@ class _VotePopupState extends State<VotePopup> {
                                       // }
                                   
                                       return Text(
-                                        '${['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? AppLocalizations.of(context)!.timeForDecision : AppLocalizations.of(context)!.pickYourTarget}$minutes:${seconds.toString().padLeft(2, '0')}',
+                                        '${['Day', 'DayVoting'].any((e) => e == widget.gamePhase) ? AppLocalizations.of(context)!.whoIsNext : AppLocalizations.of(context)!.pickYourTarget} $minutes:${seconds.toString().padLeft(2, '0')}',
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -4040,12 +4084,31 @@ class _VotePopupState extends State<VotePopup> {
                                                             //   radius: 15,
                                                             // ),
                                   
-                                                            RoleCard(
-                                                              roleName: player.isRevealed ? player.role!.toLowerCase() : 'noname',
-                                                              width: 30.w, 
-                                                              height: 30.h, 
-                                                              isMini: true,
-                                                              enabled: false,
+                                                            Stack(
+                                                              children: [
+                                                                RoleCard(
+                                                                  roleName: player.isRevealed ? player.role!.toLowerCase() : 'noname',
+                                                                  width: 30.w,
+                                                                  height: 30.h,
+                                                                  isMini: true,
+                                                                  enabled: false,
+                                                                ),
+
+                                                                if (!player.isAlive)
+                                                                  Positioned(
+                                                                    top: 1,
+                                                                    left: 4,
+                                                                    child: IgnorePointer(
+                                                                      child: Image.asset(
+                                                                        'assets/images/blood-effect.png',
+                                                                        width: 20.w,
+                                                                        height: 26.h,
+                                                                        fit: BoxFit.fill,
+                                                                        alignment: Alignment.topRight,
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                              ],
                                                             ),
                                   
                                                             SizedBox(width: 5.w),
@@ -4119,7 +4182,7 @@ class _VotePopupState extends State<VotePopup> {
                                                                 ),
                                                                 
                                                                 child: Text(
-                                                                  AppLocalizations.of(context)!.vote,
+                                                                  AppLocalizations.of(context)!.choose,
                                                                   //! DYNAMIC
                                                                   style: TextStyle(
                                                                     fontSize: 15.sp,
@@ -4159,7 +4222,7 @@ class _VotePopupState extends State<VotePopup> {
                                               children: [
                                                 if (player.votesOfPlayer != null && player.votesOfPlayer!.isNotEmpty)
                                                   GridView.builder(
-                                                    padding: EdgeInsets.only(left: 20.w, top: 5.h),
+                                                    padding: EdgeInsets.only(left: 20.w, top: 5.h, right: player.id == authorizedUser.id ? 10.w : 0.w),
                                                     physics: const NeverScrollableScrollPhysics(),
                                                     shrinkWrap: true,
                                                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -4272,7 +4335,7 @@ class _VotePopupState extends State<VotePopup> {
                                             widget.iVoted.value = true;
                                           });
                                   
-                                          if (widget.role.toLowerCase() == 'terrorist') {
+                                          if (widget.role.toLowerCase() == 'kamikaze') {
                                             widget.useSkill([toWhomIVotedId], true);
                                             return;
                                           }
@@ -4292,7 +4355,7 @@ class _VotePopupState extends State<VotePopup> {
                                         ),
                                         
                                         child: Text(
-                                          widget.role.toLowerCase() == 'terrorist' ? AppLocalizations.of(context)!.bombard : AppLocalizations.of(context)!.myMoveIsMade ,
+                                          widget.role.toLowerCase() == 'kamikaze' ? AppLocalizations.of(context)!.bombard : AppLocalizations.of(context)!.myMoveIsMade ,
                                           //! DYNAMIC
                                           style: TextStyle(
                                             fontSize: 15.sp,
@@ -4454,7 +4517,7 @@ class _SkillPopupState extends State<SkillPopup> {
 
     String skillDescription = skillsDescriptions[widget.role.toLowerCase()] ?? AppLocalizations.of(context)!.choose;
 
-    bool fromMafiaTeam = ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.role.toLowerCase());
+    bool fromMafiaTeam = ['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.role.toLowerCase());
 
     return Align(
       alignment: Alignment.center,
@@ -4672,20 +4735,50 @@ class _SkillPopupState extends State<SkillPopup> {
                                   children: [
                                     Row(
                                       children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(50.r),
-                                            border: Border.all(
-                                              width: 1.w,
-                                              color: const Color(0xFFFFFFFF)
-                                            )
-                                          ),
-                                          child: CircleAvatar(
-                                            backgroundImage: NetworkImage(player.avatarUrl!), //!!!!!!!!!!!
-                                            radius: 15.sp,
-                                          ),
+                                        // Container(
+                                        //   decoration: BoxDecoration(
+                                        //     borderRadius: BorderRadius.circular(50.r),
+                                        //     border: Border.all(
+                                        //       width: 1.w,
+                                        //       color: const Color(0xFFFFFFFF)
+                                        //     )
+                                        //   ),
+                                        //   child: CircleAvatar(
+                                        //     backgroundImage: NetworkImage(player.avatarUrl!), //!!!!!!!!!!!
+                                        //     radius: 15.sp,
+                                        //   ),
+                                        // ),
+                                        //? Role Card
+                                        Stack(
+                                          children: [
+                                            RoleCard(
+                                              roleName: player.isRevealed ? player.role!.toLowerCase() : 'noname',
+                                              width: 30.w,
+                                              height: 30.h,
+                                              isMini: true,
+                                              enabled: false,
+                                            ),
+
+                                            if (!player.isAlive)
+                                              Positioned(
+                                                top: 1,
+                                                left: 4,
+                                                child: IgnorePointer(
+                                                  child: Image.asset(
+                                                    'assets/images/blood-effect.png',
+                                                    width: 20.w,
+                                                    height: 26.h,
+                                                    fit: BoxFit.fill,
+                                                    alignment: Alignment.topRight,
+                                                  ),
+                                                ),
+                                              )
+                                          ],
                                         ),
+                                  
                                         SizedBox(width: 5.w),
+
+                                        // TEXT:    Player Nickname
                                         Row(
                                           children: [
                                             Text(
@@ -4989,7 +5082,7 @@ class _RoleTooltipCardState extends State<RoleTooltipCard> with SingleTickerProv
     'informant': AppLocalizations.of(context)!.informant,
     'sheriff': AppLocalizations.of(context)!.sheriff,
     'journalist': AppLocalizations.of(context)!.journalist,
-    'terrorist': AppLocalizations.of(context)!.terrorist,
+    'kamikaze': AppLocalizations.of(context)!.kamikaze,
     'undef': AppLocalizations.of(context)!.uknown
   };
 
@@ -5244,35 +5337,47 @@ class PopupManager {
   }
 
   void closeWithResult<T>(String id, T result) {
-    final popup = _popupMap[id] as _PopupData<T>?;
-    if (popup == null) return;
-
-    popup.completer.complete(result);
-
-    popup.controller.reverse().then((_) {
-      popup.entry.remove();
-      popup.controller.dispose();
-      _popupMap.remove(id);
-    });
+    try {
+      final popup = _popupMap[id] as _PopupData<T>?;
+      if (popup == null) return;
+      
+      popup.completer.complete(result);
+      
+      popup.controller.reverse().then((_) {
+        popup.entry.remove();
+        popup.controller.dispose();
+        _popupMap.remove(id);
+      });
+    } catch (e) {
+      log('💥 Close With Result Error - $e - Popup Manager 💥');
+    }
   }
 
 
   void close(String id) {
-    final popup = _popupMap[id];
-    if (popup == null) return;
-
-    popup.completer.complete(null);
-
-    popup.controller.reverse().then((_) {
-      popup.entry.remove();
-      popup.controller.dispose();
-      _popupMap.remove(id);
-    });
+    try {
+      final popup = _popupMap[id];
+      if (popup == null) return;
+      
+      popup.completer.complete(null);
+      
+      popup.controller.reverse().then((_) {
+        popup.entry.remove();
+        popup.controller.dispose();
+        _popupMap.remove(id);
+      });
+    } catch (e) {
+      log('💥 Close Error - $e - Popup Manager 💥');
+    }
   }
 
   void closeAll() {
-    for (final id in _popupMap.keys.toList()) {
-      close(id);
+    try {
+      for (final id in _popupMap.keys.toList()) {
+        close(id);
+      }
+    } catch (e) {
+      log('💥 Close All Error - $e - Popup Manager 💥');
     }
   }
 }

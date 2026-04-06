@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
@@ -12,43 +14,122 @@ class TcpClientService {
   static final TcpClientService _instance = TcpClientService._internal();
   factory TcpClientService() => _instance;
   TcpClientService._internal();
+
   Timer? _keepAliveTimer;
-
   SecureSocket? _socket;
-  final _controller = StreamController<String>.broadcast();
 
+  final StreamController<String> _controller = StreamController<String>.broadcast();
   Stream<String> get messages => _controller.stream;
+
+  final ValueNotifier<bool> connectionStatus = ValueNotifier<bool>(true);
 
   bool get isConnected => _socket != null;
 
   Future<void> connect(String host, int port, User user) async {
+    // var connectivityResult = await Connectivity().checkConnectivity();
+
+    // if (connectivityResult.contains(ConnectivityResult.none)) {
+    //   log("🚫 No physical internet. Reconnection aborted - TCP CLIENT SERVICE");
+    //   connectionStatus.value = false;
+    //   return;
+    // }
+
+    // if (_socket != null) return;
+    
+    // try {
+    //   _socket = await SecureSocket.connect(
+    //     host, 
+    //     port,
+    //     onBadCertificate: (X509Certificate cert) => true,
+    //     timeout: const Duration(seconds: 5),
+    //   );
+      
+      // _socket!.listen(
+      //   _onData, 
+      //   onError: (e) {
+      //     log('⚠️ Socket error: $e');
+      //     _handleDisconnect();
+      //   }, 
+      //   onDone: () {
+      //     log('❌ Connection closed');
+      //     _handleDisconnect();
+      //   }
+      // );
+      
+    //   connectionStatus.value = true;
+    //   sendMessage(ClientCommand.authorize.value, user.accessToken);
+      
+      // _keepAliveTimer?.cancel();
+      // _keepAliveTimer =Timer.periodic(const Duration(seconds: 30), (t) {
+      //   if (_socket != null) {
+      //     sendMessage(ClientCommand.ping.value, "");
+      //   }
+      // });
+    // } catch (e) {
+    //   _handleDisconnect();
+    // }
+
     if (_socket != null) return;
-    log('[TCP] Connecting to $host:$port...');
-    _socket = await SecureSocket.connect(
-      host, 
-      port,
-      onBadCertificate: (X509Certificate cert) => true,
-    );
-    log('[TCP] Connected to $host:$port');
-     _socket!.listen(_onData, onError: (e) {
-      log('⚠️ Socket error: $e');
-      disconnect();
-    }, onDone: () {
-      log('❌ Connection closed');
-      disconnect();
-    });
 
-    sendMessage(ClientCommand.authorize.value, user.accessToken);
-    //sendMessage(10000, "");
+    log("[TCP] Starting connection sequence...");
 
-    _keepAliveTimer?.cancel();
-    _keepAliveTimer =Timer.periodic(const Duration(seconds: 30), (t) {
-      if (_socket != null) {
-        sendMessage(ClientCommand.ping.value, "");
+    // Try 3 times with a 2-second delay between attempts
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      try {
+        // Check physical hardware
+        var connectivityResult = await Connectivity().checkConnectivity();
+        if (connectivityResult.contains(ConnectivityResult.none)) {
+          log("⏳ Attempt $attempt: No WiFi/Data hardware active.");
+          await Future.delayed(const Duration(seconds: 2));
+          continue;
+        }
+
+        log("🔌 Attempt $attempt: Connecting to $host:$port...");
+        
+        // Use a slightly longer timeout for the initial handshake
+        _socket = await SecureSocket.connect(
+          host, 
+          port,
+          onBadCertificate: (_) => true,
+          timeout: const Duration(seconds: 7), 
+        );
+
+        // --- SUCCESS ---
+        log("✅ Connected successfully on attempt $attempt");
+        
+        _socket!.listen(
+          _onData, 
+          onError: (e) => _handleDisconnect(), 
+          onDone: () => _handleDisconnect(),
+          cancelOnError: true,
+        );
+
+        connectionStatus.value = true;
+        sendMessage(ClientCommand.authorize.value, user.accessToken);
+        
+        _keepAliveTimer?.cancel();
+        _keepAliveTimer =Timer.periodic(const Duration(seconds: 30), (t) {
+          if (_socket != null) {
+            sendMessage(ClientCommand.ping.value, "");
+          }
+        });
+        
+        return; // Exit the function entirely on success
+
+      } catch (e) {
+        log("❌ Attempt $attempt failed: $e");
+        _socket?.destroy(); // Ensure the partial socket is killed
+        _socket = null;
+        
+        if (attempt < 3) {
+          await Future.delayed(const Duration(seconds: 2));
+        }
       }
-    });
+    }
+
+    // If we reach here, all attempts failed
+    _handleDisconnect();
   }
-  
 
   final List<int> _buffer = [];
 
@@ -94,8 +175,11 @@ class TcpClientService {
   }
 
   void sendMessage(int messageTypeId, String payload) {
-    if (_socket == null) return;
-    // add try catch if error occurs disconnect the tcp (server is not answering)
+    if (_socket == null) {
+      connectionStatus.value = false;
+      return;
+    }
+    
     final payloadBytes = utf8.encode(payload);
     final length = payloadBytes.length;
 
@@ -110,13 +194,21 @@ class TcpClientService {
     _socket!.add(buffer.toBytes());
     log('📤 SEND METHOD | Sent type=$messageTypeId, len=$length, payload="$payload"');
   }
-
-  void disconnect() {
+  
+  void _handleDisconnect() {
     _socket?.destroy();
     _socket = null;
-    _controller.close();
     _keepAliveTimer?.cancel();
-    _keepAliveTimer = null;
+    connectionStatus.value = false;
+  }
+
+  void disconnect() {
+    _handleDisconnect();
+  }
+
+  void dispose() {
+    _handleDisconnect();
+    _controller.close();
     GeneralCacheService().clearAllData();
   }
 }

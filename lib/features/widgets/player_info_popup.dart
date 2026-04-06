@@ -143,18 +143,18 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
     super.dispose();
   }
 
-  String formatLastSeen(DateTime lastSeen) {
+  String formatLastSeen(DateTime lastSeen, BuildContext context) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
 
     if (difference.inSeconds < 59) {
-      return "less than a minute";
+      return AppLocalizations.of(context)!.lessThanAMinute;
     } else if (difference.inMinutes < 60) {
-      return "${difference.inMinutes} mins ago";
+      return "${difference.inMinutes} ${AppLocalizations.of(context)!.minsAgo}";
     } else if (difference.inHours < 24) {
-      return "${difference.inHours} hours ago";
+      return "${difference.inHours} ${AppLocalizations.of(context)!.hoursAgo}";
     } else if (difference.inDays < 31) {
-      return "${difference.inDays} days ago";
+      return "${difference.inDays} ${AppLocalizations.of(context)!.daysAgo}";
     } else {
       return DateFormat('dd.MM.yyyy').format(lastSeen.toLocal());
     }
@@ -277,7 +277,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                       children: [
                         // TEXT:    Profile
                         Text(
-                          "Player Profile",
+                          AppLocalizations.of(context)!.playerProfile,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 32.sp,
                             color: const Color(0xFF000000)
@@ -323,7 +323,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   
                                       // TEXT:    IS ONLINE
                                       Text(
-                                        playerInfo!.isOnline ? S.of(context).online : S.of(context).offline,
+                                        playerInfo!.isOnline ? AppLocalizations.of(context)!.online : AppLocalizations.of(context)!.offline,
                                         style: TextStyle(
                                           fontSize: 14.sp,
                                           fontFamily: 'CenturyGothic',
@@ -367,7 +367,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                 children: [
                                   // TEXT:    JOIN DATE
                                   Text(
-                                    S.of(context).joinDate,
+                                    AppLocalizations.of(context)!.joinDate,
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontFamily: 'CenturyGothic',
@@ -451,7 +451,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     children: [
                                       // TEXT:    NICKNAME
                                       Text(
-                                        "Nickname:  ",
+                                        "${AppLocalizations.of(context)!.nickname}:  ",
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -461,7 +461,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                       
                                       // TEXT:    JOIN DATE
                                       Text(
-                                        playerInfo!.isOnline ? "Status:  " : "Last seen:  ",
+                                        playerInfo!.isOnline ? "${AppLocalizations.of(context)!.status}:  " : "${AppLocalizations.of(context)!.lastSeen}:  ",
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -494,7 +494,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   
                                   // TEXT:    JOIN DATE
                                   Text(
-                                    playerInfo!.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(playerInfo!.lastSeen!),
+                                    playerInfo!.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(playerInfo!.lastSeen!, context),
                                     style: TextStyle(
                                       fontSize: 15.sp,
                                       fontFamily: 'CenturyGothic',
@@ -548,7 +548,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      S.of(context).report,
+                                      AppLocalizations.of(context)!.report,
                                       style: TextStyle(
                                         fontSize: 15.sp,
                                         fontFamily: 'CenturyGothic',
@@ -582,7 +582,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 8.w),
                                       child: Text(
-                                        S.of(context).addToFriends,
+                                        AppLocalizations.of(context)!.addToFriends,
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -617,7 +617,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 8.w),
                                       child: Text(
-                                        "Delete friend",
+                                        AppLocalizations.of(context)!.deleteFriend,
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -656,7 +656,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                           child: Padding(
                                             padding: EdgeInsets.symmetric(horizontal: 8.w),
                                             child: Text(
-                                              "Accept request",
+                                              AppLocalizations.of(context)!.acceptRequest,
                                               style: TextStyle(
                                                 fontSize: 15.sp,
                                                 fontFamily: 'CenturyGothic',
@@ -691,7 +691,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                           child: Padding(
                                             padding: EdgeInsets.symmetric(horizontal: 8.w),
                                             child: Text(
-                                              "Reject request",
+                                              AppLocalizations.of(context)!.rejectRequest,
                                               style: TextStyle(
                                                 fontSize: 15.sp,
                                                 fontFamily: 'CenturyGothic',
@@ -728,7 +728,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 8.w),
                                       child: Text(
-                                        "Cancel request",
+                                        AppLocalizations.of(context)!.cancelRequest,
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -798,7 +798,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            S.of(context).chat,
+                                            AppLocalizations.of(context)!.chat,
                                             style: TextStyle(
                                               fontSize: 15.sp,
                                               fontFamily: 'CenturyGothic',
@@ -861,7 +861,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         ? Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.h),
                           child: Text(
-                            playerInfo!.isOnline ? "Currently is not in a room" : S.of(context).currentlyOffline,
+                            playerInfo!.isOnline ? "Currently is not in a room" : AppLocalizations.of(context)!.currentlyOffline,
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 20.sp,
                               color: const Color(0xFF4F4F4F)
@@ -873,7 +873,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             Padding(
                               padding: EdgeInsets.only(top: 4.h),
                               child: Text(
-                                S.of(context).currentlyArePlayingIn,
+                                AppLocalizations.of(context)!.currentlyArePlayingIn,
                                 style: GoogleFonts.playfairDisplay(
                                   fontSize: 20.sp,
                                   color: const Color(0xFF4F4F4F)
@@ -949,7 +949,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     
                                         // TEXT:    Players in total
                                         Text(
-                                          S.of(context).playersInTotal,
+                                          AppLocalizations.of(context)!.playersInTotal,
                                           style: TextStyle(
                                             fontSize: 13.sp,
                                             fontFamily: 'CenturyGothic',
@@ -978,7 +978,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                         ////? STATS
                         // TEXT:    STATS
                         Text(
-                          S.of(context).stats,
+                          AppLocalizations.of(context)!.stats,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 20.sp,
                             color: Colors.black
@@ -999,7 +999,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             children: [
                               // TEXT:    OVERALL
                               Text(
-                                S.of(context).overall,
+                                AppLocalizations.of(context)!.overall,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontFamily: 'CenturyGothic',
@@ -1038,7 +1038,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     children: [
                                       // TEXT:    WINS
                                       Text(
-                                        S.of(context).wins,
+                                        AppLocalizations.of(context)!.wins,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -1050,7 +1050,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                                         
                                       // TEXT:    WINS
                                       Text(
-                                        S.of(context).loses,
+                                        AppLocalizations.of(context)!.loses,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -1117,7 +1117,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                     children: [
                                       // TEXT:    MAFIA WINS
                                       Text(
-                                        S.of(context).mafiaWins,
+                                        AppLocalizations.of(context)!.mafiaWins,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -1129,7 +1129,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                                         
                                       // TEXT:    CIVILIAN WINS
                                       Text(
-                                        S.of(context).civilianWins,
+                                        AppLocalizations.of(context)!.civilianWins,
                                         style: TextStyle(
                                           fontSize: 13.sp,
                                           fontFamily: 'CenturyGothic',
@@ -1201,7 +1201,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                       
                         // TEXT:    PLAYED ROLES
                         Text(
-                          S.of(context).playedRoles,
+                          AppLocalizations.of(context)!.playedRoles,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 20.sp,
                             color: Colors.black
@@ -1254,7 +1254,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                             SizedBox(width: cardsMargin),
 
                             //? TERRORIST
-                            WinRole(role: 'Terrorist', winCount: playerInfo!.terroristRolePlayedGames),
+                            WinRole(role: 'Kamikaze', winCount: playerInfo!.kamikazeRolePlayedGames),
                             SizedBox(width: cardsMargin),
 
                             //? INFORMANT
@@ -1308,7 +1308,7 @@ class PlayerInfo {
   final int mafiaRolePlayedGames;
   final int informantRolePlayedGames;
   final int barmanRolePlayedGames;
-  final int terroristRolePlayedGames;
+  final int kamikazeRolePlayedGames;
 
   PlayerInfo({
     required this.civilianRolePlayedGames, 
@@ -1321,7 +1321,7 @@ class PlayerInfo {
     required this.mafiaRolePlayedGames, 
     required this.informantRolePlayedGames, 
     required this.barmanRolePlayedGames, 
-    required this.terroristRolePlayedGames,
+    required this.kamikazeRolePlayedGames,
 
     required this.id,
     required this.nickname, 
@@ -1403,7 +1403,7 @@ class PlayerInfo {
       spyRolePlayedGames: json['stats']['spyRolePlayedGames'] ?? 0,
       civilianRolePlayedGames: json['stats']['civilianRolePlayedGames'] ?? 0,
       mafiaRolePlayedGames: json['stats']['mafiaRolePlayedGames'] ?? 0,
-      terroristRolePlayedGames: json['stats']['terroristRolePlayedGames'] ?? 0,
+      kamikazeRolePlayedGames: json['stats']['kamikazeRolePlayedGames'] ?? 0,
       informantRolePlayedGames: json['stats']['informantRolePlayedGames'] ?? 0,
       barmanRolePlayedGames: json['stats']['barmanRolePlayedGames'] ?? 0,
 
@@ -1465,7 +1465,7 @@ PlayerInfo(
       mafiaRolePlayedGames = other.mafiaRolePlayedGames,
       informantRolePlayedGames = other.informantRolePlayedGames,
       barmanRolePlayedGames = other.barmanRolePlayedGames,
-      terroristRolePlayedGames = other.terroristRolePlayedGames;
+      kamikazeRolePlayedGames = other.kamikazeRolePlayedGames;
 
       
 }
@@ -1498,7 +1498,7 @@ class _WinRoleState extends State<WinRole> with SingleTickerProviderStateMixin {
     'informant': AppLocalizations.of(context)!.informant,
     'sheriff': AppLocalizations.of(context)!.sheriff,
     'journalist': AppLocalizations.of(context)!.journalist,
-    'terrorist': AppLocalizations.of(context)!.terrorist,
+    'kamikaze': AppLocalizations.of(context)!.kamikaze,
     'undef': AppLocalizations.of(context)!.uknown
   };
   
@@ -1619,8 +1619,8 @@ class _WinRoleState extends State<WinRole> with SingleTickerProviderStateMixin {
       case "Spy":
         return 'assets/images/role-card-mark-spy.png';
 
-      case "Terrorist":
-        return 'assets/images/role-card-mark-terrorist.png';
+      case "Kamikaze":
+        return 'assets/images/role-card-mark-kamikaze.png';
 
       case "Informant":
         return 'assets/images/role-card-mark-revealed.png';
@@ -1903,7 +1903,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                             // TEXT:    Profile
                             /*
                             Text(
-                              S.of(context).profile,
+                              AppLocalizations.of(context)!.profile,
                               style: GoogleFonts.playfairDisplay(
                                 fontSize: 32.sp,
                                 color: const Color(0xFF000000)
@@ -2037,7 +2037,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                       
                                           // TEXT:    IS ONLINE
                                           Text(
-                                            S.of(context).online,
+                                            AppLocalizations.of(context)!.online,
                                             style: TextStyle(
                                               fontSize: 14.sp,
                                               fontFamily: 'CenturyGothic',
@@ -2068,7 +2068,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                     children: [
                                       // TEXT:    JOIN DATE
                                       Text(
-                                        S.of(context).joinDate,
+                                        AppLocalizations.of(context)!.joinDate,
                                         style: TextStyle(
                                           fontSize: 14.sp,
                                           fontFamily: 'CenturyGothic',
@@ -2109,7 +2109,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                     children: [
                                       // TEXT:    NICKNAME
                                       Text(
-                                        "Nickname:  ",
+                                        "${AppLocalizations.of(context)!.nickname}:",
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -2119,7 +2119,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                       
                                       // TEXT:    JOIN DATE
                                       Text(
-                                        "${S.of(context).joinDate}:  ",
+                                        "${AppLocalizations.of(context)!.joinDate}:  ",
                                         style: TextStyle(
                                           fontSize: 15.sp,
                                           fontFamily: 'CenturyGothic',
@@ -2194,7 +2194,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                             ////? STATS
                             // TEXT:    STATS
                             Text(
-                              S.of(context).stats,
+                              AppLocalizations.of(context)!.stats,
                               style: GoogleFonts.playfairDisplay(
                                 fontSize: 20.sp,
                                 color: Colors.black
@@ -2215,7 +2215,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                 children: [
                                   // TEXT:    OVERALL
                                   Text(
-                                    S.of(context).overall,
+                                    AppLocalizations.of(context)!.overall,
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontFamily: 'CenturyGothic',
@@ -2254,7 +2254,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                         children: [
                                           // TEXT:    WINS
                                           Text(
-                                            S.of(context).wins,
+                                            AppLocalizations.of(context)!.wins,
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontFamily: 'CenturyGothic',
@@ -2266,7 +2266,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                                             
                                           // TEXT:    WINS
                                           Text(
-                                            S.of(context).loses,
+                                            AppLocalizations.of(context)!.loses,
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontFamily: 'CenturyGothic',
@@ -2333,7 +2333,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                         children: [
                                           // TEXT:    MAFIA WINS
                                           Text(
-                                            S.of(context).mafiaWins,
+                                            AppLocalizations.of(context)!.mafiaWins,
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontFamily: 'CenturyGothic',
@@ -2345,7 +2345,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                                             
                                           // TEXT:    CIVILIAN WINS
                                           Text(
-                                            S.of(context).civilianWins,
+                                            AppLocalizations.of(context)!.civilianWins,
                                             style: TextStyle(
                                               fontSize: 13.sp,
                                               fontFamily: 'CenturyGothic',
@@ -2419,7 +2419,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                           
                             // TEXT:    PLAYED ROLES
                             Text(
-                              S.of(context).playedRoles,
+                              AppLocalizations.of(context)!.playedRoles,
                               style: GoogleFonts.playfairDisplay(
                                 fontSize: 20.sp,
                                 color: Colors.black
@@ -2472,7 +2472,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> with RouteAware {
                                 SizedBox(width: cardsMargin),
         
                                 //? TERRORIST
-                                WinRole(role: 'Terrorist', winCount: playerInfo!.terroristRolePlayedGames),
+                                WinRole(role: 'Kamikaze', winCount: playerInfo!.kamikazeRolePlayedGames),
                                 SizedBox(width: cardsMargin),
         
                                 //? INFORMANT

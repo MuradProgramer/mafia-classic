@@ -46,7 +46,7 @@ class _RoleCardState extends State<RoleCard> with SingleTickerProviderStateMixin
     'informant': AppLocalizations.of(context)!.informant,
     'sheriff': AppLocalizations.of(context)!.sheriff,
     'journalist': AppLocalizations.of(context)!.journalist,
-    'terrorist': AppLocalizations.of(context)!.terrorist,
+    'kamikaze': AppLocalizations.of(context)!.kamikaze,
     'undef': AppLocalizations.of(context)!.uknown,
     'uknown': AppLocalizations.of(context)!.uknown,
     'noname': AppLocalizations.of(context)!.uknown,
@@ -54,37 +54,37 @@ class _RoleCardState extends State<RoleCard> with SingleTickerProviderStateMixin
 
   String getAssetByRole() {
     switch (widget.roleName.toLowerCase()) {
-      case "mafia":
+      case "mafia" || "lastmafia":
         return 'assets/images/role-card-mark-mafia.png';
 
       case "civilian":
         return 'assets/images/role-card-mark-civilian.png';
 
-      case "bodyguard":
+      case "bodyguard" || "protected":
         return 'assets/images/role-card-mark-protected.png';
 
-      case "journalist":
+      case "journalist" || "interviewed":
         return 'assets/images/role-card-mark-interviewed.png';
 
-      case "beauty":
+      case "beauty" || "satisfied":
         return 'assets/images/role-card-mark-satisfied.png';
 
-      case "doctor":
+      case "doctor" || "cured":
         return 'assets/images/role-card-mark-cured.png';
         
-      case "sheriff":
+      case "sheriff" || "investigated":
         return 'assets/images/role-card-mark-investigated.png';
 
       case "spy":
         return 'assets/images/role-card-mark-spy.png';
 
-      case "terrorist":
-        return 'assets/images/role-card-mark-terrorist.png';
+      case "kamikaze":
+        return 'assets/images/role-card-mark-kamikaze.png';
 
-      case "informant":
+      case "informant" || "revealed":
         return 'assets/images/role-card-mark-revealed.png';
 
-      case "barman":
+      case "barman" || "intoxicated":
         return 'assets/images/role-card-mark-intoxicated.png';
 
       default:

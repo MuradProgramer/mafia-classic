@@ -27,7 +27,7 @@ class _RolesScreenState extends State<RolesScreen> {
     final double deviceWidth = MediaQuery.of(context).size.width;
 
     final buttonHeight = deviceHeight * 0.045;
-    final buttonWidth = deviceWidth * 0.27;
+    final buttonWidth = deviceWidth * 0.30;
     final buttonTextFontSize = deviceWidth * 0.057;
 
     //"assets/images/roles-${selectedTabIndex == 0 ? "civilians" : "mafias"}-background.png"
@@ -39,7 +39,7 @@ class _RolesScreenState extends State<RolesScreen> {
       child: Scaffold(
       
         body: Container(
-          padding: EdgeInsets.only(top: 60.h, left: 10.w, right: 10.w, bottom: 10.h),
+          padding: EdgeInsets.only(top: 40.h, left: 10.w, right: 10.w, bottom: 10.h),
           child: Column(
             children: [
                 
@@ -117,7 +117,7 @@ class _RolesScreenState extends State<RolesScreen> {
                 
                     Image.asset(
                       'assets/images/roles-line.png',
-                      width: deviceWidth * 0.32,
+                      width: deviceWidth * 0.25,
                       height: deviceHeight * 0.018,
                     ),
                 
@@ -263,7 +263,7 @@ class _MafiasTabState extends State<MafiasTab> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RoleCard(roleName: 'terrorist', width: cardWidth, height: cardHeight, isMini: false),
+              RoleCard(roleName: 'kamikaze', width: cardWidth, height: cardHeight, isMini: false),
               SizedBox(height: 10.h),
               RoleCard(roleName: 'barman', width: cardWidth, height: cardHeight, isMini: false),
             ],

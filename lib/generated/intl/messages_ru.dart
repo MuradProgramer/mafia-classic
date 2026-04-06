@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ru';
 
   static String m0(playerNickname) =>
-      "Terrorist tried to bomb [\$playerNickname], but bodyguard saved him/her";
+      "Kamikaze tried to bomb [\$playerNickname], but bodyguard saved him/her";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -125,7 +125,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "friends": MessageLookupByLibrary.simpleMessage("Друзья"),
         "friendsIn": MessageLookupByLibrary.simpleMessage("Друзья в"),
         "gameStarted": MessageLookupByLibrary.simpleMessage("Игра Началась"),
-        "gameTerroristExplosion": m0,
+        "gameKamikazeExplosion": m0,
         "games": MessageLookupByLibrary.simpleMessage("Игры"),
         "gamesPlayed": MessageLookupByLibrary.simpleMessage("Игры"),
         "gamesWon": MessageLookupByLibrary.simpleMessage("Выигрыши"),
@@ -250,7 +250,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Шериф - мирный житель. Является одним из самых основных игроков в игре Мафия. Каждую ночь он может исследовать другого игрока и узнать кто в игре Мафиози, а кто мирный житель."),
         "roleSpyDescription": MessageLookupByLibrary.simpleMessage(
             "Шпион - мирный житель. Видит о чем общается мафия ночью, но не видит личностей мафии."),
-        "roleTerroristDescription": MessageLookupByLibrary.simpleMessage(
+        "roleKamikazeDescription": MessageLookupByLibrary.simpleMessage(
             "Террорист - играет на стороне команды мафии, но сам не является членом мафии. Мафия знает его личность, но террорист не знает личности членов мафии. Террорист имеет одну особую способность. В любое время в течение дневного голосования террорист может взорвать любого игрока, убив и себя, и жертву. Террорист не может быть убит мафией в ночное время. Таким образом, террорист должен помочь мафии выиграть, используя свою жизнь. Независимо от того, был ли убит террорист, он получит очки опыта в конце игры, если победит мафия."),
         "roles": MessageLookupByLibrary.simpleMessage("Роли"),
         "roomName": MessageLookupByLibrary.simpleMessage("Название Комнаты"),
@@ -286,7 +286,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "starting": MessageLookupByLibrary.simpleMessage("Начало:"),
         "stats": MessageLookupByLibrary.simpleMessage("Статистика"),
         "stillHere": MessageLookupByLibrary.simpleMessage("Всё ещё здесь"),
-        "terrorist": MessageLookupByLibrary.simpleMessage("Террорист"),
+        "kamikaze": MessageLookupByLibrary.simpleMessage("Террорист"),
         "title": MessageLookupByLibrary.simpleMessage("Title"),
         "today": MessageLookupByLibrary.simpleMessage("За Сегодня"),
         "trustedIndividuals":

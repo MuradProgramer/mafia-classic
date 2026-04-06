@@ -5,10 +5,10 @@ import 'package:mafia_classic/models/models.dart';
 
 final routes = {
   '/': (context) => const SplashScreen(),
-  '/profile': (context) {
-    final user = ModalRoute.of(context)!.settings.arguments as User;
-    return ProfileScreen(user: user);
-  },
+  // '/profile': (context) {
+  //   final user = ModalRoute.of(context)!.settings.arguments as User;
+  //   return ProfileScreen(user: user);
+  // },
   '/profile/friends': (context) => const FriendsScreen(),
   '/profile/roles': (context) => const RolesScreen(),
   //'/profile/ratings': (context) => const RatingsScreen(),

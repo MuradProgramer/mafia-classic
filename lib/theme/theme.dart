@@ -13,19 +13,19 @@ final theme = ThemeData(
   //colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
 
 
-  primaryColor: const Color(0xff6200ee),
-  primaryColorDark: const Color(0xff3700B3),
+  primaryColor: const Color(0xFFFFB000),
+  primaryColorDark: const Color.fromARGB(255, 255, 145, 0),
   cardColor: const Color(0xff03DAC5),
 
 
   textSelectionTheme: const TextSelectionThemeData(
-    selectionHandleColor: Color(0xFF3E3E3E), 
+    selectionHandleColor: Color(0xFFFFB000), 
   ),
   iconTheme: const IconThemeData(color: Colors.white),
   useMaterial3: true,
   scaffoldBackgroundColor: Colors.transparent,
   appBarTheme: const AppBarTheme(
-    backgroundColor:  Color(0xff3700B3),
+    backgroundColor:  Color(0xFFFFB000),
     iconTheme: IconThemeData(color: Colors.white),
     titleTextStyle: TextStyle(
       color: Colors.white,
@@ -51,7 +51,7 @@ final theme = ThemeData(
       padding: EdgeInsets.zero, 
       textStyle: const TextStyle(fontSize: 18), 
       minimumSize: Size(width * 0.8, 50),
-      backgroundColor: const Color(0xff3700B3),          
+      backgroundColor: const Color(0xFFFFB000),          
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15)))   
     )
   )

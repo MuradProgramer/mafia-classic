@@ -29,7 +29,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
     'informant': AppLocalizations.of(context)!.rolesGeneralDescriptionInformant,
     'sheriff': AppLocalizations.of(context)!.rolesGeneralDescriptionSheriff,
     'journalist': AppLocalizations.of(context)!.rolesGeneralDescriptionJournalist,
-    'terrorist': AppLocalizations.of(context)!.rolesGeneralDescriptionTerrorist,
+    'kamikaze': AppLocalizations.of(context)!.rolesGeneralDescriptionKamikaze,
   };
 
   Map<String, String> get rolesObjective => {
@@ -43,7 +43,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
     'informant': AppLocalizations.of(context)!.rolesObjectiveInformant,
     'sheriff': AppLocalizations.of(context)!.rolesObjectiveSheriff,
     'journalist': AppLocalizations.of(context)!.rolesObjectiveJournalist,
-    'terrorist': AppLocalizations.of(context)!.rolesObjectiveTerrorist,
+    'kamikaze': AppLocalizations.of(context)!.rolesObjectiveKamikaze,
   };
 
   Map<String, String> get rolesDayPhase => {
@@ -57,10 +57,10 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
     'informant': AppLocalizations.of(context)!.rolesDayPhaseInformant,
     'sheriff': AppLocalizations.of(context)!.rolesDayPhaseSheriff,
     'journalist': AppLocalizations.of(context)!.rolesDayPhaseJournalist,
-    'terrorist': AppLocalizations.of(context)!.rolesDayPhaseTerrorist,
+    'kamikaze': AppLocalizations.of(context)!.rolesDayPhaseKamikaze,
   };
 
-  List<String> exceptionRolesForSecondTitle = ['bodyguard', 'terrorist'];
+  List<String> exceptionRolesForSecondTitle = ['bodyguard', 'kamikaze'];
 
   List<String> exceptionRolesForThirdTitle = ['doctor', 'beauty', 'barman', 'informant', 'sheriff', 'journalist'];
 
@@ -75,7 +75,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
     'informant': AppLocalizations.of(context)!.rolesThirdDescriptionInformant,
     'sheriff': AppLocalizations.of(context)!.rolesThirdDescriptionSheriff,
     'journalist': AppLocalizations.of(context)!.rolesThirdDescriptionJournalist,
-    'terrorist': AppLocalizations.of(context)!.rolesThirdDescriptionTerrorist,
+    'kamikaze': AppLocalizations.of(context)!.rolesThirdDescriptionKamikaze,
   };
 
   Map<String, String> get rolesWinningConditions => {
@@ -89,10 +89,10 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
     'informant': AppLocalizations.of(context)!.rolesWinningConditionsInformant,
     'sheriff': AppLocalizations.of(context)!.rolesWinningConditionsSheriff,
     'journalist': AppLocalizations.of(context)!.rolesWinningConditionsJournalist,
-    'terrorist': AppLocalizations.of(context)!.rolesWinningConditionsTerrorist,
+    'kamikaze': AppLocalizations.of(context)!.rolesWinningConditionsKamikaze,
   };
 
-  bool get fromMafiaTeam => ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName);
+  bool get fromMafiaTeam => ['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName);
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +117,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
+                color: ['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName) 
                   ? Colors.white 
                   : const Color(0xFF494239),
                 width: 2,
@@ -148,7 +148,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                               
                             },
                             child: Image.asset(
-                              ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
+                              ['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName) 
                                 ? 'assets/images/close-white-icon.png'
                                 : 'assets/images/icon-close-grey.png',
                               height: 30.h,
@@ -186,7 +186,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                     // Padding(
                     //   padding: EdgeInsets.symmetric(vertical: 8.h),
                     //   child: Image.asset(
-                    //     ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
+                    //     ['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName) 
                     //       ? 'assets/images/pattern-2.png'
                     //       : 'assets/images/pattern-1.png',
                     //     height: 20.h,
@@ -200,7 +200,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                       width: double.maxFinite,
                       margin: EdgeInsets.all(10.sp),
                       decoration: BoxDecoration(
-                        gradient: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName)? const RadialGradient(
+                        gradient: ['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName)? const RadialGradient(
                           center: Alignment.center,
                           radius: 0.8,
                           colors: [
@@ -209,9 +209,9 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                           ],
                           stops: [0.0, 1.0],
                         ) : null,
-                        color: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName)  ? null : const Color(0xFFFFF0D2),
+                        color: ['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName)  ? null : const Color(0xFFFFF0D2),
                         border: Border.all(
-                          color: ['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) 
+                          color: ['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName) 
                             ? const Color(0xFFFFFFFF)
                             : const Color(0xFF494239),
                           width: 2.0,
@@ -228,7 +228,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                 top: ornamentMargin,
                                 left: ornamentMargin,
                                 child: Image.asset(
-                                  "assets/images/game-ornament-${['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) ? "night" : "day"}.png",
+                                  "assets/images/game-ornament-${['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName) ? "night" : "day"}.png",
                                   width: ornamentSize,
                                   height: ornamentSize,
                                 ),
@@ -240,7 +240,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                 child: Transform.rotate(
                                   angle: 90 * 3.14159 / 180, // 90 degrees in radians
                                   child: Image.asset(
-                                    "assets/images/game-ornament-${['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) ? "night" : "day"}.png",
+                                    "assets/images/game-ornament-${['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName) ? "night" : "day"}.png",
                                     width: ornamentSize,
                                     height: ornamentSize,
                                   ),
@@ -253,7 +253,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                 child: Transform.rotate(
                                   angle: 270 * 3.14159 / 180, // 270 degrees in radians
                                   child: Image.asset(
-                                    "assets/images/game-ornament-${['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) ? "night" : "day"}.png",
+                                    "assets/images/game-ornament-${['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName) ? "night" : "day"}.png",
                                     width: ornamentSize,
                                     height: ornamentSize,
                                   ),
@@ -266,7 +266,7 @@ class _RoleCardPopupState extends State<RoleCardPopup> {
                                 child: Transform.rotate(
                                   angle: 180 * 3.14159 / 180, // 180 degrees in radians
                                   child: Image.asset(
-                                    "assets/images/game-ornament-${['mafia', 'terrorist', 'barman', 'informant'].any((e) => e == widget.roleName) ? "night" : "day"}.png",
+                                    "assets/images/game-ornament-${['mafia', 'kamikaze', 'barman', 'informant'].any((e) => e == widget.roleName) ? "night" : "day"}.png",
                                     width: ornamentSize,
                                     height: ornamentSize,
                                   ),

@@ -6,22 +6,15 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mafia_classic/features/games/view/view.dart';
-import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/friends/models/models.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/widgets/widgets.dart';
-import 'package:mafia_classic/generated/intl/messages_en.dart';
-import 'package:mafia_classic/mafia_classic_app.dart';
-import 'package:mafia_classic/main.dart';
 import 'package:mafia_classic/models/models.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
 import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 import 'package:mafia_classic/services/tcp/event_bus.dart';
-import 'package:signalr_netcore/ihub_protocol.dart';
-import 'package:signalr_netcore/signalr_client.dart';
- 
+
 import 'token_aware_service.dart';
 import 'package:intl/intl.dart';
 
@@ -499,174 +492,199 @@ class ApiService extends TokenAwareService {
 
   @override
   Future<void> refreshToken() async {
-    log(
-        '@@@@@@@@Access token expired. Attempting to refresh NO 1... AuthService@@@@@@@@',
-      );
-    final response = await GetIt.I<DioService>().dio.post(
-      'Account/RefreshToken',
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $_refreshToken'
-        }
-      )
-    );
-
-    log(
-        '@@@@@@@@Access token expired. Attempting to refresh NO 2... AuthService@@@@@@@@',
-      );
-    
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = response.data as Map<String, dynamic>;
-
-      _accessToken = data['accessToken'];
-      _expiration = DateTime.parse(data['expiration']).toUtc();
-      _refreshToken = data['refreshToken'];
-      await SharedPrefsService.saveTokens(
-        accessToken: _accessToken,
-        refreshToken: _refreshToken,
-        expiration: _expiration,
-        nickname: SharedPrefsService.getUserNickname()!,
-        avatarUrl: SharedPrefsService.getUserAvatarUrl()!,
-        email: SharedPrefsService.getUserEmail()!,
-        id: SharedPrefsService.getUserId()!,
-      );
-    } else if(response.statusCode == 401) {
-      log(
-        '@@@@@@@@Access token expired. Attempting to refresh NO 401... AuthService@@@@@@@@',
-      );
-      // go to sign in page
-    } else {
-      throw Exception('Failed to refresh token');
-    }
-  }
-
-
-
-  // ++++++
-  Future<List<Friendship>?> getFriends() async {
-    List<Friendship>? friendList = [];
-    //!!!!!!!!!!
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.get(
-        'Friend/All',
+    try {
+      final response = await GetIt.I<DioService>().dio.post(
+        'Account/RefreshToken',
         options: Options(
           headers: {
-            'Authorization': 'Bearer $accessToken'
+            'Authorization': 
+            'Bearer $_refreshToken'
           }
         )
       );
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonData = response.data as List<dynamic>;
-    
-        friendList = jsonData.isEmpty ? null : jsonData.map((item) {
-          return Friendship.fromJson(item as Map<String, dynamic>);
-        }).toList();
+        final Map<String, dynamic> data = response.data as Map<String, dynamic>;
+
+        _accessToken = data['accessToken'];
+        _expiration = DateTime.parse(data['expiration']).toUtc();
+        _refreshToken = data['refreshToken'];
+
+        await SharedPrefsService.saveTokens(
+          accessToken: _accessToken,
+          refreshToken: _refreshToken,
+          expiration: _expiration,
+          nickname: SharedPrefsService.getUserNickname()!,
+          avatarUrl: SharedPrefsService.getUserAvatarUrl()!,
+          email: SharedPrefsService.getUserEmail()!,
+          id: SharedPrefsService.getUserId()!,
+        );
+      } else if (response.statusCode == 401) {
+        throw Exception('Failed to refresh token ERROR CODE 401');
       } else {
-        throw Exception('Failed to load friends');
+        throw Exception('Failed to refresh token');
       }
-    });
-    return friendList;
+    } catch (e) {
+      log('💥 Refresh Token Error - $e - API Service 💥');
+    }
   }
 
+  // DONE
+  Future<List<Friendship>?> getFriends() async {
+    List<Friendship>? friendList = [];
+
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.get(
+          'Friend/All',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken'
+            }
+          )
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> jsonData = response.data as List<dynamic>;
+
+          friendList = jsonData.isEmpty
+            ? null
+            : jsonData.map((item) {
+                return Friendship.fromJson(item as Map<String, dynamic>);
+              }).toList();
+        } else {
+          throw Exception('Failed to load friends');
+        }
+      });
+    } catch (e) {
+      log('💥 Get Friends Error - API Service 💥');
+    }
+    return friendList;
+  }
 
   // DONE partially
   Future<Map<String, dynamic>?> sendNewMessageToFriend(int id, String content) async {
     Map<String, dynamic>? result;
-    await executeWithTokenCheck((accessToken) async {
-      final body = jsonEncode({
-        'content': content
+
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final body = jsonEncode({'content': content});
+
+        final response = await GetIt.I<DioService>().dio.post(
+          'conversation/$id/messages',
+          data: body,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken'
+            }
+          )
+        );
+
+        if (response.statusCode == 200) {
+          Map<String, dynamic> jsonData = response.data;
+          result = {
+            'messageId': jsonData['messageId'] as int,
+            'status': jsonData['status'],
+          };
+        } else {
+          throw Exception('Failed to load new message');
+        }
       });
-
-      final response = await GetIt.I<DioService>().dio.post(
-        'conversation/$id/messages',
-        data: body,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
-      );
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> jsonData = response.data;
-        result = {
-          'messageId': jsonData['messageId'] as int,
-          'status': jsonData['status'],
-        };
-        log("${result!['messageId']} | ${result!['status']}\n");
-      } else {
-        print('Failed to send message: ${response.statusCode}');
-        throw Exception('Failed to load new message');
-      }
-    });
+    } catch (e) {
+      log('💥 Send New Message To Friend - API Service 💥');
+    }
     return result;
-    //throw Exception('Failed to send message');
   }
 
   // DONE partially
   Future<List<Message>?> getAllMessagesInFriendChat(int id) async {
     List<Message>? result;
-    await executeWithTokenCheck((accessToken) async {
 
-      final response = await GetIt.I<DioService>().dio.get(
-        'conversation/$id/messages',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
-      );
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.get(
+          'conversation/$id/messages',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken'
+            }
+          )
+        );
 
-      if (response.statusCode == 200) {
+        if (response.statusCode == 200) {
+          final List<dynamic> jsonList = response.data['messages'];
 
-        final List<dynamic> jsonList = response.data['messages'];
-
-        result = jsonList
-            .map((jsonItem) => Message.fromJson(jsonItem))
-            .toList();
-
-        for (var m in result!) {
-          log('****Message id: ${m.id} | status: ${m.status}\n');
+          result = jsonList.map((jsonItem) => Message.fromJson(jsonItem)).toList();
+        } else {
+          throw Exception('Failed to load new message');
         }
-      } else {
-        print('Failed to send message: ${response.statusCode}');
-        throw Exception('Failed to load new message');
-      }
-    });
+      });
+    } catch (e) {
+      log('💥 Get All Messages in Friend Chat - API Service 💥');
+    }
     return result;
-    //throw Exception('Failed to send message');
   }
 
   // DONE partially
   Future<List<Message>?> readFriendMessages(int id) async {
     List<Message>? result;
-    await executeWithTokenCheck((accessToken) async {
 
-      final response = await GetIt.I<DioService>().dio.patch(
-        'conversation/$id/messages/read',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
-      );
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.patch(
+          'conversation/$id/messages/read',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken'
+            }
+          )
+        );
 
-      if (response.statusCode == 200) {
-        
-      } else {
-        print('Failed to read message: ${response.statusCode}');
-        throw Exception('Failed to load new message');
-      }
-    });
+        if (response.statusCode == 200) {
+
+        } else {
+          throw Exception('Failed to load new message');
+        }
+      });
+    } catch (e) {
+      log('💥 Read Friend Messages - API Service 💥');
+    }
     return result;
-    //throw Exception('Failed to send message');
   }
-
 
   // DONE partially
   Future<PlayerInfo> getPlayerInfo(int id) async {
-    PlayerInfo? playerInfo;
+    PlayerInfo playerInfo = PlayerInfo(
+      civilianRolePlayedGames: 0, 
+      sheriffRolePlayedGames: 0, 
+      doctorRolePlayedGames: 0, 
+      beautyRolePlayedGames: 0, 
+      bodyguardRolePlayedGames: 0, 
+      spyRolePlayedGames: 0, 
+      journalistRolePlayedGames: 0, 
+      mafiaRolePlayedGames: 0, 
+      informantRolePlayedGames: 0, 
+      barmanRolePlayedGames: 0, 
+      kamikazeRolePlayedGames: 0, 
+      id: 0, 
+      nickname: '', 
+      avatarUrl: 'https://i.pinimg.com/736x/9e/83/75/9e837528f01cf3f42119c5aeeed1b336.jpg', 
+      isOnline: false, 
+      lastSeen: DateTime.now(), 
+      joinDate: DateTime.now(), 
+      friendshipStatus: '', 
+      inGameLobby: false, 
+      overall: 0, 
+      wins: 0, 
+      loses: 0,
+      mafiaWins: 0, 
+      civilianWins: 0, 
+      gameLobbyTitle: '', 
+      gameLobbyStatus: '', 
+      gameLobbyPlayerCount: 0, 
+      unreadMessagesCount: 0
+    );
+
     try {
       await executeWithTokenCheck((accessToken) async {
         final response = await GetIt.I<DioService>().dio.get(
@@ -679,55 +697,53 @@ class ApiService extends TokenAwareService {
         );
 
         if (response.statusCode == 200) {
-          log(response.data.toString());
           final data = response.data as Map<String, dynamic>;
-          
+
           playerInfo = PlayerInfo.fromJson(data);
         } else {
           throw Exception('Failed to load friends');
         }
       });
-    
     } catch (e) {
-      print("ERROR IN GET PLAYER INFO: ${e.toString()}");
+      log('💥 Get Player Info - $e - API Service 💥');
     }
-    
-    return playerInfo!;
+
+    return playerInfo;
   }
 
+  // DONE
   Future<PlayerInfo> getMyInfo() async {
-    PlayerInfo playerInfo
-    
-     = PlayerInfo(
-      civilianRolePlayedGames: 0, 
-      sheriffRolePlayedGames: 0, 
-      doctorRolePlayedGames: 0, 
-      beautyRolePlayedGames: 0, 
-      bodyguardRolePlayedGames: 0, 
-      spyRolePlayedGames: 0, 
-      journalistRolePlayedGames: 0, 
-      mafiaRolePlayedGames: 0, 
-      informantRolePlayedGames: 0, 
-      barmanRolePlayedGames: 0, 
-      terroristRolePlayedGames: 0, 
-      id: 0, 
-      nickname: '', 
-      avatarUrl: '', 
-      isOnline: true, 
-      lastSeen: DateTime.now(), 
-      joinDate: DateTime.now(), 
-      friendshipStatus: '', 
-      inGameLobby: false, 
-      overall: 0, 
-      wins: 0, 
-      loses: 0, 
-      mafiaWins: 0, 
-      civilianWins: 0, 
-      gameLobbyTitle: '', 
-      gameLobbyStatus: '', 
+    PlayerInfo playerInfo = PlayerInfo(
+      civilianRolePlayedGames: 0,
+      sheriffRolePlayedGames: 0,
+      doctorRolePlayedGames: 0,
+      beautyRolePlayedGames: 0,
+      bodyguardRolePlayedGames: 0,
+      spyRolePlayedGames: 0,
+      journalistRolePlayedGames: 0,
+      mafiaRolePlayedGames: 0,
+      informantRolePlayedGames: 0,
+      barmanRolePlayedGames: 0,
+      kamikazeRolePlayedGames: 0,
+      id: 0,
+      nickname: '',
+      avatarUrl: 'https://i.pinimg.com/736x/9e/83/75/9e837528f01cf3f42119c5aeeed1b336.jpg',
+      isOnline: true,
+      lastSeen: DateTime.now(),
+      joinDate: DateTime.now(),
+      friendshipStatus: '',
+      inGameLobby: false,
+      overall: 0,
+      wins: 0,
+      loses: 0,
+      mafiaWins: 0,
+      civilianWins: 0,
+      gameLobbyTitle: '',
+      gameLobbyStatus: '',
       gameLobbyPlayerCount: 0,
-       unreadMessagesCount: 0);
-       
+      unreadMessagesCount: 0
+    );
+
     try {
       await executeWithTokenCheck((accessToken) async {
         final response = await GetIt.I<DioService>().dio.get(
@@ -740,319 +756,363 @@ class ApiService extends TokenAwareService {
         );
 
         if (response.statusCode == 200) {
-          log(response.data.toString());
           final data = response.data as Map<String, dynamic>;
-          log('1');
           playerInfo = PlayerInfo.fromJson(data);
-          log('2');
         } else {
           throw Exception('Failed to load my info');
         }
       });
-    
     } catch (e) {
-      print("ERROR IN GET MY INFO: ${e.toString()}");
+      log('💥 Get My Info - API Service 💥');
     }
-    
+
     return playerInfo;
   }
 
   // INCOMPLETE
   Future<void> report(String title, String description) async {
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.post(
-        'report',
-        data: {
-          "title": title,
-          "description": description
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
-      );
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.post(
+          'report',
+          data: {
+            "title": title, 
+            "description": description
+          },
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken'
+            }
+          )
+        );
 
-      if (response.statusCode == 200) {
-        
-      } else {
-        print('Failed to report: ${response.statusCode}');
-        throw Exception('Failed to report');
-      }
-    });
+        if (response.statusCode == 200) {
+
+        } else {
+          throw Exception('Failed to report');
+        }
+      });
+    } catch (e) {
+      log('💥 Report - API Service 💥');
+    }
   }
 
-  // INCOMPLETE
+  // DONE
   Future<void> logOut() async {
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.post(
-        'Account/Logout',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken'
-          }
-        )
-      );
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.post(
+          'Account/Logout',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken'
+            }
+          )
+        );
 
-      if (response.statusCode == 200) {
-        await SharedPrefsService().clear();
-      } else {
-        print('Failed to log out: ${response.statusCode}');
-        throw Exception('Failed to log out');
-      }
-    });
+        if (response.statusCode == 200) {
+          await SharedPrefsService().clear();
+        } else {
+          throw Exception('Failed to log out');
+        }
+      });
+    } catch (e) {
+      log('💥 Log Out - API Service 💥');
+    }
   }
 
   // DONE partially
   Future<bool> deleteFriend(int id) async {
     bool status = false;
-    await executeWithTokenCheck((accessToken) async {
 
-      final response = await GetIt.I<DioService>().dio.delete(
-        'Friend/$id',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        status = true;
-        List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
-          "all_friends_list",
-          (json) => Friendship.fromJson(json as Map<String, dynamic>),
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.delete(
+          'Friend/$id',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
         );
 
-        currentFriends ??= [];
-
-        currentFriends.removeWhere((f) => f.id == id);
-
-        await GeneralCacheService().save<List<Friendship>?>(
-          "all_friends_list",
-          currentFriends,
-        );
-        EventBus().fire(DeleteFriendEvent(id));
-
-      } else if (response.statusCode == 404) {
-        throw Exception('No user found');
-      } else {
-        throw Exception('Failed to send POST request');
-      }
-    });
-    return status;
-  }
-
-  // DONE partially
-  Future<bool> cancelFriendRequest(int id) async {
-    bool status = false;
-    await executeWithTokenCheck((accessToken) async {
-
-      final response = await GetIt.I<DioService>().dio.delete(
-        'Friend/$id/Cancel',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        status = true;
-        EventBus().fire(DeleteFriendEvent(id));
-      } else if (response.statusCode == 404) {
-        throw Exception('No user found');
-      } else {
-        throw Exception('Failed to send POST request');
-      }
-    });
-    return status;
-  }
-
-  // DONE partially  
-  Future<List<FindFriend>?> findFriend(String? pattern) async {
-    List<FindFriend>? userList = [];
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.get(
-        'Friend/Search',
-        queryParameters: {
-          'pattern': pattern,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        List<dynamic> jsonData = response.data['players'] as List<dynamic>;
-        
-        userList = jsonData.isEmpty ? null : jsonData.map((item) {
-          return FindFriend.fromJson(item as Map<String, dynamic>);
-        }).toList();
-      } else if (response.statusCode == 404) {
-        throw Exception('No user found');
-      } else {
-        throw Exception('Failed to send POST request');
-      }
-    });
-    return userList;
-  }
-
-  // DONE partially
-  Future<List<FindFriend>?> suggestedFriends() async {
-    List<FindFriend>? userList = [];
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.get(
-        'Friend/Suggested',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        print(response.data.toString());
-        List<dynamic> jsonData = response.data['suggestedFriends'];
-        
-        userList = jsonData.isEmpty ? null : jsonData.map((item) {
-          return FindFriend.fromJson(item as Map<String, dynamic>);
-        }).toList();
-      } else if (response.statusCode == 404) {
-        throw Exception('No user found');
-      } else {
-        throw Exception('Failed to send POST request');
-      }
-    });
-    return userList;
-  }
-
-  // DONE partially
-  Future<bool> sendRequest(int id) async {
-    bool status = false;
-    await executeWithTokenCheck((accessToken) async {
-
-      final response = await GetIt.I<DioService>().dio.post(
-        'Friend/$id/request',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        status = true;
-        EventBus().fire(FriendRequestSentEvent(id));
-      } else if (response.statusCode == 409) {
-        // request to alredy friend
-      } else if (response.statusCode == 404) {
-        // not find
-      }
-    });
-    return status;
-  }
-
-  // DONE partially
-  Future<List<FriendRequest>?> getRequests() async {
-    List<FriendRequest>? requestsList = [];
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.get(
-        'friend/requests',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        print(response.data.toString());
-        List<dynamic> jsonData = response.data['pendingFriends'];
-        requestsList = jsonData.isEmpty ? null : jsonData.map((item) {
-          return FriendRequest.fromJson(item as Map<String, dynamic>);
-        }).toList();
-      } else {
-        throw Exception('Failed to load requests');
-      }
-    });
-    return requestsList;
-  }
-
-  // DONE partially
-  Future<bool> approveFriend(int id, bool approve) async {
-    bool status = false;
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.post(
-        'Friend/$id/approve',
-        queryParameters: {
-          'approve': approve,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        status = true;
-        if (approve) {
-          final Map<String, dynamic> jsonData = response.data['friend'];
-
-          final newFriend = Friendship.fromJson(jsonData);
-
+        if (response.statusCode == 200) {
+          status = true;
           List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
             "all_friends_list",
             (json) => Friendship.fromJson(json as Map<String, dynamic>),
           );
 
           currentFriends ??= [];
-          currentFriends.add(newFriend);
+
+          currentFriends.removeWhere((f) => f.id == id);
 
           await GeneralCacheService().save<List<Friendship>?>(
             "all_friends_list",
             currentFriends,
           );
-          EventBus().fire(NewFriendAddedEvent(newFriend));
+
+          EventBus().fire(DeleteFriendEvent(id));
+        } else if (response.statusCode == 404) {
+          throw Exception('No user found');
+        } else {
+          throw Exception('Failed to send POST request');
         }
-      } else if (response.statusCode == 409) {
-        // request to alredy friend
-      } 
-    });
+      });
+    } catch (e) {
+      log('💥 Delete Friend - API Service 💥');
+    }
     return status;
   }
 
+  // DONE partially
+  Future<bool> cancelFriendRequest(int id) async {
+    bool status = false;
+
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.delete(
+          'Friend/$id/Cancel',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          status = true;
+          EventBus().fire(DeleteFriendEvent(id));
+        } else if (response.statusCode == 404) {
+          throw Exception('No user found');
+        } else {
+          throw Exception('Failed to send POST request');
+        }
+      });
+    } catch (e) {
+      log('💥 Cancel Friend Request - $e - API Service 💥');
+    }
+    return status;
+  }
+
+  // DONE partially
+  Future<List<FindFriend>?> findFriend(String? pattern) async {
+    List<FindFriend>? userList = [];
+
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.get(
+          'Friend/Search',
+          queryParameters: {
+            'pattern': pattern,
+          },
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> jsonData = response.data['players'] as List<dynamic>;
+
+          userList = jsonData.isEmpty
+            ? null
+            : jsonData.map((item) {
+                return FindFriend.fromJson(item as Map<String, dynamic>);
+              }).toList();
+        } else if (response.statusCode == 404) {
+          throw Exception('No user found');
+        } else {
+          throw Exception('Failed to send POST request');
+        }
+      });
+    } catch (e) {
+      log('💥 Find Friend - API Service 💥');
+    }
+    return userList;
+  }
+
+  // DONE partially
+  Future<List<FindFriend>?> suggestedFriends() async {
+    List<FindFriend>? userList = [];
+
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.get(
+          'Friend/Suggested',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> jsonData = response.data['suggestedFriends'];
+
+          userList = jsonData.isEmpty
+            ? null
+            : jsonData.map((item) {
+                return FindFriend.fromJson(item as Map<String, dynamic>);
+              }).toList();
+        } else if (response.statusCode == 404) {
+          throw Exception('No user found');
+        } else {
+          throw Exception('Failed to send POST request');
+        }
+      });
+    } catch (e) {
+      log('💥 Suggested Friends - API Service 💥');
+    }
+    return userList;
+  }
+
+  // DONE partially
+  Future<bool> sendRequest(int id) async {
+    bool status = false;
+
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.post(
+          'Friend/$id/request',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          status = true;
+          EventBus().fire(FriendRequestSentEvent(id));
+        } else if (response.statusCode == 409) {
+          // request to alredy friend
+        } else if (response.statusCode == 404) {
+          // not find
+        }
+      });
+    } catch (e) {
+      log('💥 Send Request - API Service 💥');
+    }
+    return status;
+  }
+
+  // DONE partially
+  Future<List<FriendRequest>?> getRequests() async {
+    List<FriendRequest>? requestsList = [];
+
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.get(
+          'friend/requests',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> jsonData = response.data['pendingFriends'];
+          requestsList = jsonData.isEmpty
+            ? null
+            : jsonData.map((item) {
+                return FriendRequest.fromJson(item as Map<String, dynamic>);
+              }).toList();
+        } else {
+          throw Exception('Failed to load requests');
+        }
+      });
+    } catch (e) {
+      log('💥 Get Requests - API Service 💥');
+    }
+    return requestsList;
+  }
+
+  // DONE partially
+  Future<bool> approveFriend(int id, bool approve) async {
+    bool status = false;
+
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.post(
+          'Friend/$id/approve',
+          queryParameters: {
+            'approve': approve,
+          },
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          status = true;
+          if (approve) {
+            final Map<String, dynamic> jsonData = response.data['friend'];
+
+            final newFriend = Friendship.fromJson(jsonData);
+
+            List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+              "all_friends_list",
+              (json) => Friendship.fromJson(json as Map<String, dynamic>),
+            );
+
+            currentFriends ??= [];
+            currentFriends.add(newFriend);
+
+            await GeneralCacheService().save<List<Friendship>?>(
+              "all_friends_list",
+              currentFriends,
+            );
+
+            EventBus().fire(NewFriendAddedEvent(newFriend));
+          }
+        } else if (response.statusCode == 409) {
+          // request to alredy friend
+        }
+      });
+    } catch (e) {
+      log('💥 Approve Friend - API Service 💥');
+    }
+    return status;
+  }
 
   // DONE partially
   Future<bool> acceptInviteToRoom(String roomId) async {
     bool status = false;
-    await executeWithTokenCheck((accessToken) async {
-      final response = await GetIt.I<DioService>().dio.post(
-        'room/$roomId/accept',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
 
-      if (response.statusCode == 200) {
-        status = true;
-      } else if (response.statusCode == 409) {
-        // 
-      } 
-    });
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final response = await GetIt.I<DioService>().dio.post(
+          'room/$roomId/accept',
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          status = true;
+        } else if (response.statusCode == 409) {
+          //
+        }
+      });
+    } catch (e) {
+      log('💥 Accept Invite To Room - API Service 💥');
+    }
     return status;
   }
 
   // DONE partially
   Future<bool> sendInviteToRoom(int friendId) async {
     bool status = false;
-    await executeWithTokenCheck((accessToken) async {
+
     try {
+      await executeWithTokenCheck((accessToken) async {
         final response = await GetIt.I<DioService>().dio.post(
           'room/invite/$friendId',
           options: Options(
@@ -1065,110 +1125,117 @@ class ApiService extends TokenAwareService {
         if (response.statusCode == 200) {
           status = true;
         } else if (response.statusCode == 400) {
-          // 
-        } 
-      } catch (e) {
-        log("Send Invite Error: ${e.toString()}");
-      }
-    });
+          //
+        }
+      });
+    } catch (e) {
+      log('💥 Send Invite To Room - API Service 💥');
+    }
     return status;
   }
 
-
-  // CHAAAAAAAAAAAAAAAAAAATTT
-
-  // token, nickname         token nickname - chati   -   GET CHAT
-  // text, date, from(nickname)
-
+  // DONE
   Future<List<Message>?> getMessages(nickname) async {
     List<Message>? messages = [];
-    await executeWithTokenCheck((accessToken) async {
-      final formDataObject = FormData.fromMap({'nickname': nickname});
 
-      final response = await GetIt.I<DioService>().dio.get(
-        'Friend/Addressee',
-        data: formDataObject,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final formDataObject = FormData.fromMap({'nickname': nickname});
 
-      if (response.statusCode == 200) {
-        List<dynamic> jsonData = response.data as List<dynamic>;
-        messages = jsonData.isEmpty ? null : jsonData.map((item) {
-          return Message.fromJson(item as Map<String, dynamic>);
-        }).toList();
-      } else {
-        throw Exception('Failed to load messages');
-      }
-    });
+        final response = await GetIt.I<DioService>().dio.get(
+          'Friend/Addressee',
+          data: formDataObject,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> jsonData = response.data as List<dynamic>;
+          messages = jsonData.isEmpty
+            ? null
+            : jsonData.map((item) {
+                return Message.fromJson(item as Map<String, dynamic>);
+              }).toList();
+        } else {
+          throw Exception('Failed to load messages');
+        }
+      });
+    } catch (e) {
+      log('💥 Get Messages - API Service 💥');
+    }
     return messages;
   }
 
+  // DONE
   Future<String> uploadAvatar(XFile imageFile) async {
     String avatar = "";
-    await executeWithTokenCheck((accessToken) async {
-      final file = File(imageFile.path);
 
-      final formData = FormData.fromMap({
-        'avatarFile': await MultipartFile.fromFile(
-          file.path,
-          filename: file.path.split('/').last,
-        ),
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final file = File(imageFile.path);
+
+        final formData = FormData.fromMap({
+          'avatarFile': await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+          ),
+        });
+
+        final response = await GetIt.I<DioService>().dio.post(
+          'Account/ChangeAvatar',
+          data: formData,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+              'Content-Type': 'multipart/form-data',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          avatar = response.toString();
+        } else {
+          throw Exception('Failed to load avatar');
+        }
       });
-      
-      final response = await GetIt.I<DioService>().dio.post(
-        'Account/ChangeAvatar',
-        data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        //log('URL OF AVATAR: $response');
-        print("AND THIS IS API SERVICE RESPONSE: ${response.toString()}");
-        avatar = response.toString();
-      } else {
-        throw Exception('Failed to load avatar');
-      }
-    });
+    } catch (e) {
+      log('💥 Upload Avatar - API Service 💥');
+    }
     return avatar;
   }
 
+  // DONE
   Future<String> changeNickname(String nickname) async {
     String nickname = "";
-    await executeWithTokenCheck((accessToken) async {
-      final formDataObject = FormData.fromMap({'nickname': nickname});
 
-      final response = await GetIt.I<DioService>().dio.get(
-        'Account/',
-        data: formDataObject,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
+    try {
+      await executeWithTokenCheck((accessToken) async {
+        final formDataObject = FormData.fromMap({'nickname': nickname});
 
-      if (response.statusCode == 200) {
-        nickname = response.toString();
-      } else {
-        throw Exception('Failed to load messages');
-      }
-    });
+        final response = await GetIt.I<DioService>().dio.get(
+          'Account/',
+          data: formDataObject,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          nickname = response.toString();
+        } else {
+          throw Exception('Failed to load messages');
+        }
+      });
+    } catch (e) {
+      log('💥 Change Nickname - API Service 💥');
+    }
     return nickname;
   }
-
-  // sendMessage (token, nickname, date, )
-
-  ///////// SIGNAL R ///////////
-  
 }
 
 void setup(User user) {

@@ -140,11 +140,11 @@ class S {
     );
   }
 
-  /// `Terrorist`
-  String get terrorist {
+  /// `Kamikaze`
+  String get kamikaze {
     return Intl.message(
-      'Terrorist',
-      name: 'terrorist',
+      'Kamikaze',
+      name: 'kamikaze',
       desc: '',
       args: [],
     );
@@ -260,11 +260,11 @@ class S {
     );
   }
 
-  /// `Terrorist - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the terrorist does not know the identity of the Mafia members. The Terrorist has one special ability. At any time during the day voting, the terrorist can blow up anyone player by killing both himself and the victim. The terrorist cannot be killed by the mafia at night. So the terrorist must help the mafia win using his life. Regardless of whether the terrorist is killed, he will receive experience points at the end of the game if. The mafia will win.`
-  String get roleTerroristDescription {
+  /// `Kamikaze - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the kamikaze does not know the identity of the Mafia members. The Kamikaze has one special ability. At any time during the day voting, the kamikaze can blow up anyone player by killing both himself and the victim. The kamikaze cannot be killed by the mafia at night. So the kamikaze must help the mafia win using his life. Regardless of whether the kamikaze is killed, he will receive experience points at the end of the game if. The mafia will win.`
+  String get roleKamikazeDescription {
     return Intl.message(
-      'Terrorist - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the terrorist does not know the identity of the Mafia members. The Terrorist has one special ability. At any time during the day voting, the terrorist can blow up anyone player by killing both himself and the victim. The terrorist cannot be killed by the mafia at night. So the terrorist must help the mafia win using his life. Regardless of whether the terrorist is killed, he will receive experience points at the end of the game if. The mafia will win.',
-      name: 'roleTerroristDescription',
+      'Kamikaze - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the kamikaze does not know the identity of the Mafia members. The Kamikaze has one special ability. At any time during the day voting, the kamikaze can blow up anyone player by killing both himself and the victim. The kamikaze cannot be killed by the mafia at night. So the kamikaze must help the mafia win using his life. Regardless of whether the kamikaze is killed, he will receive experience points at the end of the game if. The mafia will win.',
+      name: 'roleKamikazeDescription',
       desc: '',
       args: [],
     );
@@ -340,10 +340,10 @@ class S {
     );
   }
 
-  /// `Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a terrorist explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Terrorist or Mafioso will decide to kill at night. The Bodyguard's protection only applies once, either during the day or at night, if the terrorist did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia's shot.`
+  /// `Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a kamikaze explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Kamikaze or Mafioso will decide to kill at night. The Bodyguard's protection only applies once, either during the day or at night, if the kamikaze did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia's shot.`
   String get roleBodyguardDescription {
     return Intl.message(
-      'Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a terrorist explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Terrorist or Mafioso will decide to kill at night. The Bodyguard\'s protection only applies once, either during the day or at night, if the terrorist did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia\'s shot.',
+      'Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a kamikaze explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Kamikaze or Mafioso will decide to kill at night. The Bodyguard\'s protection only applies once, either during the day or at night, if the kamikaze did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia\'s shot.',
       name: 'roleBodyguardDescription',
       desc: '',
       args: [],
@@ -2202,11 +2202,11 @@ class S {
 
   get timeForDecision => null;
 
-  /// `Terrorist tried to bomb [{playerNickname}], but bodyguard saved him/her`
-  String gameTerroristExplosion(String playerNickname) {
+  /// `Kamikaze tried to bomb [{playerNickname}], but bodyguard saved him/her`
+  String gameKamikazeExplosion(String playerNickname) {
     return Intl.message(
-      'Terrorist tried to bomb [$playerNickname], but bodyguard saved him/her',
-      name: 'gameTerroristExplosion',
+      'Kamikaze tried to bomb [$playerNickname], but bodyguard saved him/her',
+      name: 'gameKamikazeExplosion',
       desc: '',
       args: [playerNickname],
     );

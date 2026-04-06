@@ -9,22 +9,22 @@ class AppLocalizationsAz extends AppLocalizations {
   AppLocalizationsAz([String locale = 'az']) : super(locale);
 
   @override
-  String get profile => 'Profile';
+  String get profile => 'Profil';
 
   @override
-  String get games => 'Games';
+  String get games => 'Oyunlar';
 
   @override
-  String get create => 'Create';
+  String get create => 'Yarat';
 
   @override
-  String get settings => 'Settings';
+  String get settings => 'Ayarlar';
 
   @override
   String get roles => 'Roles';
 
   @override
-  String get friends => 'Friends';
+  String get friends => 'Dostlar';
 
   @override
   String get ratings => 'Ratings';
@@ -33,10 +33,10 @@ class AppLocalizationsAz extends AppLocalizations {
   String get share => 'Share';
 
   @override
-  String get mafia => 'Mafia';
+  String get mafia => 'Mafiya';
 
   @override
-  String get terrorist => 'Terrorist';
+  String get kamikaze => 'Kamikaze';
 
   @override
   String get barman => 'Barman';
@@ -73,8 +73,8 @@ class AppLocalizationsAz extends AppLocalizations {
       'The Mafia is a registered character in the game. Each team of Mafiosi knows the players from their country, unlike the citizens of the world, who do not know who is playing for whom. They wake up at night in order to kill one of the inhabitants of the world, also known like them. Doctor and Sheriff.';
 
   @override
-  String get roleTerroristDescription =>
-      'Terrorist - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the terrorist does not know the identity of the Mafia members. The Terrorist has one special ability. At any time during the day voting, the terrorist can blow up anyone player by killing both himself and the victim. The terrorist cannot be killed by the mafia at night. So the terrorist must help the mafia win using his life. Regardless of whether the terrorist is killed, he will receive experience points at the end of the game if. The mafia will win.';
+  String get roleKamikazeDescription =>
+      'Kamikaze - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the kamikaze does not know the identity of the Mafia members. The Kamikaze has one special ability. At any time during the day voting, the kamikaze can blow up anyone player by killing both himself and the victim. The kamikaze cannot be killed by the mafia at night. So the kamikaze must help the mafia win using his life. Regardless of whether the kamikaze is killed, he will receive experience points at the end of the game if. The mafia will win.';
 
   @override
   String get roleBarmanDescription =>
@@ -106,7 +106,7 @@ class AppLocalizationsAz extends AppLocalizations {
 
   @override
   String get roleBodyguardDescription =>
-      'Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a terrorist explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Terrorist or Mafioso will decide to kill at night. The Bodyguard\'s protection only applies once, either during the day or at night, if the terrorist did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia\'s shot.';
+      'Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a kamikaze explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Kamikaze or Mafioso will decide to kill at night. The Bodyguard\'s protection only applies once, either during the day or at night, if the kamikaze did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia\'s shot.';
 
   @override
   String get roleSpyDescription =>
@@ -138,7 +138,7 @@ class AppLocalizationsAz extends AppLocalizations {
   String get enterUsername => 'Enter username';
 
   @override
-  String get online => 'online';
+  String get online => 'Onlayn';
 
   @override
   String get sendRequest => 'Send request';
@@ -147,13 +147,13 @@ class AppLocalizationsAz extends AppLocalizations {
   String get requestAlredySent => 'Request alredy sent';
 
   @override
-  String get requests => 'Requests';
+  String get requests => 'Sorğular';
 
   @override
-  String get language => 'Language';
+  String get language => 'Dil';
 
   @override
-  String get password => 'Password';
+  String get password => 'Şifre';
 
   @override
   String get changePassword => 'Change password';
@@ -165,10 +165,10 @@ class AppLocalizationsAz extends AppLocalizations {
   String get newPassword => 'New password';
 
   @override
-  String get change => 'Change';
+  String get change => 'Dəyiş';
 
   @override
-  String get nickname => 'Nickname';
+  String get nickname => 'İstifadəçi adı';
 
   @override
   String get changeNickname => 'Change nickname';
@@ -180,7 +180,7 @@ class AppLocalizationsAz extends AppLocalizations {
   String get changeAvatar => 'Change avatar';
 
   @override
-  String get logOut => 'Log out';
+  String get logOut => 'Çıxış et';
 
   @override
   String get deleteAccaunt => 'Delete accaunt';
@@ -213,25 +213,25 @@ class AppLocalizationsAz extends AppLocalizations {
   String get min => 'Min';
 
   @override
-  String get max => 'Max';
+  String get max => 'Maks';
 
   @override
-  String get join => 'Join';
+  String get join => 'Qoşul';
 
   @override
-  String get gameStarted => 'Game Started';
+  String get gameStarted => 'Oyun başladı';
 
   @override
   String get gatheringPlayers => 'Gathering Players';
 
   @override
-  String get alive => 'Alive';
+  String get alive => 'Sağ';
 
   @override
-  String get dead => 'Dead';
+  String get dead => 'Ölü';
 
   @override
-  String get createGame => 'Create Game';
+  String get createGame => 'Oyun Yarat';
 
   @override
   String get passwordOptional => 'Password (Optional)';
@@ -240,10 +240,10 @@ class AppLocalizationsAz extends AppLocalizations {
   String get roomName => 'Room Name';
 
   @override
-  String get reset => 'Reset';
+  String get reset => 'Sıfırla';
 
   @override
-  String get filter => 'Filter';
+  String get filter => 'Filtr';
 
   @override
   String get friendInTheRoom => 'Friends in the room';
@@ -264,182 +264,183 @@ class AppLocalizationsAz extends AppLocalizations {
   String get roomsWithourAdditionalRoles => 'Rooms without additional roles';
 
   @override
-  String get apply => 'Apply';
+  String get apply => 'Tətbiq et';
 
   @override
-  String get close => 'Close';
+  String get close => 'Bağla';
 
   @override
   String get remainingTime => 'Remaining time';
 
   @override
-  String get seconds => 'Seconds';
+  String get seconds => 'saniyə';
 
   @override
-  String get playersInRoom => 'Players in the Room';
+  String get playersInRoom => 'Oyunçu Otaqda';
 
   @override
-  String get enterMessage => 'Enter message';
+  String get enterMessage => 'Yazın';
 
   @override
-  String get alreadyHaveAnAccount => 'Already have an account?';
+  String get alreadyHaveAnAccount => 'Artıq hesabınız var?';
 
   @override
-  String get youMustWriteYourNickname => 'You must write your nickname';
+  String get youMustWriteYourNickname => 'Ləqəbinizi yazmalısınız';
 
   @override
   String get yourNicknameMustContainAtLeast3Characters =>
-      'Your nickname must contain at least 3 characters';
+      'Ləqəbiniz ən azı 3 simvoldan ibarət olmalıdır';
 
   @override
   String get yourNicknameCanContainLettersNumbersAnd =>
-      'Your nickname can contain, letters, numbers and . _ -';
+      'Ləqəbinizdə hərflər, rəqəmlər və . _ - simvolları ola bilər';
 
   @override
-  String get youMustWriteYourEmail => 'You must write your email';
+  String get youMustWriteYourEmail => 'E-poçtunuzu yazmalısınız';
 
   @override
-  String get enterValidEmail => 'Enter valid email';
+  String get enterValidEmail => 'Düzgün e-poçt daxil edin';
 
   @override
-  String get youMustWriteYourPassword => 'You must write your password';
+  String get youMustWriteYourPassword => 'Şifrənizi yazmalısınız';
 
   @override
   String get yourPasswordMustContainAtLeast6Characters =>
-      'Your password must contain at least 6 characters';
+      'Şifrəniz ən azı 6 simvoldan ibarət olmalıdır';
 
   @override
-  String get youMustConfirmYourPassword => 'You must confirm your password';
+  String get youMustConfirmYourPassword => 'Şifrənizi təsdiqləməlisiniz';
 
   @override
-  String get passwordsAreNotMatching => 'Passwords are not matching';
+  String get passwordsAreNotMatching => 'Şifrələr uyğun gəlmir';
 
   @override
-  String get confirm => 'Confirm';
+  String get confirm => 'Təsdiqlə';
 
   @override
   String get sorryConnectionWithServerTimeouted =>
-      'Sorry, connection with server timeouted...';
+      'Bağışlayın, serverlə əlaqə vaxtı bitdi...';
 
   @override
   String get playerWithThisEmailAlreadyExist =>
-      'Player with this email already exist';
+      'Bu e-poçtla oyunçu artıq mövcuddur';
 
   @override
   String get playerWithThisNicknameAlreadyExist =>
-      'Player with this nickname already exist';
+      'Bu ləqəblə oyunçu artıq mövcuddur';
 
   @override
-  String get sorrySomethingBadHappened => 'Sorry, Something bad happened...';
+  String get sorrySomethingBadHappened => 'Bağışlayın, xəta baş verdi...';
 
   @override
   String get userWithThisEmailDoesNotExist =>
-      'User with this email does not exist';
+      'Bu e-poçtla istifadəçi tapılmadı';
 
   @override
-  String get emailOrPasswordIsInvalid => 'Email or Password is invalid';
+  String get emailOrPasswordIsInvalid => 'E-poçt və ya şifrə yanlışdır';
 
   @override
-  String get dontHaveAnAccount => 'Don\'t have an account?';
+  String get dontHaveAnAccount => 'Hesabınız yoxdur?';
 
   @override
-  String get forgotPassword => 'Forgot Password';
+  String get forgotPassword => 'Şifrəni unutmusunuz?';
 
   @override
-  String get playersInTheRoom => 'Players in the room';
+  String get playersInTheRoom => 'Oyunçu otaqda';
 
   @override
   String get civilian => 'Civilian ';
 
   @override
-  String get day => 'Day';
+  String get day => 'Gün';
 
   @override
-  String get isYourDestiny => 'is your destiny';
+  String get isYourDestiny => 'taleyin';
 
   @override
-  String get useSkill => 'Use Skill';
+  String get useSkill => 'Bacarığ';
 
   @override
   String get civiliansAreWithUs => 'civilians are with us';
 
   @override
-  String get bombard => 'Bombard';
+  String get bombard => 'Partlat';
 
   @override
-  String get vote => 'Vote';
+  String get vote => 'Səs ver';
 
   @override
-  String get myMoveIsMade => 'My move is made';
+  String get myMoveIsMade => 'Səs ver';
 
   @override
   String get iAcceptTheWeightOfMyChoice => 'I accept the weight of my choice';
 
   @override
-  String get cure => 'Cure';
+  String get cure => 'Kurtar';
 
   @override
-  String get satisfy => 'Satisfy';
+  String get satisfy => 'Ovsunla';
 
   @override
-  String get protect => 'Protect';
+  String get protect => 'Qoru';
 
   @override
-  String get intoxicate => 'Intoxicate';
+  String get intoxicate => 'Sərxoş et';
 
   @override
-  String get reveale => 'Reveale';
+  String get reveale => 'Aşkar et';
 
   @override
-  String get investigate => 'Investigate';
+  String get investigate => 'Araşdır';
 
   @override
-  String get interview => 'Interview';
+  String get interview => 'Müsahibə';
 
   @override
-  String get mafias => 'mafias';
+  String get mafias => 'Mafiyalar';
 
   @override
-  String get civilians => 'civilians';
+  String get civilians => 'Sakinlər';
 
   @override
-  String get pickYourTarget => 'Pick your target';
+  String get pickYourTarget => 'Qurbanı seçin';
 
   @override
   String get iveChosenNoRegrets => 'I\\\'ve chosen. No regrets';
 
   @override
-  String get choose => 'Choose';
+  String get choose => 'Seç';
 
   @override
   String get enterTheMessage => 'Enter the message...';
 
   @override
-  String get lobby => 'Lobby';
+  String get lobby => 'Lobi';
 
   @override
-  String get search => ' Search...';
+  String get search => ' Axtar';
 
   @override
-  String get filterOff => 'Filter Off';
+  String get filterOff => 'Filtr Bağlı';
 
   @override
-  String get noAvailableGames => 'No available games..';
+  String get noAvailableGames =>
+      'Hələ aktiv oyun yoxdur… Özün yarat və dostlarını dəvət et!';
 
   @override
-  String get youArePlayingHere => 'You Are Playing Here';
+  String get youArePlayingHere => 'Sən bu otaqda oynayırsan';
 
   @override
-  String get youDiedHere => 'You Died Here';
+  String get youDiedHere => 'Sən bu otaqda ölmüsən';
 
   @override
-  String get show => 'Show';
+  String get show => 'Bütün';
 
   @override
-  String get allPlayers => 'All Players';
+  String get allPlayers => 'Oyunçular';
 
   @override
-  String get areHere => 'are here';
+  String get areHere => 'rollar';
 
   @override
   String get defeated => 'Defeated';
@@ -451,19 +452,19 @@ class AppLocalizationsAz extends AppLocalizations {
   String get enterTheName => ' Enter the name';
 
   @override
-  String get on => 'on';
+  String get on => 'açıq';
 
   @override
-  String get off => 'off';
+  String get off => 'bağlı';
 
   @override
-  String get enterThePassword => ' Enter the password';
+  String get enterThePassword => ' Şifreni daxil et';
 
   @override
-  String get numberOfPlayers => 'Number of players';
+  String get numberOfPlayers => 'Oyunçu sayı';
 
   @override
-  String get extraRoles => 'Extra Roles';
+  String get extraRoles => 'Əlavə Rollar';
 
   @override
   String get beauty => 'Beauty';
@@ -472,61 +473,61 @@ class AppLocalizationsAz extends AppLocalizations {
   String get bartender => 'Bartender';
 
   @override
-  String get roomsWith => 'Rooms with:';
+  String get roomsWith => 'Otaqda:';
 
   @override
-  String get availableSpots => 'Available Spots';
+  String get availableSpots => 'Boş yerlər';
 
   @override
-  String get friendsIn => 'Friends In';
+  String get friendsIn => 'Dostlar';
 
   @override
-  String get access => 'Access';
+  String get access => 'Giriş';
 
   @override
-  String get mixed => 'Mixed';
+  String get mixed => 'Miks';
 
   @override
-  String get open => 'Open';
+  String get open => 'Açıq';
 
   @override
-  String get private => 'Private';
+  String get private => 'Parollu';
 
   @override
-  String get includedRoles => 'Included roles:';
+  String get includedRoles => 'Əlavə Rollar:';
 
   @override
   String get lover => 'Lover';
 
   @override
-  String get starting => 'Starting:';
+  String get starting => 'Başlayır:';
 
   @override
-  String get waiting => 'Waiting...';
+  String get waiting => 'Oyunçular gözlənilir';
 
   @override
-  String get trustedIndividuals => 'TRUSTED INDIVIDUALS';
+  String get trustedIndividuals => 'ETİBARLI ŞƏXSLƏR';
 
   @override
-  String get justiceRidesWithUs => 'Justice rides with us.';
+  String get justiceRidesWithUs => 'Ədalət bizimlədir.';
 
   @override
   String get noUsersFound => 'No users found';
 
   @override
-  String get noFriendsFound => 'No friends found';
+  String get noFriendsFound => 'Dost tapılmadı';
 
   @override
   String get delete => 'Delete';
 
   @override
-  String get registry => 'REGISTRY';
+  String get registry => 'SEÇİLMİŞLƏR';
 
   @override
-  String get ofChoosenOnes => 'OF CHOOSEN ONES';
+  String get ofChoosenOnes => 'SİYAHISI';
 
   @override
-  String get onlyTheTruestRideTogether => 'Only the truest ride together.';
+  String get onlyTheTruestRideTogether => 'Yalnız ən sadiqlər birlikdə gedir';
 
   @override
   String get noPlayersFound => 'No players found';
@@ -535,13 +536,13 @@ class AppLocalizationsAz extends AppLocalizations {
   String get noRequestsFound => 'No requests found';
 
   @override
-  String get wanted => 'WANTED:';
+  String get wanted => 'AXTARILIR:';
 
   @override
-  String get goodCompany => 'GOOD COMPANY';
+  String get goodCompany => 'YAXŞI DOST QRUPU';
 
   @override
-  String get ridingSoloAintTheWay => 'Riding solo ain\\\'t the way.';
+  String get ridingSoloAintTheWay => 'İrəli yalnız birlikdə';
 
   @override
   String get requestPending => 'Request Pending';
@@ -556,19 +557,19 @@ class AppLocalizationsAz extends AppLocalizations {
   String get welcome => 'Welcome,';
 
   @override
-  String get chat => 'Chat';
+  String get chat => 'Çat';
 
   @override
   String get offline => 'Offline';
 
   @override
-  String get joinDate => 'Join Date';
+  String get joinDate => 'Qoşulma Tarixi';
 
   @override
-  String get report => 'Report';
+  String get report => 'Şikayət et';
 
   @override
-  String get addToFriends => 'Add To Friends';
+  String get addToFriends => 'Dostluq at';
 
   @override
   String get currentlyOffline => 'Currently Offline';
@@ -583,31 +584,31 @@ class AppLocalizationsAz extends AppLocalizations {
   String get playersInTotal => 'Players in total';
 
   @override
-  String get stats => 'Stats';
+  String get stats => 'Statistika';
 
   @override
   String get overall => 'Overall';
 
   @override
-  String get wins => 'Wins';
+  String get wins => 'Qələbələr';
 
   @override
-  String get loses => 'Loses';
+  String get loses => 'Məğlubiyyət';
 
   @override
-  String get mafiaWins => 'Mafia Wins';
+  String get mafiaWins => 'Mafiya Qələbəsi';
 
   @override
-  String get civilianWins => 'Civilian Wins';
+  String get civilianWins => 'Sakin Qələbəsi';
 
   @override
-  String get playedRoles => 'Played Roles';
+  String get playedRoles => 'Oynanmış Rollar';
 
   @override
   String get avatar => 'Avatar';
 
   @override
-  String get upload => 'Upload';
+  String get upload => 'Yüklə';
 
   @override
   String get soundEffects => 'Sound Effects';
@@ -676,435 +677,578 @@ class AppLocalizationsAz extends AppLocalizations {
   String get codeMustBe6Charactes => 'Code must be 6 charactes';
 
   @override
-  String gameTerroristExplosion(String playerNickname) {
-    return 'Terrorist tried to bomb [\$playerNickname], but bodyguard saved him/her';
+  String gameKamikazeExplosion(String playerNickname) {
+    return 'Kamikaze tried to bomb [\$playerNickname], but bodyguard saved him/her';
   }
 
   @override
-  String get timeForDecision => 'Time for decision - ';
+  String get timeForDecision => 'Şəhərin qərarı - ';
 
   @override
   String get skillsDescriptionsBeauty =>
-      'Select a player to satisfy. They won\'t be able to vote or use abilities';
+      'Ovsunlamaq istədiyiniz oyunçunu seçin. O, səs verə və ya bacarıqlarından istifadə edə bilməyəcək';
 
   @override
   String get skillsDescriptionsBodyguard =>
-      'Select a player to protect from the mafia and the terrorist';
+      'Mafiya və terrorçudan qorumaq istədiyiniz oyunçunu seçin';
 
   @override
   String get skillsDescriptionsBarman =>
-      'Select a player to intoxicate. They won\'t be able to vote, speak, or use abilities';
+      'Sərxoş etmək istədiyiniz oyunçunu seçin. O, səs verə, danışa və bacarıqlarından istifadə edə bilməyəcək';
 
   @override
   String get skillsDescriptionsDoctor =>
-      'Select a player to heal from a mafia attack';
+      'Mafiya hücumundan xilas edəcəyiniz oyunçunu seçin';
 
   @override
   String get skillsDescriptionsInformant =>
-      'Select a player whose role you want to reveal';
+      'Rolunu aşkar etmək istədiyiniz oyunçunu seçin';
 
   @override
   String get skillsDescriptionsSheriff =>
-      'Select a player to investigate and find out their role';
+      'Rolunu öyrənmək üçün araşdıracağınız oyunçunu seçin';
 
   @override
   String get skillsDescriptionsJournalist =>
-      'Select two players to find out if they are on the same team';
+      'Eyni komandada olub-olmadıqlarını öyrənmək üçün iki oyunçu seçin';
 
   @override
-  String get hasJoined => 'has joined';
+  String get hasJoined => 'qoşuldu';
 
   @override
-  String get hasLeft => 'has left';
+  String get hasLeft => 'ayrıldı';
 
   @override
   String get rolesGeneralDescriptionMafia =>
-      'Вы — мафия и играете за команду мафии. Ваша задача устранить всех мирных жителей с помощью обмана на дневных голосованиях или совместных ночных убийств';
+      'Siz mafiyasınız və mafiya komandasında oynayırsınız. Tapşırığınız gündüz səsvermələri zamanı aldatma yolu ilə və ya gecə birgə qətllər törədərək bütün dinc sakinləri aradan qaldırmaqdır';
 
   @override
   String get rolesGeneralDescriptionCivilian =>
-      'Вы - простой житель города. Ваша задача вычислить всех членов мафии и проголосовать против них, помогая мирным добиться победы';
+      'Siz sadə şəhər sakinisiniz. Tapşırığınız bütün mafiya üzvlərini aşkar etmək və onlara qarşı səs verməklə dinc sakinlərin qələbə qazanmasına kömək etməkdir';
 
   @override
   String get rolesGeneralDescriptionSpy =>
-      'Вы — шпион мирных жителей. Подслушивайте разговоры мафии и используйте полученную информацию, чтобы помочь мирным выявлять и устранять членов мафии';
+      'Siz dinc sakinlərin casususunuz. Mafiyanın söhbətlərinə gizlicə qulaq asın və əldə etdiyiniz məlumatlardan istifadə edərək dinc sakinlərə mafiya üzvlərini müəyyənləşdirməkdə və aradan qaldırmaqda kömək edin';
 
   @override
   String get rolesGeneralDescriptionDoctor =>
-      'Вы — доктор мирных жителей. Используйте свои медицинские навыки что бы спасти мирных от нападения мафии';
+      'Siz dinc sakinlərin həkimisiniz. Tibbi bacarıqlarınızdan istifadə edərək dinc sakinləri mafiya hücumundan xilas edin';
 
   @override
   String get rolesGeneralDescriptionBeauty =>
-      'Вы — красотка, игрок за мирных. Ваша задача — отвлекать членов мафии, мешая им использовать способности и участвовать в голосовании.';
+      'Siz gözəlçəsiniz, dinc sakinlər tərəfində oynayırsınız. Tapşırığınız mafiya üzvlərinin diqqətini yayındırmaqla onların öz qabiliyyətlərindən istifadə etməsinə və səsvermədə iştirakına mane olmaqdır';
 
   @override
   String get rolesGeneralDescriptionBodyguard =>
-      'Вы — телохранитель мирных жителей. Используйте свои навыки, чтобы защищать мирных от нападений террориста или мафии';
+      'Siz dinc sakinlərin cangüdəniniz. Bacarıqlarınızdan istifadə edərək dinc sakinləri terrorçu və ya mafiya hücumlarından qoruyun';
 
   @override
   String get rolesGeneralDescriptionBarman =>
-      'Вы — бармен, играющий за команду мафии. Вы не знаете личности мафии, и они не знают вашу. Используйте свои барменские навыки, чтобы напоить мирных жителей';
+      'Siz mafiya komandasında oynayan barmensiniz. Siz mafiya üzvlərini tanımırsınız, onlar da sizi tanımır. Barmenlik bacarıqlarınızdan istifadə edərək dinc sakinləri sərxoş edin';
 
   @override
   String get rolesGeneralDescriptionInformant =>
-      'Вы — информатор мафии. Вы не знаете личности мафии, и они не знают вашу. Раскрывайте роли мирных жителей и анонимно общайтесь с членами мафии, передавая им важную информацию';
+      'Siz mafiyanın məlumatçısısınız. Siz mafiya üzvlərini tanımırsınız, onlar da sizi tanımır. Dinc sakinlərin rollarını üzə çıxarın və mafiya üzvlərinə vacib məlumatlar ötürərək onlarla anonim şəkildə əlaqə saxlayın';
 
   @override
   String get rolesGeneralDescriptionSheriff =>
-      'Вы — шериф города, представляющий команду мирных жителей. Ваша цель расследовать игроков и выявлять членов мафии';
+      'Siz dinc sakinlər komandasını təmsil edən şəhər şerifisiniz. Məqsədiniz oyunçuları araşdırmaq və mafiya üzvlərini aşkar etməkdir';
 
   @override
   String get rolesGeneralDescriptionJournalist =>
-      'Вы — журналист, играющий за мирных жителей. Каждую ночь проводите репортаж, опрашивая двух игроков, чтобы все узнали, находятся ли они в одной команде или в разных';
+      'Siz dinc sakinlər tərəfində oynayan jurnalistsiniz. Hər gecə iki oyunçudan müsahibə alaraq reportaj hazırlayın ki, hər kəs onların eyni komandada, yoxsa fərqli komandalarda olduğunu öyrənsin';
 
   @override
-  String get rolesGeneralDescriptionTerrorist =>
-      'Вы — террорист из команды мафии. Вы не знаете мафию, но мафия знает вас. Во время дневного голосования можете взорвать мирного жителя, погибнув вместе с ним';
+  String get rolesGeneralDescriptionKamikaze =>
+      'Siz mafiya komandasından olan terrorçusunuz. Siz mafiyanı tanımırsınız, amma mafiya sizi tanıyır. Gündüz səsverməsi zamanı özünüzlə bərabər bir dinc sakini də partlada bilərsiniz';
 
   @override
   String get rolesObjectiveMafia =>
-      'Устранить всех мирных жителей в дневном или ночьном голосовании';
+      'Gündüz və ya gecə səsverməsində bütün dinc sakinləri aradan qaldırmaq';
 
   @override
   String get rolesObjectiveVicilian =>
-      'Устранить всех членов мафии с помощью дневного голосования';
+      'Gündüz səsverməsi vasitəsilə bütün mafiya üzvlərini aradan qaldırmaq';
 
   @override
   String get rolesObjectiveSpy =>
-      'Помогайте мирным жителям устранять всех членов мафии, подслушивая их ночные разговоры';
+      'Gecə söhbətlərinə gizlicə qulaq asaraq dinc sakinlərə bütün mafiya üzvlərini aradan qaldırmağa kömək edin';
 
   @override
   String get rolesObjectiveDoctor =>
-      'Помогайте мирным жителям устранять всех членов мафии, спасая их от нападений мафии';
+      'Dinc sakinləri mafiya hücumlarından xilas edərək bütün mafiya üzvlərinin aradan qaldırılmasına kömək edin';
 
   @override
   String get rolesObjectiveBeauty =>
-      'Помочь мирным, препятствуя действиям мафии и способствуя их устранению';
+      'Mafiyanın fəaliyyətinə mane olaraq və onların aradan qaldırılmasına şərait yaradaraq dinc sakinlərə kömək edin';
 
   @override
   String get rolesObjectiveBodyguard =>
-      'Помогайте мирным жителям устранять всех членов мафии, защишая мирных от членов мафии';
+      'Dinc sakinləri mafiyadan qoruyaraq bütün mafiya üzvlərinin aradan qaldırılmasına kömək edin';
 
   @override
   String get rolesObjectiveBarman =>
-      'Помогайте членам мафии устранять мирных, опьянив их';
+      'Dinc sakinləri sərxoş edərək mafiya üzvlərinə onları aradan qaldırmağa kömək edin';
 
   @override
   String get rolesObjectiveInformant =>
-      'Помогайте членам мафии устранять мирных, передавая им важную информацию';
+      'Mafiya üzvlərinə vacib məlumatlar ötürərək dinc sakinləri aradan qaldırmağa kömək edin';
 
   @override
   String get rolesObjectiveSheriff =>
-      'Помогайте мирным жителям устранять всех членов мафии, выявляя членов мафии';
+      'Mafiya üzvlərini aşkar edərək dinc sakinlərə bütün mafiya üzvlərini aradan qaldırmağa kömək edin';
 
   @override
   String get rolesObjectiveJournalist =>
-      'Помогайте мирным жителям устранять всех членов мафии, ежедневно проводя репортажи';
+      'Hər gün reportajlar hazırlayaraq dinc sakinlərə bütün mafiya üzvlərini aradan qaldırmağa kömək edin';
 
   @override
-  String get rolesObjectiveTerrorist =>
-      'Помогайте членам мафии устранять мирных, взорвав важного мирного жителя';
+  String get rolesObjectiveKamikaze =>
+      'Vacib bir dinc sakini partladaraq mafiya üzvlərinə dinc sakinləri aradan qaldırmağa kömək edin';
 
   @override
   String get rolesDayPhaseMafia =>
-      'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiya üçün əlverişli məcraya yönəldin';
 
   @override
   String get rolesDayPhaseCivilian =>
-      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin və dinc sakinləri dəstəkləyin';
 
   @override
   String get rolesDayPhaseSpy =>
-      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin və dinc sakinləri dəstəkləyin';
 
   @override
   String get rolesDayPhaseDoctor =>
-      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin və dinc sakinləri dəstəkləyin';
 
   @override
   String get rolesDayPhaseBeauty =>
-      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin ve dinc sakinləri dəstəkləyin';
 
   @override
   String get rolesDayPhaseBodyguard =>
-      'Каждый день вы можете выбрать игрока для защиты от нападения террориста или мафии.';
+      'Hər gün terrorçu və ya mafiya hücumundan qorumaq üçün bir oyunçu seçə bilərsiniz.';
 
   @override
   String get rolesDayPhaseBarman =>
-      'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiya üçün əlverişli məcraya yönəldin';
 
   @override
   String get rolesDayPhaseInformant =>
-      'Участвуйте в обсуждениях и голосованиях, направляйте разговор в выгодное для мафии русло';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiya üçün əlverişli məcraya yönəldin';
 
   @override
   String get rolesDayPhaseSheriff =>
-      'Участвуйте в обсуждениях и голосованиях, берите инициативу и ведите мирных к победе.';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, təşəbbüsü ələ alın və dinc sakinləri qələbəyə aparın.';
 
   @override
   String get rolesDayPhaseJournalist =>
-      'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin və dinc sakinləri dəstəkləyin';
 
   @override
-  String get rolesDayPhaseTerrorist =>
-      'Вы можете участвовать в обсуждениях, но не имеете права голосовать. Во время дневного голосования вы можете взорвать мирного жителя, однако если его защитит телохранитель, вы погибнете напрасно';
+  String get rolesDayPhaseKamikaze =>
+      'Siz müzakirələrdə iştirak edə bilərsiniz, lakin səs vermək hüququnuz yoxdur. Gündüz səsverməsi zamanı bir oyunçunu partlada bilərsiniz, lakin əgər onu cangüdən qoruyursa, siz cangüdəni də özünüzlə bərabər apararaq həlak olacaqsınız';
 
   @override
-  String get skill => 'Skill';
+  String get skill => 'Bacarıq';
 
   @override
   String get rolesThirdDescriptionMafia =>
-      'Каждую ночь мафия собирается, обсуждает и выбирает одного игрока для устранения. Шпион может видеть ваши ночные разговоры, но не знает, кто именно их отправляет';
+      'Hər gecə mafiya toplanır, müzakirə edir və aradan qaldırmaq üçün bir oyunçu seçir. Casus sizin gecə söhbətlərinizi görə bilər, lakin onları məhz kimin göndərdiyini bilmir';
 
   @override
   String get rolesThirdDescriptionCivilian =>
-      'Ночью вам делать нечего, отдыхайте';
+      'Gecə görəcək bir işiniz yoxdur, istirahət edin';
 
   @override
   String get rolesThirdDescriptionSpy =>
-      'Ночью вы можете подслушивать разговоры мафии и информатора, но не узнаёте, кто именно говорит';
+      'Gecə siz mafiya və məlumatçının söhbətlərinə gizlicə qulaq asa bilərsiniz, lakin kimin danışdığını öyrənə bilmirsiniz';
 
   @override
   String get rolesThirdDescriptionDoctor =>
-      'Каждую ночь вы можете вылечить одного игрока, выбранного мафией для нападения. Если вы выберете правильного игрока, его жизнь будет сохранена';
+      'Hər gecə mafiyanın hücum etmək üçün seçdiyi bir oyunçunu sağalda bilərsiniz. Doğru oyunçunu seçsəniz, onun həyatı xilas olacaq';
 
   @override
   String get rolesThirdDescriptionBeauty =>
-      'Каждую ночь вы можете отвлечь одного игрока (желательно мафию). Отвлечённый игрок не может голосовать и не может использовать свои способности в течение дня';
+      'Hər gecə bir oyunçunun (yaxşı olar ki, mafiyanın) diqqətini yayındıra bilərsiniz. Diqqəti yayındırılan oyunçu gün ərzində səs verə və qabiliyyətlərini istifadə edə bilməz';
 
   @override
   String get rolesThirdDescriptionBodyguard =>
-      'Если выбранный вами игрок станет целью террориста днём, ночью он останется без защиты от нападения мафии';
+      'Əgər seçdiyiniz oyunçu gündüz terrorçunun hədəfi olarsa, gecə o, mafiya hücumundan müdafiəsiz qalacaq';
 
   @override
   String get rolesThirdDescriptionBarman =>
-      'Каждую ночь вы можете опьянять одного игрока. Опьяненный игрок не сможет голосовать, использовать способности и трезво разговаривать до следующей ночи';
+      'Hər gecə bir oyunçunu sərxoş edə bilərsiniz. Sərxoş olan oyunçu növbəti gecəyə qədər səs verə, qabiliyyətlərini istifadə edə və sağlam şəkildə danışa bilməyəcək';
 
   @override
   String get rolesThirdDescriptionInformant =>
-      'Каждую ночь вы можете раскрыть роль одного игрока и общаться с мафией. Мафия и шпион видят ваши сообщения, но не узнают, кто их отправил';
+      'Hər gecə bir oyunçunun rolunu aça və mafiya ilə ünsiyyət qura bilərsiniz. Mafiya və casus sizin mesajlarınızı görür, lakin onları kimin göndərdiyini bilmirlər';
 
   @override
   String get rolesThirdDescriptionSheriff =>
-      'Каждую ночь вы можете расследовать одного игрока, чтобы узнать его роль';
+      'Hər gecə bir oyunçunun rolunu öyrənmək üçün onu araşdıra bilərsiniz';
 
   @override
   String get rolesThirdDescriptionJournalist =>
-      'Каждую ночь вы проводите репортаж, опрашивая двух игроков, чтобы выяснить, находятся ли они в одной команде или нет. Результаты репортажа видны всем в чате';
+      'Hər gecə iki oyunçudan müsahibə alaraq onların eyni komandada olub-olmadığını öyrənmək üçün reportaj hazırlayırsınız. Reportajın nəticələri çatda hər kəsə görünür';
 
   @override
-  String get rolesThirdDescriptionTerrorist =>
-      'Ночью вам делать нечего, отдыхайте';
+  String get rolesThirdDescriptionKamikaze =>
+      'Gecə görəcək bir işiniz yoxdur, istirahət edin';
 
   @override
   String get rolesWinningConditionMafia =>
-      'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
+      'Heç bir dinc sakin sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsCivilian =>
-      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsSpy =>
-      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsDoctor =>
-      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsBeauty =>
-      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsBodyguard =>
-      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsBarman =>
-      'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
+      'Heç bir dinc sakin sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsInformant =>
-      'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
+      'Heç bir dinc sakin sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsSheriff =>
-      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsJournalist =>
-      'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
+      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
-  String get rolesWinningConditionsTerrorist =>
-      'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
+  String get rolesWinningConditionsKamikaze =>
+      'Heç bir dinc sakin sağ qalmadıqda siz qalib gəlirsiniz';
 
   @override
-  String get gameplayRules => 'Gameplay Rules:';
+  String get gameplayRules => 'Oyun Qaydaları:';
 
   @override
-  String get objective => 'Objective';
+  String get objective => 'Məqsəd';
 
   @override
-  String get dayPhase => 'Day Phase';
+  String get dayPhase => 'Gündüz Fazası';
 
   @override
-  String get nightPhase => 'Night Phase';
+  String get nightPhase => 'Gecə Fazası';
 
   @override
-  String get winningConditions => 'Winning Conditions';
+  String get winningConditions => 'Qələbə Şərtləri';
 
   @override
-  String get night => 'Night';
+  String get night => 'Gecə';
 
   @override
-  String get itIsYou => 'it is you';
+  String get itIsYou => 'Sənsən';
 
   @override
-  String get uknown => 'uknown';
-
-  @override
-  String get gameInformationPopupCured =>
-      'You’re in “safe” hands, the mafia can’t touch you now';
-
-  @override
-  String get gameInformationPopupInterviewed =>
-      'Congrats — you’re now part of their “big investigation,” whether you like it or not. And, as always, everyone’s already gossiping about whether you’re on the same side as the other interviewee';
+  String get uknown => 'Gizli';
 
   @override
   String get underTheEffectYouCannotVoteUseAbilitiesAndYour =>
       'Under the effect: you cannot vote, use abilities, and your messages appear distorted';
 
   @override
+  String get gameInformationPopupCured =>
+      'Siz «etibarlı» əllərdəsiniz — bu gecə mafiya sizə zərər verə bilməz';
+
+  @override
+  String get gameInformationPopupInterviewed =>
+      'Təbrik edirik — istəsənizdə istəməsənizdə artıq onların «böyük istintaqının» bir hissəsisiniz. Həmişəki kimi, hamı artıq digər sorğulanan ilə eyni tərəfdə olub-olmadığınızı müzakirə edir';
+
+  @override
   String get gameInformationPopupIntoxicated =>
-      'Under the effect: you cannot vote, use abilities, and your messages appear distorted';
+      'Təsir altındasınız: səs verə və ya bacarıqlarınızdan istifadə edə bilmərsiz, mesajlarınız isə təhrif olunmuş görünür';
 
   @override
   String get gameInformationPopupInvestigated =>
-      'The sheriff entered your details into the system — now they know who you are';
+      'Sheriff məlumatlarınızı sistemə daxil etdi və artıq kim olduğunuzu bilir';
 
   @override
   String get gameInformationPopupRevealed =>
-      'Now your life depends on how important your role is';
+      'İndi həyatınız rolunuzun nə qədər önəmli olduğundan asılıdır';
 
   @override
   String get gameInformationPopupProtected =>
-      'While the protection is active, you’re safe from harm.';
+      'Qoruma aktiv olduğu müddətcə təhlükəsizsiniz';
 
   @override
   String get gameInformationPopupSatisfied =>
-      'You’ve succumbed to the temptation and cannot vote or use abilities.';
+      'Ovsunlandınız — siz səs verə və ya bacarıqlarınızdan istifadə edə bilmərsiniz';
 
   @override
-  String get gameInformationPopupTitleCured => 'The doctor has cured you';
+  String get gameInformationPopupTitleCured => 'Doctor sizi xilas etdi';
 
   @override
   String get gameInformationPopupTitleInterviewed =>
-      'The journalist interviewed you';
+      'Journalist sizinlə müsahibə apardı';
 
   @override
-  String get gameInformationPopupTitleIntoxicated =>
-      'The bartender got you drunk';
+  String get gameInformationPopupTitleIntoxicated => 'Barman sizi sərxoş etdi';
 
   @override
-  String get gameInformationPopupTitleInvestigated =>
-      'The sheriff investigated you.';
+  String get gameInformationPopupTitleInvestigated => 'Sheriff sizi araşdırdı';
 
   @override
   String get gameInformationPopupTitleRevealed =>
-      'The informant revealed your role.';
+      'Informant rolunuzu aşkar etdi';
 
   @override
-  String get gameInformationPopupTitleProtected =>
-      'The bodyguard has protected you.';
+  String get gameInformationPopupTitleProtected => 'Bodyguard sizi qorudu';
 
   @override
-  String get gameInformationPopupTitleSatisfied =>
-      'The beauty has enchanted you.';
+  String get gameInformationPopupTitleSatisfied => 'Beauty sizi ovsunladı';
 
   @override
   String get gameInformationPopupExpirationCured =>
-      'The effect will wear off in one day';
+      'Təsir bir gündən sonra keçəcək';
 
   @override
   String get gameInformationPopupExpirationInterviewed =>
-      'The effect lasts until the end of the game';
+      'Təsir oyunun sonuna qədər davam edir';
 
   @override
   String get gameInformationPopupExpirationIntoxicated =>
-      'The effect will wear off in one day';
+      'Təsir bir gündən sonra keçəcək';
 
   @override
   String get gameInformationPopupExpirationInvestigated =>
-      'The effect lasts until the end of the game';
+      'Təsir oyunun sonuna qədər davam edir';
 
   @override
   String get gameInformationPopupExpirationRevealed =>
-      'The effect lasts until the end of the game';
+      'Təsir oyunun sonuna qədər davam edir';
 
   @override
   String get gameInformationPopupExpirationProtected =>
-      'The effect will wear off in one day';
+      'Təsir bir gündən sonra keçəcək';
 
   @override
   String get gameInformationPopupExpirationSatisfied =>
-      'The effect will wear off in one day';
+      'Təsir bir gündən sonra keçəcək';
 
   @override
   String get youMustWriteYourReport => 'You must write your report';
 
   @override
-  String get inviteFriend => 'Invite Friend';
+  String get inviteFriend => 'Dəvət et';
 
   @override
-  String get phaseMessagesDay => 'The silence of night is over. Now speak.';
+  String get phaseMessagesDay =>
+      'Yeni gün başlayır. Danış, sual et və şübhələn. Mafiya aranızdadır';
 
   @override
-  String get phaseMessageDayVoting => 'Choose the imposter of the day';
+  String get phaseMessageDayVoting =>
+      'Qərar vermə vaxtıdır. Kimə ən az etibar edirsiniz? Səsinizi verin';
 
   @override
-  String get phaseMessageNight => 'The night begins. All must rest in silence';
+  String get phaseMessageNight =>
+      'Gecə düşür. Qaranlıqda mafiya nəsə müzakirə edir';
 
   @override
-  String get phaseMessageNightVoting => 'The Mafia cast their deadly vote.';
+  String get phaseMessageNightVoting =>
+      'Mafiya yatmır.. indi kimsənin taleyi həll olunur';
 
   @override
   String nicknameDidNotSurviveTheNight(String nickname) {
-    return '[$nickname] did not survive the night..';
+    return '[$nickname] səhərə sağ çıxmadı..';
   }
 
   @override
   String nicknameWasEliminatedByTheTownsDecision(String nickname) {
-    return '[$nickname] was eliminated by the town\'s decision';
+    return '[$nickname] şəhərin qərarı ilə linc edildi..';
   }
 
   @override
-  String terroristTriedToBombTargetplayerButBodyguardSavedHimher(
+  String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer) {
-    return 'Terrorist tried to bomb [$targetPlayer], but bodyguard saved him/her';
+    return 'Kamikaze [$targetPlayer]-ı partlatmağa cəhd etdi, lakin bodyguard onu xilas etdi';
   }
 
   @override
-  String terroristBombardedTargetplayer(String targetPlayer) {
-    return 'Terrorist bombarded [$targetPlayer]';
+  String kamikazeBombardedTargetplayer(String targetPlayer) {
+    return 'Kamikaze [$targetPlayer]-ı partlatdı';
   }
 
   @override
   String firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams(
       String firstPlayerNickname, String secondPlayerNickname) {
-    return '[$firstPlayerNickname] and [$secondPlayerNickname] are on different teams';
+    return 'Journalist [$firstPlayerNickname] və [$secondPlayerNickname] ilə müsahibə apardı — onlar fərqli komandada oynayırlar';
   }
 
   @override
   String firstplayernicknameAndSecondplayernicknameAreOnSameTeams(
       String firstPlayerNickname, String secondPlayerNickname) {
-    return '[$firstPlayerNickname] and [$secondPlayerNickname] are on same teams';
+    return 'Journalist [$firstPlayerNickname] və [$secondPlayerNickname] ilə müsahibə apardı — onlar eyni komandada oynayırlar';
   }
 
   @override
-  String get inGame => 'in game';
+  String personalFeedBackToInformantAndSheriff(
+      String playerNickname, String playerRole) {
+    return 'Araşdırmandan sonra [$playerNickname]\'nin [$playerRole] olduğunu öyrəndin';
+  }
+
+  @override
+  String get inGame => 'Otaqda';
 
   @override
   String get enterTheTitle => 'Enter the title';
+
+  @override
+  String get gameRoles => 'Oyun Rolları';
+
+  @override
+  String get play => 'Oyna';
+
+  @override
+  String get filterOn => 'Filtr Açıq';
+
+  @override
+  String get gameIsFull => 'Otaq dolu';
+
+  @override
+  String get enterRoomName => ' Otaq adını daxil et';
+
+  @override
+  String get noFriendRequests => 'Dostluq sorğusu yoxdur';
+
+  @override
+  String get noFriendsToSuggest => 'Tövsiyə ediləcək dost yoxdur';
+
+  @override
+  String get minsAgo => 'dəq əvvəl';
+
+  @override
+  String get hoursAgo => 'saat əvvəl';
+
+  @override
+  String get daysAgo => 'gün əvvəl';
+
+  @override
+  String get lessThanAMinute => 'Bir dəqiqədən az';
+
+  @override
+  String get playerProfile => 'Oyunçu Profili';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get lastSeen => 'Son görülmə';
+
+  @override
+  String get deleteFriend => 'Dostluqdan sil';
+
+  @override
+  String get acceptRequest => 'Sorğunu qəbul et';
+
+  @override
+  String get rejectRequest => 'Sorğunu rədd et';
+
+  @override
+  String get cancelRequest => 'Sorğunu ləğv et';
+
+  @override
+  String get sent => 'Göndərildi';
+
+  @override
+  String get invite => 'Dəvət et';
+
+  @override
+  String get home => 'Ana Səhifə';
+
+  @override
+  String get notification => 'Notification';
+
+  @override
+  String get sentFriendRequest => ' dostluq üçün dəvət göndərdi';
+
+  @override
+  String get acceptedYourRequest => ' dostluq dəvətinizi qəbul etdi';
+
+  @override
+  String get whoIsNext => 'Növbəti kim olacaq?';
+
+  @override
+  String get invititationToGame => 'Otağa dəvət';
+
+  @override
+  String get invitedYouToTheGame => ' sizi bu otağa dəvət etdi - ';
+
+  @override
+  String get accept => 'Qəbul et';
+
+  @override
+  String get decline => 'Rədd et';
+
+  @override
+  String get gameInformationPopupLastMafia =>
+      'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on';
+
+  @override
+  String get gameInformationPopupTitleLastMafia => 'Last Mafia';
+
+  @override
+  String get gameInformationPopupExpirationLastMafia =>
+      'Təsir oyunun sonuna qədər davam edir';
+
+  @override
+  String get youAreNotElligibleToSendMessageRightNow =>
+      'You are not elligible to send message right now';
+
+  @override
+  String get theShadowsHaveConsumedYourLight =>
+      'The shadows have consumed your light.';
+
+  @override
+  String get youAreDead => 'You are dead';
+
+  @override
+  String get iDeadSituationOneText => 'IDeadSituationOneText';
+
+  @override
+  String get iDeadSituationTwoText => 'IDeadSituationTwoText';
+
+  @override
+  String get iDeadSituationThreeText => 'IDeadSituationThreeText';
+
+  @override
+  String get iDeadSituationFourText => 'iDeadSituationFourText';
+
+  @override
+  String get nightVotingCanNotSendMessage => 'NightVoting Can Not Send Message';
+
+  @override
+  String get nightCanNotSendMessage => 'Night Can Not Send Message';
+
+  @override
+  String get dayVotingCanNotSendMessage => 'DayVoting Can Not Send Message';
+
+  @override
+  String get unsupportedFileFormat => 'Unsupported File Format';
+
+  @override
+  String get fileIsTooLargeItMustBe200kb =>
+      'File is too large, it must be 200kb';
 }

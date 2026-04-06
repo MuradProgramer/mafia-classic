@@ -36,7 +36,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mafia => 'Mafia';
 
   @override
-  String get terrorist => 'Terrorist';
+  String get kamikaze => 'Kamikaze';
 
   @override
   String get barman => 'Barman';
@@ -73,7 +73,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Мафия - неотъемлемый персонаж в игре. Каждый Мафиози знает игроков из своей команды, в отличие от мирных жителей, которые не знают, кто за кого играет. Просыпаются ночью для того, чтобы убить одного из мирных жителей, которыми также являются Доктор и Шериф.';
 
   @override
-  String get roleTerroristDescription =>
+  String get roleKamikazeDescription =>
       'Террорист - играет на стороне команды мафии, но сам не является членом мафии. Мафия знает его личность, но террорист не знает личности членов мафии. Террорист имеет одну особую способность. В любое время в течение дневного голосования террорист может взорвать любого игрока, убив и себя, и жертву. Террорист не может быть убит мафией в ночное время. Таким образом, террорист должен помочь мафии выиграть, используя свою жизнь. Независимо от того, был ли убит террорист, он получит очки опыта в конце игры, если победит мафия.';
 
   @override
@@ -147,7 +147,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestAlredySent => 'Запрос уже отправлен';
 
   @override
-  String get requests => 'Запросы';
+  String get requests => 'Заявки';
 
   @override
   String get language => 'Язык';
@@ -165,7 +165,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get newPassword => 'Новый пароль';
 
   @override
-  String get change => 'Изменить';
+  String get change => 'Сменить';
 
   @override
   String get nickname => 'Никнейм';
@@ -180,7 +180,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get changeAvatar => 'Изменить аватарку';
 
   @override
-  String get logOut => 'Выйти из учетной записи';
+  String get logOut => 'Выйти';
 
   @override
   String get deleteAccaunt => 'Удалить аккаунт';
@@ -225,10 +225,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get gatheringPlayers => 'Збор Игроков';
 
   @override
-  String get alive => 'Живой';
+  String get alive => 'Жив';
 
   @override
-  String get dead => 'Мертвый';
+  String get dead => 'Мёртв';
 
   @override
   String get createGame => 'Создать Игру';
@@ -350,7 +350,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get playersInTheRoom => 'Игроки в комнате';
 
   @override
-  String get civilian => 'Мирный';
+  String get civilian => 'Civilian';
 
   @override
   String get day => 'День';
@@ -368,7 +368,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bombard => 'Взорвать';
 
   @override
-  String get vote => 'Выбрать';
+  String get vote => 'Выбор';
 
   @override
   String get myMoveIsMade => 'Голосовать';
@@ -377,7 +377,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get iAcceptTheWeightOfMyChoice => 'Я принимаю тяжесть своего выбора';
 
   @override
-  String get cure => 'Лечить';
+  String get cure => 'Спасти';
 
   @override
   String get satisfy => 'Очаровать';
@@ -392,7 +392,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reveale => 'Раскрыть';
 
   @override
-  String get investigate => 'Проверить';
+  String get investigate => 'Расследовать';
 
   @override
   String get interview => 'Опросить';
@@ -404,7 +404,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get civilians => 'Мирные';
 
   @override
-  String get pickYourTarget => 'Мафия выбирает жертву - ';
+  String get pickYourTarget => 'Выберите жертву';
 
   @override
   String get iveChosenNoRegrets => 'Я выбрал. Без сожалений';
@@ -419,19 +419,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lobby => 'Лобби';
 
   @override
-  String get search => 'Поиск...';
+  String get search => ' Поиск';
 
   @override
   String get filterOff => 'Фильтр выключен';
 
   @override
-  String get noAvailableGames => 'Нет доступных игр...';
+  String get noAvailableGames =>
+      'Пока нет активных игр… Создай свою и пригласи друзей!';
 
   @override
-  String get youArePlayingHere => 'Вы играете здесь';
+  String get youArePlayingHere => 'Ты играешь в этой комнате';
 
   @override
-  String get youDiedHere => 'Вы погибли здесь';
+  String get youDiedHere => 'Ты умер в этой комнате';
 
   @override
   String get show => 'Показать';
@@ -440,7 +441,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get allPlayers => 'Всех игроков';
 
   @override
-  String get areHere => 'здесь';
+  String get areHere => 'роли';
 
   @override
   String get defeated => 'Побеждён';
@@ -458,13 +459,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get off => 'выкл';
 
   @override
-  String get enterThePassword => 'Введите пароль';
+  String get enterThePassword => ' Введите пароль';
 
   @override
   String get numberOfPlayers => 'Количество игроков';
 
   @override
-  String get extraRoles => 'Дополнительные роли';
+  String get extraRoles => 'Доп. роли';
 
   @override
   String get beauty => 'Beauty';
@@ -494,7 +495,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get private => 'Приват';
 
   @override
-  String get includedRoles => 'Включённые роли:';
+  String get includedRoles => 'Дополнительные роли:';
 
   @override
   String get lover => 'Влюблённый';
@@ -506,7 +507,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get waiting => 'Ожидание Игроков';
 
   @override
-  String get trustedIndividuals => 'НАДЁЖНЫЕ ЛИЦА';
+  String get trustedIndividuals => 'ДОВЕРЕННЫЕ ЛИЦА';
 
   @override
   String get justiceRidesWithUs => 'Справедливость с нами.';
@@ -542,7 +543,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get goodCompany => 'ХОРОШАЯ КОМПАНИЯ';
 
   @override
-  String get ridingSoloAintTheWay => 'Играть в одиночку — не путь.';
+  String get ridingSoloAintTheWay => 'Вперед только вместе';
 
   @override
   String get requestPending => 'Запрос ожидает подтверждения';
@@ -676,8 +677,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get codeMustBe6Charactes => 'Код должен состоять из 6 символов';
 
   @override
-  String gameTerroristExplosion(String playerNickname) {
-    return 'Terrorist tried to bomb [\$playerNickname], but bodyguard saved him/her';
+  String gameKamikazeExplosion(String playerNickname) {
+    return 'Kamikaze tried to bomb [\$playerNickname], but bodyguard saved him/her';
   }
 
   @override
@@ -685,37 +686,37 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get skillsDescriptionsBeauty =>
-      'Выберите игрока, которого хотите очаровать. Он не сможет голосовать и использовать способности';
+      'Выберите игрока, чтобы очаровать его. Он не сможет голосовать и использовать способность';
 
   @override
   String get skillsDescriptionsBodyguard =>
-      'Выберите игрока, которого хотите защитить от мафии и террориста';
+      'Выберите игрока для защиты от мафии и террориста';
 
   @override
   String get skillsDescriptionsBarman =>
-      'Выберите игрока, которого хотите опьянить. Он не сможет голосовать, говорить и использовать способности';
+      'Выберите игрока, чтобы опьянить его. Он не сможет голосовать, говорить и использовать способность';
 
   @override
   String get skillsDescriptionsDoctor =>
-      'Выберите игрока, которого вы вылечите при нападении мафии';
+      'Выберите игрока, которого спасёте от нападения мафии';
 
   @override
   String get skillsDescriptionsInformant =>
-      'Выберите игрока, чью роль хотите раскрыть';
+      'Выберите игрока, чтобы раскрыть его роль';
 
   @override
   String get skillsDescriptionsSheriff =>
-      'Выберите двух игроков, чтобы узнать, в одной они команде или нет';
-
-  @override
-  String get skillsDescriptionsJournalist =>
       'Выберите игрока для расследования, чтобы узнать его роль';
 
   @override
-  String get hasJoined => 'зашел';
+  String get skillsDescriptionsJournalist =>
+      'Выберите двух игроков, чтобы узнать, в одной ли они команде';
 
   @override
-  String get hasLeft => 'вышел';
+  String get hasJoined => 'присоединился(ась)';
+
+  @override
+  String get hasLeft => 'покинул(а)';
 
   @override
   String get rolesGeneralDescriptionMafia =>
@@ -758,7 +759,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы — журналист мирных жителей. Каждую ночь проводите интервью с двумя игроками, чтобы все узнали, находятся ли они в одной команде или в разных';
 
   @override
-  String get rolesGeneralDescriptionTerrorist =>
+  String get rolesGeneralDescriptionKamikaze =>
       'Вы — террорист из команды мафии. Вы не знаете мафию, но мафия знает вас. Во время дневного голосования можете взорвать мирного, погибнув вместе с ним';
 
   @override
@@ -800,7 +801,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Помогайте мирным жителям устранять всех членов мафии, ежедневно проводя репортажи';
 
   @override
-  String get rolesObjectiveTerrorist =>
+  String get rolesObjectiveKamikaze =>
       'Помогайте членам мафии устранять мирных жителей, взорвав важного мирного жителя';
 
   @override
@@ -844,7 +845,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Участвуйте в обсуждениях и голосованиях, направляйте разговор и поддерживайте мирных жителей';
 
   @override
-  String get rolesDayPhaseTerrorist =>
+  String get rolesDayPhaseKamikaze =>
       'Вы можете участвовать в обсуждениях, но не имеете права голосовать. Во время дневного голосования вы можете взорвать игрока, однако если его защитит телохранитель, вы погибнете взяв собой телохранителя';
 
   @override
@@ -891,7 +892,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Каждую ночь вы можете взять интервью у двух игроков, чтобы выяснить, состоят ли они в одной команде. Результаты репортажа видны всем в чате';
 
   @override
-  String get rolesThirdDescriptionTerrorist =>
+  String get rolesThirdDescriptionKamikaze =>
       'Ночью вам делать нечего, отдыхайте';
 
   @override
@@ -935,7 +936,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы побеждаете, когда в живых не остаётся ни одного члена мафии';
 
   @override
-  String get rolesWinningConditionsTerrorist =>
+  String get rolesWinningConditionsKamikaze =>
       'Вы побеждаете, когда в живых не остаётся ни одного мирного жителя';
 
   @override
@@ -963,24 +964,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get uknown => 'неизвестный';
 
   @override
-  String get gameInformationPopupCured =>
-      'Вы в «надёжных» руках — мафия больше не может вам навредить';
-
-  @override
-  String get gameInformationPopupInterviewed =>
-      'Поздравляем — теперь вы часть их «большого расследования», хотите вы этого или нет. И, как всегда, все уже обсуждают, на одной ли вы стороне с другим опрошенным';
-
-  @override
   String get underTheEffectYouCannotVoteUseAbilitiesAndYour =>
       'Под действием эффекта: вы не можете голосовать, использовать способности, а ваши сообщения отображаются искажённо';
 
   @override
+  String get gameInformationPopupCured =>
+      'Вы в «надёжных» руках — мафия сегодня не может вам навредить';
+
+  @override
+  String get gameInformationPopupInterviewed =>
+      'Поздравляем — теперь вы часть их «большого расследования», хотите вы этого или нет. И как всегда, все уже обсуждают, на одной ли вы стороне с другим опрошенным';
+
+  @override
   String get gameInformationPopupIntoxicated =>
-      'Под действием эффекта: вы не можете голосовать, использовать способности, а ваши сообщения отображаются искажённо';
+      'Под действием эффекта: вы не можете голосовать и использовать навыки, а ваши сообщения отображаются искажённо';
 
   @override
   String get gameInformationPopupInvestigated =>
-      'Шериф внёс ваши данные в систему — теперь они знают, кто вы';
+      'Sheriff внёс ваши данные в систему и теперь он знает кто вы';
 
   @override
   String get gameInformationPopupRevealed =>
@@ -992,29 +993,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get gameInformationPopupSatisfied =>
-      'Вы поддались искушению и не можете голосовать или использовать способности';
+      'Вас очаровали — вы не можете голосовать или использовать способности';
 
   @override
-  String get gameInformationPopupTitleCured => 'Доктор вылечил вас';
+  String get gameInformationPopupTitleCured => 'Doctor спас вас';
 
   @override
-  String get gameInformationPopupTitleInterviewed => 'Журналист опросил вас';
+  String get gameInformationPopupTitleInterviewed => 'Journalist опросил вас';
 
   @override
-  String get gameInformationPopupTitleIntoxicated => 'Бармен напоил вас';
+  String get gameInformationPopupTitleIntoxicated => 'Barman напоил вас';
 
   @override
-  String get gameInformationPopupTitleInvestigated => 'Шериф расследовал вас';
+  String get gameInformationPopupTitleInvestigated => 'Sheriff расследовал вас';
 
   @override
-  String get gameInformationPopupTitleRevealed =>
-      'Информатор раскрыл вашу роль';
+  String get gameInformationPopupTitleRevealed => 'Informant раскрыл вашу роль';
 
   @override
-  String get gameInformationPopupTitleProtected => 'Телохранитель защитил вас';
+  String get gameInformationPopupTitleProtected => 'Bodyguard защитил вас';
 
   @override
-  String get gameInformationPopupTitleSatisfied => 'Красавица очаровала вас';
+  String get gameInformationPopupTitleSatisfied => 'Beauty очаровала вас';
 
   @override
   String get gameInformationPopupExpirationCured =>
@@ -1051,16 +1051,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get inviteFriend => 'Пригласить друга';
 
   @override
-  String get phaseMessagesDay => 'Ночная тишина окончена. Теперь говорите.';
+  String get phaseMessagesDay =>
+      'Новый день начинается. Говори, спрашивай и подозревай. Мафия среди вас';
 
   @override
-  String get phaseMessageDayVoting => 'Выберите самозванца дня';
+  String get phaseMessageDayVoting =>
+      'Время решать. Кому вы доверяете меньше всего? Отдайте свой голос';
 
   @override
-  String get phaseMessageNight => 'Наступает ночь. Все должны хранить тишину';
+  String get phaseMessageNight =>
+      'Ночь опускается на город. В темноте мафия что-то обсуждает';
 
   @override
-  String get phaseMessageNightVoting => 'Мафия делает свой смертельный выбор.';
+  String get phaseMessageNightVoting =>
+      'Мафия не спит.. чья-то судьба решается прямо сейчас';
 
   @override
   String nicknameDidNotSurviveTheNight(String nickname) {
@@ -1073,31 +1077,174 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String terroristTriedToBombTargetplayerButBodyguardSavedHimher(
+  String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer) {
-    return 'Террорист попытался взорвать [$targetPlayer], но телохранитель спас его/её';
+    return 'Kamikaze попытался взорвать [$targetPlayer], но bodyguard спас его/её';
   }
 
   @override
-  String terroristBombardedTargetplayer(String targetPlayer) {
-    return 'Террорист взорвал [$targetPlayer]';
+  String kamikazeBombardedTargetplayer(String targetPlayer) {
+    return 'Kamikaze взорвал [$targetPlayer]';
   }
 
   @override
   String firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams(
       String firstPlayerNickname, String secondPlayerNickname) {
-    return '[$firstPlayerNickname] и [$secondPlayerNickname] находятся в разных командах';
+    return 'Journalist провёл(а) интервью с [$firstPlayerNickname] и [$secondPlayerNickname] — они играют в разных командах';
   }
 
   @override
   String firstplayernicknameAndSecondplayernicknameAreOnSameTeams(
       String firstPlayerNickname, String secondPlayerNickname) {
-    return '[$firstPlayerNickname] и [$secondPlayerNickname] находятся в одной команде';
+    return 'Journalist провёл(а) интервью с [$firstPlayerNickname] и [$secondPlayerNickname] — они играют в одной команде';
   }
 
   @override
-  String get inGame => 'in game';
+  String personalFeedBackToInformantAndSheriff(
+      String playerNickname, String playerRole) {
+    return 'После расследования ты узнал(а), что [$playerNickname] — это [$playerRole]';
+  }
 
   @override
-  String get enterTheTitle => 'Enter the title';
+  String get inGame => 'В комнате';
+
+  @override
+  String get enterTheTitle => 'Введите название';
+
+  @override
+  String get gameRoles => 'Игровые Роли';
+
+  @override
+  String get play => 'Играть';
+
+  @override
+  String get filterOn => 'Фильтр Вкл';
+
+  @override
+  String get gameIsFull => 'Комната заполнена';
+
+  @override
+  String get enterRoomName => ' Название комнаты';
+
+  @override
+  String get noFriendRequests => 'Дружеских заявок нет';
+
+  @override
+  String get noFriendsToSuggest => 'Нет друзей для добавления';
+
+  @override
+  String get minsAgo => 'мин назад';
+
+  @override
+  String get hoursAgo => 'часов назад';
+
+  @override
+  String get daysAgo => 'дней назад';
+
+  @override
+  String get lessThanAMinute => 'Меньше минуты';
+
+  @override
+  String get playerProfile => 'Профиль игрока';
+
+  @override
+  String get status => 'Статус';
+
+  @override
+  String get lastSeen => 'Был в сети';
+
+  @override
+  String get deleteFriend => 'Удалить';
+
+  @override
+  String get acceptRequest => 'Принять заявку';
+
+  @override
+  String get rejectRequest => 'Отклонить заявку';
+
+  @override
+  String get cancelRequest => 'Отменить заявку';
+
+  @override
+  String get sent => 'Отправлено';
+
+  @override
+  String get invite => 'Пригласить';
+
+  @override
+  String get home => 'Главная';
+
+  @override
+  String get notification => 'Notification';
+
+  @override
+  String get sentFriendRequest => ' отправил(а) запрос в друзья';
+
+  @override
+  String get acceptedYourRequest => ' принял(а) вашу заявку в друзья';
+
+  @override
+  String get whoIsNext => 'Кто следующий?';
+
+  @override
+  String get invititationToGame => 'Приглашение в комнату';
+
+  @override
+  String get invitedYouToTheGame => ' пригласил вас в комнату - ';
+
+  @override
+  String get accept => 'Принять';
+
+  @override
+  String get decline => 'Отклонить';
+
+  @override
+  String get gameInformationPopupLastMafia =>
+      'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on';
+
+  @override
+  String get gameInformationPopupTitleLastMafia => 'Last Mafia';
+
+  @override
+  String get gameInformationPopupExpirationLastMafia =>
+      'Эффект действует до конца игры';
+
+  @override
+  String get youAreNotElligibleToSendMessageRightNow =>
+      'You are not elligible to send message right now';
+
+  @override
+  String get theShadowsHaveConsumedYourLight =>
+      'The shadows have consumed your light.';
+
+  @override
+  String get youAreDead => 'You are dead';
+
+  @override
+  String get iDeadSituationOneText => 'IDeadSituationOneText';
+
+  @override
+  String get iDeadSituationTwoText => 'IDeadSituationTwoText';
+
+  @override
+  String get iDeadSituationThreeText => 'IDeadSituationThreeText';
+
+  @override
+  String get iDeadSituationFourText => 'iDeadSituationFourText';
+
+  @override
+  String get nightVotingCanNotSendMessage => 'NightVoting Can Not Send Message';
+
+  @override
+  String get nightCanNotSendMessage => 'Night Can Not Send Message';
+
+  @override
+  String get dayVotingCanNotSendMessage => 'DayVoting Can Not Send Message';
+
+  @override
+  String get unsupportedFileFormat => 'Unsupported File Format';
+
+  @override
+  String get fileIsTooLargeItMustBe200kb =>
+      'File is too large, it must be 200kb';
 }

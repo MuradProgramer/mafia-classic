@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 
 // void showTopSnackBar(String message) {
@@ -21,6 +22,8 @@ import 'package:mafia_classic/mafia_classic_app.dart';
 
 //   navigatorState.overlay!.insert(overlayEntry);
 // }
+
+const int durationOfAnimation = 1400;
 
 class TopSnackBarManager {
   static OverlayEntry? _currentEntry;
@@ -96,10 +99,21 @@ class TopSnackBarManager {
                 entry.remove();
               },
             );
-
+          
           case 6:
-            return TopBounceSnackbarWarning(
-              type: 2,
+            return TopBounceSnackBarSkillUsed(
+              nickname: content['playerNickname'],
+              role: content['playerRole'],
+              onDismiss: () {
+                if (_currentEntry == entry) {
+                  _currentEntry = null;
+                }
+                entry.remove();
+              },
+            );
+
+          case 7:
+            return TopBounceSnackBarKamikazeExplosion(
               content: content['content'],
               onDismiss: () {
                 if (_currentEntry == entry) {
@@ -134,6 +148,7 @@ class TopSnackBarManager {
   }
 }
 
+///
 class TopBounceSnackBar extends StatefulWidget {
   final String message;
   final VoidCallback onDismiss;
@@ -158,7 +173,7 @@ class _TopBounceSnackBarState extends State<TopBounceSnackBar> with SingleTicker
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800), 
+      duration: const Duration(milliseconds: durationOfAnimation), 
       vsync: this,
     );
 
@@ -229,7 +244,7 @@ class _TopBounceSnackBarState extends State<TopBounceSnackBar> with SingleTicker
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      "Notification",
+                      AppLocalizations.of(context)!.notification,
                       style: TextStyle(
                         color: const Color(0xFFFFB000),
                         fontWeight: FontWeight.bold,
@@ -260,7 +275,7 @@ class _TopBounceSnackBarState extends State<TopBounceSnackBar> with SingleTicker
   }
 }
 
-
+///
 class TopBounceSnackBarNewMessage extends StatefulWidget {
   final String nickname;
   final String avatarUrl;
@@ -296,7 +311,7 @@ class _TopBounceSnackBarNewMessage extends State<TopBounceSnackBarNewMessage> wi
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800), 
+      duration: const Duration(milliseconds: durationOfAnimation), 
       vsync: this,
     );
 
@@ -415,7 +430,7 @@ class _TopBounceSnackBarNewMessage extends State<TopBounceSnackBarNewMessage> wi
 
 }
 
-
+///
 class TopBounceSnackBarNewRequest extends StatefulWidget {
   final String nickname;
   final String avatarUrl;
@@ -442,7 +457,7 @@ class _TopBounceSnackBarNewRequestState extends State<TopBounceSnackBarNewReques
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800), 
+      duration: const Duration(milliseconds: durationOfAnimation), 
       vsync: this,
     );
 
@@ -526,31 +541,33 @@ class _TopBounceSnackBarNewRequestState extends State<TopBounceSnackBarNewReques
                     ),
                     SizedBox(width: 8.w),
                     Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.nickname,
-                            style: TextStyle(
-                              color: const Color(0xFFFFB000),
-                              fontSize: 17.sp,
-                              fontFamily: 'CenturyGothic'
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "[${widget.nickname}]",
+                              style: TextStyle(
+                                color: const Color(0xFFFFB000),
+                                fontSize: 17.sp,
+                                fontFamily: 'CenturyGothic',
+                              ),
                             ),
-                          ),
-
-                          Text(
-                            " sent friend request",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold, 
-                              fontSize: 17.sp,
-                              fontFamily: 'CenturyGothic'
+                            TextSpan(
+                              text: AppLocalizations.of(context)!.sentFriendRequest,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.sp,
+                                fontFamily: 'CenturyGothic',
+                              ),
                             ),
-                          ),
-                          
-                        ],
+                          ],
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
                       ),
-                    ),
+                    )
+                  
                   ],
                 ),
               ),
@@ -563,7 +580,7 @@ class _TopBounceSnackBarNewRequestState extends State<TopBounceSnackBarNewReques
 
 }
 
-
+///
 class TopBounceSnackBarNewFriend extends StatefulWidget {
   final String nickname;
   final String avatarUrl;
@@ -590,7 +607,7 @@ class _TopBounceSnackBarNewFriendState extends State<TopBounceSnackBarNewFriend>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800), 
+      duration: const Duration(milliseconds: durationOfAnimation), 
       vsync: this,
     );
 
@@ -674,31 +691,33 @@ class _TopBounceSnackBarNewFriendState extends State<TopBounceSnackBarNewFriend>
                     ),
                     SizedBox(width: 8.w),
                     Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.nickname,
-                            style: TextStyle(
-                              color: const Color(0xFFFFB000),
-                              fontSize: 17.sp,
-                              fontFamily: 'CenturyGothic'
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "[${widget.nickname}]",
+                              style: TextStyle(
+                                color: const Color(0xFFFFB000),
+                                fontSize: 17.sp,
+                                fontFamily: 'CenturyGothic',
+                              ),
                             ),
-                          ),
-
-                          Text(
-                            " accepted your request",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold, 
-                              fontSize: 17.sp,
-                              fontFamily: 'CenturyGothic'
+                            TextSpan(
+                              text: AppLocalizations.of(context)!.acceptedYourRequest,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.sp,
+                                fontFamily: 'CenturyGothic',
+                              ),
                             ),
-                          ),
-                          
-                        ],
+                          ],
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
                       ),
-                    ),
+                    )
+                  
                   ],
                 ),
               ),
@@ -711,7 +730,7 @@ class _TopBounceSnackBarNewFriendState extends State<TopBounceSnackBarNewFriend>
 
 }
 
-
+///
 class TopBounceSnackbarWarning extends StatefulWidget {
   final int type;
   final String content;
@@ -738,7 +757,7 @@ class _TopBounceSnackbarWarningState extends State<TopBounceSnackbarWarning> wit
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800), 
+      duration: const Duration(milliseconds: durationOfAnimation), 
       vsync: this,
     );
 
@@ -836,7 +855,7 @@ class _TopBounceSnackbarWarningState extends State<TopBounceSnackbarWarning> wit
                           borderRadius: BorderRadius.circular(5.r),
                         ),
                         child: Image.asset(
-                          'assets/images/role-card-mark-terrorist.png',
+                          'assets/images/role-card-mark-kamikaze.png',
                           height: 36.h,
                           width: 27.w,
                         ),
@@ -864,17 +883,17 @@ class _TopBounceSnackbarWarningState extends State<TopBounceSnackbarWarning> wit
   }
 }
 
-
+/// -
 class TopBounceSnackBarSkillUsed extends StatefulWidget {
   final String nickname;
-  final String avatarUrl;
+  final String role;
 
   final VoidCallback onDismiss;
 
   const TopBounceSnackBarSkillUsed({
     super.key, 
-    required this.nickname, 
-    required this.avatarUrl, 
+    required this.role,
+    required this.nickname,
     required this.onDismiss
   });
 
@@ -892,7 +911,196 @@ class _TopBounceSnackBarSkillUsedState extends State<TopBounceSnackBarSkillUsed>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800), 
+      duration: const Duration(milliseconds: durationOfAnimation), 
+      vsync: this,
+    );
+
+    _offsetAnimation = Tween<Offset>(
+      begin: const Offset(0.0, -2), 
+      end: const Offset(0.0, 0.0),
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.elasticOut,
+      reverseCurve: Curves.elasticOut, 
+    ));
+
+    _controller.forward();
+
+    _timer = Timer(const Duration(seconds: 3), () {
+      _dismiss();
+    });
+  }
+
+  void _dismiss() async {
+    if (!mounted) return;
+    
+    _timer?.cancel();
+
+    await _controller.reverse();
+
+    widget.onDismiss();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  List<TextSpan> _buildSpans(String dynamicText, bool isSecondWordRed) {
+    List<TextSpan> spans = [];
+    final regExp = RegExp(r'\[.*?\]');
+    int matchCount = 0;
+    int lastMatchEnd = 0;
+
+    for (final match in regExp.allMatches(dynamicText)) {
+      if (match.start > lastMatchEnd) {
+        spans.add(TextSpan(text: dynamicText.substring(lastMatchEnd, match.start)));
+      }
+
+      matchCount++;
+      Color highlightColor = Colors.white;
+
+      if (matchCount == 1) {
+        highlightColor = const Color(0xFFFFB000);
+      } else if (matchCount == 2) {
+        highlightColor = isSecondWordRed ? Colors.redAccent : const Color(0xFFFFB000);
+      }
+
+      spans.add(TextSpan(
+        text: match.group(0)?.replaceAll(RegExp(r'\s+\]'), ']'),
+        style: TextStyle(
+          color: highlightColor, 
+          fontWeight: FontWeight.bold,
+          //backgroundColor: highlightColor == const Color(0xFFFFB000) ? Colors.black12 : null,
+        ),
+      ));
+
+      lastMatchEnd = match.end;
+    }
+
+    if (lastMatchEnd < dynamicText.length) {
+      spans.add(TextSpan(text: dynamicText.substring(lastMatchEnd)));
+    }
+
+    return spans;
+  }
+
+  Map<String, String> get rolesLocalizaitons => {
+    'mafia': AppLocalizations.of(context)!.mafia,
+    'civilian': AppLocalizations.of(context)!.civilian,
+    'spy': AppLocalizations.of(context)!.spy,
+    'doctor': AppLocalizations.of(context)!.doctor,
+    'beauty': AppLocalizations.of(context)!.beauty,
+    'bodyguard': AppLocalizations.of(context)!.bodyguard,
+    'barman': AppLocalizations.of(context)!.barman,
+    'informant': AppLocalizations.of(context)!.informant,
+    'sheriff': AppLocalizations.of(context)!.sheriff,
+    'journalist': AppLocalizations.of(context)!.journalist,
+    'kamikaze': AppLocalizations.of(context)!.kamikaze,
+    'undef': AppLocalizations.of(context)!.uknown
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Material(
+        color: Colors.transparent,
+        child: GestureDetector(
+          onTap: _dismiss,
+          behavior: HitTestBehavior.translucent, 
+          child: Container(
+            alignment: Alignment.topCenter,
+            padding: const EdgeInsets.only(top: 50, left: 20, right: 20),
+            child: SlideTransition(
+              position: _offsetAnimation,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111111),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/friends-search-icon.png',
+                      width: 30.w,
+                      height: 30.h,
+                    ),
+
+                    SizedBox(width: 18.w),
+                    
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17.sp,
+                                fontFamily: 'CenturyGothic'
+                              ),
+                              children: _buildSpans(
+                                AppLocalizations.of(context)!.personalFeedBackToInformantAndSheriff(widget.nickname, rolesLocalizaitons[widget.role]!),
+                                ['informant', 'mafia', 'kamikaze', 'barman'].any((e) => e == widget.role.toLowerCase())
+                              )
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+}
+
+/// -
+class TopBounceSnackBarKamikazeExplosion extends StatefulWidget {
+  final String content;
+
+  final VoidCallback onDismiss;
+
+  const TopBounceSnackBarKamikazeExplosion({
+    super.key, 
+    required this.content, 
+    required this.onDismiss
+  });
+
+  @override
+  State<TopBounceSnackBarKamikazeExplosion> createState() => _TopBounceSnackBarKamikazeExplosionState();
+}
+
+class _TopBounceSnackBarKamikazeExplosionState extends State<TopBounceSnackBarKamikazeExplosion> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _offsetAnimation;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: durationOfAnimation), 
       vsync: this,
     );
 
@@ -967,32 +1175,23 @@ class _TopBounceSnackBarSkillUsedState extends State<TopBounceSnackBarSkillUsed>
                           color: Colors.white,
                           width: 1.sp,
                         ),
-                        shape: BoxShape.circle,
+                        shape: BoxShape.rectangle,
                       ),
-                      child: CircleAvatar(
-                        backgroundImage: NetworkImage(widget.avatarUrl),
-                        radius: 20.sp,
+                      child: Image.asset(
+                        'assets/images/role-card-mark-kamikaze.png',
+                        width: 27.w,
+                        height: 36.h,
                       ),
                     ),
                     SizedBox(width: 8.w),
                     Expanded(
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            widget.nickname,
+                            widget.content,
                             style: TextStyle(
-                              color: const Color(0xFFFFB000),
-                              fontSize: 17.sp,
-                              fontFamily: 'CenturyGothic'
-                            ),
-                          ),
-
-                          Text(
-                            " accepted your request",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold, 
+                              color: const Color(0xFFFFFFFF),
                               fontSize: 17.sp,
                               fontFamily: 'CenturyGothic'
                             ),
@@ -1011,3 +1210,5 @@ class _TopBounceSnackBarSkillUsedState extends State<TopBounceSnackBarSkillUsed>
   }
 
 }
+
+

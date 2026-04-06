@@ -2,15 +2,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
+import 'package:mafia_classic/l10n/app_localizations.dart';
 
 class GamePlayerDeadPopup extends StatefulWidget {
-  const GamePlayerDeadPopup({super.key});
+  final int situationType;
+  const GamePlayerDeadPopup({super.key, required this.situationType});
 
   @override
   State<GamePlayerDeadPopup> createState() => _GamePlayerDeadPopupState();
 }
 
 class _GamePlayerDeadPopupState extends State<GamePlayerDeadPopup> {
+  String getMessageOfDeath(BuildContext context) {
+    switch (widget.situationType) {
+      case 1:
+        return AppLocalizations.of(context)!.iDeadSituationOneText;
+      case 2:
+        return AppLocalizations.of(context)!.iDeadSituationTwoText;
+      case 3:
+        return AppLocalizations.of(context)!.iDeadSituationThreeText;
+      case 4:
+        return AppLocalizations.of(context)!.iDeadSituationFourText;
+      default:
+        return AppLocalizations.of(context)!.youAreDead;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -77,7 +94,7 @@ class _GamePlayerDeadPopupState extends State<GamePlayerDeadPopup> {
                       padding: EdgeInsets.only(top: 25.h, bottom: 10.h, left: 20.w, right: 20.w),
                       child: Text(
                         textAlign: TextAlign.center,
-                        'The shadows have consumed your light.',
+                        AppLocalizations.of(context)!.theShadowsHaveConsumedYourLight,
                         style: TextStyle(
                           height: 0,
                           fontSize: 32.sp,
@@ -89,12 +106,12 @@ class _GamePlayerDeadPopupState extends State<GamePlayerDeadPopup> {
             
                   ],
                 ),
-            
-                //? TEXT:    Enter the password
+
+                //? TEXT:    You are dead
                 Padding(
                   padding: EdgeInsets.only(top: 20.h, bottom: 10.h),
                   child: Text(
-                    'You are dead',
+                    getMessageOfDeath(context),
                     textAlign: TextAlign.center,
                     softWrap: true,
                     style: TextStyle(

@@ -7,31 +7,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mafia_classic/blocs/player_event.dart';
 import 'package:mafia_classic/features/games/game/game.dart';
 import 'package:mafia_classic/features/games/popups/games_popups.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/profile/roles/widgets/widgets.dart';
 import 'package:mafia_classic/features/widgets/player_info_popup.dart';
-import 'package:mafia_classic/features/widgets/validation_popup.dart';
 
-import 'package:mafia_classic/generated/l10n.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 import 'package:mafia_classic/mafia_classic_app.dart';
 import 'package:mafia_classic/models/player.dart';
 import 'package:mafia_classic/models/user.dart';
 import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/cache/general_cache_service.dart';
-import 'package:mafia_classic/services/signalr_service.dart';
 import 'package:mafia_classic/services/tcp/enums.dart';
 import 'package:mafia_classic/services/tcp/event_bus.dart';
 import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
-import 'package:mafia_classic/theme/theme.dart';
 import 'package:mafia_classic/utils/popup_utils.dart';
-import 'package:signalr_netcore/http_connection_options.dart';
-import 'package:signalr_netcore/hub_connection_builder.dart';
-import 'package:signalr_netcore/itransport.dart';
 
 int stateToJoin = 1;
 
@@ -80,12 +72,14 @@ class GamesScreen extends StatefulWidget {
   final User user;
   final ValueNotifier<int> tabIndexNotifier;
   final int tabIndex;
+  final void Function(int) onNavigationTapped;
 
   const GamesScreen({
     super.key, 
     required this.user,
     required this.tabIndexNotifier,
-    required this.tabIndex
+    required this.tabIndex, 
+    required this.onNavigationTapped
   });
 
   @override
@@ -115,7 +109,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
     hasLover: false,
     hasBodyguard: false,
     hasJournalist: false,
-    hasTerrorist: false,
+    hasKamikaze: false,
     hasBartender: false,
     hasInformant: false,
 
@@ -132,7 +126,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
     hasLover: false,
     hasBodyguard: false,
     hasJournalist: false,
-    hasTerrorist: false,
+    hasKamikaze: false,
     hasBartender: false,
     hasInformant: false,
 
@@ -152,12 +146,12 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
           List<String> requiredRoles = [];
           if (filters.hasBodyguard) requiredRoles.add('Bodyguard');
           if (filters.hasLover) requiredRoles.add('Beauty');
-          if (filters.hasTerrorist) requiredRoles.add('Journalist');
-          if (filters.hasTerrorist) requiredRoles.add('Spy');
+          if (filters.hasKamikaze) requiredRoles.add('Journalist');
+          if (filters.hasKamikaze) requiredRoles.add('Spy');
 
-          if (filters.hasTerrorist) requiredRoles.add('Terrorist');
-          if (filters.hasTerrorist) requiredRoles.add('Informant');
-          if (filters.hasTerrorist) requiredRoles.add('Barman');
+          if (filters.hasKamikaze) requiredRoles.add('Kamikaze');
+          if (filters.hasKamikaze) requiredRoles.add('Informant');
+          if (filters.hasKamikaze) requiredRoles.add('Barman');
 
           if (requiredRoles.isNotEmpty) {
             for (final role in requiredRoles) {
@@ -169,6 +163,36 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
         }).toList();
       }
     });
+  }
+
+  void sortGames() {
+    searchedGames?.sort((a, b) {
+      bool amIInGame(Game g) => g.players.any((p) => p.id == authorizedUser.id);
+
+      bool isDead(Game g) => g.status == "Started" || g.players.length >= g.maxPlayers;
+
+      int getRank(Game g) {
+        if (amIInGame(g)) return -1;
+        if (isDead(g)) return 2;
+        return 0;
+      }
+
+      int rankA = getRank(a);
+      int rankB = getRank(b);
+
+      if (rankA != rankB) {
+        return rankA.compareTo(rankB);
+      }
+
+      double aPercent = a.players.length / a.maxPlayers;
+      double bPercent = b.players.length / b.maxPlayers;
+
+      return bPercent.compareTo(aPercent);
+    });
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> openFilterizationScreen() async {
@@ -209,61 +233,72 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
 
     widget.tabIndexNotifier.addListener(_onTabChanged);
 
-    TcpClientService().sendMessage(ClientCommand.getRooms.value, "");
+    try {
+      TcpClientService().sendMessage(ClientCommand.getRooms.value, "");
+    } catch (e) {
+      log('💥 ClientCommand.getRooms - $e - Client Command - DidChangeDependencies 💥');
+    }
   }
 
   void loadStreamsAndData() {
-    TcpClientService().sendMessage(ClientCommand.getRooms.value, ""); //? lobbyRooms
-    log('*************SEND MESSAGE IS SUCCEFULL*************');
+    try {
+      TcpClientService().sendMessage(ClientCommand.getRooms.value, "");
+    } catch (e) {
+      log('💥 ClientCommand.getRooms - $e - Client Command - LoadStreamData 💥');
+    }
 
-    // DONE +
+    // DONE
     lobbyRooms = EventRouterService()
         .subscribe(ServerEvent.lobbyRooms)
         .listen((payload) {
-      final List<dynamic> jsonData = json.decode(payload)['rooms'];
-      setState(() {
-        final games = jsonData.map((gameJson) {
-          return Game.fromJson(gameJson as Map<String, dynamic>);
-        }).toList();
-
-        final List<Game>? gamesList = games;
-
-        if (gamesList != null) {
-          setState(() {
-            allGames = gamesList;
-            searchedGames = allGames;
-          });
-          applyFilters(currentFilters.value);
-        }
-      });
+      try {
+        final List<dynamic> jsonData = json.decode(payload)['rooms'];
+        setState(() {
+          final games = jsonData.map((gameJson) {
+            return Game.fromJson(gameJson as Map<String, dynamic>);
+          }).toList();
+        
+          final List<Game>? gamesList = games;
+        
+          if (gamesList != null) {
+            setState(() {
+              allGames = gamesList;
+              searchedGames = allGames;
+            });
+            applyFilters(currentFilters.value);
+          }
+        
+          sortGames();
+        });
+      } catch (e) {
+        log('💥 Lobby Rooms Error - Games Screen 💥');
+      }
     });
 
-    // DONE +a
+    // DONE
     lobbyRoomCreated = EventRouterService()
         .subscribe(ServerEvent.lobbyRoomCreated)
         .listen((payload) {
       try {
         final Map<String, dynamic> jsonData = json.decode(payload);
 
-        final Game? game = Game.fromJson(jsonData);
-        if (game != null) {
+        final Game game = Game.fromJson(jsonData);
         setState(() {
           allGames?.add(game);
           searchedGames = allGames;
         });
-      }
+
+        sortGames();
       } catch (e) {
-        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\n$e");
-        return;
+        log('💥 Lobby Room Created Error - Games Screen 💥');
       }
     });
 
-    // DONE +a
+    // DONE
     lobbyPlayerEnteredRoom = EventRouterService()
         .subscribe(ServerEvent.lobbyPlayerEnteredRoom)
         .listen((payload) {
       if (payload.isEmpty) {
-        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\nNo data received.");
         return;
       }
 
@@ -284,13 +319,15 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
             });
           }
         }
+
+        sortGames();
       } catch (e) {
-        log("Event Router Service Error: GAMES SCREEN | LOBBY ROOM CREATE\n$e");
+        log('💥 Lobby Player Entered Room Error - Games Screen 💥');
         return;
       }
     });
 
-    // DONE +a
+    // DONE
     lobbyPlayerExitedRoom = EventRouterService()
         .subscribe(ServerEvent.lobbyPlayerExitedRoom)
         .listen((payload) {
@@ -320,29 +357,36 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
             log('Event Router Service Info: GAMES SCREEN | LOBBY PLAYER EXITED ROOM -> There is no player with this nickname');
           }
         }
+
+        sortGames();
       } catch (e) {
-        log("Event Router Service Error: GAMES SCREEN | LOBBY PLAYER EXITED ROOM\n$e");
-        return;
+        log('💥 Lobby Player Exited Room Error - Games Screen 💥');
       }
     });
     
-    // DONE +a
+    // DONE
     lobbyPlayerGameStarted = EventRouterService()
         .subscribe(ServerEvent.lobbyGameStarted)
         .listen((payload) {
-      final String? roomId = json.decode(payload)['roomId'];
-
-      if (roomId != null && allGames != null) {
-        if (allGames!.any((game) => game.id == roomId)) {
-          setState(() {
-            allGames!.firstWhere((game) => game.id == roomId).status = 'Started';
-            searchedGames = allGames;
-          });
+      try {
+        final String? roomId = json.decode(payload)['roomId'];
+        
+        if (roomId != null && allGames != null) {
+          if (allGames!.any((game) => game.id == roomId)) {
+            setState(() {
+              allGames!.firstWhere((game) => game.id == roomId).status = 'Started';
+              searchedGames = allGames;
+            });
+          }
         }
+        
+        sortGames();
+      } catch (e) {
+        log('💥 Lobby Player Game Started Error - Games Screen 💥');
       }
     });
 
-    // PARTIALLY DONE +
+    // PARTIALLY DONE
     lobbyPlayerEliminated = EventRouterService()
         .subscribe(ServerEvent.lobbyPlayerEliminated)
         .listen((payload) {
@@ -364,39 +408,51 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
           searchedGames = allGames;
         });
       } on Exception catch (e) {
-        log('Event Router Service Error: GAMES SCREEN | LOBBY PLAYER ELIMINATED\n${e.toString()}');
+        log('💥 Lobby Player Eliminated Error - Games Screen 💥');
       }
     });
 
-    // DONE +a
+    // DONE
     lobbyGameOver = EventRouterService()
         .subscribe(ServerEvent.lobbyGameOver)
         .listen((payload) {
-      final String? roomId = json.decode(payload)['roomId'];
-
-      if (roomId != null && allGames != null) {
-        if (allGames!.any((game) => game.id == roomId)) {
-          setState(() {
-            allGames!.firstWhere((game) => game.id == roomId).status = 'Wating';
-            searchedGames = allGames;
-          });
+      try {
+        final String? roomId = json.decode(payload)['roomId'];
+        
+        if (roomId != null && allGames != null) {
+          if (allGames!.any((game) => game.id == roomId)) {
+            setState(() {
+              allGames!.firstWhere((game) => game.id == roomId).status = 'Wating';
+              searchedGames = allGames;
+            });
+          }
         }
+        
+        sortGames();
+      } catch(e) {
+        log('💥 Lobby Game Over Error - Games Screen 💥');
       }
     });
 
-    // DONE +a
+    // DONE
     lobbyRoomClosed = EventRouterService()
         .subscribe(ServerEvent.lobbyRoomClosed)
         .listen((payload) {
-      final String? roomId = json.decode(payload)['roomId'];
-
-      if (roomId != null && allGames != null) {
-        if (allGames!.any((game) => game.id == roomId)) {
-          setState(() {
-            allGames!.removeWhere((game) => game.id == roomId);
-            searchedGames = allGames;
-          });
+      try {
+        final String? roomId = json.decode(payload)['roomId'];
+        
+        if (roomId != null && allGames != null) {
+          if (allGames!.any((game) => game.id == roomId)) {
+            setState(() {
+              allGames!.removeWhere((game) => game.id == roomId);
+              searchedGames = allGames;
+            });
+          }
         }
+        
+        sortGames();
+      } catch (e) {
+        log('💥 Lobby Room Closed Error - Games Screen 💥');
       }
     });
 
@@ -512,18 +568,19 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // BUTTON:    HOME
-                  const SizedBox(),
-                  /*
+                  //const SizedBox(),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () { widget.onNavigationTapped(3); },
                     child: Image.asset(
-                      "assets/images/home-icon.png",
-                      scale: 2.8,
+                      "assets/images/icon-create-borderless.png",
+                      scale: 2.3,
                     ),
+                    // child: Icon(
+                    //   Icons.add,
+                    //   size: 40.sp,
+                    //   color: const Color(0xFFFFB000),
+                    // ),
                   ),
-                  */
 
                   // BUTTON:    FILTER
                   GestureDetector(
@@ -545,7 +602,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
             
               //? INFO PART
               Container(
-                margin: EdgeInsets.only(top: 25.h),
+                margin: EdgeInsets.only(top: 10.h),
                 width: double.maxFinite,
                 height: 200.h,
                 decoration: BoxDecoration(
@@ -697,7 +754,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
                             Padding(
                               padding: EdgeInsets.only(top: 15.h, left: 25.w, right: 20.w),
                               child: Text(
-                                filtersApplied.value ? "Filter On" : AppLocalizations.of(context)!.filterOff,
+                                filtersApplied.value ? AppLocalizations.of(context)!.filterOn : AppLocalizations.of(context)!.filterOff,
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: Colors.white,
@@ -728,11 +785,12 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
                   ),
                   child: (searchedGames!.isEmpty)
                   ? Padding(
-                      padding: EdgeInsets.only(top: 40.h),
+                      padding: EdgeInsets.symmetric(horizontal: 20.h),
                       child: Align(
                         alignment: Alignment.topCenter,
                         child: Text(
                           AppLocalizations.of(context)!.noAvailableGames,
+                          textAlign: TextAlign.center,
                           style: GoogleFonts.playfairDisplay(
                             color: Colors.white,
                             fontSize: 22
@@ -744,7 +802,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
                       padding: EdgeInsets.zero,
                       itemCount: searchedGames!.length,
                       itemBuilder: (context, index) {
-                        return GameCard(game: searchedGames![index], loadStreamsAndData: loadStreamsAndData,);
+                        return GameCard(game: searchedGames![index], loadStreamsAndData: loadStreamsAndData, sortGames: sortGames,);
                       },
                     ),
                 ),
@@ -857,8 +915,9 @@ class Game {
 class GameCard extends StatefulWidget {
   final Game game;
   final void Function() loadStreamsAndData;
+  final void Function() sortGames;
 
-  const GameCard({super.key, required this.game, required this.loadStreamsAndData});
+  const GameCard({super.key, required this.game, required this.loadStreamsAndData, required this.sortGames});
 
   @override
   State<GameCard> createState() => _GameCardState();
@@ -935,233 +994,255 @@ class _GameCardState extends State<GameCard> {
           })
         },
         
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: Column(
           children: [
-            //? TITLE
-            Expanded(
-              child: Text(
-                widget.game.title,
-                overflow: (isCardExpanded) ? TextOverflow.fade : TextOverflow.ellipsis,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 23.sp, 
-                  color: const Color(0xFFFFB000)
-                )
-              ),
-            ),
-                          
-            // BUTTON:    JOIN 
-            //!
-            widget.game.status == 'Started' && text == ''
-            ? Text(
-              'Game Started',
-              style: TextStyle(
-                fontSize: 15.sp,
-                color: Colors.white,
-                fontFamily: 'CenturyGothic'
-              ),
-            )
-            : Row(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                widget.game.hasPassword 
-                ? Image.asset(
-                  "assets/images/locker.png",
-                  scale: 3.5,
+                //? TITLE
+                Expanded(
+                  child: Text(
+                    widget.game.title,
+                    overflow: (isCardExpanded) ? TextOverflow.fade : TextOverflow.ellipsis,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 23.sp, 
+                      color: const Color(0xFFFFB000)
+                    )
+                  ),
+                ),
+                              
+                // BUTTON:    JOIN 
+                //!
+                widget.game.status == 'Started' && text == ''
+                ? Text(
+                  AppLocalizations.of(context)!.gameStarted,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    color: Colors.white,
+                    fontFamily: 'CenturyGothic'
+                  ),
                 )
-                : const SizedBox(),
-        
-                SizedBox(width: 40.w),
-        
-                GestureDetector(
-                  onTap: () async {
-                    
-                    if (widget.game.hasPassword) {
-                      final result = await showGeneralDialog<String>(
-                        context: context,
-                        useRootNavigator: true,              // <— важно
-                        barrierDismissible: false, 
-                        //barrierDismissible: true,
-                        barrierLabel: "Dismiss",
-                        barrierColor: Colors.black.withOpacity(0.7),
-                        transitionDuration: const Duration(milliseconds: 800),
-                        pageBuilder: (context, animation, secondaryAnimation) {
-                          //return const InformationPopup(effect: 'satisfied');
-                          return const GameJoinPasswordPopup();
-                          //return GameOverPopup(isMafiaWinner: true, score: 250);
-                        },
-                        transitionBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                              final curvedAnimation = CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.elasticOut,
-                                reverseCurve: Curves.easeInBack,
-                              );
-
-                              return SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(-1.0, 0.0),
-                                  end: Offset.zero,
-                                ).animate(curvedAnimation),
-                                child: child,
-                              );
+                : widget.game.players.length == widget.game.maxPlayers 
+                ? Text(
+                  AppLocalizations.of(context)!.gameIsFull,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    color: Colors.white,
+                    fontFamily: 'CenturyGothic'
+                  )
+                )
+                : Row(
+                  children: [
+                    widget.game.hasPassword 
+                    ? Image.asset(
+                      "assets/images/locker.png",
+                      scale: 3.5,
+                    )
+                    : const SizedBox(),
+            
+                    SizedBox(width: 40.w),
+            
+                    GestureDetector(
+                      onTap: () async {
+                        
+                        if (widget.game.hasPassword) {
+                          final result = await showGeneralDialog<String>(
+                            context: context,
+                            useRootNavigator: true,              // <— necessery
+                            barrierDismissible: false, 
+                            //barrierDismissible: true,
+                            barrierLabel: "Dismiss",
+                            barrierColor: Colors.black.withOpacity(0.7),
+                            transitionDuration: const Duration(milliseconds: 800),
+                            pageBuilder: (context, animation, secondaryAnimation) {
+                              //return const InformationPopup(effect: 'satisfied');
+                              return const GameJoinPasswordPopup();
+                              //return GameOverPopup(isMafiaWinner: true, score: 250);
                             },
-                      );
-
-                      log("RESULT: $result");
-
-                      if (result == null) {
-                        log("RESULT IS NOT SUCCESFULL");
-                        return;
-                      } else {
-                        password = result;
-                      }
-                    }
-
-                    //! PROVERKA
-
-                    
-                    final jsonString = jsonEncode({
-                      'roomId': widget.game.id,
-                      'password': password,
-                    });
-
-                    TcpClientService().sendMessage(ClientCommand.joinRoom.value, jsonString);
-
-                    if (text == 'You Are Playing Here' || text == 'You Died Here') {
-                      Navigator.of(context, rootNavigator: true).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return GameScreen(title: widget.game.title, playersRole: [] , role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",);
+                            transitionBuilder:
+                                (context, animation, secondaryAnimation, child) {
+                                  final curvedAnimation = CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.elasticOut,
+                                    reverseCurve: Curves.easeInBack,
+                                  );
+            
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(-1.0, 0.0),
+                                      end: Offset.zero,
+                                    ).animate(curvedAnimation),
+                                    child: child,
+                                  );
+                                },
+                          );
+            
+                          log("RESULT: $result");
+            
+                          if (result == null) {
+                            log("RESULT IS NOT SUCCESFULL");
+                            return;
+                          } else {
+                            password = result;
                           }
-                        )
-                      ).then((result) {
-                        widget.loadStreamsAndData();
-                      });
-                    }
-                  },
-                  child: Container(
-                    width: 100.w,
-                    height: 35.h,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Center(
-                      child: Text(
-                        AppLocalizations.of(context)!.join,
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          fontFamily: 'CenturyGothic',
-                          color: Colors.white,
+                        }
+            
+                        //! PROVERKA
+            
+                        
+                        final jsonString = jsonEncode({
+                          'roomId': widget.game.id,
+                          'password': password,
+                        });
+            
+                        try {
+                          TcpClientService().sendMessage(ClientCommand.joinRoom.value, jsonString);
+                        } catch (e) {
+                          log('💥 ClientCommand.joinRoom - $e - Client Command 💥');
+                        }
+            
+                        if (text == 'You Are Playing Here' || text == 'You Died Here') {
+                          Navigator.of(context, rootNavigator: true).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return GameScreen(title: widget.game.title, playersRole: [] , role: '', mafiaCount: 0, civilianCount: 0, allPlayers: widget.game.players, cameBackFromAfk: true, gameIsReadyWidget: false, phase: "",);
+                              }
+                            )
+                          ).then((result) {
+                            widget.loadStreamsAndData();
+                            widget.sortGames();
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: 100.w,
+                        height: 35.h,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white),
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            AppLocalizations.of(context)!.join,
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              fontFamily: 'CenturyGothic',
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                  ],
+                )
+              ],
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(),
+                                    
+                Column(
+                  children: [
+                                    
+                    //? MIN AND MAX
+                    Row(
+                      children: [
+                                  
+                        //? MIN COUNT
+                        Column(
+                          children: [
+                            Text(
+                              "${widget.game.minPlayers}",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.sp,
+                                fontFamily: 'CenturyGothic',
+                                height: 0
+                              ),
+                            ),
+                                  
+                            Text(
+                              AppLocalizations.of(context)!.min,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.sp,
+                                fontFamily: 'CenturyGothic',
+                                height: 0
+                              ),
+                            )
+                          ],
+                        ),
+
+                        //? ACTUAL COUNT
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Column(
+                            children: [
+                              Text(
+                                "${widget.game.players.length}",
+                                style: GoogleFonts.playfairDisplay(
+                                  color: const Color(0xFFFFB000),
+                                  fontSize: 32.sp,
+                                ),
+                              ),
+                              SizedBox(height: 15.h,)
+                            ],
+                          ),
+                        ),
+
+                        //? MAX COUNT
+                        Column(
+                          children: [
+                            Text(
+                              "${widget.game.maxPlayers}",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.sp,
+                                fontFamily: 'CenturyGothic',
+                                height: 0
+                              ),
+                            ),
+                                  
+                            Text(
+                              AppLocalizations.of(context)!.max,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.sp,
+                                fontFamily: 'CenturyGothic',
+                                height: 0
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+
+                // TEXT:    players in the room            
+                Text(
+                  AppLocalizations.of(context)!.playersInRoom,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    color: Colors.white,
+                    fontFamily: 'CenturyGothic'
                   ),
                 ),
+                                    
+                const SizedBox()
               ],
-            )
+            ),
+
+          
           ],
         ),
                       
         children: [
           Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(),
-                                      
-                  Column(
-                    children: [
-                                      
-                      //? MIN AND MAX
-                      Row(
-                        children: [
-                                    
-                          //? MIN COUNT
-                          Column(
-                            children: [
-                              Text(
-                                "${widget.game.minPlayers}",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  height: 0
-                                ),
-                              ),
-                                    
-                              Text(
-                                AppLocalizations.of(context)!.min,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  height: 0
-                                ),
-                              )
-                            ],
-                          ),
-
-                          //? ACTUAL COUNT
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "${widget.game.players.length}",
-                                  style: GoogleFonts.playfairDisplay(
-                                    color: const Color(0xFFFFB000),
-                                    fontSize: 32.sp,
-                                  ),
-                                ),
-                                SizedBox(height: 15.h,)
-                              ],
-                            ),
-                          ),
-
-                          //? MAX COUNT
-                          Column(
-                            children: [
-                              Text(
-                                "${widget.game.maxPlayers}",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  height: 0
-                                ),
-                              ),
-                                    
-                              Text(
-                                AppLocalizations.of(context)!.max,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15.sp,
-                                  fontFamily: 'CenturyGothic',
-                                  height: 0
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // TEXT:    players in the room            
-                  Text(
-                    AppLocalizations.of(context)!.playersInTheRoom,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontFamily: 'CenturyGothic'
-                    ),
-                  ),
-                                      
-                  const SizedBox()
-                ],
-              ),
-
+              
               //? DIVIDER      
               SizedBox(
                 width: 320.w,
@@ -1210,7 +1291,7 @@ class _GameCardState extends State<GameCard> {
                       RotatedBox(
                         quarterTurns: 3, // Rotates the text 90 degrees clockwise
                         child: Text(
-                          AppLocalizations.of(context)!.areHere, // Replace with your text
+                          AppLocalizations.of(context)!.extraRoles, // Replace with your text
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15.sp,
@@ -1509,6 +1590,7 @@ class _PlayersPopupState extends State<PlayersPopup> {
                       shrinkWrap: true,
                       itemCount: value.length,
                       itemBuilder: (context, index) {
+                        if (index >= value.length) return null;
                         return Container(
                           margin: EdgeInsets.only(top: 5.h),
                           child: Column(
@@ -1521,18 +1603,23 @@ class _PlayersPopupState extends State<PlayersPopup> {
                                     children: [
                                       GestureDetector(
                                         onTap: () {
-                                          if (value[index].nickname == authorizedUser.nickname) return;
-                                          showBouncingPopupFromLeft(
-                                            context, 
-                                            PlayerInfoPopup(
-                                              id: value[index].id,
-                                              height: 727.h, 
-                                              width: 405.w, 
-                                              nickname: value[index].nickname,
-                                            )
-                                          ).then((_) {
-                                            
-                                          });
+                                          try {
+                                            if (index >= value.length) return;
+                                            if (value[index].nickname == authorizedUser.nickname) return;
+                                            showBouncingPopupFromLeft(
+                                              context, 
+                                              PlayerInfoPopup(
+                                                id: value[index].id,
+                                                height: 727.h, 
+                                                width: 405.w, 
+                                                nickname: value[index].nickname,
+                                              )
+                                            ).then((_) {
+                                              
+                                            });
+                                          } catch (e) {
+                                            log('💥 CIRCLE AVATAR TAP ON PLAYER - Games Screen 💥');
+                                          }
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(
@@ -1551,6 +1638,7 @@ class _PlayersPopupState extends State<PlayersPopup> {
                                       SizedBox(width: 10.w),
                                       GestureDetector(
                                         onTap: () {
+                                          if (index >= value.length) return;
                                           if (value[index].nickname == authorizedUser.nickname) return;
                                           showBouncingPopupFromLeft(
                                             context, 
@@ -1578,7 +1666,7 @@ class _PlayersPopupState extends State<PlayersPopup> {
                                               
                                   // TEXT:    DEFEATED OR STILL HERE
                                   Text(
-                                    value[index].isAlive == true ? AppLocalizations.of(context)!.stillHere : AppLocalizations.of(context)!.defeated,
+                                    value[index].isAlive == true ? AppLocalizations.of(context)!.alive : AppLocalizations.of(context)!.dead,
                                     style: TextStyle(
                                       fontSize: 15.sp,
                                       fontFamily: 'CenturyGothic',
@@ -1749,7 +1837,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
   bool hasJournalist = false;
   bool hasLover = false;
 
-  bool hasTerrorist = false;
+  bool hasKamikaze = false;
   bool hasBartender = false;
   bool hasInformant = false;
   
@@ -1781,7 +1869,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
       AppLocalizations.of(context)!.journalist: false,
       AppLocalizations.of(context)!.bodyguard: false,
       AppLocalizations.of(context)!.spy: false,
-      AppLocalizations.of(context)!.terrorist: false,
+      AppLocalizations.of(context)!.kamikaze: false,
       AppLocalizations.of(context)!.barman: false,
       AppLocalizations.of(context)!.informant: false,
     };
@@ -1791,7 +1879,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
       "Journalist": false,
       "Bodyguard": false,
       "Spy": false,
-      "Terrorist": false,
+      "Kamikaze": false,
       "Barman": false,
       "Informant": false,
     };
@@ -1806,7 +1894,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
       'Informant': hasInformant,
       'Journalist': hasJournalist,
       'Beauty': hasLover,
-      'Terrorist': hasTerrorist,
+      'Kamikaze': hasKamikaze,
     };
 
     final extras = roleFlags.entries
@@ -1823,7 +1911,11 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
       'ExtraGameRoles': extras,
     });
 
-    TcpClientService().sendMessage(ClientCommand.createRoom.value, jsonString);
+    try {
+      TcpClientService().sendMessage(ClientCommand.createRoom.value, jsonString);
+    } on Exception catch (e) {
+      log('💥 ClientCommand.createRoom - $e - Client Command 💥');
+    }
 
     // bool status = await GetIt.I<ApiService>().createGame(
     //   CreateGame(
@@ -1902,7 +1994,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
         'Informant': hasInformant,
         'Journalist': hasJournalist,
         'Beauty': hasLover,
-        'Terrorist': hasTerrorist,
+        'Kamikaze': hasKamikaze,
       };
 
       final extras = roleFlags.entries
@@ -2040,7 +2132,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                         controller: _titleController,
                         style: TextStyle(color: Colors.white, fontSize: 14.sp, fontFamily: 'CenturyGothic'),
                         decoration: InputDecoration(
-                          hintText: ' ${AppLocalizations.of(context)!.enterTheTitle}',
+                          hintText: AppLocalizations.of(context)!.enterRoomName,
                           hintStyle: TextStyle(color: const Color(0xFF515151), fontFamily: 'CenturyGothic', fontSize: 14.sp),
                           border: InputBorder.none,
                           counterText: '',
@@ -2528,7 +2620,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          AppLocalizations.of(context)!.terrorist,
+                                          AppLocalizations.of(context)!.kamikaze,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 19.sp,
@@ -2543,14 +2635,14 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                                         height: 27.h,
                                         margin: EdgeInsets.only(left: 8.w, top: 8.h, right: 8.w),
                                         child: AnimatedToggleSwitch.dual(
-                                          current: hasTerrorist, 
+                                          current: hasKamikaze, 
                                           first: false, 
                                           second: true,
                                           spacing: 10.w,
                                           height: 30.h,
                                           onChanged: (value) {
                                             setState(() {
-                                              hasTerrorist = value;
+                                              hasKamikaze = value;
                                             });
                                           },
                                           style: const ToggleStyle(
@@ -2580,7 +2672,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> with RouteAware{
                                       Padding(
                                         padding: EdgeInsets.only(left: 8.w, top: 8.h),
                                         child: Text(
-                                          AppLocalizations.of(context)!.bartender,
+                                          AppLocalizations.of(context)!.barman,
                                           style: TextStyle(
                                             color: const Color(0xFFFFFFFF),
                                             fontSize: 18.sp,
@@ -2879,7 +2971,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
   bool hasSpy = false;
   bool hasJournalist = false;
 
-  bool hasTerrorist = false;
+  bool hasKamikaze = false;
   bool hasBartender = false;
   bool hasInformant = false;
 
@@ -2898,7 +2990,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
     hasLover = widget.filters.value.hasLover;
     hasSpy = widget.filters.value.hasSpy;
     hasJournalist = widget.filters.value.hasJournalist; 
-    hasTerrorist = widget.filters.value.hasTerrorist;
+    hasKamikaze = widget.filters.value.hasKamikaze;
     hasBartender = widget.filters.value.hasBartender;
     hasInformant = widget.filters.value.hasInformant;
   }
@@ -2915,7 +3007,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
         hasLover: hasLover, 
         hasSpy: hasSpy, 
         hasJournalist: hasJournalist, 
-        hasTerrorist: hasTerrorist, 
+        hasKamikaze: hasKamikaze, 
         hasBartender: hasBartender, 
         hasInformant: hasInformant
       ),
@@ -2935,7 +3027,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
       AppLocalizations.of(context)!.journalist: false,
       AppLocalizations.of(context)!.bodyguard: false,
       AppLocalizations.of(context)!.spy: false,
-      AppLocalizations.of(context)!.terrorist: false,
+      AppLocalizations.of(context)!.kamikaze: false,
       AppLocalizations.of(context)!.barman: false,
       AppLocalizations.of(context)!.informant: false,
     };
@@ -2956,7 +3048,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
         hasLover = false;
         hasSpy = false;
         hasJournalist = false; 
-        hasTerrorist = false;
+        hasKamikaze = false;
         hasBartender = false;
         hasInformant = false;
 
@@ -2971,7 +3063,7 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
         widget.filters.value.hasLover = false;
         widget.filters.value.hasSpy = false;
         widget.filters.value.hasJournalist = false;
-        widget.filters.value.hasTerrorist = false;
+        widget.filters.value.hasKamikaze = false;
         widget.filters.value.hasBartender = false;
         widget.filters.value.hasInformant = false;
 
@@ -3479,9 +3571,9 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                 //? HAS TERRORIST
                                 Row(
                                   children: [
-                                    // TEXT:    Terrorist
+                                    // TEXT:    Kamikaze
                                     Text(
-                                      AppLocalizations.of(context)!.terrorist,
+                                      AppLocalizations.of(context)!.kamikaze,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16.sp,
@@ -3495,14 +3587,14 @@ class _FilterizationScreenState extends State<FilterizationScreen> {
                                       height: 25.h,
                                       margin: EdgeInsets.only(right: 30.w, left: 10.w),
                                       decoration: BoxDecoration(
-                                        color: hasTerrorist ? const Color(0xFFFFB000) : Colors.transparent,
+                                        color: hasKamikaze ? const Color(0xFFFFB000) : Colors.transparent,
                                         borderRadius: BorderRadius.circular(6.sp),
                                         border: Border.all(color: Colors.white, width: 1.5.sp),
                                       ),
                                       child: GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            hasTerrorist = !hasTerrorist;
+                                            hasKamikaze = !hasKamikaze;
                                           });
                                         },
                                       ),
@@ -3799,7 +3891,7 @@ class GameFilters {
   bool hasSpy;
   bool hasJournalist;
 
-  bool hasTerrorist;
+  bool hasKamikaze;
   bool hasBartender;
   bool hasInformant;
 
@@ -3812,7 +3904,7 @@ class GameFilters {
     required this.hasLover,
     required this.hasSpy,
     required this.hasJournalist,
-    required this.hasTerrorist,
+    required this.hasKamikaze,
     required this.hasBartender,
     required this.hasInformant,
 
@@ -3832,7 +3924,7 @@ class GameFilters {
       other.hasLover == hasLover &&
       other.hasSpy == hasSpy &&
       other.hasJournalist == hasJournalist &&
-      other.hasTerrorist == hasTerrorist &&
+      other.hasKamikaze == hasKamikaze &&
       other.hasBartender == hasBartender &&
       other.hasInformant == hasInformant;
   }
@@ -3928,6 +4020,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         ));
         gameLobbyChatMessages.add(
           ChatMessage(
+            playerId: -1,
             isSystemMessage: true, 
             nickname: player.nickname, 
             avatarUrl: player.avatarUrl,
@@ -3948,6 +4041,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       setState(() {
         gameLobbyChatMessages.add(
           ChatMessage(
+            playerId: -1,
             isSystemMessage: true, 
             nickname: gameLobbyPlayers.firstWhere((player) => player.id == id).nickname, 
             avatarUrl: gameLobbyPlayers[0].avatarUrl,
@@ -3986,6 +4080,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
       setState(() {
         gameLobbyChatMessages.add(
           ChatMessage(
+            playerId: gameLobbyPlayers.firstWhere((e) => e.nickname == data['nickname']).id,
             isSystemMessage: false, 
             nickname: data['nickname'], 
             avatarUrl: data['avatarUrl'], 
@@ -4063,7 +4158,11 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   void sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
-    TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, json.encode({'message': text.trim()}));
+    try {
+      TcpClientService().sendMessage(ClientCommand.sendRoomMessage.value, json.encode({'message': text.trim()}));
+    } catch (e) {
+      log('💥 ClientCommand.sendRoomMessage - $e - Client Command 💥');
+    }
 
     // setState(() {
     //   gameLobbyChatMessages.add(ChatMessage(
@@ -4220,7 +4319,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             ),
                                                   
                                             Text(
-                                              "Min",
+                                              AppLocalizations.of(context)!.min,
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15.sp,
@@ -4262,7 +4361,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                             ),
                                                   
                                             Text(
-                                              "Max",
+                                              AppLocalizations.of(context)!.max,
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 15.sp,
@@ -4604,7 +4703,11 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
                                 
                       GestureDetector(
                         onTap: () {
-                          TcpClientService().sendMessage(ClientCommand.leaveRoom.value, "");
+                          try {
+                            TcpClientService().sendMessage(ClientCommand.leaveRoom.value, "");
+                          } on Exception catch (e) {
+                            log('💥 ClientCommand.leaveRoom - $e - Client Command 💥');
+                          }
                           widget.game.players.removeWhere((e) => e.id == authorizedUser.id);
                           Navigator.pop(context);
                         },
@@ -4881,16 +4984,32 @@ class _ChatWidgetState extends State<ChatWidget> {
         }
 
         return ListTile(
-          leading: Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.white,
-                width: 0.7.sp,
+          leading: GestureDetector(
+            onTap: () {
+              if (message.nickname == authorizedUser.nickname) return;
+                showBouncingPopupFromLeft(
+                  context, 
+                  PlayerInfoPopup(
+                    id: message.playerId,
+                    height: 727.h, 
+                    width: 405.w, 
+                    nickname: message.nickname,
+                  )
+                ).then((_) {
+                  
+                });
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.white,
+                  width: 0.7.sp,
+                ),
+                shape: BoxShape.circle,
               ),
-              shape: BoxShape.circle,
-            ),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(message.avatarUrl),
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(message.avatarUrl),
+              ),
             ),
           ),
           title: Text(
@@ -4916,12 +5035,13 @@ class _ChatWidgetState extends State<ChatWidget> {
 
 
 class ChatMessage {
+  final int playerId;
   final String nickname;
   final String avatarUrl;
   final bool isSystemMessage;
   final String text;
 
-  ChatMessage({required this.nickname, required this.avatarUrl, required this.text, required this.isSystemMessage});
+  ChatMessage({required this.playerId, required this.nickname, required this.avatarUrl, required this.text, required this.isSystemMessage});
 }
 
 
@@ -4958,7 +5078,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 cursorColor: const Color(0xFFFFFFFF),
                 controller: _controller,
                 decoration: InputDecoration(
-                  hintText: '${AppLocalizations.of(context)!.enterMessage}...',
+                  hintText: AppLocalizations.of(context)!.enterMessage,
                   border: InputBorder.none
                 ),
               ),
@@ -5079,7 +5199,7 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                   Padding(
                     padding: EdgeInsets.all(8.sp),
                     child: Text(
-                      "Friends",
+                      AppLocalizations.of(context)!.friends,
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 32.sp,
                         color: const Color(0xFFFFB000)
@@ -5191,7 +5311,7 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                               // BUTTON:    Invite or Invited
                               (sendedInvitationList.any((id) => id == possibleFriendsForInvitation[index].id))
                               ? Text(
-                                  "Sent",
+                                  AppLocalizations.of(context)!.sent,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 17.sp,
@@ -5226,7 +5346,7 @@ class _InviteFriendPopupState extends State<InviteFriendPopup> {
                                     )
                                   ),
                                   child: Text(
-                                    "Invite",
+                                    AppLocalizations.of(context)!.invite,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 15.sp,
@@ -5296,7 +5416,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
             children: [
               //? TITLE
               Text(
-                "Invititation To Game",
+                AppLocalizations.of(context)!.invititationToGame,
                 softWrap: true,
                 maxLines: 2,
                 style: TextStyle(
@@ -5312,7 +5432,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    widget.friendNickname,
+                    "[${widget.friendNickname}]",
                     softWrap: true,
                     maxLines: 2,
                     style: TextStyle(
@@ -5323,7 +5443,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
                   ),
 
                   Text(
-                    " invited you to the game ",
+                    AppLocalizations.of(context)!.invitedYouToTheGame,
                     softWrap: true,
                     maxLines: 2,
                     style: TextStyle(
@@ -5334,7 +5454,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
                   ),
 
                   Text(
-                    widget.gameTitle,
+                    "[${widget.gameTitle}]",
                     softWrap: true,
                     maxLines: 2,
                     style: TextStyle(
@@ -5349,7 +5469,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    widget.friendNickname,
+                    "[${widget.friendNickname}]",
                     softWrap: true,
                     maxLines: 2,
                     style: TextStyle(
@@ -5360,7 +5480,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
                   ),
 
                   Text(
-                    " invited you to the game ",
+                    AppLocalizations.of(context)!.invitedYouToTheGame,
                     softWrap: true,
                     maxLines: 2,
                     style: TextStyle(
@@ -5371,7 +5491,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
                   ),
 
                   Text(
-                    widget.gameTitle,
+                    "[${widget.gameTitle}]",
                     softWrap: true,
                     maxLines: 2,
                     style: TextStyle(
@@ -5399,7 +5519,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
                       ),
                       child: Center(
                         child: Text(
-                          "Decline",
+                          AppLocalizations.of(context)!.decline,
                           style: TextStyle(
                             fontSize: 18.sp,
                             color: const Color(0xFF000000),
@@ -5423,7 +5543,7 @@ class _AcceptRoomInvitePopupState extends State<AcceptRoomInvitePopup> {
                       ),
                       child: Center(
                         child: Text(
-                          "Accept",
+                          AppLocalizations.of(context)!.accept,
                           style: TextStyle(
                             fontSize: 18.sp,
                             color: const Color(0xFFFFFFFF),

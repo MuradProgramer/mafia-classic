@@ -52,12 +52,17 @@ void main() async {
   ]);
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  runApp(
-    ScreenUtilInit(
-      designSize: const Size(393, 852),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) => MafiaClassicApp(localeService: localeService,),
-    ),
-  );
+  
+  try {
+    runApp(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) => MafiaClassicApp(localeService: localeService,),
+      ),
+    );
+  } on Exception catch (e) {
+    print(e);
+  }
 }

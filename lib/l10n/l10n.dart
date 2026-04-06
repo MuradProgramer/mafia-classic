@@ -5,5 +5,6 @@ class L10n {
     Locale('en'),
     Locale('ru'),
     Locale('az'),
+    Locale('tr'),
   ];
 }

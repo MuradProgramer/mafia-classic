@@ -26,6 +26,19 @@ class EnterMessage extends StatefulWidget {
 
 class _EnterMessageState extends State<EnterMessage> {
 
+  String getTextCanNotSendMessage(BuildContext context) {
+    switch (widget.gamePhase) {
+      case "NightVoting":
+        return AppLocalizations.of(context)!.nightVotingCanNotSendMessage;
+      case "Night":
+        return AppLocalizations.of(context)!.nightCanNotSendMessage;
+      case "DayVoting":
+        return AppLocalizations.of(context)!.dayVotingCanNotSendMessage;
+      default:
+        return AppLocalizations.of(context)!.youAreNotElligibleToSendMessageRightNow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final double deviceHeight = MediaQuery.of(context).size.height;
@@ -66,7 +79,7 @@ class _EnterMessageState extends State<EnterMessage> {
               widget.sendMessage();
               return;
             }
-            TopSnackBarManager.show({"content": "You are not elligible to send message right now"}, 5);
+            TopSnackBarManager.show({"content": getTextCanNotSendMessage(context)}, 5);
           },
         ) 
           //: const SizedBox(),

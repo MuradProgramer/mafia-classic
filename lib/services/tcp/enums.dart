@@ -27,13 +27,13 @@ enum ServerEvent {
   gameNewMessage(1504),
   gameVoteRegistered(1505),
   gamePlayerEliminated(1506),
-  gameTerroristExplosion(1507),
+  gameKamikazeExplosion(1507),
   gameJournalistInterview(1508),
   gameEffectApplied(1509),
   gameEffectRemoved(1510),
   gamePersonalFeedback(1511),
-  gameNightActionPrompt(1512),
-  gameOver(1513),
+  //gameNightActionPrompt(1512),
+  gameOver(1512),
 
   friendshipFriends(2000), //
   friendshipFriendOnline(2001), //?

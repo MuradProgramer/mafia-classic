@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -56,8 +57,7 @@ class MafiaClassicApp extends StatefulWidget {
   final LocaleService localeService;
   const MafiaClassicApp({super.key, required this.localeService});
 
-  static final GlobalKey<_MafiaClassicAppState> globalKey =
-      GlobalKey<_MafiaClassicAppState>();
+  static final globalKey = GlobalKey<_MafiaClassicAppState>();
 
   @override
   State<MafiaClassicApp> createState() => _MafiaClassicAppState();
@@ -99,33 +99,42 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
       final event = entry.key;
       final payload = entry.value;
 
+      if (event == ServerEvent.clientAuthorizationSuccess) {
+        appIsActive.value = true;
+        log("✅ Server event 302: clientAuthorizationSuccess");
+      }
+
       //? Friendship Invite
       if (event == ServerEvent.friendshipRoomInvite) {
-        final data = jsonDecode(payload) as Map<String, dynamic>;
-        final nav = rootNavigatorKey.currentState;
-        if (nav == null) return;
-
-        if (whoInvitedMe.any((key) => key == data['roomId'])) {
-          return;
-        }
-
-        whoInvitedMe.add(data['roomId']);
-
-        showBouncingPopupFromLeft<bool>(
-          nav.overlay!.context, 
-          AcceptRoomInvitePopup(
-            friendNickname: data['nickname'] ?? "",
-            gameTitle: data['roomTitle'] ?? "",
-          )
-        ).then((status) async {
-          if (status == null) return;
-
-          if (status) {
-            await GetIt.I<ApiService>().acceptInviteToRoom(data['roomId']);
+        try {
+          final data = jsonDecode(payload) as Map<String, dynamic>;
+          final nav = rootNavigatorKey.currentState;
+          if (nav == null) return;
+          
+          if (whoInvitedMe.any((key) => key == data['roomId'])) {
+            return;
           }
-
-          whoInvitedMe.remove(data['roomId']);
-        });
+          
+          whoInvitedMe.add(data['roomId']);
+          
+          showBouncingPopupFromLeft<bool>(
+            nav.overlay!.context, 
+            AcceptRoomInvitePopup(
+              friendNickname: data['nickname'] ?? "",
+              gameTitle: data['roomTitle'] ?? "",
+            )
+          ).then((status) async {
+            if (status == null) return;
+          
+            if (status) {
+              await GetIt.I<ApiService>().acceptInviteToRoom(data['roomId']);
+            }
+          
+            whoInvitedMe.remove(data['roomId']);
+          });
+        } catch (e) {
+          log('💥 Friendship Room Invite - Mafia Classic App 💥');
+        }
       }
 
       if (event == ServerEvent.friendshipNewFriend) {
@@ -154,24 +163,33 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
               "nickname": newFriend.nickname,
               "avatarUrl": newFriend.avatarUrl,
             }, 4);
-        } on Exception catch (e) {
-          log('EXCEPTION IN:     friendshipNewFriend: ${e.toString()}');
+        } catch (e) {
+          log('💥 Friendship New Friend - Mafia Classic App 💥');
         }
       }
 
       if (event == ServerEvent.friendshipRequestFriendship) {
-        Map<String, dynamic> data = json.decode(payload);
-        EventBus().fire(FriendRequestReceivedEvent(data));
-        TopSnackBarManager.show({
-            "nickname": data['nickname'],
-            "avatarUrl": data['avatarUrl'],
-          }, 3
-        );
+        try {
+          Map<String, dynamic> data = json.decode(payload);
+          EventBus().fire(FriendRequestReceivedEvent(data));
+          
+          TopSnackBarManager.show({
+              "nickname": data['nickname'],
+              "avatarUrl": data['avatarUrl'],
+            }, 3
+          );
+        } catch (e) {
+          log('💥 Friendship Request Friendship - Mafia Classic App 💥');
+        }
       }
 
       if (event == ServerEvent.friendshipCancelRequest) {
-        final int friendId = json.decode(payload)['playerId'] as int;
-        EventBus().fire(CancelFriendRequest(friendId));
+        try {
+          final int friendId = json.decode(payload)['playerId'] as int;
+          EventBus().fire(CancelFriendRequest(friendId));
+        } catch (e) {
+          log('💥 Friendship Cancel Request - Mafia Classic App 💥');
+        }
       }
 
       if (event == ServerEvent.friendshipFriendNewMessage) {
@@ -192,8 +210,8 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
           
           EventBus().fire(FriendNewMessageEvent(newMessage, friendId));
           
-        } on Exception catch (e) {
-          log('EXCEPTION IN:     friendshipFriendNewMessage: ${e.toString()}');
+        } catch (e) {
+          log('💥 Friendship Friend New Message - Mafia Classic App 💥');
         }
       }
 
@@ -276,7 +294,7 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
       
     } else if (state == AppLifecycleState.detached) {
       print("App engine detached. Clearing all cache...");
-      TcpClientService().disconnect();
+      TcpClientService().dispose();
       //GeneralCacheService().clearCacheExceptLanguage();
     } else if (state == AppLifecycleState.hidden) {
       print("App is hidden.");
@@ -306,13 +324,17 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
 
   void _handleAppResumed() {
     // Check if the service still has an active socket
-    if (!TcpClientService().isConnected) {
-      log('🔄 Socket was lost in background. Reconnecting...');
-      _reconnect();
-    } else {
-      // Sometimes the socket is 'dead' but hasn't realized it yet.
-      // Sending a ping forces the OS to realize the pipe is broken.
-      TcpClientService().sendMessage(ClientCommand.ping.value, "wakeup");
+    try {
+      if (!TcpClientService().isConnected) {
+        log('🔄 Socket was lost in background. Reconnecting...');
+        _reconnect();
+      } else {
+        // Sometimes the socket is 'dead' but hasn't realized it yet.
+        // Sending a ping forces the OS to realize the pipe is broken.
+        TcpClientService().sendMessage(ClientCommand.ping.value, "wakeup");
+      }
+    } catch (e) {
+      log('💥 Handle App Resumed - $e - Client Command - Mafia Classic App 💥');
     }
   }
 
@@ -335,7 +357,7 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
             child: MaterialApp(
               navigatorKey: rootNavigatorKey,
               navigatorObservers: [appRouteObserver],
-              key: MafiaClassicApp.globalKey,
+              //key: MafiaClassicApp.globalKey,
               debugShowCheckedModeBanner: false,
               localizationsDelegates: const [
                 S.delegate,
@@ -349,6 +371,10 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
               //title: 'Flutter Demo',
               theme: theme,
               routes: routes,
+
+              builder: (context, child) {
+                return GameWrapper(child: child!);
+              },
             ),
           );
         }
@@ -409,9 +435,9 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       case 1:
         //TcpClientService().sendMessage(2, "");
-        return GamesScreen(user: widget.user, tabIndexNotifier: tabIndexNotifier, tabIndex: 1);
+        return GamesScreen(user: widget.user, tabIndexNotifier: tabIndexNotifier, tabIndex: 1, onNavigationTapped: _onItemTapped,);
       case 2:
-        return ProfileScreen(user: widget.user);
+        return ProfileScreen(user: widget.user, onNavigationTapped: _onItemTapped);
       case 3:
         return CreateGameScreen(tabIndexNotifier: tabIndexNotifier, tabIndex: 3);
       case 4:
@@ -468,100 +494,235 @@ class _HomeScreenState extends State<HomeScreen> {
                   assetPath,
                 ),
               ),
-              Text(
-                text,
-                style: GoogleFonts.playfairDisplay(
-                  color: Colors.white,
-                  fontSize: 16.sp
-                ),
-              )
+              // Text(
+              //   text,
+              //   style: GoogleFonts.playfairDisplay(
+              //     color: Colors.white,
+              //     fontSize: 15.sp
+              //   ),
+              // )
             ],
           ),
         ),
       ),
     );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: appIsActive,
+      builder: (context, value, child) {
+        if (!value) return const Center(child: CircularProgressIndicator(color: Color(0xFFFFB000),));
+        return Scaffold(
+        
+          resizeToAvoidBottomInset: false,
+        
+          body: Stack(
+            children: List.generate(
+              5,
+              (index) => _buildOffstageNavigator(index),
+            ),
+          ),
+        
+          bottomNavigationBar: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            removeBottom: true,
+            child: BottomAppBar(
+              height: 80.h,
+              color: Colors.black,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem('assets/images/icon-profile.png', 0, AppLocalizations.of(context)!.profile),
+                  _buildNavItem('assets/images/icon-games.png', 1, AppLocalizations.of(context)!.games),
+                  _buildNavItem('assets/images/icon-home.png', 2, AppLocalizations.of(context)!.home),
+                  _buildNavItem('assets/images/icon-create.png', 3, AppLocalizations.of(context)!.create),
+                  _buildNavItem('assets/images/icon-friends.png', 4, AppLocalizations.of(context)!.friends),
+                ],
+              ),
+            ),
+          ),
+        
+          
+          // bottomNavigationBar: SizedBox(
+          //   height: 90.h,
+          //   child: BottomNavigationBar(
+          //     items: <BottomNavigationBarItem>[
+          //       BottomNavigationBarItem(
+          //         icon: Image.asset(
+          //           'assets/images/temp-profile-icon.png',
+          //           scale: 3,
+          //         ),
+          //         label: ''
+          //       ),
+          //       BottomNavigationBarItem(
+          //         icon: Image.asset(
+          //           'assets/images/temp-games-icon.png',
+          //           scale: 3,
+          //         ),
+          //         label: ''
+          //       ),
+          //       BottomNavigationBarItem(
+          //         icon: Image.asset(
+          //           'assets/images/temp-create-icon.png',
+          //           scale: 3,
+          //         ),
+          //         label: ''
+          //       ),
+          //       BottomNavigationBarItem(
+          //         icon: Image.asset(
+          //           'assets/images/temp-settings-icon.png',
+          //           scale: 3,
+          //         ),
+          //         label: ''
+          //       ),
+          //     ],
+          //     currentIndex: _selectedIndex,
+          //     onTap: _onItemTapped,
+          //     backgroundColor: Colors.black,
+          //     selectedItemColor: Colors.white,
+          //     unselectedItemColor: Colors.grey,
+          //     type: BottomNavigationBarType.fixed,
+          //   ),
+          // ),
+          
+        
+        );
+      }
+    );
+  }
+}
+
+
+class GameWrapper extends StatefulWidget {
+  final Widget child;
+  const GameWrapper({super.key, required this.child});
+
+  @override
+  State<GameWrapper> createState() => _GameWrapperState();
+}
+
+class _GameWrapperState extends State<GameWrapper> {
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  final tcpService = TcpClientService();
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) {
+      if (results.contains(ConnectivityResult.none)) {
+        tcpService.disconnect();
+      } else {
+        // Internet is BACK! Let's try to reconnect automatically
+        if (tcpService.connectionStatus.value == false) {
+          _handleManualReconnect(); 
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-      resizeToAvoidBottomInset: false,
-
       body: Stack(
-        children: List.generate(
-          5,
-          (index) => _buildOffstageNavigator(index),
-        ),
-      ),
-
-      bottomNavigationBar: MediaQuery.removePadding(
-        context: context,
-        removeTop: true,
-        removeBottom: true,
-        child: BottomAppBar(
-          height: 100.h,
-          color: Colors.black,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem('assets/images/icon-profile.png', 0, S.of(context).profile),
-              _buildNavItem('assets/images/icon-games.png', 1, S.of(context).games),
-              _buildNavItem('assets/images/icon-home.png', 2, "Home"),
-              _buildNavItem('assets/images/icon-create.png', 3, S.of(context).create),
-              _buildNavItem('assets/images/icon-friends.png', 4, S.of(context).friends),
-            ],
+        children: [
+          widget.child,
+          
+          ValueListenableBuilder<bool>(
+            valueListenable: tcpService.connectionStatus,
+            builder: (context, isConnected, _) {
+              if (isConnected) return const SizedBox.shrink();
+              log('💥 Disconnected From The Internet 💥');
+              return Container(
+                color: Colors.black87,
+                width: double.infinity,
+                height: double.infinity,
+                child: Center(
+                  child: _buildReconnectDialog(),
+                ),
+              );
+            },
           ),
-        ),
+        ],
       ),
-
-      
-      // bottomNavigationBar: SizedBox(
-      //   height: 90.h,
-      //   child: BottomNavigationBar(
-      //     items: <BottomNavigationBarItem>[
-      //       BottomNavigationBarItem(
-      //         icon: Image.asset(
-      //           'assets/images/temp-profile-icon.png',
-      //           scale: 3,
-      //         ),
-      //         label: ''
-      //       ),
-      //       BottomNavigationBarItem(
-      //         icon: Image.asset(
-      //           'assets/images/temp-games-icon.png',
-      //           scale: 3,
-      //         ),
-      //         label: ''
-      //       ),
-      //       BottomNavigationBarItem(
-      //         icon: Image.asset(
-      //           'assets/images/temp-create-icon.png',
-      //           scale: 3,
-      //         ),
-      //         label: ''
-      //       ),
-      //       BottomNavigationBarItem(
-      //         icon: Image.asset(
-      //           'assets/images/temp-settings-icon.png',
-      //           scale: 3,
-      //         ),
-      //         label: ''
-      //       ),
-      //     ],
-      //     currentIndex: _selectedIndex,
-      //     onTap: _onItemTapped,
-      //     backgroundColor: Colors.black,
-      //     selectedItemColor: Colors.white,
-      //     unselectedItemColor: Colors.grey,
-      //     type: BottomNavigationBarType.fixed,
-      //   ),
-      // ),
-      
-    
     );
   }
+
+  // Inside your GameWrapper state
+  bool _isReconnecting = false;
+
+  Widget _buildReconnectDialog() {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 32),
+      color: const Color(0xFF1A1A1A),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.wifi_off, color: Colors.redAccent, size: 48),
+            const SizedBox(height: 16),
+            const Text(
+              "CONNECTION LOST",
+              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Your connection to the Mafia server was interrupted.",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 24),
+            _isReconnecting 
+              ? const CircularProgressIndicator(color: Colors.redAccent)
+              : ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                  onPressed: _handleManualReconnect,
+                  child: const Text("TRY RECONNECT"),
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleManualReconnect() async {
+    try {
+      setState(() => _isReconnecting = true);
+
+      User alreadyUser = User(
+        id: SharedPrefsService.getUserId() ?? -1,
+        email: SharedPrefsService.getUserEmail() ?? '',
+        nickname: SharedPrefsService.getUserNickname() ?? '',
+        avatarUrl: SharedPrefsService.getUserAvatarUrl() ?? '',
+        accessToken: SharedPrefsService.getAccessToken() ?? '',
+        refreshToken: SharedPrefsService.getRefreshToken() ?? '',
+        expirationDate: SharedPrefsService.getAccessTokenExpiryUtc() ?? DateTime(2000)
+      );
+      
+      setup(alreadyUser);
+      await GeneralService(alreadyUser).init();
+      
+      if (alreadyUser != null) {
+        await tcpService.connect(serverIP, serverPort, alreadyUser);
+      }
+      
+      if (mounted) setState(() => _isReconnecting = false);
+    } on Exception catch (e) {
+      log('💥 Handle Manual Reconnect Error - $e - Game Wrappper 💥');
+    }
+  }
 }
+
 
 class AppLifecycle {
   static final AppLifecycle instance = AppLifecycle._();

@@ -26,7 +26,7 @@ class _GamesScreenState extends State<GamesScreen> {
     hasLover: false,
     hasBodyguard: false,
     hasJournalist: false,
-    hasTerrorist: false,
+    hasKamikaze: false,
     hasBartender: false,
     hasInformant: false,
 
@@ -46,12 +46,12 @@ class _GamesScreenState extends State<GamesScreen> {
           List<String> requiredRoles = [];
           if (filters.hasBodyguard) requiredRoles.add('Bodyguard');
           if (filters.hasLover) requiredRoles.add('Beauty');
-          if (filters.hasTerrorist) requiredRoles.add('Journalist');
-          if (filters.hasTerrorist) requiredRoles.add('Spy');
+          if (filters.hasKamikaze) requiredRoles.add('Journalist');
+          if (filters.hasKamikaze) requiredRoles.add('Spy');
 
-          if (filters.hasTerrorist) requiredRoles.add('Terrorist');
-          if (filters.hasTerrorist) requiredRoles.add('Informant');
-          if (filters.hasTerrorist) requiredRoles.add('Barman');
+          if (filters.hasKamikaze) requiredRoles.add('Kamikaze');
+          if (filters.hasKamikaze) requiredRoles.add('Informant');
+          if (filters.hasKamikaze) requiredRoles.add('Barman');
 
           if (requiredRoles.isNotEmpty) {
             for (final role in requiredRoles) {

@@ -94,7 +94,7 @@ class _InGameChatBoxState extends State<InGameChatBox> {
         if (message.type == 'System') {
           // Event Message
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.h),
+            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 20.w),
             child: Center(
               child: Text(
                 message.content,

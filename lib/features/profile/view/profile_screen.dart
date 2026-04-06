@@ -30,8 +30,9 @@ import 'package:mafia_classic/utils/snackbar.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
+  final void Function(int) onNavigationTapped;
 
-  const ProfileScreen({super.key, required this.user});
+  const ProfileScreen({super.key, required this.user, required this.onNavigationTapped});
 
   final String title = 'MAFIA CLASSIC';
 
@@ -61,7 +62,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     roomStateData = EventRouterService()
         .subscribe(ServerEvent.roomStateData)
         .listen((payload) {
-      print('\n\n----- LOBBY ROOMS DATA: GAMES SCREEN  -----\n\n');
       try {
         if (payload.isEmpty) return;
         
@@ -100,7 +100,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         log('EXCEPTION IN:     RoomStateData EVENT - GAME SCREEN: ${e.toString()}');
       }
     });
-
 
     roomInvite = EventRouterService()
         .subscribe(ServerEvent.friendshipRoomInvite)
@@ -250,9 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
-        print("Friend Online: $id");
-        print("NICKNAME: ${currentFriends[0].nickname} NICKID: ${currentFriends[0].id} ID: $id");
-        print("");
+        if (!(currentFriends.any((friend) => friend.id == id))) return;
         currentFriends.firstWhere((friend) => friend.id == id).isOnline = true;
         EventBus().fire(FriendOnlineEvent(id));
         await GeneralCacheService().save<List<Friendship>?>("all_friends_list", currentFriends);
@@ -274,6 +271,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
+        if (!currentFriends.any((friend) => friend.id == id)) return;
         currentFriends.firstWhere((friend) => friend.id == id).isOnline = false;
         currentFriends.firstWhere((friend) => friend.id == id).lastSeen = DateTime.now().toLocal();
         EventBus().fire(FriendOfflineEvent(id));
@@ -298,6 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
+        if (!currentFriends.any((friend) => friend.id == id)) return;
         currentFriends.firstWhere((friend) => friend.id == id).gameTitle = roomTitle;
 
         EventBus().fire(FriendJoinedRoomEvent(id, roomTitle));
@@ -324,6 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
 
         currentFriends ??= [];
+        if (!currentFriends.any((friend) => friend.id == id)) return;
         currentFriends.firstWhere((friend) => friend.id == id).gameTitle = "";
 
         EventBus().fire(FriendLeftRoomEvent(id));
@@ -356,6 +356,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     //TcpClientService().sendMessage(ClientCommand.getFriends.value, "");
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    friendshipFriends.cancel();
+    friendshipNewFriend.cancel();
+    friendshipRequestFriendship.cancel();
+    friendshipRequestDeclined.cancel();
+    friendshipDeleteFriendship.cancel();
+    friendshipFriendOnline.cancel();
+    friendshipFriendOffline.cancel();
+    friendshipFriendJoinedRoom.cancel();
+    friendshipFriendLeftRoom.cancel();
+    friendshipFriendNewMessage.cancel();
+    roomInvite.cancel();
+
+    roomStateData.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -432,7 +451,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Padding(
                                   padding: EdgeInsets.only(top: 70.h),
                                   child: Text(
-                                    AppLocalizations.of(context)!.classic,
+                                    "classic edition",
                                     style: TextStyle(
                                       fontSize: 26.sp,
                                       height: 0,
@@ -455,13 +474,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.only(top: 275.h),
+                        margin: EdgeInsets.only(top: 250.h),
                         height: 110.h,
-                        width: 310.w,
+                        width: 330.w,
                         decoration: BoxDecoration(
                           color: Colors.black,
                           borderRadius: BorderRadius.circular(12.0),
-                          //border: Border.all(color: Colors.white, width: 1)
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFFFFFF),
+                              blurRadius: 7.0.r, 
+                              spreadRadius: -2.r, 
+                              offset: Offset.zero, 
+                            ),
+                          ],
+                          //border: Border.all(color: Colors.white, width: 0.5.w)
                         ),
                         
                         child: Stack(
@@ -505,7 +532,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      AppLocalizations.of(context)!.welcome,
+                                      "Welcome",
                                       style: GoogleFonts.playfairDisplay(
                                         fontSize: 32.sp,
                                         height: 0,
@@ -542,7 +569,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.only(top: 10.h),
+                        margin: EdgeInsets.only(top: 40.h),
                         height: 150.h,
                         width: 310.w,
                         decoration: BoxDecoration(
@@ -619,7 +646,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                             */
-                    
+
+                            // BUTTON:    PLAY
+                            GestureDetector(
+                              onTap: () {
+                                widget.onNavigationTapped(1);
+                                // Navigator.of(context).push(
+                                //   MaterialPageRoute(
+                                //     builder: (_) => const RolesScreen(),
+                                //   )
+                                // );
+                              },
+                              child: Container(
+                                width: 210.w,
+                                height: 40.h,
+                                //margin: EdgeInsets.only(bottom: 15.h),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFB000),
+                                  borderRadius: BorderRadius.circular(71.sp),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFFFFB000),
+                                      blurRadius: 10.0.r, 
+                                      spreadRadius: -2.r, 
+                                      offset: Offset.zero, 
+                                    ),
+                                  ],
+                                  //border: Border.all(color: Colors.white, width: 1.w)
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    AppLocalizations.of(context)!.play,
+                                    style: TextStyle(
+                                      fontSize: 23.sp,
+                                      color: Colors.black,
+                                      fontFamily: 'CenturyGothic'
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
                             // BUTTON:    ROLES
                             GestureDetector(
                               onTap: () {
@@ -630,16 +697,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 );
                               },
                               child: Container(
-                                width: 160.w,
+                                width: 210.w,
                                 height: 40.h,
-                                //margin: EdgeInsets.only(top: marginButtons, left: 30.w),
+                                margin: EdgeInsets.only(top: 15.h, bottom: 15.h),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(71.sp),
                                   border: Border.all(color: Colors.white, width: 1.5)
                                 ),
                                 child: Center(
                                   child: Text(
-                                    AppLocalizations.of(context)!.roles,
+                                    AppLocalizations.of(context)!.gameRoles,
                                     style: TextStyle(
                                       fontSize: 23.sp,
                                       color: Colors.white,
@@ -660,7 +727,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 );
                               },
                               child: Container(
-                                width: 160.w,
+                                width: 210.w,
                                 height: 40.h,
                                 //margin: EdgeInsets.only(top: marginButtons, left: 30.w),
                                 //margin: EdgeInsets.only(top: marginButtons),

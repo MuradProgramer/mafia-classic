@@ -36,7 +36,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mafia => 'Mafia';
 
   @override
-  String get terrorist => 'Terrorist';
+  String get kamikaze => 'Kamikaze';
 
   @override
   String get barman => 'Barman';
@@ -73,8 +73,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'The Mafia is a registered character in the game. Each team of Mafiosi knows the players from their country, unlike the citizens of the world, who do not know who is playing for whom. They wake up at night in order to kill one of the inhabitants of the world, also known like them. Doctor and Sheriff.';
 
   @override
-  String get roleTerroristDescription =>
-      'Terrorist - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the terrorist does not know the identity of the Mafia members. The Terrorist has one special ability. At any time during the day voting, the terrorist can blow up anyone player by killing both himself and the victim. The terrorist cannot be killed by the mafia at night. So the terrorist must help the mafia win using his life. Regardless of whether the terrorist is killed, he will receive experience points at the end of the game if. The mafia will win.';
+  String get roleKamikazeDescription =>
+      'Kamikaze - plays for the Mafia team, but is not a member of the Mafia himself. The Mafia knows his identity, but the kamikaze does not know the identity of the Mafia members. The Kamikaze has one special ability. At any time during the day voting, the kamikaze can blow up anyone player by killing both himself and the victim. The kamikaze cannot be killed by the mafia at night. So the kamikaze must help the mafia win using his life. Regardless of whether the kamikaze is killed, he will receive experience points at the end of the game if. The mafia will win.';
 
   @override
   String get roleBarmanDescription =>
@@ -106,7 +106,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleBodyguardDescription =>
-      'Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a terrorist explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Terrorist or Mafioso will decide to kill at night. The Bodyguard\'s protection only applies once, either during the day or at night, if the terrorist did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia\'s shot.';
+      'Bodyguard - plays on the side of the civilians. During the day, while everyone is chatting, the Bodyguard decides who to protect from a kamikaze explosion or from being killed by the Mafia the next night. Thus, the Player under the protection of the bodyguard will remain alive if he is tried blow up The Kamikaze or Mafioso will decide to kill at night. The Bodyguard\'s protection only applies once, either during the day or at night, if the kamikaze did not try to blow up the player during the day. If the Bodyguard was killed during the day, then at night he cannot protect against the Mafia\'s shot.';
 
   @override
   String get roleSpyDescription =>
@@ -376,10 +376,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iAcceptTheWeightOfMyChoice => 'I accept the weight of my choice';
 
   @override
-  String get cure => 'Cure';
+  String get cure => 'Save';
 
   @override
-  String get satisfy => 'Satisfy';
+  String get satisfy => 'Charm';
 
   @override
   String get protect => 'Protect';
@@ -388,7 +388,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get intoxicate => 'Intoxicate';
 
   @override
-  String get reveale => 'Reveale';
+  String get reveale => 'Reveal';
 
   @override
   String get investigate => 'Investigate';
@@ -397,13 +397,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interview => 'Interview';
 
   @override
-  String get mafias => 'mafias';
+  String get mafias => 'Mafias';
 
   @override
-  String get civilians => 'civilians';
+  String get civilians => 'Civilians';
 
   @override
-  String get pickYourTarget => 'Mafias pick target - ';
+  String get pickYourTarget => 'Choose a Victim';
 
   @override
   String get iveChosenNoRegrets => 'I\'ve chosen. No regrets';
@@ -424,13 +424,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterOff => 'Filter Off';
 
   @override
-  String get noAvailableGames => 'No available games..';
+  String get noAvailableGames =>
+      'No active games yet… Create one and invite your friends!';
 
   @override
-  String get youArePlayingHere => 'You Are Playing Here';
+  String get youArePlayingHere => 'You are playing in this room';
 
   @override
-  String get youDiedHere => 'You Died Here';
+  String get youDiedHere => 'You died in this room';
 
   @override
   String get show => 'Show';
@@ -439,7 +440,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allPlayers => 'All Players';
 
   @override
-  String get areHere => 'are here';
+  String get areHere => 'roles';
 
   @override
   String get defeated => 'Defeated';
@@ -493,7 +494,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get private => 'Private';
 
   @override
-  String get includedRoles => 'Included roles:';
+  String get includedRoles => 'Extra Roles:';
 
   @override
   String get lover => 'Lover';
@@ -541,7 +542,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goodCompany => 'GOOD COMPANY';
 
   @override
-  String get ridingSoloAintTheWay => 'Riding solo ain\'t the way.';
+  String get ridingSoloAintTheWay => 'Forward only together';
 
   @override
   String get requestPending => 'Request Pending';
@@ -583,7 +584,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playersInTotal => 'Players in total';
 
   @override
-  String get stats => 'Stats';
+  String get stats => 'Statistics';
 
   @override
   String get overall => 'Overall';
@@ -592,7 +593,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wins => 'Wins';
 
   @override
-  String get loses => 'Loses';
+  String get loses => 'Losses';
 
   @override
   String get mafiaWins => 'Mafia Wins';
@@ -676,8 +677,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get codeMustBe6Charactes => 'Code must be 6 charactes';
 
   @override
-  String gameTerroristExplosion(String playerNickname) {
-    return 'Terrorist tried to bomb [$playerNickname], but bodyguard saved him/her';
+  String gameKamikazeExplosion(String playerNickname) {
+    return 'Kamikaze tried to bomb [$playerNickname], but bodyguard saved him/her';
   }
 
   @override
@@ -685,31 +686,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skillsDescriptionsBeauty =>
-      'Select a player to satisfy. They won\'t be able to vote or use abilities';
+      'Choose a player to charm. They will be unable to vote or use their ability';
 
   @override
   String get skillsDescriptionsBodyguard =>
-      'Select a player to protect from the mafia and the terrorist';
+      'Choose a player to protect from the Mafia and the Kamikaze';
 
   @override
   String get skillsDescriptionsBarman =>
-      'Select a player to intoxicate. They won\'t be able to vote, speak, or use abilities';
+      'Choose a player to intoxicate. They will be unable to vote, speak, or use their ability';
 
   @override
   String get skillsDescriptionsDoctor =>
-      'Select a player to heal from a mafia attack';
+      'Choose a player to save from a Mafia attack';
 
   @override
   String get skillsDescriptionsInformant =>
-      'Select a player whose role you want to reveal';
+      'Choose a player to reveal their role';
 
   @override
   String get skillsDescriptionsSheriff =>
-      'Select a player to investigate and find out their role';
+      'Choose a player to investigate and learn their role';
 
   @override
   String get skillsDescriptionsJournalist =>
-      'Select two players to find out if they are on the same team';
+      'Choose two players tofind out if they are on the same team';
 
   @override
   String get hasJoined => 'has joined';
@@ -739,7 +740,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rolesGeneralDescriptionBodyguard =>
-      'You are the bodyguard for the civilians. Use your skills to carefully protect the civilians from attacks by the terrorist or the mafia during the day';
+      'You are the bodyguard for the civilians. Use your skills to carefully protect the civilians from attacks by the kamikaze or the mafia during the day';
 
   @override
   String get rolesGeneralDescriptionBarman =>
@@ -758,8 +759,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'You are the journalist for the civilians. Every night, conduct interviews with two players so that everyone learns whether they are on the same team or on different teams';
 
   @override
-  String get rolesGeneralDescriptionTerrorist =>
-      'You are the Terrorist from the mafia team. You do not know the mafia, but the mafia knows you. During the day vote, you can blow up a civilian, dying along with them';
+  String get rolesGeneralDescriptionKamikaze =>
+      'You are the Kamikaze from the mafia team. You do not know the mafia, but the mafia knows you. During the day vote, you can blow up a civilian, dying along with them';
 
   @override
   String get rolesObjectiveMafia => 'Eliminate all civilians';
@@ -800,7 +801,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Help the civilians eliminate all mafia members by conducting daily reports';
 
   @override
-  String get rolesObjectiveTerrorist =>
+  String get rolesObjectiveKamikaze =>
       'Help the mafia members eliminate the civilians by blowing up an important civilian';
 
   @override
@@ -825,7 +826,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rolesDayPhaseBodyguard =>
-      'Every day, you can choose a player to protect from an attack by the terrorist or the mafia';
+      'Every day, you can choose a player to protect from an attack by the kamikaze or the mafia';
 
   @override
   String get rolesDayPhaseBarman =>
@@ -844,7 +845,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Participate in discussions and voting, guide the conversation, and support the civilians';
 
   @override
-  String get rolesDayPhaseTerrorist =>
+  String get rolesDayPhaseKamikaze =>
       'You can participate in discussions, but you do not have the right to vote. During the day vote, you can blow up a player; however, if the Bodyguard protects that player, you will die, taking the Bodyguard with you';
 
   @override
@@ -891,7 +892,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every night, you can interview two players to find out if they are on the same team. The results of the report are visible to everyone in the chat';
 
   @override
-  String get rolesThirdDescriptionTerrorist =>
+  String get rolesThirdDescriptionKamikaze =>
       'At night you have nothing to do, rest';
 
   @override
@@ -935,7 +936,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'You win when no members of the mafia remain alive';
 
   @override
-  String get rolesWinningConditionsTerrorist =>
+  String get rolesWinningConditionsKamikaze =>
       'You win when no civilians remain alive';
 
   @override
@@ -963,24 +964,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uknown => 'unknown';
 
   @override
-  String get gameInformationPopupCured =>
-      'You’re in “safe” hands, the mafia can’t touch you now';
-
-  @override
-  String get gameInformationPopupInterviewed =>
-      'Congrats — you’re now part of their “big investigation,” whether you like it or not. And, as always, everyone’s already gossiping about whether you’re on the same side as the other interviewee';
-
-  @override
   String get underTheEffectYouCannotVoteUseAbilitiesAndYour =>
       'Under the effect: you cannot vote, use abilities, and your messages appear distorted';
 
   @override
+  String get gameInformationPopupCured =>
+      'You\'re in «safe» hands — the mafia can\'t touch you today';
+
+  @override
+  String get gameInformationPopupInterviewed =>
+      'Congrats — you\'re now part of their «big investigation», whether you like it or not. And as always, everyone\'s already gossiping about whether you\'re on the same side as the other interviewee';
+
+  @override
   String get gameInformationPopupIntoxicated =>
-      'Under the effect: you cannot vote, use abilities, and your messages appear distorted';
+      'Under the effect: you cannot vote or use skills, and your messages appear distorted';
 
   @override
   String get gameInformationPopupInvestigated =>
-      'The sheriff entered your details into the system — now they know who you are';
+      'The sheriff entered your details into the system and now they know who you are';
 
   @override
   String get gameInformationPopupRevealed =>
@@ -988,38 +989,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gameInformationPopupProtected =>
-      'While the protection is active, you’re safe from harm.';
+      'While the protection is active, you\'re safe';
 
   @override
   String get gameInformationPopupSatisfied =>
-      'You’ve succumbed to the temptation and cannot vote or use abilities.';
+      'You\'ve been enchanted — you cannot vote or use abilities';
 
   @override
-  String get gameInformationPopupTitleCured => 'The doctor has cured you';
+  String get gameInformationPopupTitleCured => 'The Doctor has saved you';
 
   @override
   String get gameInformationPopupTitleInterviewed =>
-      'The journalist interviewed you';
+      'The Journalist interviewed you';
 
   @override
-  String get gameInformationPopupTitleIntoxicated =>
-      'The bartender got you drunk';
+  String get gameInformationPopupTitleIntoxicated => 'The Barman got you drunk';
 
   @override
   String get gameInformationPopupTitleInvestigated =>
-      'The sheriff investigated you.';
+      'The Sheriff investigated you.';
 
   @override
   String get gameInformationPopupTitleRevealed =>
-      'The informant revealed your role.';
+      'The Informant revealed your role.';
 
   @override
   String get gameInformationPopupTitleProtected =>
-      'The bodyguard has protected you.';
+      'The Bodyguard has protected you.';
 
   @override
   String get gameInformationPopupTitleSatisfied =>
-      'The beauty has enchanted you.';
+      'The Beauty has charmed you.';
 
   @override
   String get gameInformationPopupExpirationCured =>
@@ -1056,16 +1056,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inviteFriend => 'Invite Friend';
 
   @override
-  String get phaseMessagesDay => 'The silence of night is over. Now speak.';
+  String get phaseMessagesDay =>
+      'A new day begins. Talk, question and suspect. The mafia walks among you';
 
   @override
-  String get phaseMessageDayVoting => 'Choose the imposter of the day';
+  String get phaseMessageDayVoting =>
+      'Time to decide. Who do you trust least? Cast your vote';
 
   @override
-  String get phaseMessageNight => 'The night begins. All must rest in silence';
+  String get phaseMessageNight =>
+      'Night falls over the town. In the darkness, the mafia whispers';
 
   @override
-  String get phaseMessageNightVoting => 'The Mafia cast their deadly vote.';
+  String get phaseMessageNightVoting =>
+      'The mafia never sleeps.. someone\'s fate is being decided right now';
 
   @override
   String nicknameDidNotSurviveTheNight(String nickname) {
@@ -1078,31 +1082,177 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String terroristTriedToBombTargetplayerButBodyguardSavedHimher(
+  String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer) {
-    return 'Terrorist tried to bomb [$targetPlayer], but bodyguard saved him/her';
+    return 'Kamikaze tried to bomb [$targetPlayer], but bodyguard saved him/her';
   }
 
   @override
-  String terroristBombardedTargetplayer(String targetPlayer) {
-    return 'Terrorist bombarded [$targetPlayer]';
+  String kamikazeBombardedTargetplayer(String targetPlayer) {
+    return 'Kamikaze bombarded [$targetPlayer]';
   }
 
   @override
   String firstplayernicknameAndSecondplayernicknameAreOnDifferentTeams(
       String firstPlayerNickname, String secondPlayerNickname) {
-    return '[$firstPlayerNickname] and [$secondPlayerNickname] are on different teams';
+    return 'Journalist conducted an interview with [$firstPlayerNickname] and [$secondPlayerNickname] — they play on opposite teams';
   }
 
   @override
   String firstplayernicknameAndSecondplayernicknameAreOnSameTeams(
       String firstPlayerNickname, String secondPlayerNickname) {
-    return '[$firstPlayerNickname] and [$secondPlayerNickname] are on same teams';
+    return 'Journalist conducted an interview with [$firstPlayerNickname] and [$secondPlayerNickname] — they play on the same team';
   }
 
   @override
-  String get inGame => 'in game';
+  String personalFeedBackToInformantAndSheriff(
+      String playerNickname, String playerRole) {
+    return 'After your investigation, it seems that [$playerNickname] is [$playerRole]';
+  }
+
+  @override
+  String get inGame => 'in room';
 
   @override
   String get enterTheTitle => 'Enter the title';
+
+  @override
+  String get gameRoles => 'Game Roles';
+
+  @override
+  String get play => 'Play';
+
+  @override
+  String get filterOn => 'Filter On';
+
+  @override
+  String get gameIsFull => 'Game is Full';
+
+  @override
+  String get enterRoomName => ' Enter room name';
+
+  @override
+  String get noFriendRequests => 'No friend requests';
+
+  @override
+  String get noFriendsToSuggest => 'No friends to suggest';
+
+  @override
+  String get minsAgo => 'mins ago';
+
+  @override
+  String get hoursAgo => 'hours ago';
+
+  @override
+  String get daysAgo => 'days ago';
+
+  @override
+  String get lessThanAMinute => 'less than a minute';
+
+  @override
+  String get playerProfile => 'Player Profile';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get lastSeen => 'Last seen';
+
+  @override
+  String get deleteFriend => 'Delete friend';
+
+  @override
+  String get acceptRequest => 'Accept request';
+
+  @override
+  String get rejectRequest => 'Reject request';
+
+  @override
+  String get cancelRequest => 'Cancel request';
+
+  @override
+  String get sent => 'Sent';
+
+  @override
+  String get invite => 'Invite';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get notification => 'Notification';
+
+  @override
+  String get sentFriendRequest => ' sent friend request';
+
+  @override
+  String get acceptedYourRequest => ' accepted your request';
+
+  @override
+  String get whoIsNext => 'Who is Next?';
+
+  @override
+  String get invititationToGame => 'Invititation To Room';
+
+  @override
+  String get invitedYouToTheGame => ' invited you to the room - ';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get decline => 'Decline';
+
+  @override
+  String get gameInformationPopupLastMafia =>
+      'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on';
+
+  @override
+  String get gameInformationPopupTitleLastMafia => 'Last Mafia';
+
+  @override
+  String get gameInformationPopupExpirationLastMafia =>
+      'The effect lasts until the end of the game';
+
+  @override
+  String get youAreNotElligibleToSendMessageRightNow =>
+      'You are not elligible to send message right now';
+
+  @override
+  String get theShadowsHaveConsumedYourLight =>
+      'The shadows have consumed your light.';
+
+  @override
+  String get youAreDead => 'You are dead';
+
+  @override
+  String get iDeadSituationOneText => 'IDeadSituationOneText - Mafia killed';
+
+  @override
+  String get iDeadSituationTwoText =>
+      'IDeadSituationTwoText - eliminated by towns decision';
+
+  @override
+  String get iDeadSituationThreeText =>
+      'IDeadSituationThreeText - kamikaze bombarded me';
+
+  @override
+  String get iDeadSituationFourText =>
+      'iDeadSituationFourText - i am kamikaze and i killed someone and myself';
+
+  @override
+  String get nightVotingCanNotSendMessage => 'NightVoting Can Not Send Message';
+
+  @override
+  String get nightCanNotSendMessage => 'Night Can Not Send Message';
+
+  @override
+  String get dayVotingCanNotSendMessage => 'DayVoting Can Not Send Message';
+
+  @override
+  String get unsupportedFileFormat => 'Unsupported File Format';
+
+  @override
+  String get fileIsTooLargeItMustBe200kb =>
+      'File is too large, it must be 200kb';
 }

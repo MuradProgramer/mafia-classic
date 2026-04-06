@@ -34,6 +34,7 @@ import 'package:mafia_classic/services/tcp/event_router_service.dart';
 import 'package:mafia_classic/services/tcp/tcp_client_service.dart';
 import 'package:mafia_classic/theme/theme.dart';
 import 'package:mafia_classic/utils/popup_utils.dart';
+import 'package:mafia_classic/utils/snackbar.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -527,63 +528,91 @@ class _FriendsTabState extends State<FriendsTab> {
     filteredFriends = friends;
 
     _eventSubscriptionLoadFriends = EventBus().on<LoadFriendsEvent>().listen((event) {
-      setState(() {
-        if (!mounted) return;
-        log("****** LOAD FRIEND ******");
-        _loadFriends();
-        filteredFriends = _filterFriends(searchController.text.trim());
-      });
+      try {
+        setState(() {
+          if (!mounted) return;
+          log("****** LOAD FRIEND ******");
+          _loadFriends();
+          filteredFriends = _filterFriends(searchController.text.trim());
+        });
+      } catch (e) {
+        log('💥 _eventSubscriptionLoadFriends Error - $e - Friends Tab 💥');
+      }
     });
   
     _eventSubscriptionNewFriend = EventBus().on<NewFriendAddedEvent>().listen((event) {
-      setState(() {
-        if (!mounted) return;
-        log("****** NEW FRIEND ******");
-        friends.insert(0, event.requestData); 
-        filteredFriends = _filterFriends(searchController.text.trim());
-      });
+      try {
+        setState(() {
+          if (!mounted) return;
+          log("****** NEW FRIEND ******");
+          friends.insert(0, event.requestData); 
+          filteredFriends = _filterFriends(searchController.text.trim());
+        });
+      } catch (e) {
+        log('💥 _eventSubscriptionNewFriend Error - $e - Friends Tab 💥');
+      }
     });
 
     _eventSubscriptionNewFriendMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
-      setState(() {
-        if (!mounted) return;
-        friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount++;
-        filteredFriends = _filterFriends(searchController.text.trim());
-      });
+      try {
+        setState(() {
+          if (!mounted) return;
+          friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount++;
+          filteredFriends = _filterFriends(searchController.text.trim());
+        });
+      } catch (e) {
+        log('💥 _eventSubscriptionNewFriendMessage Error - $e - Friends Tab 💥');
+      }
     });
     
     _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
-      setState(() {
-        if (!mounted) return;
-        friends.removeWhere((friend) => friend.id == event.friendId); 
-        filteredFriends = _filterFriends(searchController.text.trim());
-      });
+      try {
+        setState(() {
+          if (!mounted) return;
+          friends.removeWhere((friend) => friend.id == event.friendId); 
+          filteredFriends = _filterFriends(searchController.text.trim());
+        });
+      } catch (e) {
+        log('💥 _eventSubscriptionDeleteFriend Error - $e - Friends Tab 💥');
+      }
     });
     
     _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
-      setState(() {
-        if (!mounted) return;
-        friends.firstWhere((friend) => friend.id == event.friendId).isOnline = true;
-        filteredFriends = _filterFriends(searchController.text.trim());
-      });
+      try {
+        setState(() {
+          if (!mounted) return;
+          friends.firstWhere((friend) => friend.id == event.friendId).isOnline = true;
+          filteredFriends = _filterFriends(searchController.text.trim());
+        });
+      } catch (e) {
+        log('💥 _eventSubscriptionFriendOnline Error - $e - Friends Tab 💥');
+      }
     });
 
     _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
-      setState(() {
-        if (!mounted) return;
-        Friendship friend = friends.firstWhere((friend) => friend.id == event.friendId);
-        friend.isOnline = false;
-        friend.lastSeen = DateTime.now();
-        filteredFriends = _filterFriends(searchController.text.trim());
-      });
+      try {
+        setState(() {
+          if (!mounted) return;
+          Friendship friend = friends.firstWhere((friend) => friend.id == event.friendId);
+          friend.isOnline = false;
+          friend.lastSeen = DateTime.now();
+          filteredFriends = _filterFriends(searchController.text.trim());
+        });
+      } on Exception catch (e) {
+        log('💥 _eventSubscriptionFriendOffline Error - $e - Friends Tab 💥');
+      }
     });
 
     _eventSubscriptionFriendMessagesReaded = EventBus().on<FriendMessagesReadedEvent>().listen((event) {
-      setState(() {
-        if (!mounted) return;
-        friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount = 0;
-        filteredFriends = _filterFriends(searchController.text.trim());
-      });
+      try {
+        setState(() {
+          if (!mounted) return;
+          friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount = 0;
+          filteredFriends = _filterFriends(searchController.text.trim());
+        });
+      } catch (e) {
+        log('💥 _eventSubscriptionFriendMessagesReaded Error - $e - Friends Tab 💥');
+      }
     });
     
     super.initState();
@@ -605,18 +634,18 @@ class _FriendsTabState extends State<FriendsTab> {
   //   _loadFriends();
   // }
 
-  String formatLastSeen(DateTime lastSeen) {
+  String formatLastSeen(DateTime lastSeen, BuildContext context) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
 
     if (difference.inSeconds < 59) {
-      return "less than a minute";
+      return AppLocalizations.of(context)!.lessThanAMinute;
     } else if (difference.inMinutes < 60) {
-      return "${difference.inMinutes} mins ago";
+      return "${difference.inMinutes} ${AppLocalizations.of(context)!.minsAgo}";
     } else if (difference.inHours < 24) {
-      return "${difference.inHours} hours ago";
+      return "${difference.inHours} ${AppLocalizations.of(context)!.hoursAgo}";
     } else if (difference.inDays < 31) {
-      return "${difference.inDays} days ago";
+      return "${difference.inDays} ${AppLocalizations.of(context)!.daysAgo}";
     } else {
       return DateFormat('dd.MM.yyyy').format(lastSeen.toLocal());
     }
@@ -660,10 +689,14 @@ class _FriendsTabState extends State<FriendsTab> {
 
   void _deleteFriend(String nickname) async {
     if (!mounted) return;
-    TcpClientService().sendMessage(ClientCommand.deleteFriendship.value, json.encode({'nickname': nickname}));
-    friends.removeWhere((friend) => friend.nickname == nickname);
-    await GeneralCacheService().save('all_friends_list', friends);
-    setState(() {});
+    try {
+      TcpClientService().sendMessage(ClientCommand.deleteFriendship.value, json.encode({'nickname': nickname}));
+      friends.removeWhere((friend) => friend.nickname == nickname);
+      await GeneralCacheService().save('all_friends_list', friends);
+      setState(() {});
+    } catch (e) {
+      log('💥 ClientCommand.deleteFriendship - $e - Client Command - Friends Tab 💥');
+    }
   }
 
   @override
@@ -848,7 +881,7 @@ class _FriendsTabState extends State<FriendsTab> {
                                     // TEXT:    STATUS
                                     Text(
                                       //friend.isOnline ? AppLocalizations.of(context)!.online : DateFormat('dd.MM.yyyy HH:mm').format(friend.lastSeen.toLocal()), //! DYNAMIC
-                                      friend.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(friend.lastSeen.toLocal()), //! DYNAMIC
+                                      friend.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(friend.lastSeen.toLocal(), context), //! DYNAMIC
                                       style: TextStyle(
                                         fontSize: 15.sp, 
                                         fontStyle: FontStyle.italic,
@@ -1026,17 +1059,24 @@ class _RequestsTabState extends State<RequestsTab> {
 
     _eventSubscription = EventBus().on<FriendRequestReceivedEvent>().listen((event) {
       if (!mounted) return;
-      setState(() {
-        // DIRECT UPDATE: Add the new request to the TOP of the list
-        requests.insert(0, FriendRequest(id: event.requestData["friendId"], nickname: event.requestData["nickname"], avatarUrl: event.requestData["avatarUrl"])); 
-      });
+      try {
+        setState(() {
+          requests.insert(0, FriendRequest(id: event.requestData["friendId"], nickname: event.requestData["nickname"], avatarUrl: event.requestData["avatarUrl"])); 
+        });
+      } catch (e) {
+        log('💥 _eventSubscriptionFriendMessagesReaded Error - $e - Reuqests Tab 💥');
+      }
     });
 
-    _eventSubscription = EventBus().on<CancelFriendRequest>().listen((event) {
+    _eventSubscriptionCancelRequest = EventBus().on<CancelFriendRequest>().listen((event) {
       if (!mounted || !(requests.any((request) => request.id == event.playerId))) return;
-      setState(() {
-        requests.removeWhere((player) => player.id == event.playerId);
-      });
+      try {
+        setState(() {
+          requests.removeWhere((player) => player.id == event.playerId);
+        });
+      } catch (e) {
+        log('💥 _eventSubscriptionCancelRequest Error - $e - Reuqests Tab 💥');
+      }
     });
 
     _eventSubscriptionDeclineRequest = EventBus().on<FriendRequestDeclinedEvent>().listen((event) {
@@ -1060,17 +1100,25 @@ class _RequestsTabState extends State<RequestsTab> {
 
   void _getRequests() async {
     //TcpClientService().sendMessage(ClientCommand.getPendingFriendshipRequests.value, "");
-    requests = await GetIt.I<ApiService>().getRequests() ?? [];
-    if (!mounted) return;
-    setState(() {});
+    try {
+      requests = await GetIt.I<ApiService>().getRequests() ?? [];
+      if (!mounted) return;
+      setState(() {});
+    } catch (e) {
+      log('💥 _getRequests() Error - $e - Reuqests Tab 💥');
+    }
   }
 
   void _approveFriend(int id, bool approve) async {
     //TcpClientService().sendMessage(ClientCommand.approveFriendship.value, json.encode({'nickname': nickname, 'approve': approve}));
-    await GetIt.I<ApiService>().approveFriend(id, approve);
-    requests.removeWhere((request) => request.id == id);
-    if (!mounted) return;
-    setState(() {});
+    try {
+      await GetIt.I<ApiService>().approveFriend(id, approve);
+      requests.removeWhere((request) => request.id == id);
+      if (!mounted) return;
+      setState(() {});
+    } catch (e) {
+      log('💥 _approveFriend() Error - $e - Reuqests Tab 💥');
+    }
   }
 
   @override
@@ -1131,7 +1179,7 @@ class _RequestsTabState extends State<RequestsTab> {
           child: Align(
             alignment: Alignment.topCenter,
             child: Text(
-              AppLocalizations.of(context)!.noPlayersFound,
+              AppLocalizations.of(context)!.noFriendRequests,
               style: GoogleFonts.playfairDisplay(
                 color: Colors.black,
                 fontSize: 18
@@ -1204,37 +1252,47 @@ class _RequestsTabState extends State<RequestsTab> {
                                     _approveFriend(request.id, true);
                                     //EventBus().fire(FriendApprovedEvent(request.id, true));
                                   },
-                                  child: Icon(
-                                    Icons.handshake_outlined,
+                                  child: Image.asset(
+                                    'assets/images/icon_friend_accept.png',
                                     color: const Color(0xFF302B25),
-                                    size: 30.sp,
+                                    height: 30.h,
+                                    width: 30.h,
                                   )
                                 ),
-                                SizedBox(width: 5.w),
+
+                                SizedBox(width: 10.w),
+
                                 GestureDetector(
                                   onTap: () {
                                     _approveFriend(request.id, false);
                                     //EventBus().fire(FriendApprovedEvent(request.id, false));
                                   },
-                                  child: Container(
-                                    width: 30.w,
+                                  child: Image.asset(
+                                    'assets/images/icon_friend_decline.png',
+                                    color: const Color(0xFF302B25),
                                     height: 30.h,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF302B25),
-                                      borderRadius: BorderRadius.circular(5.sp),
-                                    ),
-                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                                    child: Center(
-                                      child: Container(
-                                        height: 5.h,
-                                        width: 20.w,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFE0D0BC),
-                                          borderRadius: BorderRadius.circular(5.sp),
-                                        ),
-                                      ),
-                                    ),
-                                  )
+                                    width: 30.h,
+                                  ),
+                                  // child: Container(
+                                  //   width: 30.w,
+                                  //   height: 30.h,
+                                  //   decoration: BoxDecoration(
+                                  //     color: const Color(0xFF302B25),
+                                  //     borderRadius: BorderRadius.circular(5.sp),
+                                  //   ),
+                                  //   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                  //   child: Center(
+                                  //     child: Container(
+                                  //       height: 5.h,
+                                  //       width: 20.w,
+                                  //       decoration: BoxDecoration(
+                                  //         color: const Color(0xFFE0D0BC),
+                                  //         borderRadius: BorderRadius.circular(5.sp),
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // )
+                                
                                 ),
                               ],
                             )
@@ -1302,43 +1360,63 @@ class _SearchTabState extends State<SearchTab> {
     super.initState();
 
     _eventSubscription = EventBus().on<FriendRequestReceivedEvent>().listen((event) {
-      if (!mounted || searchResults == null) return;
-      if (!(searchResults!.any((friend) => friend.id == event.requestData["friendId"]))) return;
-      setState(() {
-        searchResults?.removeWhere((friend) => friend.id == event.requestData["friendId"]);
-      });
+      try {
+        if (!mounted || searchResults == null) return;
+        if (!(searchResults!.any((friend) => friend.id == event.requestData["friendId"]))) return;
+        setState(() {
+          searchResults?.removeWhere((friend) => friend.id == event.requestData["friendId"]);
+        });
+      } catch (e) {
+        log('💥 FriendRequestReceivedEvent Error - $e - Search Tab 💥');
+      }
     });
   
     _eventSubscriptionCancelRequest = EventBus().on<CancelFriendRequest>().listen((event) {
-      if (!mounted || searchResults == null) return;
-      if (!(searchResults!.any((friend) => friend.id == event.playerId))) return;
-      setState(() {
-        searchResults?.firstWhere((friend) => friend.id == event.playerId).friendshipStatus = "None";
-      });
+      try {
+        if (!mounted || searchResults == null) return;
+        if (!(searchResults!.any((friend) => friend.id == event.playerId))) return;
+        setState(() {
+          searchResults?.firstWhere((friend) => friend.id == event.playerId).friendshipStatus = "None";
+        });
+      } catch (e) {
+        log('💥 CancelFriendRequest Error - $e - Search Tab 💥');
+      }
     });
 
     _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
-      if (!mounted || searchResults == null) return;
-      if (!(searchResults!.any((friend) => friend.id == event.friendId))) return;
-      setState(() {
-        searchResults?.firstWhere((friend) => friend.id == event.friendId).friendshipStatus = "None";
-      });
+      try {
+        if (!mounted || searchResults == null) return;
+        if (!(searchResults!.any((friend) => friend.id == event.friendId))) return;
+        setState(() {
+          searchResults?.firstWhere((friend) => friend.id == event.friendId).friendshipStatus = "None";
+        });
+      } catch (e) {
+        log('💥 DeleteFriendEvent Error - $e - Search Tab 💥');
+      }
     });
 
     _eventSubscriptionNewFriend = EventBus().on<NewFriendAddedEvent>().listen((event) {
-      if (!mounted || searchResults == null) return;
-      if (!(searchResults!.any((friend) => friend.id == event.requestData.id))) return;
-      setState(() {
-        searchResults?.firstWhere((friend) => friend.id == event.requestData.id).friendshipStatus = "Accepted";
-      });
+      try {
+        if (!mounted || searchResults == null) return;
+        if (!(searchResults!.any((friend) => friend.id == event.requestData.id))) return;
+        setState(() {
+          searchResults?.firstWhere((friend) => friend.id == event.requestData.id).friendshipStatus = "Accepted";
+        });
+      } on Exception catch (e) {
+        log('💥 NewFriendAddedEvent Error - $e - Search Tab 💥');
+      }
     });
 
     _eventSubscriptionDeclineRequest = EventBus().on<FriendRequestDeclinedEvent>().listen((event) {
-      if (!mounted || searchResults == null) return;
-      if (!(searchResults!.any((friend) => friend.id == event.playerId))) return;
-      setState(() {
-        searchResults?.firstWhere((friend) => friend.id == event.playerId).friendshipStatus = "None";
-      });
+      try {
+        if (!mounted || searchResults == null) return;
+        if (!(searchResults!.any((friend) => friend.id == event.playerId))) return;
+        setState(() {
+          searchResults?.firstWhere((friend) => friend.id == event.playerId).friendshipStatus = "None";
+        });
+      } catch (e) {
+        log('💥 FriendRequestDeclinedEvent Error - $e - Search Tab 💥');
+      }
     });
 
     /*
@@ -1400,9 +1478,13 @@ class _SearchTabState extends State<SearchTab> {
 
     //TcpClientService().sendMessage(ClientCommand.getSuggestedFriends.value, "");
 
-    searchResults = await GetIt.I<ApiService>().suggestedFriends();
-    if (!mounted) return;
-    setState(() {});
+    try {
+      searchResults = await GetIt.I<ApiService>().suggestedFriends();
+      if (!mounted) return;
+      setState(() {});
+    } catch (e) {
+      log('💥 getPossibleFriends() Error - $e - Search Tab 💥');
+    }
   }
 
   // DONE
@@ -1413,27 +1495,41 @@ class _SearchTabState extends State<SearchTab> {
     //   TcpClientService().sendMessage(ClientCommand.searchPlayers.value, json.encode({'pattern': _searchController.text.trim()}));
     // }
 
-    if (_searchController.text.trim().isEmpty) {
-      searchResults = await GetIt.I<ApiService>().suggestedFriends();
-    } else {
-      searchResults = await GetIt.I<ApiService>().findFriend(_searchController.text.trim());
+    try {
+      if (_searchController.text.trim().isEmpty) {
+        searchResults = await GetIt.I<ApiService>().suggestedFriends();
+      } else {
+        searchResults = await GetIt.I<ApiService>().findFriend(_searchController.text.trim());
+      }
+      if (!mounted) return;
+      setState(() {});
+    } catch (e) {
+      log('💥 _searchUsers() Error - $e - Search Tab 💥');
     }
-    if (!mounted) return;
-    setState(() {});
   }
 
   void _sendRequest(int id) async {
     //TcpClientService().sendMessage(ClientCommand.requestFriendship.value, json.encode({'nickname': nickname}));
-    await GetIt.I<ApiService>().sendRequest(id);
-    setState(() {});
+    try {
+      await GetIt.I<ApiService>().sendRequest(id);
+      setState(() {});
+    } on Exception catch (e) {
+      log('💥 _sendRequest() Error - $e - Search Tab 💥');
+    }
   }
 
   void changeFriendshipStatus(String nickname, String status) {
-    setState(() {
-      if (searchResults != null) {
-        searchResults!.firstWhere((e) => e.nickname == nickname).friendshipStatus = status;
-      }
-    });
+    if (!mounted) return;
+
+    try {
+      setState(() {
+        if (searchResults != null) {
+          searchResults!.firstWhere((e) => e.nickname == nickname).friendshipStatus = status;
+        }
+      });
+    } catch (e) {
+      log('💥 changeFriendshipStatus() Error - $e - Search Tab 💥');
+    }
   }
 
   @override
@@ -1551,7 +1647,7 @@ class _SearchTabState extends State<SearchTab> {
             child: Align(
               alignment: Alignment.topCenter,
               child: Text(
-                AppLocalizations.of(context)!.noPlayersFound,
+                AppLocalizations.of(context)!.noFriendsToSuggest,
                 style: GoogleFonts.playfairDisplay(
                   color: Colors.black,
                   fontSize: 18
@@ -1625,13 +1721,11 @@ class _SearchTabState extends State<SearchTab> {
                             //BUTTON:    DELETE
                             user.friendshipStatus == 'RequestPending'
                             ? 
-                              Container(
-                                margin: EdgeInsets.only(right: 5.w),
-                                child: Icon(
-                                  size: 30.sp,
-                                  Icons.pending_actions,
-                                  color: const Color(0xFF00695C),
-                                ),
+                              Image.asset(
+                                'assets/images/icon_friend_pending.png',
+                                height: 33.h,
+                                width: 33.h,
+                                color: const Color(0xFF302B25),
                               )
                               // Text(
                               //   AppLocalizations.of(context)!.requestPending,
@@ -1653,8 +1747,8 @@ class _SearchTabState extends State<SearchTab> {
                               )
                             : user.friendshipStatus == 'None'
                             ? SizedBox(
-                              width: 40.w,
-                              height: 35.h,
+                              width: 33.w,
+                              height: 33.h,
                               child: GestureDetector(
                                 onTap: () {
                                   //! CHECK
@@ -1662,22 +1756,21 @@ class _SearchTabState extends State<SearchTab> {
                                   changeFriendshipStatus(user.nickname, 'RequestPending');
                                 },
                                 
-                                child: Icon(
-                                  Icons.handshake_outlined,
+                                child: Image.asset(
+                                  'assets/images/icon_friend_add.png',
                                   color: const Color(0xFF302B25),
-                                  size: 30.sp,
+                                  height: 33.h,
+                                  width: 33.w,
                                 )
                               ),
                             )
                             : user.friendshipStatus == 'Accepted' 
-                            ? Container(
-                                margin: EdgeInsets.only(right: 5.w),
-                                child: Icon(
-                                  size: 30.sp,
-                                  Icons.people_alt,
-                                  color: const Color(0xFF302B25),
-                                ),
-                              )
+                            ? Image.asset(
+                              'assets/images/icon_friends.png',
+                              height: 31.h,
+                              width: 31.w,
+                              color: const Color(0xFF302B25),
+                            )
                             : const SizedBox()
                             
                           ],
@@ -1707,6 +1800,7 @@ class FriendChat extends StatefulWidget {
 }
 
 class _FriendChatState extends State<FriendChat> {
+  bool sendButtonDisabled = false;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
 
@@ -1722,6 +1816,7 @@ class _FriendChatState extends State<FriendChat> {
   StreamSubscription? eventSubscriptionNewMessage;
   StreamSubscription? _eventSubscriptionFriendOnline;
   StreamSubscription? _eventSubscriptionFriendOffline;
+  StreamSubscription? _eventSubscriptionDeleteFriend;
 
   //late StreamSubscription<String> friendshipFriendMessages;
   late StreamSubscription<String> friendshipFriendMessagesReaded;
@@ -1770,33 +1865,64 @@ class _FriendChatState extends State<FriendChat> {
     isInFriendIdChatGlobal = widget.friend.id;
 
     eventSubscriptionNewMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
-      setState(() {
-        if (widget.friend.id == event.friendId) {
-          messages.add(event.message);
-          GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
-        }
-      });
+      if (!mounted) return;
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollToBottom();
-      });
+      try {
+        setState(() {
+          if (widget.friend.id == event.friendId) {
+            messages.add(event.message);
+            GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
+          }
+        });
+        
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scrollToBottom();
+        });
+      } catch (e) {
+        log('💥 FriendNewMessageEvent Error - $e - Friends Chat Screen 💥');
+      }
     });
 
     _eventSubscriptionFriendOnline = EventBus().on<FriendOnlineEvent>().listen((event) {
-      setState(() {
-        if (event.friendId == widget.friend.id) {
-          widget.friend.isOnline = true;
-        }
-      });
+      if (!mounted) return;
+
+      try {
+        setState(() {
+          if (event.friendId == widget.friend.id) {
+            widget.friend.isOnline = true;
+          }
+        });
+      } catch (e) {
+        log('💥 FriendOnlineEvent Error - $e - Friends Chat Screen 💥');
+      }
+    });
+
+    _eventSubscriptionDeleteFriend = EventBus().on<DeleteFriendEvent>().listen((event) {
+      try {
+        setState(() {
+          if (!mounted) return;
+          if (widget.friend.id == event.friendId) {
+            sendButtonDisabled = true;
+          }
+        });
+      } catch (e) {
+        log('💥 DeleteFriendEvent Error - $e - Friends Chat Screen 💥');
+      }
     });
 
     _eventSubscriptionFriendOffline = EventBus().on<FriendOfflineEvent>().listen((event) {
-      setState(() {
-        if (event.friendId == widget.friend.id) {
-          widget.friend.isOnline = false;
-          widget.friend.lastSeen = DateTime.now();
-        }
-      });
+      if (!mounted) return;
+
+      try {
+        setState(() {
+          if (event.friendId == widget.friend.id) {
+            widget.friend.isOnline = false;
+            widget.friend.lastSeen = DateTime.now();
+          }
+        });
+      } catch (e) {
+        log('💥 FriendOfflineEvent Error - $e - Friends Chat Screen 💥');
+      }
     });
 
     loadMessages();
@@ -1820,8 +1946,8 @@ class _FriendChatState extends State<FriendChat> {
           //   scrollToBottom();
           // });
         }
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     friendshipFriendMessagesReaded Event - Friend Chat Screen: ${e.toString()}');
+      } catch (e) {
+        log('💥 friendshipFriendMessagesReaded Event Error - $e - Friends Chat Screen 💥');
       }
     });
 
@@ -1842,8 +1968,8 @@ class _FriendChatState extends State<FriendChat> {
           //   scrollToBottom();
           // });
         }
-      } on Exception catch (e) {
-        log('EXCEPTION IN:     friendshipFriendMessagesReaded Event - Friend Chat Screen: ${e.toString()}');
+      } catch (e) {
+        log('💥 friendshipFriendMessagesDelivered Event Error - $e - Friends Chat Screen 💥');
       }
     });
 
@@ -1893,6 +2019,7 @@ class _FriendChatState extends State<FriendChat> {
     eventSubscriptionNewMessage?.cancel();
     _eventSubscriptionFriendOnline?.cancel();
     _eventSubscriptionFriendOffline?.cancel();
+    _eventSubscriptionDeleteFriend?.cancel();
     friendshipFriendMessagesReaded.cancel();
     _scrollController.dispose();
     _messageController.dispose();
@@ -1915,19 +2042,23 @@ class _FriendChatState extends State<FriendChat> {
 
   void loadMessages() async {
     //await GetIt.I<ApiService>().readFriendMessages(widget.friend.nickname);
-    var allMessages = await GetIt.I<ApiService>().getAllMessagesInFriendChat(widget.friend.id);
-
-    if (mounted) {
-      setState(() {
-        messages = allMessages ?? [];
-      });
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollToBottom();
-      });
+    try {
+      var allMessages = await GetIt.I<ApiService>().getAllMessagesInFriendChat(widget.friend.id);
+      
+      if (mounted) {
+        setState(() {
+          messages = allMessages ?? [];
+        });
+      
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scrollToBottom();
+        });
+      }
+      
+      await GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
+    } on Exception catch (e) {
+      log('💥 loadMessages() Error - $e - Friends Chat Screen 💥');
     }
-
-    await GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
   }
 
   @override
@@ -2043,7 +2174,7 @@ class _FriendChatState extends State<FriendChat> {
 
                           // TEXT:    IS ONLINE
                           Text(
-                            widget.friend.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(widget.friend.lastSeen),
+                            sendButtonDisabled ? "Not Friends" : widget.friend.isOnline ? AppLocalizations.of(context)!.online : formatLastSeen(widget.friend.lastSeen),
                             style: TextStyle(
                               fontSize: 16.sp, 
                               color: Colors.white,
@@ -2075,72 +2206,85 @@ class _FriendChatState extends State<FriendChat> {
                   ),
                 
                   //? INPUT PART
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // INPUT
-                      Container(
-                        width: 325.w,
-                        height: 45.h,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE3C278),
-                          borderRadius: BorderRadius.circular(12.r)
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 10.w, bottom: 6.h, right: 10.w),
-                          child: TextField(
-                            controller: _messageController,
-                            style: TextStyle(color: Colors.white, fontSize: 15.sp),
-                            cursorColor: const Color(0xFFFFFFFF),
-                            decoration: InputDecoration(
-                              hintText: '${AppLocalizations.of(context)!.enterMessage}...',
-                              hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-                              border: InputBorder.none,
+                  Opacity(
+                    opacity: sendButtonDisabled ? 0.7 : 1,
+                    child: IgnorePointer(
+                      ignoring: sendButtonDisabled,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // INPUT
+                          Container(
+                            width: 325.w,
+                            height: 45.h,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE3C278),
+                              borderRadius: BorderRadius.circular(12.r)
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 10.w, bottom: 6.h, right: 10.w),
+                              child: TextField(
+                                onTapOutside: (PointerDownEvent event) {
+                                  FocusScope.of(context).unfocus();
+                                },
+                                controller: _messageController,
+                                style: TextStyle(color: Colors.white, fontSize: 15.sp),
+                                cursorColor: const Color(0xFFFFFFFF),
+                                decoration: InputDecoration(
+                                  hintText: AppLocalizations.of(context)!.enterMessage,
+                                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                                  border: InputBorder.none,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-          
-                      SizedBox(width: 5.w),
-
-                      // BUTTON:    Send
-                      GestureDetector(
-                        child: Container(
-                          width: 46.w,
-                          height: 45.h,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE3C278),
-                            borderRadius: BorderRadius.circular(12.r)
-                          ),
-                          child: Padding(
-                            padding: EdgeInsetsGeometry.only(left: 2.w),
-                            child: IconButton(
-                              icon: Icon(Icons.send, color: Colors.white, size: 25.sp),
-                              onPressed: () async {
-                                if (_messageController.text.trim().isEmpty) return;
-                                //messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: 001));
-                                // TcpClientService().sendMessage(ClientCommand.sendMessageToFriend.value, json.encode({
-                                //   'nickname': widget.friend.nickname,
-                                //   'content': _messageController.text.trim(),
-                                // }));
-                                Map<String, dynamic>? response = await GetIt.I<ApiService>().sendNewMessageToFriend(
-                                  widget.friend.id, 
-                                  _messageController.text.trim()
-                                );
-                                _scrollToBottom();
-                                if (!mounted) return;
-                                print("RESPONSE MESSAGE ID: ${response?['messageId'].toString()}");
-                                setState(() {
-                                  messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: response?['messageId'], status: response?['status']));
-                                  _messageController.clear();
-                                });
-                              },
+                                
+                          SizedBox(width: 5.w),
+                      
+                          // BUTTON:    Send
+                          Opacity(
+                            opacity: sendButtonDisabled ? 0.7 : 1,
+                            child: GestureDetector(
+                              child: Container(
+                                width: 46.w,
+                                height: 45.h,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE3C278),
+                                  borderRadius: BorderRadius.circular(12.r)
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsetsGeometry.only(left: 2.w),
+                                  child: IconButton(
+                                    icon: Icon(Icons.send, color: Colors.white, size: 25.sp),
+                                    onPressed: () async {
+                                      if (sendButtonDisabled) return;
+                                      if (_messageController.text.trim().isEmpty) return;
+                                      //messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: 001));
+                                      // TcpClientService().sendMessage(ClientCommand.sendMessageToFriend.value, json.encode({
+                                      //   'nickname': widget.friend.nickname,
+                                      //   'content': _messageController.text.trim(),
+                                      // }));
+                                      Map<String, dynamic>? response = await GetIt.I<ApiService>().sendNewMessageToFriend(
+                                        widget.friend.id, 
+                                        _messageController.text.trim()
+                                      );
+                                      _scrollToBottom();
+                                      if (!mounted) return;
+                                      print("RESPONSE MESSAGE ID: ${response?['messageId'].toString()}");
+                                      setState(() {
+                                        messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: response?['messageId'], status: response?['status']));
+                                        _messageController.clear();
+                                      });
+                                    },
+                                  ),
+                                ) 
+                              ),
+                              
                             ),
-                          ) 
-                        ),
-                        
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   )
                 ],
               ),

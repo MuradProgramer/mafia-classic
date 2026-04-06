@@ -1,6 +1,7 @@
 //? Information Popup
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mafia_classic/features/games/game/view/game_screen.dart';
 import 'package:mafia_classic/l10n/app_localizations.dart';
 
@@ -30,6 +31,8 @@ class _InformationPopupState extends State<InformationPopup> {
         return 'bodyguard';
       case 'satisfied':
         return 'beauty';
+      case 'lastmafia':
+        return 'mafia';
     }
     return '';
   }
@@ -50,6 +53,8 @@ class _InformationPopupState extends State<InformationPopup> {
         return AppLocalizations.of(context)!.gameInformationPopupProtected;
       case 'satisfied':
         return AppLocalizations.of(context)!.gameInformationPopupSatisfied;
+      case 'lastmafia':
+        return AppLocalizations.of(context)!.gameInformationPopupLastMafia;
     }
     return '';
   }
@@ -70,6 +75,8 @@ class _InformationPopupState extends State<InformationPopup> {
         return AppLocalizations.of(context)!.gameInformationPopupTitleProtected;
       case 'satisfied':
         return AppLocalizations.of(context)!.gameInformationPopupTitleSatisfied;
+      case 'lastmafia':
+        return AppLocalizations.of(context)!.gameInformationPopupTitleLastMafia;
     }
     return '';
   }
@@ -90,6 +97,8 @@ class _InformationPopupState extends State<InformationPopup> {
         return AppLocalizations.of(context)!.gameInformationPopupExpirationProtected;
       case 'satisfied':
         return AppLocalizations.of(context)!.gameInformationPopupExpirationSatisfied;
+      case 'lastmafia':
+        return AppLocalizations.of(context)!.gameInformationPopupExpirationLastMafia;
     }
     return '';
   }
@@ -123,7 +132,7 @@ class _InformationPopupState extends State<InformationPopup> {
                 color:
                     [
                       'mafia',
-                      'terrorist',
+                      'kamikaze',
                       'barman',
                       'informant',
                     ].any((e) => e == roleName)
@@ -154,7 +163,7 @@ class _InformationPopupState extends State<InformationPopup> {
                             child: Image.asset(
                               [
                                     'mafia',
-                                    'terrorist',
+                                    'kamikaze',
                                     'barman',
                                     'informant',
                                   ].any((e) => e == roleName)
@@ -177,7 +186,7 @@ class _InformationPopupState extends State<InformationPopup> {
                   padding: EdgeInsets.only(top: 80.h),
                   child: Text(
                     title,
-                    style: TextStyle(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 23.sp,
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFFFFB000),
@@ -195,10 +204,11 @@ class _InformationPopupState extends State<InformationPopup> {
                       fontStyle: FontStyle.italic,
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w300,
+                      fontFamily: 'CenturyGothic',
                       color:
                           [
                             'mafia',
-                            'terrorist',
+                            'kamikaze',
                             'barman',
                             'informant',
                           ].any((e) => e == roleName)
@@ -214,7 +224,7 @@ class _InformationPopupState extends State<InformationPopup> {
                   padding: EdgeInsets.only(bottom: 10.h, left: 5.w, right: 5.w),
                   child: Text(
                     expiration,
-                    style: TextStyle(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 18.sp,
                       color: const Color(0xFFFFB000),
                     ),

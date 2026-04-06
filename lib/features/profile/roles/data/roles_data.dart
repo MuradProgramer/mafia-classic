@@ -5,7 +5,7 @@ import 'package:mafia_classic/generated/l10n.dart';
 List<Role> getRoles(BuildContext context) {
   return [
     Role(S.of(context).mafia,     S.of(context).roleMafiaDescription,      "assets/avatar.jpg"),
-    Role(S.of(context).terrorist, S.of(context).roleTerroristDescription,  "assets/avatar.jpg"),
+    Role(S.of(context).kamikaze, S.of(context).roleKamikazeDescription,  "assets/avatar.jpg"),
     Role(S.of(context).barman,    S.of(context).roleBarmanDescription,     "assets/avatar.jpg"),
     Role(S.of(context).informant, S.of(context).roleInformantDescription,  "assets/avatar.jpg"),
 
