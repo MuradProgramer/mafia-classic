@@ -226,16 +226,16 @@
   "skillsDescriptionsJournalist": "Aynı takımda olup olmadıklarını öğrenmek için iki oyuncu seçin",
   "hasJoined": "katıldı",
   "hasLeft": "ayrıldı",
-  "rolesGeneralDescriptionMafia": "Siz — Mafia rölündesiniz ve mafya takımı adına oynuyorsunuz. Göreviniz, gündüz oylamalarında aldatma yaparak ve takımınızla birlikte gece cinayetleri işleyerek sivilleri ortadan kaldırmaktır"
-  "rolesGeneralDescriptionCivilian": "Siz — Civilian rölündesiniz ve sivil takımı adına oynuyorsunuz. Göreviniz, tüm mafya üyelerini tespit etmek ve sivillerin zafere ulaşmasına yardımcı olmak için onlara karşı oy vermektir"
-  "rolesGeneralDescriptionSpy": "Siz — Spy rölündesiniz ve sivil takımı adına oynuyorsunuz. Mafyanın konuşmalarını dinleyin ve mafyayı ifşa etmek için sivil oyuncularla yararlı bilgiler paylaşın"
-  "rolesGeneralDescriptionDoctor": "Siz — Doctor rölündesiniz ve sivil takımı adına oynuyorsunuz. Sivilleri mafyanın gece saldırılarından kurtarmak için tıbbi becerilerinizi kullanın"
-  "rolesGeneralDescriptionBeauty": "Siz — Beauty rölündesiniz ve sivil takımı adına oynuyorsunuz. Mafyayı yeteneklerini kullanmaktan ve oylamaya katılmaktan alıkoymak için onları büyüleyin"
-  "rolesGeneralDescriptionBodyguard": "Siz — Bodyguard rölündesiniz ve sivil takımı adına oynuyorsunuz. Sivilleri kamikaze veya mafya saldırılarından korumak için becerilerinizi kullanın"
-  "rolesGeneralDescriptionInformant": "Siz — Informant rölündesiniz ve mafya takımı adına oynuyorsunuz. Mafyayı tanımıyorsunuz, onlar da sizi tanımıyor. Sivillerin rollerini ortaya çıkarın ve önemli bilgileri mafyaya anonim olarak iletin"
-  "rolesGeneralDescriptionSheriff": "Siz — Sheriff rölündesiniz ve sivil takımı adına oynuyorsunuz. Göreviniz, oyuncuları soruşturmak ve mafya üyelerini tespit etmektir"
-  "rolesGeneralDescriptionJournalist": "Siz — Journalist rölündesiniz ve sivil takımı adına oynuyorsunuz. Her gece iki oyuncuyla röportaj yapın, böylece herkes onların aynı takımda mı yoksa farklı takımlarda mı olduğunu öğrensin"
-  "rolesGeneralDescriptionKamikaze": "Siz — Kamikaze rölündesiniz ve mafya takımı adına oynuyorsunuz. Mafia'yı tanımıyorsunuz, ancak mafia sizi tanıyor. Gündüz oylaması sırasında bir oyuncuyu patlatabilir ve onunla birlikte hayatınızı kaybedersiniz"
+  "rolesGeneralDescriptionMafia": "Siz — Mafia rölündesiniz ve mafya takımı adına oynuyorsunuz. Göreviniz, gündüz oylamalarında aldatma yaparak ve takımınızla birlikte gece cinayetleri işleyerek sivilleri ortadan kaldırmaktır",
+  "rolesGeneralDescriptionCivilian": "Siz — Civilian rölündesiniz ve sivil takımı adına oynuyorsunuz. Göreviniz, tüm mafya üyelerini tespit etmek ve sivillerin zafere ulaşmasına yardımcı olmak için onlara karşı oy vermektir",
+  "rolesGeneralDescriptionSpy": "Siz — Spy rölündesiniz ve sivil takımı adına oynuyorsunuz. Mafyanın konuşmalarını dinleyin ve mafyayı ifşa etmek için sivil oyuncularla yararlı bilgiler paylaşın",
+  "rolesGeneralDescriptionDoctor": "Siz — Doctor rölündesiniz ve sivil takımı adına oynuyorsunuz. Sivilleri mafyanın gece saldırılarından kurtarmak için tıbbi becerilerinizi kullanın",
+  "rolesGeneralDescriptionBeauty": "Siz — Beauty rölündesiniz ve sivil takımı adına oynuyorsunuz. Mafyayı yeteneklerini kullanmaktan ve oylamaya katılmaktan alıkoymak için onları büyüleyin",
+  "rolesGeneralDescriptionBodyguard": "Siz — Bodyguard rölündesiniz ve sivil takımı adına oynuyorsunuz. Sivilleri kamikaze veya mafya saldırılarından korumak için becerilerinizi kullanın",
+  "rolesGeneralDescriptionInformant": "Siz — Informant rölündesiniz ve mafya takımı adına oynuyorsunuz. Mafyayı tanımıyorsunuz, onlar da sizi tanımıyor. Sivillerin rollerini ortaya çıkarın ve önemli bilgileri mafyaya anonim olarak iletin",
+  "rolesGeneralDescriptionSheriff": "Siz — Sheriff rölündesiniz ve sivil takımı adına oynuyorsunuz. Göreviniz, oyuncuları soruşturmak ve mafya üyelerini tespit etmektir",
+  "rolesGeneralDescriptionJournalist": "Siz — Journalist rölündesiniz ve sivil takımı adına oynuyorsunuz. Her gece iki oyuncuyla röportaj yapın, böylece herkes onların aynı takımda mı yoksa farklı takımlarda mı olduğunu öğrensin",
+  "rolesGeneralDescriptionKamikaze": "Siz — Kamikaze rölündesiniz ve mafya takımı adına oynuyorsunuz. Mafia'yı tanımıyorsunuz, ancak mafia sizi tanıyor. Gündüz oylaması sırasında bir oyuncuyu patlatabilir ve onunla birlikte hayatınızı kaybedersiniz",
   "rolesGeneralDescriptionBarman": "Siz — Barman rölündesiniz ve mafya takımı adına oynuyorsunuz. Mafia'yı tanımıyorsunuz, onlar da sizi tanımıyor. Sivilleri sarhoş etmek için barmenlik becerilerinizi kullanın",
   "rolesObjectiveMafia": "Tüm sivilleri ortadan kaldır",
   "rolesObjectiveVicilian": "Tüm mafya üyelerini ortadan kaldır",
@@ -281,7 +281,7 @@
   "rolesWinningConditionsInformant": "Tüm siviller öldüğünde kazanırsınız",
   "rolesWinningConditionsSheriff": "Tüm mafya üyeleri öldüğünde kazanırsınız",
   "rolesWinningConditionsJournalist": "Tüm mafya üyeleri öldüğünde kazanırsınız",
-  "rolesWinningConditionsKamikaze": Tüm siviller öldüğünde kazanırsınız",
+  "rolesWinningConditionsKamikaze": "Tüm siviller öldüğünde kazanırsınız",
   "gameplayRules": "Oyun Kuralları:",
   "objective": "Hedef",
   "dayPhase": "Gündüz Evresi",

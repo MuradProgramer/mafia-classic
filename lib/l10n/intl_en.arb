@@ -244,7 +244,7 @@
   "rolesGeneralDescriptionJournalist": "You are a Journalist and play for the civilian team. Every night, conduct interviews with two players so everyone finds out if they are on the same team or different ones",
   "rolesGeneralDescriptionKamikaze": "You are the Kamikaze and play for the mafia team. You don't know the mafia, but the mafia knows you. During the day voting, you can blow up a civilian, dying along with them",
   "rolesGeneralDescriptionBarman": "You are the Barman and play for the mafia team. You don't know the mafia, and they don't know you. Use your bartending skills to intoxicate civilians",
-  "rolesObjectiveMafia": "Eliminate all civilians"
+  "rolesObjectiveMafia": "Eliminate all civilians",
   "rolesObjectiveVicilian": "Eliminate all mafia members",
   "rolesObjectiveSpy": "Help the civilians eliminate all mafia members by eavesdropping on their nightly conversations",
   "rolesObjectiveDoctor": "Help the civilians eliminate all mafia members by saving them from mafia attacks",

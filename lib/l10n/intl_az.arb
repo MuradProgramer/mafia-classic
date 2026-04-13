@@ -226,16 +226,16 @@
   "skillsDescriptionsJournalist": "Eyni komandada olub-olmadıqlarını öyrənmək üçün iki oyunçu seçin",
   "hasJoined": "qoşuldu",
   "hasLeft": "ayrıldı",
-  "rolesGeneralDescriptionMafia": "Siz — Mafia rolundasınız və mafiya komandasında oynayırsınız. Məqsədiniz, gündüz səsvermələrində aldatmaq və komandanızla birlikdə gecə qətlləri həyata keçirərək sakinləri aradan qaldırmaqdır"
-  "rolesGeneralDescriptionCivilian": "Siz — Civilian rolundasınız və sakinlərin komandasında oynayırsınız. Məqsədiniz, bütün mafiya üzvlərini ifşa etmək və sakinlərin qələbəyə çatmasına kömək etmək üçün onlara qarşı səs verməkdir"
-  "rolesGeneralDescriptionSpy": "Siz — Spy rolundasınız və sakinlərin komandasında oynayırsınız. Mafiyanın söhbətlərini dinləyin və mafiyanı ifşa etmək üçün sakinlərlə faydalı məlumatlar paylaşın"
-  "rolesGeneralDescriptionDoctor": "Siz — Doctor rolundasınız və sakinlərin komandasında oynayırsınız. Sakinləri mafiyanın gecə hücumlarından xilas etmək üçün tibbi bacarıqlarınızdan istifadə edin"
-  "rolesGeneralDescriptionBeauty": "Siz — Beauty rolundasınız və sakinlərin komandasında oynayırsınız. Mafiyanı öz bacarıqlarından istifadə etməkdən və səsvermədə iştirak etməkdən məhrum etmək üçün onları ovsunlayın"
-  "rolesGeneralDescriptionBodyguard": "Siz — Bodyguard rolundasınız və sakinlərin komandasında oynayırsınız. Sakinləri kamikadze və ya mafiya hücumlarından qorumaq üçün bacarıqlarınızdan istifadə edin"
-  "rolesGeneralDescriptionInformant": "Siz — Informant rolundasınız və mafiya komandasında oynayırsınız. Siz mafiyanı tanımırsınız, onlar da sizi tanımır. Sakinlərin rollarını aşkar edin və önəmli məlumatları anonim şəkildə mafiyaya ötürün"
-  "rolesGeneralDescriptionSheriff": "Siz — Sheriff rolundasınız və sakinlərin komandasında oynayırsınız. Məqsədiniz, oyunçuları araşdırmaq və mafiya üzvlərini müəyyən etməkdir"
-  "rolesGeneralDescriptionJournalist": "Siz — Journalist rolundasınız və sakinlərin komandasında oynayırsınız. Hər gecə iki oyunçu ilə müsahibə aparın ki, hamı onların eyni komandada yoxsa fərqli komandada olduğunu öyrənsin"
-  "rolesGeneralDescriptionKamikaze": "Siz — Kamikaze rolundasınız və mafiya komandasında oynayırsınız. Siz mafiyanı tanımırsınız, lakin mafia sizi tanıyır. Gündüz səsverməsi zamanı bir oyunçunu partlada bilərsiniz, amma nəticədə siz də onunla birlikdə ölürsünüz"
+  "rolesGeneralDescriptionMafia": "Siz — Mafia rolundasınız və mafiya komandasında oynayırsınız. Məqsədiniz, gündüz səsvermələrində aldatmaq və komandanızla birlikdə gecə qətlləri həyata keçirərək sakinləri aradan qaldırmaqdır",
+  "rolesGeneralDescriptionCivilian": "Siz — Civilian rolundasınız və sakinlərin komandasında oynayırsınız. Məqsədiniz, bütün mafiya üzvlərini ifşa etmək və sakinlərin qələbəyə çatmasına kömək etmək üçün onlara qarşı səs verməkdir",
+  "rolesGeneralDescriptionSpy": "Siz — Spy rolundasınız və sakinlərin komandasında oynayırsınız. Mafiyanın söhbətlərini dinləyin və mafiyanı ifşa etmək üçün sakinlərlə faydalı məlumatlar paylaşın",
+  "rolesGeneralDescriptionDoctor": "Siz — Doctor rolundasınız və sakinlərin komandasında oynayırsınız. Sakinləri mafiyanın gecə hücumlarından xilas etmək üçün tibbi bacarıqlarınızdan istifadə edin",
+  "rolesGeneralDescriptionBeauty": "Siz — Beauty rolundasınız və sakinlərin komandasında oynayırsınız. Mafiyanı öz bacarıqlarından istifadə etməkdən və səsvermədə iştirak etməkdən məhrum etmək üçün onları ovsunlayın",
+  "rolesGeneralDescriptionBodyguard": "Siz — Bodyguard rolundasınız və sakinlərin komandasında oynayırsınız. Sakinləri kamikadze və ya mafiya hücumlarından qorumaq üçün bacarıqlarınızdan istifadə edin",
+  "rolesGeneralDescriptionInformant": "Siz — Informant rolundasınız və mafiya komandasında oynayırsınız. Siz mafiyanı tanımırsınız, onlar da sizi tanımır. Sakinlərin rollarını aşkar edin və önəmli məlumatları anonim şəkildə mafiyaya ötürün",
+  "rolesGeneralDescriptionSheriff": "Siz — Sheriff rolundasınız və sakinlərin komandasında oynayırsınız. Məqsədiniz, oyunçuları araşdırmaq və mafiya üzvlərini müəyyən etməkdir",
+  "rolesGeneralDescriptionJournalist": "Siz — Journalist rolundasınız və sakinlərin komandasında oynayırsınız. Hər gecə iki oyunçu ilə müsahibə aparın ki, hamı onların eyni komandada yoxsa fərqli komandada olduğunu öyrənsin",
+  "rolesGeneralDescriptionKamikaze": "Siz — Kamikaze rolundasınız və mafiya komandasında oynayırsınız. Siz mafiyanı tanımırsınız, lakin mafia sizi tanıyır. Gündüz səsverməsi zamanı bir oyunçunu partlada bilərsiniz, amma nəticədə siz də onunla birlikdə ölürsünüz",
   "rolesGeneralDescriptionBarman": "Siz — Barman rolundasınız və mafiya komandasında oynayırsınız. Siz mafiyanı tanımırsınız, onlar da sizi tanımır. Sakinləri sərxoş etmək üçün barmen bacarıqlarınızdan istifadə edin",
   "rolesObjectiveMafia": "Bütün sakinləri aradan qaldır",
   "rolesObjectiveVicilian": "Bütün mafiya üzvlərini aradan qaldır",
