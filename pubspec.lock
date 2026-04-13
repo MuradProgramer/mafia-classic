@@ -389,6 +389,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  get:
+    dependency: "direct main"
+    description:
+      name: get
+      sha256: "5ed34a7925b85336e15d472cc4cfe7d9ebf4ab8e8b9f688585bf6b50f4c3d79a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.7.3"
   get_it:
     dependency: "direct main"
     description:
@@ -525,6 +533,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0+1"
+  internet_connection_checker_plus:
+    dependency: "direct main"
+    description:
+      name: internet_connection_checker_plus
+      sha256: ef43530f24de6309f99802358f8a543ea1f2babc153effc84a75133751716892
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.9.1+2"
   intl:
     dependency: "direct main"
     description:

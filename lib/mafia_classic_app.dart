@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/state_manager.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:mafia_classic/features/games/view/games_screen.dart';
 import 'package:mafia_classic/features/profile/friends/models/friendship.dart';
 import 'package:mafia_classic/features/widgets/player_info_popup.dart';
@@ -44,6 +46,7 @@ import 'blocs/sign_up/sign_up_bloc.dart';
 
 List<String> whoInvitedMe = [];
 int isInFriendIdChatGlobal = -1;
+String currentScreen = "";
 
 void buildApiService(accessToken, refreshToken, expirationDate) {
   GetIt.I.registerSingleton(ApiService(accessToken, accessToken, accessToken));
@@ -284,6 +287,7 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
     super.dispose();
   }
 
+  /*
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -337,6 +341,7 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
       log('💥 Handle App Resumed - $e - Client Command - Mafia Classic App 💥');
     }
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -600,126 +605,153 @@ class _HomeScreenState extends State<HomeScreen> {
 class GameWrapper extends StatefulWidget {
   final Widget child;
   const GameWrapper({super.key, required this.child});
-
+ 
   @override
   State<GameWrapper> createState() => _GameWrapperState();
 }
-
+ 
 class _GameWrapperState extends State<GameWrapper> {
-  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
-  final tcpService = TcpClientService();
+  ValueNotifier isConnectedToInternet = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isReconnecting = ValueNotifier<bool>(false);
+
+  StreamSubscription? _internetConnectionStreamSubscription;
 
   @override
   void initState() {
     super.initState();
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) {
-      if (results.contains(ConnectivityResult.none)) {
-        tcpService.disconnect();
-      } else {
-        // Internet is BACK! Let's try to reconnect automatically
-        if (tcpService.connectionStatus.value == false) {
-          _handleManualReconnect(); 
+    _internetConnectionStreamSubscription = InternetConnection().onStatusChange.listen((event) async {
+      switch (event) {
+        case InternetStatus.connected:
+          isConnectedToInternet.value = true;
+          await _handleReconnect();
+          break;
+        case InternetStatus.disconnected:
+          isConnectedToInternet.value = false;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            // Check if the widget is still mounted
+            if (mounted) {
+              // USE THE NAVIGATOR KEY HERE instead of Navigator.of(context)
+              rootNavigatorKey.currentState?.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const SplashScreen()),
+                (route) => false,
+              );
+            }
+          });
+          break;
         }
-      }
     });
+  }
+
+  Future<void> _handleReconnect() async {
+    if (isReconnecting.value) return;
+ 
+    try {
+      isReconnecting.value = true;
+ 
+      final user = _buildUserFromCache();
+      setup(user);
+      await GeneralService(user).init();
+      await TcpClientService().connect(serverIP, serverPort, user);
+    } on Exception catch (e) {
+      log('[GameWrapper] 💥 Reconnect error: $e');
+    } finally {
+      isReconnecting.value = false;
+    }
   }
 
   @override
   void dispose() {
-    _connectivitySubscription.cancel();
+    _internetConnectionStreamSubscription?.cancel();
     super.dispose();
   }
-
+ 
+  User _buildUserFromCache() {
+    return User(
+      id: SharedPrefsService.getUserId() ?? -1,
+      email: SharedPrefsService.getUserEmail() ?? '',
+      nickname: SharedPrefsService.getUserNickname() ?? '',
+      avatarUrl: SharedPrefsService.getUserAvatarUrl() ?? '',
+      accessToken: SharedPrefsService.getAccessToken() ?? '',
+      refreshToken: SharedPrefsService.getRefreshToken() ?? '',
+      expirationDate:
+          SharedPrefsService.getAccessTokenExpiryUtc() ?? DateTime(2000),
+    );
+  }
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          widget.child,
-          
-          ValueListenableBuilder<bool>(
-            valueListenable: tcpService.connectionStatus,
-            builder: (context, isConnected, _) {
-              if (isConnected) return const SizedBox.shrink();
-              log('💥 Disconnected From The Internet 💥');
-              return Container(
-                color: Colors.black87,
-                width: double.infinity,
-                height: double.infinity,
-                child: Center(
-                  child: _buildReconnectDialog(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      body: ValueListenableBuilder(
+        valueListenable: isConnectedToInternet, 
+        builder: (context, isConnected, _) {
+          return Stack(
+            children: [
+              AbsorbPointer(
+                absorbing: !isConnected,
+                child: widget.child,
+              ),
+              if (!isConnected) _buildOverlay(),
+            ],
+          );
+        }
+      )
     );
   }
-
-  // Inside your GameWrapper state
-  bool _isReconnecting = false;
-
-  Widget _buildReconnectDialog() {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 32),
-      color: const Color(0xFF1A1A1A),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.wifi_off, color: Colors.redAccent, size: 48),
-            const SizedBox(height: 16),
-            const Text(
-              "CONNECTION LOST",
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+ 
+  // ─── Overlay ────────────────────────────────────────────────────────────────
+ 
+  Widget _buildOverlay() {
+    return ColoredBox(
+      color: Colors.black87,
+      child: SizedBox.expand(
+        child: Center(
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 32),
+            color: const Color(0xFF1A1A1A),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.wifi_off, color: Colors.redAccent, size: 48),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'CONNECTION LOST',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Your connection to the Mafia server was interrupted.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 24),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: isReconnecting,
+                    builder: (context, reconnecting, _) {
+                      if (reconnecting) {
+                        return const CircularProgressIndicator(
+                            color: Colors.redAccent);
+                      }
+                      return ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent),
+                        onPressed: _handleReconnect,
+                        child: const Text('TRY RECONNECT'),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              "Your connection to the Mafia server was interrupted.",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70),
-            ),
-            const SizedBox(height: 24),
-            _isReconnecting 
-              ? const CircularProgressIndicator(color: Colors.redAccent)
-              : ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                  onPressed: _handleManualReconnect,
-                  child: const Text("TRY RECONNECT"),
-                ),
-          ],
+          ),
         ),
       ),
     );
-  }
-
-  void _handleManualReconnect() async {
-    try {
-      setState(() => _isReconnecting = true);
-
-      User alreadyUser = User(
-        id: SharedPrefsService.getUserId() ?? -1,
-        email: SharedPrefsService.getUserEmail() ?? '',
-        nickname: SharedPrefsService.getUserNickname() ?? '',
-        avatarUrl: SharedPrefsService.getUserAvatarUrl() ?? '',
-        accessToken: SharedPrefsService.getAccessToken() ?? '',
-        refreshToken: SharedPrefsService.getRefreshToken() ?? '',
-        expirationDate: SharedPrefsService.getAccessTokenExpiryUtc() ?? DateTime(2000)
-      );
-      
-      setup(alreadyUser);
-      await GeneralService(alreadyUser).init();
-      
-      if (alreadyUser != null) {
-        await tcpService.connect(serverIP, serverPort, alreadyUser);
-      }
-      
-      if (mounted) setState(() => _isReconnecting = false);
-    } on Exception catch (e) {
-      log('💥 Handle Manual Reconnect Error - $e - Game Wrappper 💥');
-    }
   }
 }
 
