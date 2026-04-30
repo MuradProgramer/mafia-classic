@@ -763,7 +763,7 @@ class ApiService extends TokenAwareService {
         }
       });
     } catch (e) {
-      log('💥 Get My Info - API Service 💥');
+      log('💥 Get My Info - $e - API Service 💥');
     }
 
     return playerInfo;

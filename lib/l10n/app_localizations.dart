@@ -1443,7 +1443,7 @@ abstract class AppLocalizations {
   /// No description provided for @skillsDescriptionsJournalist.
   ///
   /// In en, this message translates to:
-  /// **'Choose two players tofind out if they are on the same team'**
+  /// **'Choose two players to find out if they are on the same team'**
   String get skillsDescriptionsJournalist;
 
   /// No description provided for @hasJoined.
@@ -1461,68 +1461,68 @@ abstract class AppLocalizations {
   /// No description provided for @rolesGeneralDescriptionMafia.
   ///
   /// In en, this message translates to:
-  /// **'You are mafia and you play for the mafia team. Your task is to eliminate the civilians through deception during day voting and nightly murders together with your team'**
+  /// **'You are Mafia and play for the mafia team. Your task is to eliminate civilians through deception during day voting and night kills together with your team'**
   String get rolesGeneralDescriptionMafia;
 
   /// No description provided for @rolesGeneralDescriptionCivilian.
   ///
   /// In en, this message translates to:
-  /// **'You are a simple civilian of the city. Your task is to identify all the members of the Mafia and vote against them, helping the civilians achieve victory'**
+  /// **'You are a Civilian and play for the civilian team. Your task is to identify all mafia members and vote against them, helping the civilians achieve victory'**
   String get rolesGeneralDescriptionCivilian;
 
   /// No description provided for @rolesGeneralDescriptionSpy.
   ///
   /// In en, this message translates to:
-  /// **'You are a spy for the civilians. Eavesdrop on the mafia\'s conversations and share useful information with the civilians to expose the mafia'**
+  /// **'You are a Spy and play for the civilian team. Eavesdrop on mafia conversations and share useful information with the civilians to expose the mafia'**
   String get rolesGeneralDescriptionSpy;
 
   /// No description provided for @rolesGeneralDescriptionDoctor.
   ///
   /// In en, this message translates to:
-  /// **'You are the doctor for the civilians. Your goal is to use your medical skills to save the civilian team members from the mafia\'s attacks in the night'**
+  /// **'You are a Doctor and play for the civilian team. Use your medical skills to save civilians from night mafia attacks'**
   String get rolesGeneralDescriptionDoctor;
 
   /// No description provided for @rolesGeneralDescriptionBeauty.
   ///
   /// In en, this message translates to:
-  /// **'You are the beauty, a player for the civilians. Use your charm to distract the mafia, preventing them from using their abilities and participating in the voting'**
+  /// **'You are the Beauty and play for the civilian team. Use your charm to distract the mafia, preventing them from using abilities and participating in voting'**
   String get rolesGeneralDescriptionBeauty;
 
   /// No description provided for @rolesGeneralDescriptionBodyguard.
   ///
   /// In en, this message translates to:
-  /// **'You are the bodyguard for the civilians. Use your skills to carefully protect the civilians from attacks by the kamikaze or the mafia during the day'**
+  /// **'You are a Bodyguard and play for the civilian team. Use your skills to protect civilians from kamikaze or mafia attacks'**
   String get rolesGeneralDescriptionBodyguard;
-
-  /// No description provided for @rolesGeneralDescriptionBarman.
-  ///
-  /// In en, this message translates to:
-  /// **'You are the barman, playing for the mafia team. You do not know the mafia, and they do not know you. Use your barman skills to intoxicate the civilians'**
-  String get rolesGeneralDescriptionBarman;
 
   /// No description provided for @rolesGeneralDescriptionInformant.
   ///
   /// In en, this message translates to:
-  /// **'You are the mafia\'s informant. You do not know the mafia, and they do not know you. Reveal civilian roles and communicate anonymously with the mafia, sharing important information'**
+  /// **'You are the Informant and play for the mafia team. You don\'t know the mafia, and they don\'t know you. Reveal civilian roles and communicate anonymously with the mafia, passing on vital information'**
   String get rolesGeneralDescriptionInformant;
 
   /// No description provided for @rolesGeneralDescriptionSheriff.
   ///
   /// In en, this message translates to:
-  /// **'You are the city\'s Sheriff, representing the civilians team. Your task is to investigate players, identify members of the mafia organization and let the civilians know the truth'**
+  /// **'You are the Sheriff and play for the civilian team. Your task is to investigate players and identify mafia members'**
   String get rolesGeneralDescriptionSheriff;
 
   /// No description provided for @rolesGeneralDescriptionJournalist.
   ///
   /// In en, this message translates to:
-  /// **'You are the journalist for the civilians. Every night, conduct interviews with two players so that everyone learns whether they are on the same team or on different teams'**
+  /// **'You are a Journalist and play for the civilian team. Every night, conduct interviews with two players so everyone finds out if they are on the same team or different ones'**
   String get rolesGeneralDescriptionJournalist;
 
   /// No description provided for @rolesGeneralDescriptionKamikaze.
   ///
   /// In en, this message translates to:
-  /// **'You are the Kamikaze from the mafia team. You do not know the mafia, but the mafia knows you. During the day vote, you can blow up a civilian, dying along with them'**
+  /// **'You are the Kamikaze and play for the mafia team. You don\'t know the mafia, but the mafia knows you. During the day voting, you can blow up a civilian, dying along with them'**
   String get rolesGeneralDescriptionKamikaze;
+
+  /// No description provided for @rolesGeneralDescriptionBarman.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the Barman and play for the mafia team. You don\'t know the mafia, and they don\'t know you. Use your bartending skills to intoxicate civilians'**
+  String get rolesGeneralDescriptionBarman;
 
   /// No description provided for @rolesObjectiveMafia.
   ///
@@ -1533,7 +1533,7 @@ abstract class AppLocalizations {
   /// No description provided for @rolesObjectiveVicilian.
   ///
   /// In en, this message translates to:
-  /// **'Eliminate all members of the mafia'**
+  /// **'Eliminate all mafia members'**
   String get rolesObjectiveVicilian;
 
   /// No description provided for @rolesObjectiveSpy.
@@ -1545,7 +1545,7 @@ abstract class AppLocalizations {
   /// No description provided for @rolesObjectiveDoctor.
   ///
   /// In en, this message translates to:
-  /// **'Help the civilians eliminate all mafia members by saving them from the mafia\'s attacks'**
+  /// **'Help the civilians eliminate all mafia members by saving them from mafia attacks'**
   String get rolesObjectiveDoctor;
 
   /// No description provided for @rolesObjectiveBeauty.
@@ -1557,19 +1557,19 @@ abstract class AppLocalizations {
   /// No description provided for @rolesObjectiveBodyguard.
   ///
   /// In en, this message translates to:
-  /// **'Help the civilians eliminate all mafia members by protecting civilians from mafia members'**
+  /// **'Help the civilians eliminate all mafia members by protecting civilians from kamikaze and mafia members'**
   String get rolesObjectiveBodyguard;
 
   /// No description provided for @rolesObjectiveBarman.
   ///
   /// In en, this message translates to:
-  /// **'Help the mafia members eliminate the civilians by intoxicating them'**
+  /// **'Help the mafia members eliminate civilians by getting them drunk'**
   String get rolesObjectiveBarman;
 
   /// No description provided for @rolesObjectiveInformant.
   ///
   /// In en, this message translates to:
-  /// **'Help the mafia members eliminate the civilians by providing them with important information'**
+  /// **'Help the mafia members eliminate civilians by passing important information to them'**
   String get rolesObjectiveInformant;
 
   /// No description provided for @rolesObjectiveSheriff.
@@ -1587,73 +1587,73 @@ abstract class AppLocalizations {
   /// No description provided for @rolesObjectiveKamikaze.
   ///
   /// In en, this message translates to:
-  /// **'Help the mafia members eliminate the civilians by blowing up an important civilian'**
+  /// **'Help the mafia members eliminate civilians by detonating an important civilian'**
   String get rolesObjectiveKamikaze;
 
   /// No description provided for @rolesDayPhaseMafia.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, carefully manipulate the opinions of other players, and guide the conversation in a direction favorable to the mafia'**
+  /// **'Participate in discussions and voting, steer the conversation in the mafia\'s favour'**
   String get rolesDayPhaseMafia;
 
   /// No description provided for @rolesDayPhaseCivilian.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, guide the conversation, and support the civilians'**
+  /// **'Participate in discussions and voting, guide the conversation and support the civilians'**
   String get rolesDayPhaseCivilian;
 
   /// No description provided for @rolesDayPhaseSpy.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, guide the conversation, and support the civilians'**
+  /// **'Participate in discussions and voting, guide the conversation and support the civilians'**
   String get rolesDayPhaseSpy;
 
   /// No description provided for @rolesDayPhaseDoctor.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, guide the conversation, and support the civilians'**
+  /// **'Participate in discussions and voting, guide the conversation and support the civilians'**
   String get rolesDayPhaseDoctor;
 
   /// No description provided for @rolesDayPhaseBeauty.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, guide the conversation, and support the civilians'**
+  /// **'Participate in discussions and voting, guide the conversation and support the civilians'**
   String get rolesDayPhaseBeauty;
 
   /// No description provided for @rolesDayPhaseBodyguard.
   ///
   /// In en, this message translates to:
-  /// **'Every day, you can choose a player to protect from an attack by the kamikaze or the mafia'**
+  /// **'Each day you can choose a player to protect from a Kamikaze or Mafia attack'**
   String get rolesDayPhaseBodyguard;
 
   /// No description provided for @rolesDayPhaseBarman.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, carefully manipulate the opinions of other players, and guide the conversation in a direction favorable to the mafia'**
+  /// **'Participate in discussions and voting, steer the conversation in the mafia\'s favour'**
   String get rolesDayPhaseBarman;
 
   /// No description provided for @rolesDayPhaseInformant.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, carefully manipulate the opinions of other players, and guide the conversation in a direction favorable to the mafia'**
+  /// **'Participate in discussions and voting, steer the conversation in the mafia\'s favour'**
   String get rolesDayPhaseInformant;
 
   /// No description provided for @rolesDayPhaseSheriff.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, take the initiative, and lead the civilians to victory'**
+  /// **'Participate in discussions and voting, take the initiative and lead the civilians to victory'**
   String get rolesDayPhaseSheriff;
 
   /// No description provided for @rolesDayPhaseJournalist.
   ///
   /// In en, this message translates to:
-  /// **'Participate in discussions and voting, guide the conversation, and support the civilians'**
+  /// **'Participate in discussions and voting, guide the conversation and support the civilians'**
   String get rolesDayPhaseJournalist;
 
   /// No description provided for @rolesDayPhaseKamikaze.
   ///
   /// In en, this message translates to:
-  /// **'You can participate in discussions, but you do not have the right to vote. During the day vote, you can blow up a player; however, if the Bodyguard protects that player, you will die, taking the Bodyguard with you'**
+  /// **'You can participate in discussions but are not allowed to vote. During the day voting, you can blow up a player, however, if a Bodyguard protects them, you will die taking only the Bodyguard with you'**
   String get rolesDayPhaseKamikaze;
 
   /// No description provided for @skill.
@@ -1665,49 +1665,43 @@ abstract class AppLocalizations {
   /// No description provided for @rolesThirdDescriptionMafia.
   ///
   /// In en, this message translates to:
-  /// **'Every night, the mafia gathers, discusses, and chooses one player to eliminate. The Spy can see your nightly conversations, but does not know who exactly is sending them'**
+  /// **'Every night the Mafia gathers, discusses and chooses one player to eliminate. Spy can see your night conversations, but does not know who exactly is sending them'**
   String get rolesThirdDescriptionMafia;
 
   /// No description provided for @rolesThirdDescriptionCivilian.
   ///
   /// In en, this message translates to:
-  /// **'You have nothing to do at night, rest'**
+  /// **'There is nothing for you to do at night, just rest'**
   String get rolesThirdDescriptionCivilian;
 
   /// No description provided for @rolesThirdDescriptionSpy.
   ///
   /// In en, this message translates to:
-  /// **'At night, you can eavesdrop on the conversations of the mafia and the Informant, but their identities remain unknown'**
+  /// **'At night you can eavesdrop on the conversations of Mafia and Informant, but their identities remain unknown'**
   String get rolesThirdDescriptionSpy;
 
   /// No description provided for @rolesThirdDescriptionDoctor.
   ///
   /// In en, this message translates to:
-  /// **'Every night, you can heal one player chosen by the mafia for an attack. If you choose the correct player, their life will be saved'**
+  /// **'Every night you can save one player chosen by the Mafia for attack. If you choose the right player, their life will be spared'**
   String get rolesThirdDescriptionDoctor;
-
-  /// No description provided for @rolesThirdDescriptionBeauty.
-  ///
-  /// In en, this message translates to:
-  /// **'Every night, you can distract one player. The distracted player will not be able to vote or use their abilities until the next night'**
-  String get rolesThirdDescriptionBeauty;
 
   /// No description provided for @rolesThirdDescriptionBodyguard.
   ///
   /// In en, this message translates to:
-  /// **'You continue to protect the player you chose during the day from mafia attacks at night'**
+  /// **'The player you chose during the day remains under your protection throughout the night against Mafia attacks'**
   String get rolesThirdDescriptionBodyguard;
 
   /// No description provided for @rolesThirdDescriptionBarman.
   ///
   /// In en, this message translates to:
-  /// **'Every night, you can intoxicate one player. An intoxicated player will not be able to vote, use abilities, or speak clearly until the next night'**
+  /// **'Every night you can intoxicate one player. The intoxicated player will be unable to vote, use abilities or speak clearly until the next night'**
   String get rolesThirdDescriptionBarman;
 
   /// No description provided for @rolesThirdDescriptionInformant.
   ///
   /// In en, this message translates to:
-  /// **'Every night, you can reveal the role of one player and communicate with the mafia. The mafia and the Spy see your messages, but the sender\'s identity remains hidden'**
+  /// **'Every night you can reveal the role of one player and communicate with the Mafia. Mafia and Spy can see your messages, but your identity remains hidden'**
   String get rolesThirdDescriptionInformant;
 
   /// No description provided for @rolesThirdDescriptionSheriff.
@@ -1719,79 +1713,85 @@ abstract class AppLocalizations {
   /// No description provided for @rolesThirdDescriptionJournalist.
   ///
   /// In en, this message translates to:
-  /// **'Every night, you can interview two players to find out if they are on the same team. The results of the report are visible to everyone in the chat'**
+  /// **'Every night you can interview two players to find out if they are on the same team. The results are visible to everyone in the chat'**
   String get rolesThirdDescriptionJournalist;
 
   /// No description provided for @rolesThirdDescriptionKamikaze.
   ///
   /// In en, this message translates to:
-  /// **'At night you have nothing to do, rest'**
+  /// **'There is nothing for you to do at night, just rest'**
   String get rolesThirdDescriptionKamikaze;
+
+  /// No description provided for @rolesThirdDescriptionBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Every night you can charm one player. The distracted player will be unable to vote or use their abilities until the next night'**
+  String get rolesThirdDescriptionBeauty;
 
   /// No description provided for @rolesWinningConditionMafia.
   ///
   /// In en, this message translates to:
-  /// **'You win when no civilians remain alive'**
+  /// **'You win when no civilians are left alive'**
   String get rolesWinningConditionMafia;
 
   /// No description provided for @rolesWinningConditionsCivilian.
   ///
   /// In en, this message translates to:
-  /// **'You win when no members of the mafia remain alive'**
+  /// **'You win when no Mafia members are left alive'**
   String get rolesWinningConditionsCivilian;
 
   /// No description provided for @rolesWinningConditionsSpy.
   ///
   /// In en, this message translates to:
-  /// **'You win when no members of the mafia remain alive'**
+  /// **'You win when no Mafia members are left alive'**
   String get rolesWinningConditionsSpy;
 
   /// No description provided for @rolesWinningConditionsDoctor.
   ///
   /// In en, this message translates to:
-  /// **'You win when no members of the mafia remain alive'**
+  /// **'You win when no Mafia members are left alive'**
   String get rolesWinningConditionsDoctor;
 
   /// No description provided for @rolesWinningConditionsBeauty.
   ///
   /// In en, this message translates to:
-  /// **'You win when no members of the mafia remain alive'**
+  /// **'You win when no Mafia members are left alive'**
   String get rolesWinningConditionsBeauty;
 
   /// No description provided for @rolesWinningConditionsBodyguard.
   ///
   /// In en, this message translates to:
-  /// **'You win when no members of the mafia remain alive'**
+  /// **'You win when no Mafia members are left alive'**
   String get rolesWinningConditionsBodyguard;
 
   /// No description provided for @rolesWinningConditionsBarman.
   ///
   /// In en, this message translates to:
-  /// **'You win when no civilians remain alive'**
+  /// **'You win when no civilians are left alive'**
   String get rolesWinningConditionsBarman;
 
   /// No description provided for @rolesWinningConditionsInformant.
   ///
   /// In en, this message translates to:
-  /// **'You win when no civilians remain alive'**
+  /// **'You win when no civilians are left alive'**
   String get rolesWinningConditionsInformant;
 
   /// No description provided for @rolesWinningConditionsSheriff.
   ///
   /// In en, this message translates to:
-  /// **'You win when no members of the mafia remain alive'**
+  /// **'You win when no Mafia members are left alive'**
   String get rolesWinningConditionsSheriff;
 
   /// No description provided for @rolesWinningConditionsJournalist.
   ///
   /// In en, this message translates to:
-  /// **'You win when no members of the mafia remain alive'**
+  /// **'You win when no Mafia members are left alive'**
   String get rolesWinningConditionsJournalist;
 
   /// No description provided for @rolesWinningConditionsKamikaze.
   ///
   /// In en, this message translates to:
-  /// **'You win when no civilians remain alive'**
+  /// **'You win when no civilians are left alive'**
   String get rolesWinningConditionsKamikaze;
 
   /// No description provided for @gameplayRules.
@@ -1851,13 +1851,13 @@ abstract class AppLocalizations {
   /// No description provided for @gameInformationPopupCured.
   ///
   /// In en, this message translates to:
-  /// **'You\'re in «safe» hands — the mafia can\'t touch you today'**
+  /// **'You\'re in «safe» hands, the Mafia won\'t be able to harm you tonight'**
   String get gameInformationPopupCured;
 
   /// No description provided for @gameInformationPopupInterviewed.
   ///
   /// In en, this message translates to:
-  /// **'Congrats — you\'re now part of their «big investigation», whether you like it or not. And as always, everyone\'s already gossiping about whether you\'re on the same side as the other interviewee'**
+  /// **'Congratulations — you\'re now the star of the report. Everyone is already debating whether you and the other interviewee are on the same side or not'**
   String get gameInformationPopupInterviewed;
 
   /// No description provided for @gameInformationPopupIntoxicated.
@@ -1911,25 +1911,25 @@ abstract class AppLocalizations {
   /// No description provided for @gameInformationPopupTitleInvestigated.
   ///
   /// In en, this message translates to:
-  /// **'The Sheriff investigated you.'**
+  /// **'The Sheriff investigated you'**
   String get gameInformationPopupTitleInvestigated;
 
   /// No description provided for @gameInformationPopupTitleRevealed.
   ///
   /// In en, this message translates to:
-  /// **'The Informant revealed your role.'**
+  /// **'The Informant revealed your role'**
   String get gameInformationPopupTitleRevealed;
 
   /// No description provided for @gameInformationPopupTitleProtected.
   ///
   /// In en, this message translates to:
-  /// **'The Bodyguard has protected you.'**
+  /// **'The Bodyguard has protected you'**
   String get gameInformationPopupTitleProtected;
 
   /// No description provided for @gameInformationPopupTitleSatisfied.
   ///
   /// In en, this message translates to:
-  /// **'The Beauty has charmed you.'**
+  /// **'The Beauty has charm you'**
   String get gameInformationPopupTitleSatisfied;
 
   /// No description provided for @gameInformationPopupExpirationCured.
@@ -2025,7 +2025,7 @@ abstract class AppLocalizations {
   /// ...
   ///
   /// In en, this message translates to:
-  /// **'Kamikaze tried to bomb [{targetPlayer}], but bodyguard saved him/her'**
+  /// **'Kamikaze tried to bomb [{targetPlayer}], but Bodyguard saved him/her'**
   String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer);
 
@@ -2245,7 +2245,7 @@ abstract class AppLocalizations {
   /// No description provided for @gameInformationPopupLastMafia.
   ///
   /// In en, this message translates to:
-  /// **'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on'**
+  /// **'All Mafia members are dead. As the Informant, you can now participate in the Mafia\'s night voting'**
   String get gameInformationPopupLastMafia;
 
   /// No description provided for @gameInformationPopupTitleLastMafia.
@@ -2281,55 +2281,55 @@ abstract class AppLocalizations {
   /// No description provided for @iDeadSituationOneText.
   ///
   /// In en, this message translates to:
-  /// **'IDeadSituationOneText - Mafia killed'**
+  /// **'The mafia chose you as their victim tonight. You did not live to see the morning'**
   String get iDeadSituationOneText;
 
   /// No description provided for @iDeadSituationTwoText.
   ///
   /// In en, this message translates to:
-  /// **'IDeadSituationTwoText - eliminated by towns decision'**
+  /// **'The town voted and pointed at you. You were eliminated by the town\'s decision'**
   String get iDeadSituationTwoText;
 
   /// No description provided for @iDeadSituationThreeText.
   ///
   /// In en, this message translates to:
-  /// **'IDeadSituationThreeText - kamikaze bombarded me'**
+  /// **'The kamikaze chose you as their target. The explosion cut your life short'**
   String get iDeadSituationThreeText;
 
   /// No description provided for @iDeadSituationFourText.
   ///
   /// In en, this message translates to:
-  /// **'iDeadSituationFourText - i am kamikaze and i killed someone and myself'**
+  /// **'You blew yourself up along with your target. Your mission ended here'**
   String get iDeadSituationFourText;
 
   /// No description provided for @nightVotingCanNotSendMessage.
   ///
   /// In en, this message translates to:
-  /// **'NightVoting Can Not Send Message'**
+  /// **'While everyone sleeps, the mafia chooses their victim'**
   String get nightVotingCanNotSendMessage;
 
   /// No description provided for @nightCanNotSendMessage.
   ///
   /// In en, this message translates to:
-  /// **'Night Can Not Send Message'**
+  /// **'Only the mafia can speak during the night'**
   String get nightCanNotSendMessage;
 
   /// No description provided for @dayVotingCanNotSendMessage.
   ///
   /// In en, this message translates to:
-  /// **'DayVoting Can Not Send Message'**
+  /// **'No one can speak during the day voting'**
   String get dayVotingCanNotSendMessage;
 
   /// No description provided for @unsupportedFileFormat.
   ///
   /// In en, this message translates to:
-  /// **'Unsupported File Format'**
+  /// **'This file format is not supported for avatars'**
   String get unsupportedFileFormat;
 
   /// No description provided for @fileIsTooLargeItMustBe200kb.
   ///
   /// In en, this message translates to:
-  /// **'File is too large, it must be 200kb'**
+  /// **'The file is too large. Please upload an avatar smaller than 200 KB'**
   String get fileIsTooLargeItMustBe200kb;
 }
 

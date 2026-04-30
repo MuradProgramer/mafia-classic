@@ -710,7 +710,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skillsDescriptionsJournalist =>
-      'Choose two players tofind out if they are on the same team';
+      'Choose two players to find out if they are on the same team';
 
   @override
   String get hasJoined => 'has joined';
@@ -720,53 +720,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rolesGeneralDescriptionMafia =>
-      'You are mafia and you play for the mafia team. Your task is to eliminate the civilians through deception during day voting and nightly murders together with your team';
+      'You are Mafia and play for the mafia team. Your task is to eliminate civilians through deception during day voting and night kills together with your team';
 
   @override
   String get rolesGeneralDescriptionCivilian =>
-      'You are a simple civilian of the city. Your task is to identify all the members of the Mafia and vote against them, helping the civilians achieve victory';
+      'You are a Civilian and play for the civilian team. Your task is to identify all mafia members and vote against them, helping the civilians achieve victory';
 
   @override
   String get rolesGeneralDescriptionSpy =>
-      'You are a spy for the civilians. Eavesdrop on the mafia\'s conversations and share useful information with the civilians to expose the mafia';
+      'You are a Spy and play for the civilian team. Eavesdrop on mafia conversations and share useful information with the civilians to expose the mafia';
 
   @override
   String get rolesGeneralDescriptionDoctor =>
-      'You are the doctor for the civilians. Your goal is to use your medical skills to save the civilian team members from the mafia\'s attacks in the night';
+      'You are a Doctor and play for the civilian team. Use your medical skills to save civilians from night mafia attacks';
 
   @override
   String get rolesGeneralDescriptionBeauty =>
-      'You are the beauty, a player for the civilians. Use your charm to distract the mafia, preventing them from using their abilities and participating in the voting';
+      'You are the Beauty and play for the civilian team. Use your charm to distract the mafia, preventing them from using abilities and participating in voting';
 
   @override
   String get rolesGeneralDescriptionBodyguard =>
-      'You are the bodyguard for the civilians. Use your skills to carefully protect the civilians from attacks by the kamikaze or the mafia during the day';
-
-  @override
-  String get rolesGeneralDescriptionBarman =>
-      'You are the barman, playing for the mafia team. You do not know the mafia, and they do not know you. Use your barman skills to intoxicate the civilians';
+      'You are a Bodyguard and play for the civilian team. Use your skills to protect civilians from kamikaze or mafia attacks';
 
   @override
   String get rolesGeneralDescriptionInformant =>
-      'You are the mafia\'s informant. You do not know the mafia, and they do not know you. Reveal civilian roles and communicate anonymously with the mafia, sharing important information';
+      'You are the Informant and play for the mafia team. You don\'t know the mafia, and they don\'t know you. Reveal civilian roles and communicate anonymously with the mafia, passing on vital information';
 
   @override
   String get rolesGeneralDescriptionSheriff =>
-      'You are the city\'s Sheriff, representing the civilians team. Your task is to investigate players, identify members of the mafia organization and let the civilians know the truth';
+      'You are the Sheriff and play for the civilian team. Your task is to investigate players and identify mafia members';
 
   @override
   String get rolesGeneralDescriptionJournalist =>
-      'You are the journalist for the civilians. Every night, conduct interviews with two players so that everyone learns whether they are on the same team or on different teams';
+      'You are a Journalist and play for the civilian team. Every night, conduct interviews with two players so everyone finds out if they are on the same team or different ones';
 
   @override
   String get rolesGeneralDescriptionKamikaze =>
-      'You are the Kamikaze from the mafia team. You do not know the mafia, but the mafia knows you. During the day vote, you can blow up a civilian, dying along with them';
+      'You are the Kamikaze and play for the mafia team. You don\'t know the mafia, but the mafia knows you. During the day voting, you can blow up a civilian, dying along with them';
+
+  @override
+  String get rolesGeneralDescriptionBarman =>
+      'You are the Barman and play for the mafia team. You don\'t know the mafia, and they don\'t know you. Use your bartending skills to intoxicate civilians';
 
   @override
   String get rolesObjectiveMafia => 'Eliminate all civilians';
 
   @override
-  String get rolesObjectiveVicilian => 'Eliminate all members of the mafia';
+  String get rolesObjectiveVicilian => 'Eliminate all mafia members';
 
   @override
   String get rolesObjectiveSpy =>
@@ -774,7 +774,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rolesObjectiveDoctor =>
-      'Help the civilians eliminate all mafia members by saving them from the mafia\'s attacks';
+      'Help the civilians eliminate all mafia members by saving them from mafia attacks';
 
   @override
   String get rolesObjectiveBeauty =>
@@ -782,15 +782,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rolesObjectiveBodyguard =>
-      'Help the civilians eliminate all mafia members by protecting civilians from mafia members';
+      'Help the civilians eliminate all mafia members by protecting civilians from kamikaze and mafia members';
 
   @override
   String get rolesObjectiveBarman =>
-      'Help the mafia members eliminate the civilians by intoxicating them';
+      'Help the mafia members eliminate civilians by getting them drunk';
 
   @override
   String get rolesObjectiveInformant =>
-      'Help the mafia members eliminate the civilians by providing them with important information';
+      'Help the mafia members eliminate civilians by passing important information to them';
 
   @override
   String get rolesObjectiveSheriff =>
@@ -802,86 +802,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rolesObjectiveKamikaze =>
-      'Help the mafia members eliminate the civilians by blowing up an important civilian';
+      'Help the mafia members eliminate civilians by detonating an important civilian';
 
   @override
   String get rolesDayPhaseMafia =>
-      'Participate in discussions and voting, carefully manipulate the opinions of other players, and guide the conversation in a direction favorable to the mafia';
+      'Participate in discussions and voting, steer the conversation in the mafia\'s favour';
 
   @override
   String get rolesDayPhaseCivilian =>
-      'Participate in discussions and voting, guide the conversation, and support the civilians';
+      'Participate in discussions and voting, guide the conversation and support the civilians';
 
   @override
   String get rolesDayPhaseSpy =>
-      'Participate in discussions and voting, guide the conversation, and support the civilians';
+      'Participate in discussions and voting, guide the conversation and support the civilians';
 
   @override
   String get rolesDayPhaseDoctor =>
-      'Participate in discussions and voting, guide the conversation, and support the civilians';
+      'Participate in discussions and voting, guide the conversation and support the civilians';
 
   @override
   String get rolesDayPhaseBeauty =>
-      'Participate in discussions and voting, guide the conversation, and support the civilians';
+      'Participate in discussions and voting, guide the conversation and support the civilians';
 
   @override
   String get rolesDayPhaseBodyguard =>
-      'Every day, you can choose a player to protect from an attack by the kamikaze or the mafia';
+      'Each day you can choose a player to protect from a Kamikaze or Mafia attack';
 
   @override
   String get rolesDayPhaseBarman =>
-      'Participate in discussions and voting, carefully manipulate the opinions of other players, and guide the conversation in a direction favorable to the mafia';
+      'Participate in discussions and voting, steer the conversation in the mafia\'s favour';
 
   @override
   String get rolesDayPhaseInformant =>
-      'Participate in discussions and voting, carefully manipulate the opinions of other players, and guide the conversation in a direction favorable to the mafia';
+      'Participate in discussions and voting, steer the conversation in the mafia\'s favour';
 
   @override
   String get rolesDayPhaseSheriff =>
-      'Participate in discussions and voting, take the initiative, and lead the civilians to victory';
+      'Participate in discussions and voting, take the initiative and lead the civilians to victory';
 
   @override
   String get rolesDayPhaseJournalist =>
-      'Participate in discussions and voting, guide the conversation, and support the civilians';
+      'Participate in discussions and voting, guide the conversation and support the civilians';
 
   @override
   String get rolesDayPhaseKamikaze =>
-      'You can participate in discussions, but you do not have the right to vote. During the day vote, you can blow up a player; however, if the Bodyguard protects that player, you will die, taking the Bodyguard with you';
+      'You can participate in discussions but are not allowed to vote. During the day voting, you can blow up a player, however, if a Bodyguard protects them, you will die taking only the Bodyguard with you';
 
   @override
   String get skill => 'Skill';
 
   @override
   String get rolesThirdDescriptionMafia =>
-      'Every night, the mafia gathers, discusses, and chooses one player to eliminate. The Spy can see your nightly conversations, but does not know who exactly is sending them';
+      'Every night the Mafia gathers, discusses and chooses one player to eliminate. Spy can see your night conversations, but does not know who exactly is sending them';
 
   @override
   String get rolesThirdDescriptionCivilian =>
-      'You have nothing to do at night, rest';
+      'There is nothing for you to do at night, just rest';
 
   @override
   String get rolesThirdDescriptionSpy =>
-      'At night, you can eavesdrop on the conversations of the mafia and the Informant, but their identities remain unknown';
+      'At night you can eavesdrop on the conversations of Mafia and Informant, but their identities remain unknown';
 
   @override
   String get rolesThirdDescriptionDoctor =>
-      'Every night, you can heal one player chosen by the mafia for an attack. If you choose the correct player, their life will be saved';
-
-  @override
-  String get rolesThirdDescriptionBeauty =>
-      'Every night, you can distract one player. The distracted player will not be able to vote or use their abilities until the next night';
+      'Every night you can save one player chosen by the Mafia for attack. If you choose the right player, their life will be spared';
 
   @override
   String get rolesThirdDescriptionBodyguard =>
-      'You continue to protect the player you chose during the day from mafia attacks at night';
+      'The player you chose during the day remains under your protection throughout the night against Mafia attacks';
 
   @override
   String get rolesThirdDescriptionBarman =>
-      'Every night, you can intoxicate one player. An intoxicated player will not be able to vote, use abilities, or speak clearly until the next night';
+      'Every night you can intoxicate one player. The intoxicated player will be unable to vote, use abilities or speak clearly until the next night';
 
   @override
   String get rolesThirdDescriptionInformant =>
-      'Every night, you can reveal the role of one player and communicate with the mafia. The mafia and the Spy see your messages, but the sender\'s identity remains hidden';
+      'Every night you can reveal the role of one player and communicate with the Mafia. Mafia and Spy can see your messages, but your identity remains hidden';
 
   @override
   String get rolesThirdDescriptionSheriff =>
@@ -889,55 +885,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rolesThirdDescriptionJournalist =>
-      'Every night, you can interview two players to find out if they are on the same team. The results of the report are visible to everyone in the chat';
+      'Every night you can interview two players to find out if they are on the same team. The results are visible to everyone in the chat';
 
   @override
   String get rolesThirdDescriptionKamikaze =>
-      'At night you have nothing to do, rest';
+      'There is nothing for you to do at night, just rest';
+
+  @override
+  String get rolesThirdDescriptionBeauty =>
+      'Every night you can charm one player. The distracted player will be unable to vote or use their abilities until the next night';
 
   @override
   String get rolesWinningConditionMafia =>
-      'You win when no civilians remain alive';
+      'You win when no civilians are left alive';
 
   @override
   String get rolesWinningConditionsCivilian =>
-      'You win when no members of the mafia remain alive';
+      'You win when no Mafia members are left alive';
 
   @override
   String get rolesWinningConditionsSpy =>
-      'You win when no members of the mafia remain alive';
+      'You win when no Mafia members are left alive';
 
   @override
   String get rolesWinningConditionsDoctor =>
-      'You win when no members of the mafia remain alive';
+      'You win when no Mafia members are left alive';
 
   @override
   String get rolesWinningConditionsBeauty =>
-      'You win when no members of the mafia remain alive';
+      'You win when no Mafia members are left alive';
 
   @override
   String get rolesWinningConditionsBodyguard =>
-      'You win when no members of the mafia remain alive';
+      'You win when no Mafia members are left alive';
 
   @override
   String get rolesWinningConditionsBarman =>
-      'You win when no civilians remain alive';
+      'You win when no civilians are left alive';
 
   @override
   String get rolesWinningConditionsInformant =>
-      'You win when no civilians remain alive';
+      'You win when no civilians are left alive';
 
   @override
   String get rolesWinningConditionsSheriff =>
-      'You win when no members of the mafia remain alive';
+      'You win when no Mafia members are left alive';
 
   @override
   String get rolesWinningConditionsJournalist =>
-      'You win when no members of the mafia remain alive';
+      'You win when no Mafia members are left alive';
 
   @override
   String get rolesWinningConditionsKamikaze =>
-      'You win when no civilians remain alive';
+      'You win when no civilians are left alive';
 
   @override
   String get gameplayRules => 'Gameplay Rules:';
@@ -969,11 +969,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gameInformationPopupCured =>
-      'You\'re in «safe» hands — the mafia can\'t touch you today';
+      'You\'re in «safe» hands, the Mafia won\'t be able to harm you tonight';
 
   @override
   String get gameInformationPopupInterviewed =>
-      'Congrats — you\'re now part of their «big investigation», whether you like it or not. And as always, everyone\'s already gossiping about whether you\'re on the same side as the other interviewee';
+      'Congratulations — you\'re now the star of the report. Everyone is already debating whether you and the other interviewee are on the same side or not';
 
   @override
   String get gameInformationPopupIntoxicated =>
@@ -1007,19 +1007,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gameInformationPopupTitleInvestigated =>
-      'The Sheriff investigated you.';
+      'The Sheriff investigated you';
 
   @override
   String get gameInformationPopupTitleRevealed =>
-      'The Informant revealed your role.';
+      'The Informant revealed your role';
 
   @override
   String get gameInformationPopupTitleProtected =>
-      'The Bodyguard has protected you.';
+      'The Bodyguard has protected you';
 
   @override
-  String get gameInformationPopupTitleSatisfied =>
-      'The Beauty has charmed you.';
+  String get gameInformationPopupTitleSatisfied => 'The Beauty has charm you';
 
   @override
   String get gameInformationPopupExpirationCured =>
@@ -1084,7 +1083,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer) {
-    return 'Kamikaze tried to bomb [$targetPlayer], but bodyguard saved him/her';
+    return 'Kamikaze tried to bomb [$targetPlayer], but Bodyguard saved him/her';
   }
 
   @override
@@ -1205,7 +1204,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gameInformationPopupLastMafia =>
-      'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on';
+      'All Mafia members are dead. As the Informant, you can now participate in the Mafia\'s night voting';
 
   @override
   String get gameInformationPopupTitleLastMafia => 'Last Mafia';
@@ -1226,33 +1225,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get youAreDead => 'You are dead';
 
   @override
-  String get iDeadSituationOneText => 'IDeadSituationOneText - Mafia killed';
+  String get iDeadSituationOneText =>
+      'The mafia chose you as their victim tonight. You did not live to see the morning';
 
   @override
   String get iDeadSituationTwoText =>
-      'IDeadSituationTwoText - eliminated by towns decision';
+      'The town voted and pointed at you. You were eliminated by the town\'s decision';
 
   @override
   String get iDeadSituationThreeText =>
-      'IDeadSituationThreeText - kamikaze bombarded me';
+      'The kamikaze chose you as their target. The explosion cut your life short';
 
   @override
   String get iDeadSituationFourText =>
-      'iDeadSituationFourText - i am kamikaze and i killed someone and myself';
+      'You blew yourself up along with your target. Your mission ended here';
 
   @override
-  String get nightVotingCanNotSendMessage => 'NightVoting Can Not Send Message';
+  String get nightVotingCanNotSendMessage =>
+      'While everyone sleeps, the mafia chooses their victim';
 
   @override
-  String get nightCanNotSendMessage => 'Night Can Not Send Message';
+  String get nightCanNotSendMessage =>
+      'Only the mafia can speak during the night';
 
   @override
-  String get dayVotingCanNotSendMessage => 'DayVoting Can Not Send Message';
+  String get dayVotingCanNotSendMessage =>
+      'No one can speak during the day voting';
 
   @override
-  String get unsupportedFileFormat => 'Unsupported File Format';
+  String get unsupportedFileFormat =>
+      'This file format is not supported for avatars';
 
   @override
   String get fileIsTooLargeItMustBe200kb =>
-      'File is too large, it must be 200kb';
+      'The file is too large. Please upload an avatar smaller than 200 KB';
 }

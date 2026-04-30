@@ -2264,17 +2264,21 @@ class _FriendChatState extends State<FriendChat> {
                                       //   'nickname': widget.friend.nickname,
                                       //   'content': _messageController.text.trim(),
                                       // }));
-                                      Map<String, dynamic>? response = await GetIt.I<ApiService>().sendNewMessageToFriend(
-                                        widget.friend.id, 
-                                        _messageController.text.trim()
-                                      );
-                                      _scrollToBottom();
-                                      if (!mounted) return;
-                                      print("RESPONSE MESSAGE ID: ${response?['messageId'].toString()}");
-                                      setState(() {
-                                        messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: response?['messageId'], status: response?['status']));
-                                        _messageController.clear();
-                                      });
+                                      try {
+                                        Map<String, dynamic>? response = await GetIt.I<ApiService>().sendNewMessageToFriend(
+                                          widget.friend.id, 
+                                          _messageController.text.trim()
+                                        );
+                                        _scrollToBottom();
+                                        if (!mounted) return;
+                                        print("RESPONSE MESSAGE ID: ${response?['messageId'].toString()}");
+                                        setState(() {
+                                          messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: response?['messageId'], status: response?['status']));
+                                          _messageController.clear();
+                                        });
+                                      } catch (e) {
+                                        log("💥 send message - Friends Chat 💥");
+                                      }
                                     },
                                   ),
                                 ) 

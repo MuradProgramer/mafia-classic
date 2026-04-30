@@ -690,7 +690,7 @@ class AppLocalizationsAz extends AppLocalizations {
 
   @override
   String get skillsDescriptionsBodyguard =>
-      'Mafiya və terrorçudan qorumaq istədiyiniz oyunçunu seçin';
+      'Mafia və Kamikaze\'dən qorumaq istədiyiniz oyunçunu seçin';
 
   @override
   String get skillsDescriptionsBarman =>
@@ -720,170 +720,164 @@ class AppLocalizationsAz extends AppLocalizations {
 
   @override
   String get rolesGeneralDescriptionMafia =>
-      'Siz mafiyasınız və mafiya komandasında oynayırsınız. Tapşırığınız gündüz səsvermələri zamanı aldatma yolu ilə və ya gecə birgə qətllər törədərək bütün dinc sakinləri aradan qaldırmaqdır';
+      'Siz — Mafia rolundasınız və mafiya komandasında oynayırsınız. Məqsədiniz, gündüz səsvermələrində aldatmaq və komandanızla birlikdə gecə qətlləri həyata keçirərək sakinləri aradan qaldırmaqdır';
 
   @override
   String get rolesGeneralDescriptionCivilian =>
-      'Siz sadə şəhər sakinisiniz. Tapşırığınız bütün mafiya üzvlərini aşkar etmək və onlara qarşı səs verməklə dinc sakinlərin qələbə qazanmasına kömək etməkdir';
+      'Siz — Civilian rolundasınız və sakinlərin komandasında oynayırsınız. Məqsədiniz, bütün mafiya üzvlərini ifşa etmək və sakinlərin qələbəyə çatmasına kömək etmək üçün onlara qarşı səs verməkdir';
 
   @override
   String get rolesGeneralDescriptionSpy =>
-      'Siz dinc sakinlərin casususunuz. Mafiyanın söhbətlərinə gizlicə qulaq asın və əldə etdiyiniz məlumatlardan istifadə edərək dinc sakinlərə mafiya üzvlərini müəyyənləşdirməkdə və aradan qaldırmaqda kömək edin';
+      'Siz — Spy rolundasınız və sakinlərin komandasında oynayırsınız. Mafiyanın söhbətlərini dinləyin və mafiyanı ifşa etmək üçün sakinlərlə faydalı məlumatlar paylaşın';
 
   @override
   String get rolesGeneralDescriptionDoctor =>
-      'Siz dinc sakinlərin həkimisiniz. Tibbi bacarıqlarınızdan istifadə edərək dinc sakinləri mafiya hücumundan xilas edin';
+      'Siz — Doctor rolundasınız və sakinlərin komandasında oynayırsınız. Sakinləri mafiyanın gecə hücumlarından xilas etmək üçün tibbi bacarıqlarınızdan istifadə edin';
 
   @override
   String get rolesGeneralDescriptionBeauty =>
-      'Siz gözəlçəsiniz, dinc sakinlər tərəfində oynayırsınız. Tapşırığınız mafiya üzvlərinin diqqətini yayındırmaqla onların öz qabiliyyətlərindən istifadə etməsinə və səsvermədə iştirakına mane olmaqdır';
+      'Siz — Beauty rolundasınız və sakinlərin komandasında oynayırsınız. Mafiyanı öz bacarıqlarından istifadə etməkdən və səsvermədə iştirak etməkdən məhrum etmək üçün onları ovsunlayın';
 
   @override
   String get rolesGeneralDescriptionBodyguard =>
-      'Siz dinc sakinlərin cangüdəniniz. Bacarıqlarınızdan istifadə edərək dinc sakinləri terrorçu və ya mafiya hücumlarından qoruyun';
-
-  @override
-  String get rolesGeneralDescriptionBarman =>
-      'Siz mafiya komandasında oynayan barmensiniz. Siz mafiya üzvlərini tanımırsınız, onlar da sizi tanımır. Barmenlik bacarıqlarınızdan istifadə edərək dinc sakinləri sərxoş edin';
+      'Siz — Bodyguard rolundasınız və sakinlərin komandasında oynayırsınız. Sakinləri kamikadze və ya mafiya hücumlarından qorumaq üçün bacarıqlarınızdan istifadə edin';
 
   @override
   String get rolesGeneralDescriptionInformant =>
-      'Siz mafiyanın məlumatçısısınız. Siz mafiya üzvlərini tanımırsınız, onlar da sizi tanımır. Dinc sakinlərin rollarını üzə çıxarın və mafiya üzvlərinə vacib məlumatlar ötürərək onlarla anonim şəkildə əlaqə saxlayın';
+      'Siz — Informant rolundasınız və mafiya komandasında oynayırsınız. Siz mafiyanı tanımırsınız, onlar da sizi tanımır. Sakinlərin rollarını aşkar edin və önəmli məlumatları anonim şəkildə mafiyaya ötürün';
 
   @override
   String get rolesGeneralDescriptionSheriff =>
-      'Siz dinc sakinlər komandasını təmsil edən şəhər şerifisiniz. Məqsədiniz oyunçuları araşdırmaq və mafiya üzvlərini aşkar etməkdir';
+      'Siz — Sheriff rolundasınız və sakinlərin komandasında oynayırsınız. Məqsədiniz, oyunçuları araşdırmaq və mafiya üzvlərini müəyyən etməkdir';
 
   @override
   String get rolesGeneralDescriptionJournalist =>
-      'Siz dinc sakinlər tərəfində oynayan jurnalistsiniz. Hər gecə iki oyunçudan müsahibə alaraq reportaj hazırlayın ki, hər kəs onların eyni komandada, yoxsa fərqli komandalarda olduğunu öyrənsin';
+      'Siz — Journalist rolundasınız və sakinlərin komandasında oynayırsınız. Hər gecə iki oyunçu ilə müsahibə aparın ki, hamı onların eyni komandada yoxsa fərqli komandada olduğunu öyrənsin';
 
   @override
   String get rolesGeneralDescriptionKamikaze =>
-      'Siz mafiya komandasından olan terrorçusunuz. Siz mafiyanı tanımırsınız, amma mafiya sizi tanıyır. Gündüz səsverməsi zamanı özünüzlə bərabər bir dinc sakini də partlada bilərsiniz';
+      'Siz — Kamikaze rolundasınız və mafiya komandasında oynayırsınız. Siz mafiyanı tanımırsınız, lakin mafia sizi tanıyır. Gündüz səsverməsi zamanı bir oyunçunu partlada bilərsiniz, amma nəticədə siz də onunla birlikdə ölürsünüz';
 
   @override
-  String get rolesObjectiveMafia =>
-      'Gündüz və ya gecə səsverməsində bütün dinc sakinləri aradan qaldırmaq';
+  String get rolesGeneralDescriptionBarman =>
+      'Siz — Barman rolundasınız və mafiya komandasında oynayırsınız. Siz mafiyanı tanımırsınız, onlar da sizi tanımır. Sakinləri sərxoş etmək üçün barmen bacarıqlarınızdan istifadə edin';
 
   @override
-  String get rolesObjectiveVicilian =>
-      'Gündüz səsverməsi vasitəsilə bütün mafiya üzvlərini aradan qaldırmaq';
+  String get rolesObjectiveMafia => 'Bütün sakinləri aradan qaldır';
+
+  @override
+  String get rolesObjectiveVicilian => 'Bütün mafiya üzvlərini aradan qaldır';
 
   @override
   String get rolesObjectiveSpy =>
-      'Gecə söhbətlərinə gizlicə qulaq asaraq dinc sakinlərə bütün mafiya üzvlərini aradan qaldırmağa kömək edin';
+      'Mafiyanın gecə söhbətlərini dinləyərək sakinlərin bütün mafiya üzvlərini aradan qaldırmasına kömək et';
 
   @override
   String get rolesObjectiveDoctor =>
-      'Dinc sakinləri mafiya hücumlarından xilas edərək bütün mafiya üzvlərinin aradan qaldırılmasına kömək edin';
+      'Sakinləri mafiya hücumlarından xilas edərək sakinlərin bütün mafiya üzvlərini aradan qaldırmasına kömək et';
 
   @override
   String get rolesObjectiveBeauty =>
-      'Mafiyanın fəaliyyətinə mane olaraq və onların aradan qaldırılmasına şərait yaradaraq dinc sakinlərə kömək edin';
+      'Mafiya üzvlərini ovsunlayaraq sakinlərin bütün mafiya üzvlərini aradan qaldırmasına kömək et';
 
   @override
   String get rolesObjectiveBodyguard =>
-      'Dinc sakinləri mafiyadan qoruyaraq bütün mafiya üzvlərinin aradan qaldırılmasına kömək edin';
+      'Sakinləri kamikadze və mafiya üzvlərindən qoruyaraq sakinlərin bütün mafiya üzvlərini aradan qaldırmasına kömək et';
 
   @override
   String get rolesObjectiveBarman =>
-      'Dinc sakinləri sərxoş edərək mafiya üzvlərinə onları aradan qaldırmağa kömək edin';
+      'Sakinləri sərxoş edərək mafiya üzvlərinin sakinləri aradan qaldırmasına kömək et';
 
   @override
   String get rolesObjectiveInformant =>
-      'Mafiya üzvlərinə vacib məlumatlar ötürərək dinc sakinləri aradan qaldırmağa kömək edin';
+      'Mafiya üzvlərinə önəmli məlumatlar ötürərək sakinləri aradan qaldırmasına kömək et';
 
   @override
   String get rolesObjectiveSheriff =>
-      'Mafiya üzvlərini aşkar edərək dinc sakinlərə bütün mafiya üzvlərini aradan qaldırmağa kömək edin';
+      'Mafiya üzvlərini müəyyən edərək sakinlərin bütün mafiya üzvlərini aradan qaldırmasına kömək et';
 
   @override
   String get rolesObjectiveJournalist =>
-      'Hər gün reportajlar hazırlayaraq dinc sakinlərə bütün mafiya üzvlərini aradan qaldırmağa kömək edin';
+      'Hər gün reportajlar keçirərək sakinlərin bütün mafiya üzvlərini aradan qaldırmasına kömək et';
 
   @override
   String get rolesObjectiveKamikaze =>
-      'Vacib bir dinc sakini partladaraq mafiya üzvlərinə dinc sakinləri aradan qaldırmağa kömək edin';
+      'Önəmli bir sakini partladaraq mafiya üzvlərinin sakinləri aradan qaldırmasına kömək et';
 
   @override
   String get rolesDayPhaseMafia =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiya üçün əlverişli məcraya yönəldin';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiyanın lehinə yönləndirin';
 
   @override
   String get rolesDayPhaseCivilian =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin və dinc sakinləri dəstəkləyin';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti sivillərin lehinə yönləndirin və onlara dəstək olun';
 
   @override
   String get rolesDayPhaseSpy =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin və dinc sakinləri dəstəkləyin';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti sivillərin lehinə yönləndirin və onlara dəstək olun';
 
   @override
   String get rolesDayPhaseDoctor =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin və dinc sakinləri dəstəkləyin';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti sivillərin lehinə yönləndirin və onlara dəstək olun';
 
   @override
   String get rolesDayPhaseBeauty =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin ve dinc sakinləri dəstəkləyin';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti sivillərin lehinə yönləndirin və onlara dəstək olun';
 
   @override
   String get rolesDayPhaseBodyguard =>
-      'Hər gün terrorçu və ya mafiya hücumundan qorumaq üçün bir oyunçu seçə bilərsiniz.';
+      'Hər gün bir oyunçunu Kamikaze və ya Mafia hücumundan qorumaq üçün seçə bilərsiniz';
 
   @override
   String get rolesDayPhaseBarman =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiya üçün əlverişli məcraya yönəldin';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiyanın lehinə yönləndirin';
 
   @override
   String get rolesDayPhaseInformant =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiya üçün əlverişli məcraya yönəldin';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti mafiyanın lehinə yönləndirin';
 
   @override
   String get rolesDayPhaseSheriff =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, təşəbbüsü ələ alın və dinc sakinləri qələbəyə aparın.';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, təşəbbüs göstərin və sivilləri qələbəyə apарın';
 
   @override
   String get rolesDayPhaseJournalist =>
-      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti yönəldin və dinc sakinləri dəstəkləyin';
+      'Müzakirələrdə və səsvermələrdə iştirak edin, söhbəti sivillərin lehinə yönləndirin və onlara dəstək olun';
 
   @override
   String get rolesDayPhaseKamikaze =>
-      'Siz müzakirələrdə iştirak edə bilərsiniz, lakin səs vermək hüququnuz yoxdur. Gündüz səsverməsi zamanı bir oyunçunu partlada bilərsiniz, lakin əgər onu cangüdən qoruyursa, siz cangüdəni də özünüzlə bərabər apararaq həlak olacaqsınız';
+      'Müzakirələrdə iştirak edə bilərsiniz, lakin səs vermək hüququnuz yoxdur. Gündüz səsvermesi zamanı bir oyunçunu partlada bilərsiniz, lakin onu Bodyguard qoruyarsa, yalnız Bodyguard\'ı özünüzlə apararaq öləcəksiniz';
 
   @override
   String get skill => 'Bacarıq';
 
   @override
   String get rolesThirdDescriptionMafia =>
-      'Hər gecə mafiya toplanır, müzakirə edir və aradan qaldırmaq üçün bir oyunçu seçir. Casus sizin gecə söhbətlərinizi görə bilər, lakin onları məhz kimin göndərdiyini bilmir';
+      'Hər gecə mafiya toplaşır, müzakirə edir və öldürmək üçün bir oyunçu seçir. Spy gecə söhbətlərinizi görə bilir, lakin onları kimin göndərdiyini bilmir';
 
   @override
   String get rolesThirdDescriptionCivilian =>
-      'Gecə görəcək bir işiniz yoxdur, istirahət edin';
+      'Gecə görə biləcəyiniz bir iş yoxdur, istirahət edin';
 
   @override
   String get rolesThirdDescriptionSpy =>
-      'Gecə siz mafiya və məlumatçının söhbətlərinə gizlicə qulaq asa bilərsiniz, lakin kimin danışdığını öyrənə bilmirsiniz';
+      'Gecələr Mafia və Informant\'ın söhbətlərini dinləyə bilərsiniz, lakin onların kimliyini bilmirsiniz';
 
   @override
   String get rolesThirdDescriptionDoctor =>
-      'Hər gecə mafiyanın hücum etmək üçün seçdiyi bir oyunçunu sağalda bilərsiniz. Doğru oyunçunu seçsəniz, onun həyatı xilas olacaq';
-
-  @override
-  String get rolesThirdDescriptionBeauty =>
-      'Hər gecə bir oyunçunun (yaxşı olar ki, mafiyanın) diqqətini yayındıra bilərsiniz. Diqqəti yayındırılan oyunçu gün ərzində səs verə və qabiliyyətlərini istifadə edə bilməz';
+      'Hər gecə mafiyаnın hücum üçün seçdiyi bir oyunçunu xilas edə bilərsiniz. Düzgün oyunçunu seçsəniz, onun həyatını xilas edəcəksiniz';
 
   @override
   String get rolesThirdDescriptionBodyguard =>
-      'Əgər seçdiyiniz oyunçu gündüz terrorçunun hədəfi olarsa, gecə o, mafiya hücumundan müdafiəsiz qalacaq';
+      'Gündüz seçdiyiniz oyunçu gecə mafiya hücumlarına qarşı qorunmaqda davam edir';
 
   @override
   String get rolesThirdDescriptionBarman =>
-      'Hər gecə bir oyunçunu sərxoş edə bilərsiniz. Sərxoş olan oyunçu növbəti gecəyə qədər səs verə, qabiliyyətlərini istifadə edə və sağlam şəkildə danışa bilməyəcək';
+      'Hər gecə bir oyunçunu sərxoş edə bilərsiniz. Sərxoş olan oyunçu növbəti gecəyə qədər səs verə, bacarıqlarından istifadə edə və aydın danışa bilməyəcək';
 
   @override
   String get rolesThirdDescriptionInformant =>
-      'Hər gecə bir oyunçunun rolunu aça və mafiya ilə ünsiyyət qura bilərsiniz. Mafiya və casus sizin mesajlarınızı görür, lakin onları kimin göndərdiyini bilmirlər';
+      'Hər gecə bir oyunçunun rolunu aşkar edə və mafiya ilə danışa bilərsiniz. Mafia və Spy mesajlarınızı görə bilir, lakin kimliyiniz gizli qalır';
 
   @override
   String get rolesThirdDescriptionSheriff =>
@@ -891,55 +885,59 @@ class AppLocalizationsAz extends AppLocalizations {
 
   @override
   String get rolesThirdDescriptionJournalist =>
-      'Hər gecə iki oyunçudan müsahibə alaraq onların eyni komandada olub-olmadığını öyrənmək üçün reportaj hazırlayırsınız. Reportajın nəticələri çatda hər kəsə görünür';
+      'Hər gecə iki oyunçu ilə müsahibə apararaq onların eyni komandada olub-olmadığını öyrənə bilərsiniz. Müsahibənin nəticələri çatda hamıya görünür';
 
   @override
   String get rolesThirdDescriptionKamikaze =>
-      'Gecə görəcək bir işiniz yoxdur, istirahət edin';
+      'Gecə görə biləcəyiniz bir iş yoxdur, istirahət edin';
+
+  @override
+  String get rolesThirdDescriptionBeauty =>
+      'Hər gecə bir oyunçunu ovsunlaya bilərsiniz. Ovsunlanan oyunçu növbəti gecəyə qədər səs verə və bacarıqlarından istifadə edə bilməyəcək';
 
   @override
   String get rolesWinningConditionMafia =>
-      'Heç bir dinc sakin sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün sivillər öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsCivilian =>
-      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün mafiya üzvləri öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsSpy =>
-      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün mafiya üzvləri öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsDoctor =>
-      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün mafiya üzvləri öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsBeauty =>
-      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün mafiya üzvləri öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsBodyguard =>
-      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün mafiya üzvləri öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsBarman =>
-      'Heç bir dinc sakin sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün sivillər öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsInformant =>
-      'Heç bir dinc sakin sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün sivillər öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsSheriff =>
-      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün mafiya üzvləri öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsJournalist =>
-      'Heç bir mafiya üzvü sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün mafiya üzvləri öldükdə qalib gəlirsiniz';
 
   @override
   String get rolesWinningConditionsKamikaze =>
-      'Heç bir dinc sakin sağ qalmadıqda siz qalib gəlirsiniz';
+      'Bütün sivillər öldükdə qalib gəlirsiniz';
 
   @override
   String get gameplayRules => 'Oyun Qaydaları:';
@@ -971,11 +969,11 @@ class AppLocalizationsAz extends AppLocalizations {
 
   @override
   String get gameInformationPopupCured =>
-      'Siz «etibarlı» əllərdəsiniz — bu gecə mafiya sizə zərər verə bilməz';
+      'Siz «etibarlı» əllərdəsiniz, mafiya bu gecə sizə zərər verə bilməyəcək';
 
   @override
   String get gameInformationPopupInterviewed =>
-      'Təbrik edirik — istəsənizdə istəməsənizdə artıq onların «böyük istintaqının» bir hissəsisiniz. Həmişəki kimi, hamı artıq digər sorğulanan ilə eyni tərəfdə olub-olmadığınızı müzakirə edir';
+      'Təbrik edirik — reportajın ulduzu oldunuz. Hamı artıq sizin və digər sorğulanan ilə eyni tərəfdə olub-olmadığını müzakirə edir';
 
   @override
   String get gameInformationPopupIntoxicated =>
@@ -995,7 +993,7 @@ class AppLocalizationsAz extends AppLocalizations {
 
   @override
   String get gameInformationPopupSatisfied =>
-      'Ovsunlandınız — siz səs verə və ya bacarıqlarınızdan istifadə edə bilmərsiniz';
+      'Ovsunlandınız, siz səs verə və ya bacarıqlarınızdan istifadə edə bilmərsiniz';
 
   @override
   String get gameInformationPopupTitleCured => 'Doctor sizi xilas etdi';
@@ -1083,7 +1081,7 @@ class AppLocalizationsAz extends AppLocalizations {
   @override
   String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer) {
-    return 'Kamikaze [$targetPlayer]-ı partlatmağa cəhd etdi, lakin bodyguard onu xilas etdi';
+    return 'Kamikaze [$targetPlayer]-ı partlatmağa cəhd etdi, lakin Bodyguard onu xilas etdi';
   }
 
   @override
@@ -1204,10 +1202,10 @@ class AppLocalizationsAz extends AppLocalizations {
 
   @override
   String get gameInformationPopupLastMafia =>
-      'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on';
+      'Bütün Mafia üzvləri öldü. Informant olaraq artıq Mafia\'nın gecə səsvermesində iştirak edə bilərsiniz';
 
   @override
-  String get gameInformationPopupTitleLastMafia => 'Last Mafia';
+  String get gameInformationPopupTitleLastMafia => 'Son Mafiya';
 
   @override
   String get gameInformationPopupExpirationLastMafia =>
@@ -1225,30 +1223,36 @@ class AppLocalizationsAz extends AppLocalizations {
   String get youAreDead => 'You are dead';
 
   @override
-  String get iDeadSituationOneText => 'IDeadSituationOneText';
+  String get iDeadSituationOneText =>
+      'Mafiya bu gecə sizi qurban seçdi. Siz səhərə sağ çıxa bilmədiniz';
 
   @override
-  String get iDeadSituationTwoText => 'IDeadSituationTwoText';
+  String get iDeadSituationTwoText =>
+      'Şəhər sizə səs verdi və şəhərin qərarı ilə oyundan çıxarıldınız';
 
   @override
-  String get iDeadSituationThreeText => 'IDeadSituationThreeText';
+  String get iDeadSituationThreeText =>
+      'Kamikaze sizi hədəf seçdi. Partlayış həyatınıza son qoydu';
 
   @override
-  String get iDeadSituationFourText => 'iDeadSituationFourText';
+  String get iDeadSituationFourText =>
+      'Siz özünüzü hədəfinizlə birlikdə partlatdınız. Missiyanız burada sona çatdı';
 
   @override
-  String get nightVotingCanNotSendMessage => 'NightVoting Can Not Send Message';
+  String get nightVotingCanNotSendMessage =>
+      'Hamı yatarkən mafiya qurbanını seçir';
 
   @override
-  String get nightCanNotSendMessage => 'Night Can Not Send Message';
+  String get nightCanNotSendMessage => 'Gecə yalnız mafiya danışa bilər';
 
   @override
-  String get dayVotingCanNotSendMessage => 'DayVoting Can Not Send Message';
+  String get dayVotingCanNotSendMessage =>
+      'Gündüz səsvermesi zamanı heç kim danışa bilməz';
 
   @override
-  String get unsupportedFileFormat => 'Unsupported File Format';
+  String get unsupportedFileFormat => 'Bu fayl formatı avatar üçün uyğun deyil';
 
   @override
   String get fileIsTooLargeItMustBe200kb =>
-      'File is too large, it must be 200kb';
+      'Fayl çox böyükdür. Zəhmət olmasa 200 KB-dan kiçik avatar yükləyin';
 }

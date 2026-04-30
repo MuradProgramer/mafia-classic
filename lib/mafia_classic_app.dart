@@ -377,9 +377,9 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
               theme: theme,
               routes: routes,
 
-              builder: (context, child) {
-                return GameWrapper(child: child!);
-              },
+              // builder: (context, child) {
+              //   return GameWrapper(child: child!);
+              // },
             ),
           );
         }
@@ -627,23 +627,26 @@ class _GameWrapperState extends State<GameWrapper> {
           break;
         case InternetStatus.disconnected:
           isConnectedToInternet.value = false;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            // Check if the widget is still mounted
-            if (mounted) {
-              // USE THE NAVIGATOR KEY HERE instead of Navigator.of(context)
-              rootNavigatorKey.currentState?.pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const SplashScreen()),
-                (route) => false,
-              );
-            }
-          });
+          // WidgetsBinding.instance.addPostFrameCallback((_) {
+          //   // Check if the widget is still mounted
+          //   if (mounted) {
+          //     // USE THE NAVIGATOR KEY HERE instead of Navigator.of(context)
+          //     rootNavigatorKey.currentState?.pushAndRemoveUntil(
+          //       MaterialPageRoute(builder: (context) => const SplashScreen()),
+          //       (route) => false,
+          //     );
+          //   }
+          // });
           break;
         }
     });
   }
 
   Future<void> _handleReconnect() async {
-    if (isReconnecting.value) return;
+    if (isReconnecting.value) {
+      log("💀💀💀💀💀💀💀💀💀💀");
+      return;
+    }
  
     try {
       isReconnecting.value = true;

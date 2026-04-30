@@ -690,11 +690,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get skillsDescriptionsBodyguard =>
-      'Выберите игрока для защиты от мафии и террориста';
+      'Выберите игрока для защиты от Mafia и Kamikaze';
 
   @override
   String get skillsDescriptionsBarman =>
-      'Выберите игрока, чтобы опьянить его. Он не сможет голосовать, говорить и использовать способность';
+      'Выберите игрока, чтобы споить его. Он не сможет голосовать, говорить и использовать способность';
 
   @override
   String get skillsDescriptionsDoctor =>
@@ -720,47 +720,47 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get rolesGeneralDescriptionMafia =>
-      'Вы — мафия и играете за команду мафии. Ваша задача, устранять мирных жителей через обман на дневных голосованиях и ночные убийства вместе с командой';
+      'Вы — Mafia и играете за команду мафии. Ваша задача, устранять мирных жителей через обман на дневных голосованиях и ночные убийства вместе с командой';
 
   @override
   String get rolesGeneralDescriptionCivilian =>
-      'Вы - простой житель города. Ваша задача, вычислить всех членов мафии и проголосовать против них, помогая мирным добиться победы';
+      'Вы - Civilian и играете за команду мирных жителей. Ваша задача, вычислить всех членов мафии и проголосовать против них, помогая мирным добиться победы';
 
   @override
   String get rolesGeneralDescriptionSpy =>
-      'Вы — шпион мирных жителей. Подслушивайте разговоры мафии и делитесь полезной информацией с мирными, чтобы вывести мафию на чистую воду';
+      'Вы — Spy и играете за команду мирных жителей. Подслушивайте разговоры мафии и делитесь полезной информацией с мирными, чтобы вывести мафию на чистую воду';
 
   @override
   String get rolesGeneralDescriptionDoctor =>
-      'Вы — доктор мирных жителей. Используйте свои медицинские навыки, чтобы спасти мирных жителей от ночных нападений мафии';
+      'Вы — Doctor и играете за команду мирных жителей. Используйте свои медицинские навыки, чтобы спасти мирных жителей от ночных нападений мафии';
 
   @override
   String get rolesGeneralDescriptionBeauty =>
-      'Вы — красотка, игрок за мирных. Используйте своё очарование, чтобы отвлекать мафию, мешая им использовать способности и участвовать в голосовании';
+      'Вы — Beauty и играете за команду мирных жителей. Используйте своё очарование, чтобы отвлекать мафию, мешая им использовать способности и участвовать в голосовании';
 
   @override
   String get rolesGeneralDescriptionBodyguard =>
-      'Вы — телохранитель мирных жителей. Используйте свои навыки, чтобы защищать мирных жителей от нападений террориста или мафии';
-
-  @override
-  String get rolesGeneralDescriptionBarman =>
-      'Вы — бармен, играющий за команду мафии. Вы не знаете мафию, они не знают вас. Используйте свои барменские навыки, чтобы опьянять мирных жителей';
+      'Вы — Bodyguard и играете за команду мирных жителей. Используйте свои навыки, чтобы защищать мирных жителей от нападений камикадзе или мафии';
 
   @override
   String get rolesGeneralDescriptionInformant =>
-      'Вы — информатор мафии. Вы не знаете мафию, они не знают вас. Раскрывайте роли мирных и анонимно общайтесь с мафией, передавая важную информацию';
+      'Вы — Informant и играете за команду мафии. Вы не знаете мафию, они не знают вас. Раскрывайте роли мирных и анонимно общайтесь с мафией, передавая важную информацию';
 
   @override
   String get rolesGeneralDescriptionSheriff =>
-      'Вы — шериф города, представляющий команду мирных жителей. Ваша задача, расследовать игроков и выявлять членов мафии';
+      'Вы — Sheriff и играете за команду мирных жителей. Ваша задача, расследовать игроков и выявлять членов мафии';
 
   @override
   String get rolesGeneralDescriptionJournalist =>
-      'Вы — журналист мирных жителей. Каждую ночь проводите интервью с двумя игроками, чтобы все узнали, находятся ли они в одной команде или в разных';
+      'Вы — Journalist и играете за команду мирных жителей. Каждую ночь проводите интервью с двумя игроками, чтобы все узнали, находятся ли они в одной команде или в разных';
 
   @override
   String get rolesGeneralDescriptionKamikaze =>
-      'Вы — террорист из команды мафии. Вы не знаете мафию, но мафия знает вас. Во время дневного голосования можете взорвать мирного, погибнув вместе с ним';
+      'Вы — Kamikaze и играете за команду мафии. Вы не знаете мафию, но мафия знает вас. Во время дневного голосования можете взорвать мирного, погибнув вместе с ним';
+
+  @override
+  String get rolesGeneralDescriptionBarman =>
+      'Вы — Barman и играете за команду мафии. Вы не знаете мафию и они не знают вас. Используйте свои барменские навыки, чтобы опьянять мирных жителей';
 
   @override
   String get rolesObjectiveMafia => 'Устранить всех мирных жителей';
@@ -782,11 +782,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get rolesObjectiveBodyguard =>
-      'Помогайте мирным жителям устранять всех членов мафии, защишая мирных жителей от членов мафии';
+      'Помогайте мирным жителям устранять всех членов мафии, защищая мирных жителей от членов мафии и камикадзе';
 
   @override
   String get rolesObjectiveBarman =>
-      'Помогайте членам мафии устранять мирных жителей, опьянив их';
+      'Помогайте членам мафии устранять мирных жителей, спаивая их';
 
   @override
   String get rolesObjectiveInformant =>
@@ -826,7 +826,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get rolesDayPhaseBodyguard =>
-      'Каждый день вы можете выбрать игрока для защиты от нападения террориста или мафии';
+      'Каждый день вы можете выбрать игрока для защиты от нападения Kamikaze или Mafia';
 
   @override
   String get rolesDayPhaseBarman =>
@@ -846,14 +846,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get rolesDayPhaseKamikaze =>
-      'Вы можете участвовать в обсуждениях, но не имеете права голосовать. Во время дневного голосования вы можете взорвать игрока, однако если его защитит телохранитель, вы погибнете взяв собой телохранителя';
+      'Вы можете участвовать в обсуждениях, но не имеете права голосовать. Во время дневного голосования вы можете взорвать игрока, однако если его защитит Bodyguard, вы погибнете взяв собой только Bodyguard';
 
   @override
   String get skill => 'Навык';
 
   @override
   String get rolesThirdDescriptionMafia =>
-      'Каждую ночь мафия собирается, обсуждает и выбирает одного игрока для устранения. Шпион может видеть ваши ночные разговоры, но не знает, кто именно их отправляет';
+      'Каждую ночь мафия собирается, обсуждает и выбирает одного игрока для устранения. Spy может видеть ваши ночные разговоры, но не знает кто именно их отправляет';
 
   @override
   String get rolesThirdDescriptionCivilian =>
@@ -861,27 +861,23 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get rolesThirdDescriptionSpy =>
-      'Ночью вы можете подслушивать разговоры мафии и информатора, но их личности остаются неизвестны';
+      'Ночью вы можете подслушивать разговоры Mafia и Informant, но их личности остаются неизвестны';
 
   @override
   String get rolesThirdDescriptionDoctor =>
-      'Каждую ночь вы можете вылечить одного игрока, выбранного мафией для нападения. Если вы выберете правильного игрока, его жизнь будет сохранена';
-
-  @override
-  String get rolesThirdDescriptionBeauty =>
-      'Каждую ночь вы можете отвлечь одного игрока. Отвлечённый игрок не сможет голосовать и использовать свои способности до следующей ночи';
+      'Каждую ночь вы можете спасти одного игрока, выбранного мафией для нападения. Если вы выберете правильного игрока, его жизнь будет сохранена';
 
   @override
   String get rolesThirdDescriptionBodyguard =>
-      'Вы продолжаете защищать выбранного вами игрока днём от нападений мафии ночью';
+      'Вы продолжаете защищать выбранного вами игрока днём, от нападений мафии ночью';
 
   @override
   String get rolesThirdDescriptionBarman =>
-      'Каждую ночь вы можете опьянять одного игрока. Опьяненный игрок не сможет голосовать, использовать способности и трезво разговаривать до следующей ночи';
+      'Каждую ночь вы можете напоить одного игрока. Опьяненный игрок не сможет голосовать, использовать способности и трезво разговаривать до следующей ночи';
 
   @override
   String get rolesThirdDescriptionInformant =>
-      'Каждую ночь вы можете раскрыть роль одного игрока и общаться с мафией. Мафия и шпион видят ваши сообщения, но личность отправителя остаётся скрытой';
+      'Каждую ночь вы можете раскрыть роль одного игрока и общаться с мафией. Mafia и Spy видят ваши сообщения, но ваша личность остаётся скрытой';
 
   @override
   String get rolesThirdDescriptionSheriff =>
@@ -889,11 +885,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get rolesThirdDescriptionJournalist =>
-      'Каждую ночь вы можете взять интервью у двух игроков, чтобы выяснить, состоят ли они в одной команде. Результаты репортажа видны всем в чате';
+      'Каждую ночь вы можете взять интервью у двух игроков, чтобы выяснить состоят ли они в одной команде. Результаты репортажа видны всем в чате';
 
   @override
   String get rolesThirdDescriptionKamikaze =>
       'Ночью вам делать нечего, отдыхайте';
+
+  @override
+  String get rolesThirdDescriptionBeauty =>
+      'Каждую ночь вы можете отвлечь одного игрока. Отвлечённый игрок не сможет голосовать и использовать свои способности до следующей ночи';
 
   @override
   String get rolesWinningConditionMafia =>
@@ -969,11 +969,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get gameInformationPopupCured =>
-      'Вы в «надёжных» руках — мафия сегодня не может вам навредить';
+      'Вы в «надёжных» руках, мафия сегодня не сможет вам навредить';
 
   @override
   String get gameInformationPopupInterviewed =>
-      'Поздравляем — теперь вы часть их «большого расследования», хотите вы этого или нет. И как всегда, все уже обсуждают, на одной ли вы стороне с другим опрошенным';
+      'Поздравляем — вы стали звездой репортажа. Теперь все уже обсуждают, на одной ли вы стороне с другим опрошенным или нет';
 
   @override
   String get gameInformationPopupIntoxicated =>
@@ -993,7 +993,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get gameInformationPopupSatisfied =>
-      'Вас очаровали — вы не можете голосовать или использовать способности';
+      'Вас очаровали, вы не можете голосовать или использовать способности';
 
   @override
   String get gameInformationPopupTitleCured => 'Doctor спас вас';
@@ -1079,7 +1079,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer) {
-    return 'Kamikaze попытался взорвать [$targetPlayer], но bodyguard спас его/её';
+    return 'Kamikaze попытался взорвать [$targetPlayer], но Bodyguard спас его/её';
   }
 
   @override
@@ -1200,10 +1200,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get gameInformationPopupLastMafia =>
-      'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on';
+      'Все члены мафии мертвы. Как Информатор, теперь вы можете участвовать в ночном голосовании мафии';
 
   @override
-  String get gameInformationPopupTitleLastMafia => 'Last Mafia';
+  String get gameInformationPopupTitleLastMafia => 'Последняя Мафия';
 
   @override
   String get gameInformationPopupExpirationLastMafia =>
@@ -1221,30 +1221,37 @@ class AppLocalizationsRu extends AppLocalizations {
   String get youAreDead => 'You are dead';
 
   @override
-  String get iDeadSituationOneText => 'IDeadSituationOneText';
+  String get iDeadSituationOneText =>
+      'Мафия выбрала вас своей жертвой этой ночью. Вы не дожили до утра';
 
   @override
-  String get iDeadSituationTwoText => 'IDeadSituationTwoText';
+  String get iDeadSituationTwoText =>
+      'Город проголосовал и указал на вас. Вы были исключены решением города';
 
   @override
-  String get iDeadSituationThreeText => 'IDeadSituationThreeText';
+  String get iDeadSituationThreeText =>
+      'Kamikaze выбрал вас своей целью. Взрыв оборвал вашу жизнь';
 
   @override
-  String get iDeadSituationFourText => 'iDeadSituationFourText';
+  String get iDeadSituationFourText =>
+      'Вы взорвали себя вместе с целью. Ваша миссия закончилась здесь';
 
   @override
-  String get nightVotingCanNotSendMessage => 'NightVoting Can Not Send Message';
+  String get nightVotingCanNotSendMessage =>
+      'Пока все спят, мафия выбирает жертву';
 
   @override
-  String get nightCanNotSendMessage => 'Night Can Not Send Message';
+  String get nightCanNotSendMessage => 'Ночью может разговаривать только мафия';
 
   @override
-  String get dayVotingCanNotSendMessage => 'DayVoting Can Not Send Message';
+  String get dayVotingCanNotSendMessage =>
+      'Во время дневного голосования разговаривать нельзя';
 
   @override
-  String get unsupportedFileFormat => 'Unsupported File Format';
+  String get unsupportedFileFormat =>
+      'Этот формат файла не подходит для аватара';
 
   @override
   String get fileIsTooLargeItMustBe200kb =>
-      'File is too large, it must be 200kb';
+      'Файл слишком большой. Загрузите аватар размером до 200 КБ';
 }

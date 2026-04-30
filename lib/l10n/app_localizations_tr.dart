@@ -690,7 +690,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get skillsDescriptionsBodyguard =>
-      'Mafya ve teröristten korumak istediğiniz oyuncuyu seçin';
+      'Mafia ve Kamikaze\'den korumak istediğiniz oyuncuyu seçin';
 
   @override
   String get skillsDescriptionsBarman =>
@@ -720,95 +720,93 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get rolesGeneralDescriptionMafia =>
-      'Siz mafyasınız ve mafya takımı için oynuyorsunuz. Göreviniz, gündüz oylamalarında aldatmaca yaparak veya gece ortak infazlar gerçekleştirerek tüm sivilleri ortadan kaldırmaktır';
+      'Siz — Mafia rölündesiniz ve mafya takımı adına oynuyorsunuz. Göreviniz, gündüz oylamalarında aldatma yaparak ve takımınızla birlikte gece cinayetleri işleyerek sivilleri ortadan kaldırmaktır';
 
   @override
   String get rolesGeneralDescriptionCivilian =>
-      'Siz sıradan bir şehir sakinisiniz. Göreviniz tüm mafya üyelerini tespit etmek ve onlara karşı oy kullanarak sivillerin zafer kazanmasına yardımcı olmaktır';
+      'Siz — Civilian rölündesiniz ve sivil takımı adına oynuyorsunuz. Göreviniz, tüm mafya üyelerini tespit etmek ve sivillerin zafere ulaşmasına yardımcı olmak için onlara karşı oy vermektir';
 
   @override
   String get rolesGeneralDescriptionSpy =>
-      'Siz sivillerin casususunuz. Mafyanın konuşmalarını dinleyin ve elde ettiğiniz bilgileri dincilerin mafya üyelerini belirlemesine ve ortadan kaldırmasına yardımcı olmak için kullanın';
+      'Siz — Spy rölündesiniz ve sivil takımı adına oynuyorsunuz. Mafyanın konuşmalarını dinleyin ve mafyayı ifşa etmek için sivil oyuncularla yararlı bilgiler paylaşın';
 
   @override
   String get rolesGeneralDescriptionDoctor =>
-      'Siz sivillerin doktorusunuz. Tıbbi becerilerinizi kullanarak sivilleri mafya saldırılarından kurtarın';
+      'Siz — Doctor rölündesiniz ve sivil takımı adına oynuyorsunuz. Sivilleri mafyanın gece saldırılarından kurtarmak için tıbbi becerilerinizi kullanın';
 
   @override
   String get rolesGeneralDescriptionBeauty =>
-      'Siz güzelsiniz, siviller tarafında oynuyorsunuz. Göreviniz, mafya üyelerinin dikkatini dağıtarak yeteneklerini kullanmalarını ve oylamaya katılmalarını engellemektir';
+      'Siz — Beauty rölündesiniz ve sivil takımı adına oynuyorsunuz. Mafyayı yeteneklerini kullanmaktan ve oylamaya katılmaktan alıkoymak için onları büyüleyin';
 
   @override
   String get rolesGeneralDescriptionBodyguard =>
-      'Siz sivillerin korumasısınız. Sivilleri terörist veya mafya saldırılarından korumak için becerilerinizi kullanın';
-
-  @override
-  String get rolesGeneralDescriptionBarman =>
-      'Siz mafya takımı için oynayan bir barmensiniz. Siz mafyayı tanımazsınız, onlar da sizi tanımaz. Barmenlik becerilerinizi kullanarak sivilleri sarhoş edin';
+      'Siz — Bodyguard rölündesiniz ve sivil takımı adına oynuyorsunuz. Sivilleri kamikaze veya mafya saldırılarından korumak için becerilerinizi kullanın';
 
   @override
   String get rolesGeneralDescriptionInformant =>
-      'Siz mafyanın muhbirisiniz. Siz mafyayı tanımazsınız, onlar da sizi tanımaz. Sivillerin rollerini açığa çıkarın ve mafya üyeleriyle anonim olarak iletişim kurarak onlara önemli bilgiler aktarın';
+      'Siz — Informant rölündesiniz ve mafya takımı adına oynuyorsunuz. Mafyayı tanımıyorsunuz, onlar da sizi tanımıyor. Sivillerin rollerini ortaya çıkarın ve önemli bilgileri mafyaya anonim olarak iletin';
 
   @override
   String get rolesGeneralDescriptionSheriff =>
-      'Siz sivil ekibi temsil eden şehir şerifisiniz. Amacınız oyuncuları araştırmak ve mafya üyelerini ortaya çıkarmaktır';
+      'Siz — Sheriff rölündesiniz ve sivil takımı adına oynuyorsunuz. Göreviniz, oyuncuları soruşturmak ve mafya üyelerini tespit etmektir';
 
   @override
   String get rolesGeneralDescriptionJournalist =>
-      'Siz siviller için oynayan bir gazetecisiniz. Her gece iki oyuncuyla röportaj yaparak bir haber hazırlayın, böylece herkes onların aynı takımda mı yoksa farklı takımlarda mı olduğunu öğrensin';
+      'Siz — Journalist rölündesiniz ve sivil takımı adına oynuyorsunuz. Her gece iki oyuncuyla röportaj yapın, böylece herkes onların aynı takımda mı yoksa farklı takımlarda mı olduğunu öğrensin';
 
   @override
   String get rolesGeneralDescriptionKamikaze =>
-      'Siz mafya takımından bir teröristsiniz. Siz mafyayı tanımazsınız ama mafya sizi tanır. Gündüz oylaması sırasında kendinizle birlikte bir sivili havaya uçurabilirsiniz';
+      'Siz — Kamikaze rölündesiniz ve mafya takımı adına oynuyorsunuz. Mafia\'yı tanımıyorsunuz, ancak mafia sizi tanıyor. Gündüz oylaması sırasında bir oyuncuyu patlatabilir ve onunla birlikte hayatınızı kaybedersiniz';
 
   @override
-  String get rolesObjectiveMafia =>
-      'Gündüz veya gece oylamasında tüm sivilleri ortadan kaldırmak';
+  String get rolesGeneralDescriptionBarman =>
+      'Siz — Barman rölündesiniz ve mafya takımı adına oynuyorsunuz. Mafia\'yı tanımıyorsunuz, onlar da sizi tanımıyor. Sivilleri sarhoş etmek için barmenlik becerilerinizi kullanın';
 
   @override
-  String get rolesObjectiveVicilian =>
-      'Gündüz oylaması yoluyla tüm mafya üyelerini ortadan kaldırmak';
+  String get rolesObjectiveMafia => 'Tüm sivilleri ortadan kaldır';
+
+  @override
+  String get rolesObjectiveVicilian => 'Tüm mafya üyelerini ortadan kaldır';
 
   @override
   String get rolesObjectiveSpy =>
-      'Gece konuşmalarını dinleyerek sivillerin tüm mafya üyelerini ortadan kaldırmasına yardımcı olun';
+      'Mafyanın gece konuşmalarını dinleyerek sivillerin tüm mafya üyelerini ortadan kaldırmasına yardım et';
 
   @override
   String get rolesObjectiveDoctor =>
-      'Sivilleri mafya saldırılarından kurtararak tüm mafya üyelerinin ortadan kaldırılmasına yardımcı olun';
+      'Sivilleri mafya saldırılarından kurtararak sivillerin tüm mafya üyelerini ortadan kaldırmasına yardım et';
 
   @override
   String get rolesObjectiveBeauty =>
-      'Mafyanın eylemlerini engelleyerek ve ortadan kaldırılmalarına katkıda bulunarak sivillere yardımcı olun';
+      'Mafya üyelerini büyüleyerek sivillerin tüm mafya üyelerini ortadan kaldırmasına yardım et';
 
   @override
   String get rolesObjectiveBodyguard =>
-      'Sivilleri mafya üyelerinden koruyarak tüm mafya üyelerinin ortadan kaldırılmasına yardımcı olun';
+      'Sivilleri kamikaze ve mafya üyelerinden koruyarak sivillerin tüm mafya üyelerini ortadan kaldırmasına yardım et';
 
   @override
   String get rolesObjectiveBarman =>
-      'Sivilleri sarhoş ederek mafya üyelerinin onları ortadan kaldırmasına yardımcı olun';
+      'Sivilleri sarhoş ederek mafya üyelerinin sivilleri ortadan kaldırmasına yardım et';
 
   @override
   String get rolesObjectiveInformant =>
-      'Mafya üyelerine önemli bilgiler aktararak sivilleri ortadan kaldırmalarına yardımcı olun';
+      'Mafyaya önemli bilgiler ileterek sivilleri ortadan kaldırmasına yardım et';
 
   @override
   String get rolesObjectiveSheriff =>
-      'Mafya üyelerini tespit ederek sivillerin tüm mafya üyelerini ortadan kaldırmasına yardımcı olun';
+      'Mafya üyelerini tespit ederek sivillerin tüm mafya üyelerini ortadan kaldırmasına yardım et';
 
   @override
   String get rolesObjectiveJournalist =>
-      'Her gün haber yaparak sivillerin tüm mafya üyelerini ortadan kaldırmasına yardımcı olun';
+      'Her gün röportajlar yaparak sivillerin tüm mafya üyelerini ortadan kaldırmasına yardım et';
 
   @override
   String get rolesObjectiveKamikaze =>
-      'Önemli bir sivili havaya uçurarak mafya üyelerinin sivilleri ortadan kaldırmasına yardımcı olun';
+      'Önemli bir sivili patlatarak mafya üyelerinin sivilleri ortadan kaldırmasına yardım et';
 
   @override
   String get rolesDayPhaseMafia =>
-      'Tartışmalara ve oylamalara katılın, konuşmayı mafyanın lehine olacak yöne çekin';
+      'Tartışmalara ve oylamalara katılın, konuşmayı mafyanın lehine yönlendirin';
 
   @override
   String get rolesDayPhaseCivilian =>
@@ -828,15 +826,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get rolesDayPhaseBodyguard =>
-      'Her gün bir oyuncuyu terörist veya mafya saldırısından korumak için seçebilirsiniz';
+      'Her gün bir oyuncuyu Kamikaze veya Mafia saldırısından korumak için seçebilirsiniz';
 
   @override
   String get rolesDayPhaseBarman =>
-      'Tartışmalara ve oylamalara katılın, konuşmayı mafyanın lehine olacak yöne çekin';
+      'Tartışmalara ve oylamalara katılın, konuşmayı mafyanın lehine yönlendirin';
 
   @override
   String get rolesDayPhaseInformant =>
-      'Tartışmalara ve oylamalara katılın, konuşmayı mafyanın lehine olacak yöne çekin';
+      'Tartışmalara ve oylamalara katılın, konuşmayı mafyanın lehine yönlendirin';
 
   @override
   String get rolesDayPhaseSheriff =>
@@ -848,98 +846,98 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get rolesDayPhaseKamikaze =>
-      'Tartışmalara katılabilirsiniz ancak oy kullanma hakkınız yoktur. Gündüz oylaması sırasında bir oyuncuyu havaya uçurabilirsiniz; ancak eğer oyuncu koruma altındaysa, korumayı da yanınızda götürerek ölürsünüz';
+      'Tartışmalara katılabilirsiniz ancak oy veremezsiniz. Gündüz oylaması sırasında bir oyuncuyu patlatabilirsiniz, ancak onu bir Bodyguard korursa, yalnızca Bodyguard\'ı yanınıza alarak ölürsünüz';
 
   @override
   String get skill => 'Yetenek';
 
   @override
   String get rolesThirdDescriptionMafia =>
-      'Her gece mafya toplanır, tartışır ve ortadan kaldırmak için bir oyuncu seçer. Casus gece konuşmalarınızı görebilir ancak bunları tam olarak kimin gönderdiğini bilemez';
+      'Her gece mafya bir araya gelir, tartışır ve öldürmek için bir oyuncu seçer. Spy gece konuşmalarınızı görebilir ancak mesajları kimin gönderdiğini bilemez';
 
   @override
   String get rolesThirdDescriptionCivilian =>
-      'Gece yapacak bir şeyiniz yok, dinlenin';
+      'Gece yapacak bir işiniz yok, dinlenin';
 
   @override
   String get rolesThirdDescriptionSpy =>
-      'Gece mafyanın ve muhbirin konuşmalarını dinleyebilirsiniz ancak kimin konuştuğunu öğrenemezsiniz';
+      'Geceleri Mafia ve Informat\'ın konuşmalarını dinleyebilirsiniz ancak kimlikleri gizli kalır';
 
   @override
   String get rolesThirdDescriptionDoctor =>
-      'Her gece mafyanın saldırmak için seçtiği bir oyuncuyu iyileştirebilirsiniz. Doğru oyuncuyu seçerseniz hayatı kurtulacaktır';
-
-  @override
-  String get rolesThirdDescriptionBeauty =>
-      'Her gece bir oyuncunun (tercihen mafyanın) dikkatini dağıtabilirsiniz. Dikkati dağılan oyuncu gün boyunca oy kullanamaz ve yeteneklerini kullanamaz';
+      'Her gece mafyanın saldırı için seçtiği bir oyuncuyu kurtarabilirsiniz. Doğru oyuncuyu seçerseniz hayatı kurtarılır';
 
   @override
   String get rolesThirdDescriptionBodyguard =>
-      'Seçtiğiniz oyuncu gündüz teröristin hedefi olursa, gece mafya saldırısına karşı korumasız kalır';
+      'Gündüz seçtiğiniz oyuncu, gece mafya saldırılarına karşı koruma altında kalmaya devam eder';
 
   @override
   String get rolesThirdDescriptionBarman =>
-      'Her gece bir oyuncuyu sarhoş edebilirsiniz. Sarhoş olan oyuncu bir sonraki geceye kadar oy kullanamaz, yeteneklerini kullanamaz ve sağlıklı bir şekilde konuşamaz';
+      'Her gece bir oyuncuyu sarhoş edebilirsiniz. Sarhoş olan oyuncu bir sonraki geceye kadar oy veremez, yeteneklerini kullanamaz ve düzgün konuşamaz';
 
   @override
   String get rolesThirdDescriptionInformant =>
-      'Her gece bir oyuncunun rolünü açığa çıkarabilir ve mafya ile iletişim kurabilirsiniz. Mafya ve casus mesajlarınızı görür ancak kimin gönderdiğini bilemezler';
+      'Her gece bir oyuncunun rolünü açığa çıkarabilir ve mafyayla iletişim kurabilirsiniz. Mafia ve Spy mesajlarınızı görebilir ancak kimliğiniz gizli kalır';
 
   @override
   String get rolesThirdDescriptionSheriff =>
-      'Her gece bir oyuncunun rolünü öğrenmek için onu araştırabilirsiniz';
+      'Her gece bir oyuncuyu rolünü öğrenmek için soruşturabilirsiniz';
 
   @override
   String get rolesThirdDescriptionJournalist =>
-      'Her gece iki oyuncuyla görüşerek aynı takımda olup olmadıklarını öğrenmek için bir haber hazırlarsınız. Haber sonuçları sohbette herkese görünür';
+      'Her gece iki oyuncuyla röportaj yaparak aynı takımda olup olmadıklarını öğrenebilirsiniz. Röportajın sonuçları herkes tarafından sohbette görülebilir';
 
   @override
   String get rolesThirdDescriptionKamikaze =>
-      'Gece yapacak bir şeyiniz yok, dinlenin';
+      'Gece yapacak bir işiniz yok, dinlenin';
+
+  @override
+  String get rolesThirdDescriptionBeauty =>
+      'Her gece bir oyuncuyu büyüleye bilirsiniz. Büyülenen oyuncu bir sonraki geceye kadar oy veremez ve yeteneklerini kullanamaz';
 
   @override
   String get rolesWinningConditionMafia =>
-      'Hayatta hiçbir sivil kalmadığında kazanırsınız';
+      'Tüm siviller öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsCivilian =>
-      'Hayatta hiçbir mafya üyesi kalmadığında kazanırsınız';
+      'Tüm mafya üyeleri öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsSpy =>
-      'Hayatta hiçbir mafya üyesi kalmadığında kazanırsınız';
+      'Tüm mafya üyeleri öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsDoctor =>
-      'Hayatta hiçbir mafya üyesi kalmadığında kazanırsınız';
+      'Tüm mafya üyeleri öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsBeauty =>
-      'Hayatta hiçbir mafya üyesi kalmadığında kazanırsınız';
+      'Tüm mafya üyeleri öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsBodyguard =>
-      'Hayatta hiçbir mafya üyesi kalmadığında kazanırsınız';
+      'Tüm mafya üyeleri öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsBarman =>
-      'Hayatta hiçbir sivil kalmadığında kazanırsınız';
+      'Tüm siviller öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsInformant =>
-      'Hayatta hiçbir sivil kalmadığında kazanırsınız';
+      'Tüm siviller öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsSheriff =>
-      'Hayatta hiçbir mafya üyesi kalmadığında kazanırsınız';
+      'Tüm mafya üyeleri öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsJournalist =>
-      'Hayatta hiçbir mafya üyesi kalmadığında kazanırsınız';
+      'Tüm mafya üyeleri öldüğünde kazanırsınız';
 
   @override
   String get rolesWinningConditionsKamikaze =>
-      'Hayatta hiçbir sivil kalmadığında kazanırsınız';
+      'Tüm siviller öldüğünde kazanırsınız';
 
   @override
   String get gameplayRules => 'Oyun Kuralları:';
@@ -971,11 +969,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get gameInformationPopupCured =>
-      '«Güvenli» ellerdesiniz — bu gece mafya size dokunamaz';
+      '«Güvenli» ellerdesiniz, mafya bu gece size zarar veremeyecek';
 
   @override
   String get gameInformationPopupInterviewed =>
-      'Tebrikler — ister isteyin ister istemeyin, artık onların «büyük soruşturmasının» bir parçasısınız. Ve her zamanki gibi, herkes diğer röportaj yapılanla aynı tarafta olup olmadığınızı konuşuyor';
+      'Tebrikler — röportajın yıldızı oldunuz. Herkes şimdiden sizin ve diğer röportaj yapılanla aynı tarafta olup olmadığını konuşuyor';
 
   @override
   String get gameInformationPopupIntoxicated =>
@@ -995,7 +993,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get gameInformationPopupSatisfied =>
-      'Büyülendiniz — siz oy vere ve ya yeteneklerinizi kullanamazsınız';
+      'Büyülendiniz, siz oy vere ve ya yeteneklerinizi kullanamazsınız';
 
   @override
   String get gameInformationPopupTitleCured => 'Doctor sizi kurtardı';
@@ -1083,7 +1081,7 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String kamikazeTriedToBombTargetplayerButBodyguardSavedHimher(
       String targetPlayer) {
-    return 'Kamikaze [$targetPlayer]\'ı bombalamaya çalıştı, ancak bodyguard onu kurtardı';
+    return 'Kamikaze [$targetPlayer]\'ı bombalamaya çalıştı, ancak Bodyguard onu kurtardı';
   }
 
   @override
@@ -1204,10 +1202,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get gameInformationPopupLastMafia =>
-      'All mafias did not survive or were killed by townspeople, as an informator, you will be elligible to kill at night from now on';
+      'Tüm Mafia üyeleri öldü. Informant olarak artık Mafia\'nın gece oylamasına katılabilirsiniz';
 
   @override
-  String get gameInformationPopupTitleLastMafia => 'Last Mafia';
+  String get gameInformationPopupTitleLastMafia => 'Son Mafya';
 
   @override
   String get gameInformationPopupExpirationLastMafia =>
@@ -1225,30 +1223,38 @@ class AppLocalizationsTr extends AppLocalizations {
   String get youAreDead => 'You are dead';
 
   @override
-  String get iDeadSituationOneText => 'IDeadSituationOneText';
+  String get iDeadSituationOneText =>
+      'Mafya bu gece sizi kurban olarak seçti. Sabahı göremediniz';
 
   @override
-  String get iDeadSituationTwoText => 'IDeadSituationTwoText';
+  String get iDeadSituationTwoText =>
+      'Şehir oyladı ve şehrin kararıyla elendiniz';
 
   @override
-  String get iDeadSituationThreeText => 'IDeadSituationThreeText';
+  String get iDeadSituationThreeText =>
+      'Kamikaze sizi hedef olarak seçti. Patlama hayatınıza son verdi';
 
   @override
-  String get iDeadSituationFourText => 'iDeadSituationFourText';
+  String get iDeadSituationFourText =>
+      'Kendinizi hedefinizle birlikte havaya uçurdunuz. Göreviniz burada sona erdi';
 
   @override
-  String get nightVotingCanNotSendMessage => 'NightVoting Can Not Send Message';
+  String get nightVotingCanNotSendMessage =>
+      'Herkes uyurken mafya kurbanını seçiyor';
 
   @override
-  String get nightCanNotSendMessage => 'Night Can Not Send Message';
+  String get nightCanNotSendMessage =>
+      'Gece boyunca yalnızca mafya konuşabilir';
 
   @override
-  String get dayVotingCanNotSendMessage => 'DayVoting Can Not Send Message';
+  String get dayVotingCanNotSendMessage =>
+      'Gündüz oylaması sırasında kimse konuşamaz';
 
   @override
-  String get unsupportedFileFormat => 'Unsupported File Format';
+  String get unsupportedFileFormat =>
+      'Bu dosya formatı avatar için desteklenmiyor';
 
   @override
   String get fileIsTooLargeItMustBe200kb =>
-      'File is too large, it must be 200kb';
+      'Dosya çok büyük. Lütfen 200 KB\'dan küçük bir avatar yükleyin';
 }
