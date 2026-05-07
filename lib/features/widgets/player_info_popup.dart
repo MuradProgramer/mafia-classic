@@ -755,6 +755,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
                                         builder: (context) => FriendChat(
                                           friend: Friendship(
                                             id: playerInfo!.id,
+                                            chatId: playerInfo!.chatId,
                                             nickname: playerInfo!.nickname, 
                                             avatarUrl: playerInfo!.avatarUrl,
                                             isOnline: playerInfo!.isOnline,
@@ -1281,6 +1282,7 @@ class _PlayerInfoPopupState extends State<PlayerInfoPopup> {
 
 class PlayerInfo {
   final int id; //
+  final int chatId;
   final String nickname; //
   final String avatarUrl; //
   bool isOnline;
@@ -1324,6 +1326,7 @@ class PlayerInfo {
     required this.kamikazeRolePlayedGames,
 
     required this.id,
+    required this.chatId,
     required this.nickname, 
     required this.avatarUrl, 
     required this.isOnline, 
@@ -1381,6 +1384,7 @@ class PlayerInfo {
 
     return PlayerInfo(
       id: json['playerId'],
+      chatId: json['chatId'] ?? -1,
       nickname: json['nickname'] ?? '',
       avatarUrl: json['avatarUrl'] ?? '',
       isOnline: json['isOnline'] ?? false,
@@ -1438,6 +1442,7 @@ PlayerInfo(
 
   PlayerInfo.from(PlayerInfo other)
     : id = other.id,
+      chatId = other.chatId,
       nickname = other.nickname,
       avatarUrl = other.avatarUrl,
       isOnline = other.isOnline,

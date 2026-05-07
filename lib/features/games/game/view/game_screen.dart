@@ -5358,7 +5358,7 @@ class PopupManager {
     try {
       final popup = _popupMap[id];
       if (popup == null) return;
-      
+       
       popup.completer.complete(null);
       
       popup.controller.reverse().then((_) {

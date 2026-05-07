@@ -509,6 +509,14 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
   void dispose() {
     widget.tabIndexNotifier.removeListener(_onTabChanged);
     appRouteObserver.unsubscribe(this);
+    lobbyRooms?.cancel();
+    lobbyRoomCreated?.cancel();
+    lobbyPlayerEnteredRoom?.cancel();
+    lobbyPlayerExitedRoom?.cancel();
+    lobbyPlayerGameStarted?.cancel();
+    lobbyPlayerEliminated?.cancel();
+    lobbyGameOver?.cancel();
+    lobbyRoomClosed?.cancel();
     super.dispose();
   }
 
@@ -785,7 +793,7 @@ class _GamesScreenState extends State<GamesScreen> with RouteAware {
                   ),
                   child: (searchedGames!.isEmpty)
                   ? Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.h),
+                      padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 40.h),
                       child: Align(
                         alignment: Alignment.topCenter,
                         child: Text(
@@ -927,6 +935,7 @@ class _GameCardState extends State<GameCard> {
   String text = '';
   String password = '';
   bool isCardExpanded = false;
+  bool alreadyJoined = false;
 
   late StreamSubscription<String> passwordIsWrong;
   bool canBeNavigated = true;
@@ -967,6 +976,7 @@ class _GameCardState extends State<GameCard> {
     passwordIsWrong.cancel();
   }
 
+  bool _isJoining = false;  
 
   @override
   Widget build(BuildContext context) {
@@ -1044,7 +1054,9 @@ class _GameCardState extends State<GameCard> {
             
                     GestureDetector(
                       onTap: () async {
-                        
+                        if (_isJoining) return; // Block multiple taps
+                        setState(() => _isJoining = true);
+
                         if (widget.game.hasPassword) {
                           final result = await showGeneralDialog<String>(
                             context: context,
@@ -1086,21 +1098,24 @@ class _GameCardState extends State<GameCard> {
                             password = result;
                           }
                         }
-            
+                        
                         //! PROVERKA
-            
                         
                         final jsonString = jsonEncode({
                           'roomId': widget.game.id,
                           'password': password,
                         });
-            
+                        
                         try {
                           TcpClientService().sendMessage(ClientCommand.joinRoom.value, jsonString);
+                          print("▀█▀ █▀▀ █▀█   ░░█ █▀█ █ █▄░█");
+                          print("░█░ █▄▄ █▀▀   █▄█ █▄█ █ █░▀█");
                         } catch (e) {
                           log('💥 ClientCommand.joinRoom - $e - Client Command 💥');
+                        } finally {
+                          if (mounted) setState(() => _isJoining = false);
                         }
-            
+                        
                         if (text == 'You Are Playing Here' || text == 'You Died Here') {
                           Navigator.of(context, rootNavigator: true).push(
                             MaterialPageRoute(
@@ -1111,6 +1126,7 @@ class _GameCardState extends State<GameCard> {
                           ).then((result) {
                             widget.loadStreamsAndData();
                             widget.sortGames();
+                            alreadyJoined = false;
                           });
                         }
                       },
@@ -1123,7 +1139,8 @@ class _GameCardState extends State<GameCard> {
                         ),
                         child: Center(
                           child: Text(
-                            AppLocalizations.of(context)!.join,
+                            //AppLocalizations.of(context)!.join,
+                            "join",
                             style: TextStyle(
                               fontSize: 15.sp,
                               fontFamily: 'CenturyGothic',
@@ -3966,7 +3983,6 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   bool timerIsStarted = false;
   int remainingTime = -1;
 
-
   bool shouldDisconnect = true;
 
   late StreamSubscription<String> roomStateData;
@@ -3980,8 +3996,11 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
   void initState() {
     super.initState();
 
+    print("█ █▄░█ █ ▀█▀   █▀ ▀█▀ ▄▀█ ▀█▀ █▀▀   █▀▀ ▄▀█ █▀▄▀█ █▀▀   █░░ █▀█ █▄▄ █▄▄ █▄█");
+    print("█ █░▀█ █ ░█░   ▄█ ░█░ █▀█ ░█░ ██▄   █▄█ █▀█ █░▀░█ ██▄   █▄▄ █▄█ █▄█ █▄█ ░█░");
+
     for (var player in widget.game.players) {
-      log('nickname: ${player.nickname} | avatar url: ${player.avatarUrl} | isAlive: ${player.isAlive}');
+      //log('nickname: ${player.nickname} | avatar url: ${player.avatarUrl} | isAlive: ${player.isAlive}');
       gameLobbyPlayers.add(LobbyPlayer(
         id: player.id,
         nickname: player.nickname, 
@@ -3995,7 +4014,9 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         .subscribe(ServerEvent.roomStateData)
         .listen((payload) {
       print('\n\n----- LOBBY ROOMS DATA: GAME LOBBY SCREEN -----\n\n');
-      print(payload);
+      print("█▀█ █▀█ █▀█ █▀▄▀█   █▀ ▀█▀ ▄▀█ ▀█▀ █▀▀   █▀▄ ▄▀█ ▀█▀ ▄▀█");
+      print("█▀▄ █▄█ █▄█ █░▀░█   ▄█ ░█░ █▀█ ░█░ ██▄   █▄▀ █▀█ ░█░ █▀█");
+      //print(payload);
     });
 
     // DONE+

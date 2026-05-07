@@ -40,6 +40,8 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
+bool _isNavigating = false;
+
 class _ProfileScreenState extends State<ProfileScreen> {
 
   late StreamSubscription<String> friendshipFriends;
@@ -63,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .subscribe(ServerEvent.roomStateData)
         .listen((payload) {
       try {
-        if (payload.isEmpty) return;
+        if (payload.isEmpty || _isNavigating) return;
         
         var data = json.decode(payload);
 
@@ -72,6 +74,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .toList() ?? [];
 
         if (!mounted) return;
+
+        setState(() => _isNavigating = true);
 
         Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(builder: (context) => 
@@ -92,11 +96,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             )
           ),
         ).then((value) {
-          // if (mounted) {
-          //   loadStreamsAndData();
-          // }
+          if (mounted) {
+            setState(() => _isNavigating = false);
+            //loadStreamsAndData();
+          }
         });
       } on Exception catch (e) {
+        setState(() => _isNavigating = false);
         log('EXCEPTION IN:     RoomStateData EVENT - GAME SCREEN: ${e.toString()}');
       }
     });

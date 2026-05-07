@@ -3,6 +3,7 @@ import 'package:mafia_classic/services/cache/general_cache_service.dart';
 
 class Friendship implements JsonModel {
   int id;
+  int chatId;
   final String nickname;
   final String avatarUrl;
   bool isOnline;
@@ -19,6 +20,7 @@ class Friendship implements JsonModel {
     required this.isOnline, 
     required this.gameTitle,
     required this.lastSeen,
+    required this.chatId,
     this.unreadMessagesCount = 0,
   });
 
@@ -43,6 +45,7 @@ class Friendship implements JsonModel {
 
     return Friendship(
       id: json['id'],
+      chatId: json['chatId'],
       nickname: json['nickname'] ?? '',
       avatarUrl: json['avatarUrl'] ?? '',
       isOnline: json['isOnline'] ?? false,
@@ -56,6 +59,7 @@ class Friendship implements JsonModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'chatId': chatId,
       'nickname': nickname,
       'avatarUrl': avatarUrl,
       'isOnline': isOnline,

@@ -563,7 +563,7 @@ class ApiService extends TokenAwareService {
   }
 
   // DONE partially
-  Future<Map<String, dynamic>?> sendNewMessageToFriend(int id, String content) async {
+  Future<Map<String, dynamic>?> sendNewMessageToFriend(int chatId, String content) async {
     Map<String, dynamic>? result;
 
     try {
@@ -571,7 +571,7 @@ class ApiService extends TokenAwareService {
         final body = jsonEncode({'content': content});
 
         final response = await GetIt.I<DioService>().dio.post(
-          'conversation/$id/messages',
+          'chat/$chatId/messages',
           data: body,
           options: Options(
             headers: {
@@ -583,8 +583,8 @@ class ApiService extends TokenAwareService {
         if (response.statusCode == 200) {
           Map<String, dynamic> jsonData = response.data;
           result = {
-            'messageId': jsonData['messageId'] as int,
-            'status': jsonData['status'],
+            //'messageId': jsonData['messageId'] as int,
+            'status': jsonData['state'],
           };
         } else {
           throw Exception('Failed to load new message');
@@ -597,13 +597,13 @@ class ApiService extends TokenAwareService {
   }
 
   // DONE partially
-  Future<List<Message>?> getAllMessagesInFriendChat(int id) async {
+  Future<List<Message>?> getAllMessagesInFriendChat(int chatId) async {
     List<Message>? result;
 
     try {
       await executeWithTokenCheck((accessToken) async {
         final response = await GetIt.I<DioService>().dio.get(
-          'conversation/$id/messages',
+          'chat/$chatId/messages',
           options: Options(
             headers: {
               'Authorization': 'Bearer $accessToken'
@@ -626,13 +626,13 @@ class ApiService extends TokenAwareService {
   }
 
   // DONE partially
-  Future<List<Message>?> readFriendMessages(int id) async {
+  Future<List<Message>?> readFriendMessages(int chatId) async {
     List<Message>? result;
 
     try {
       await executeWithTokenCheck((accessToken) async {
         final response = await GetIt.I<DioService>().dio.patch(
-          'conversation/$id/messages/read',
+          'chat/$chatId/messages/read',
           options: Options(
             headers: {
               'Authorization': 'Bearer $accessToken'
@@ -655,6 +655,7 @@ class ApiService extends TokenAwareService {
   // DONE partially
   Future<PlayerInfo> getPlayerInfo(int id) async {
     PlayerInfo playerInfo = PlayerInfo(
+      chatId: -1,
       civilianRolePlayedGames: 0, 
       sheriffRolePlayedGames: 0, 
       doctorRolePlayedGames: 0, 
@@ -714,6 +715,7 @@ class ApiService extends TokenAwareService {
   // DONE
   Future<PlayerInfo> getMyInfo() async {
     PlayerInfo playerInfo = PlayerInfo(
+      chatId: -1,
       civilianRolePlayedGames: 0,
       sheriffRolePlayedGames: 0,
       doctorRolePlayedGames: 0,

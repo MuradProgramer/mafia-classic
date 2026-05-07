@@ -99,6 +99,8 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
     });
 
     _globalSub = EventRouterService().globalStream.listen((entry) async {
+      if (!mounted) return;
+
       final event = entry.key;
       final payload = entry.value;
 
@@ -195,26 +197,41 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
         }
       }
 
+      //!!!!!!!!
       if (event == ServerEvent.friendshipFriendNewMessage) {
         try {
           final Map<String, dynamic> decodedPayload = json.decode(payload);
           final newMessage = Message.fromJson(decodedPayload['message']);
-          final int friendId = json.decode(payload)['id'] as int;
+          final int chatId = json.decode(payload)['chatId'] as int;
+          //final int friendId = json.decode(payload)['friendId'] as int;
           final String friendNickname = json.decode(payload)['nickname'];
           final String avatarUrl = json.decode(payload)['avatarUrl'];
 
-          if (isInFriendIdChatGlobal != friendId) {
+          if (isInFriendIdChatGlobal != chatId) {
             TopSnackBarManager.show({
               "content": newMessage.text,
               "nickname": friendNickname, 
               "avatarUrl": avatarUrl
             }, 2);
           }
+
+          List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+            "all_friends_list",
+            (json) => Friendship.fromJson(json as Map<String, dynamic>),
+          );
+
+          currentFriends ??= [];
+          currentFriends.firstWhere((friend) => friend.chatId == chatId).unreadMessagesCount++;
+
+          await GeneralCacheService().save<List<Friendship>?>(
+            "all_friends_list",
+            currentFriends,
+          );
           
-          EventBus().fire(FriendNewMessageEvent(newMessage, friendId));
+          EventBus().fire(FriendNewMessageEvent(newMessage, chatId));
           
         } catch (e) {
-          log('💥 Friendship Friend New Message - Mafia Classic App 💥');
+          log('💥 Friendship Friend New Message - Mafia Classic App - $e 💥');
         }
       }
 
@@ -356,36 +373,39 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
       ],
       child: AnimatedBuilder(
         animation: widget.localeService,
-        builder: (context, snapshot) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: MaterialApp(
-              navigatorKey: rootNavigatorKey,
-              navigatorObservers: [appRouteObserver],
-              //key: MafiaClassicApp.globalKey,
-              debugShowCheckedModeBanner: false,
-              localizationsDelegates: const [
-                S.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                AppLocalizations.delegate,
-              ],
-              locale: widget.localeService.locale,
-              supportedLocales: L10n.locals,
-              //title: 'Flutter Demo',
-              theme: theme,
-              routes: routes,
-
-              // builder: (context, child) {
-              //   return GameWrapper(child: child!);
-              // },
-            ),
+        builder: (context, _) {
+          return MaterialApp(
+            // 1. Passing the locale here ensures the strings actually update
+            locale: widget.localeService.locale, 
+            
+            navigatorKey: rootNavigatorKey,
+            navigatorObservers: [appRouteObserver],
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              AppLocalizations.delegate,
+            ],
+            supportedLocales: L10n.locals,
+            theme: theme,
+            routes: routes,
+            builder: (context, child) {
+              // 2. Keep the MediaQuery logic here
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(1.0),
+                ),
+                child: child!,
+              );
+            },
           );
-        }
-      )
+        },
+      ),
     );
   }
+
 }
 
 late User authorizedUser;

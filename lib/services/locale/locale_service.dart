@@ -40,6 +40,7 @@ class LocaleService extends ChangeNotifier {
     if (!['en', 'ru', 'az', 'tr'].contains(code)) return;
 
     _locale = Locale(code);
+    globalLangCode = code;
     await _prefs!.setString(_key, code);
     notifyListeners(); // triggers rebuild in MaterialApp
   }

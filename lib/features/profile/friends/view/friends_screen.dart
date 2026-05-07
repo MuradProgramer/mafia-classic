@@ -553,11 +553,26 @@ class _FriendsTabState extends State<FriendsTab> {
       }
     });
 
-    _eventSubscriptionNewFriendMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
+    _eventSubscriptionNewFriendMessage = EventBus().on<FriendNewMessageEvent>().listen((event) async {
       try {
+        if (!mounted) return;
+        //friends.firstWhere((friend) => friend.chatId == event.chatId).unreadMessagesCount++;
+
+        // List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+        //   "all_friends_list",
+        //   (json) => Friendship.fromJson(json as Map<String, dynamic>),
+        // );
+
+        // currentFriends ??= [];
+        // currentFriends.firstWhere((friend) => friend.id == event.chatId).unreadMessagesCount++;
+
+        // await GeneralCacheService().save<List<Friendship>?>(
+        //   "all_friends_list",
+        //   currentFriends,
+        // );
+
         setState(() {
-          if (!mounted) return;
-          friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount++;
+          _loadFriends();
           filteredFriends = _filterFriends(searchController.text.trim());
         });
       } catch (e) {
@@ -603,13 +618,28 @@ class _FriendsTabState extends State<FriendsTab> {
       }
     });
 
-    _eventSubscriptionFriendMessagesReaded = EventBus().on<FriendMessagesReadedEvent>().listen((event) {
+    _eventSubscriptionFriendMessagesReaded = EventBus().on<FriendMessagesReadedEvent>().listen((event) async {
       try {
+        if (!mounted) return;
+
+        List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+          "all_friends_list",
+          (json) => Friendship.fromJson(json as Map<String, dynamic>),
+        );
+
+        currentFriends ??= [];
+        currentFriends.firstWhere((friend) => friend.chatId == event.chatId).unreadMessagesCount = 0;
+
+        await GeneralCacheService().save<List<Friendship>?>(
+          "all_friends_list",
+          currentFriends,
+        );
+
         setState(() {
-          if (!mounted) return;
-          friends.firstWhere((friend) => friend.id == event.friendId).unreadMessagesCount = 0;
+          friends = currentFriends ?? [];
           filteredFriends = _filterFriends(searchController.text.trim());
         });
+
       } catch (e) {
         log('💥 _eventSubscriptionFriendMessagesReaded Error - $e - Friends Tab 💥');
       }
@@ -675,7 +705,13 @@ class _FriendsTabState extends State<FriendsTab> {
     } on Exception catch (e) {
       log("Error _loadFriends() | friends_tab | from cache: ${e.toString()}");
     }
-    
+    print("########################");
+    if (updated != null) {
+      for (var element in updated) {
+        print(element.unreadMessagesCount);
+      }
+    }
+    print("########################");
     setState(() {
       // if (updated == null) {
       //   friends = [];
@@ -685,6 +721,7 @@ class _FriendsTabState extends State<FriendsTab> {
       friends = updated ?? [];
       //print('FRIENDS LOADED FROM CACHE: ${friends.length}');
     });
+    filteredFriends = _filterFriends(searchController.text.trim());
   }
 
   void _deleteFriend(String nickname) async {
@@ -901,14 +938,14 @@ class _FriendsTabState extends State<FriendsTab> {
                               child: GestureDetector(
                                 onTap: () {
                                   //_deleteFriend(friend.nickname);
-                                  friend.unreadMessagesCount = 0;
+                                  //friend.unreadMessagesCount = 0;
                                   setState(() {});
                                   Navigator.of(context, rootNavigator: true).push(
                                     MaterialPageRoute(
                                       builder: (context) => FriendChat(friend: friends[index]),
                                     ),
                                   ).then((_) {
-                                    friend.unreadMessagesCount = 0;
+                                    _loadFriends();
                                     setState(() {});
                                   });
                                 },
@@ -1859,22 +1896,52 @@ class _FriendChatState extends State<FriendChat> {
   bool _autoScroll = true;
   bool _userDragging = false;
 
+  void readAllMessages() async {
+    List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+      "all_friends_list",
+      (json) => Friendship.fromJson(json as Map<String, dynamic>),
+    );
+
+    currentFriends ??= [];
+    currentFriends.firstWhere((friend) => friend.chatId == widget.friend.chatId).unreadMessagesCount = 0;
+
+    await GeneralCacheService().save<List<Friendship>?>(
+      "all_friends_list",
+      currentFriends,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    isInFriendIdChatGlobal = widget.friend.id;
+    isInFriendIdChatGlobal = widget.friend.chatId;
 
-    eventSubscriptionNewMessage = EventBus().on<FriendNewMessageEvent>().listen((event) {
+    readAllMessages();
+
+    eventSubscriptionNewMessage = EventBus().on<FriendNewMessageEvent>().listen((event) async {
       if (!mounted) return;
 
       try {
         setState(() {
-          if (widget.friend.id == event.friendId) {
+          if (widget.friend.chatId == event.chatId) {
             messages.add(event.message);
-            GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
+            GetIt.I<ApiService>().readFriendMessages(widget.friend.chatId);
           }
         });
-        
+
+        List<Friendship>? currentFriends = GeneralCacheService().loadList<Friendship>(
+          "all_friends_list",
+          (json) => Friendship.fromJson(json as Map<String, dynamic>),
+        );
+
+        currentFriends ??= [];
+        currentFriends.firstWhere((friend) => friend.chatId == event.chatId).unreadMessagesCount = 0;
+
+        await GeneralCacheService().save<List<Friendship>?>(
+          "all_friends_list",
+          currentFriends,
+        );
+      
         WidgetsBinding.instance.addPostFrameCallback((_) {
           scrollToBottom();
         });
@@ -1940,7 +2007,7 @@ class _FriendChatState extends State<FriendChat> {
             }
           });
 
-          EventBus().fire(FriendMessagesReadedEvent(friendId: widget.friend.id));
+          EventBus().fire(FriendMessagesReadedEvent(chatId: widget.friend.chatId));
 
           // WidgetsBinding.instance.addPostFrameCallback((_) {
           //   scrollToBottom();
@@ -1955,10 +2022,10 @@ class _FriendChatState extends State<FriendChat> {
         .subscribe(ServerEvent.friendshipFriendMessagesDelivered)
         .listen((payload) async {
       try {
-        final int friendId = json.decode(payload)['friendId'] as int;
+        final int chatId = json.decode(payload)['chatId'] as int;
         if (mounted) {
           setState(() {
-            if (friendId != widget.friend.id) return;
+            if (chatId != widget.friend.chatId) return;
             for (var msg in messages) {
               if (msg.status != "Read") msg.status = "Delivered";
             }
@@ -2043,7 +2110,7 @@ class _FriendChatState extends State<FriendChat> {
   void loadMessages() async {
     //await GetIt.I<ApiService>().readFriendMessages(widget.friend.nickname);
     try {
-      var allMessages = await GetIt.I<ApiService>().getAllMessagesInFriendChat(widget.friend.id);
+      var allMessages = await GetIt.I<ApiService>().getAllMessagesInFriendChat(widget.friend.chatId);
       
       if (mounted) {
         setState(() {
@@ -2055,7 +2122,7 @@ class _FriendChatState extends State<FriendChat> {
         });
       }
       
-      await GetIt.I<ApiService>().readFriendMessages(widget.friend.id);
+      await GetIt.I<ApiService>().readFriendMessages(widget.friend.chatId);
     } on Exception catch (e) {
       log('💥 loadMessages() Error - $e - Friends Chat Screen 💥');
     }
@@ -2266,14 +2333,16 @@ class _FriendChatState extends State<FriendChat> {
                                       // }));
                                       try {
                                         Map<String, dynamic>? response = await GetIt.I<ApiService>().sendNewMessageToFriend(
-                                          widget.friend.id, 
+                                          widget.friend.chatId, 
                                           _messageController.text.trim()
                                         );
                                         _scrollToBottom();
                                         if (!mounted) return;
-                                        print("RESPONSE MESSAGE ID: ${response?['messageId'].toString()}");
+                                        //print("RESPONSE MESSAGE ID: ${response?['messageId'].toString()}");
                                         setState(() {
-                                          messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), id: response?['messageId'], status: response?['status']));
+                                          messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), 
+                                          //id: response?['messageId'], 
+                                          status: response?['status']));
                                           _messageController.clear();
                                         });
                                       } catch (e) {
@@ -2413,7 +2482,7 @@ class ChatBubble extends StatelessWidget {
 }
 
 class Message {
-  final int id;
+  //final int id;
   final String text;
   final bool isMe;
   final DateTime time;
@@ -2421,7 +2490,9 @@ class Message {
 
   static final DateFormat _customFormat = DateFormat('dd.MM.yyyy HH:mm');
 
-  Message({required this.text, required this.isMe, required this.time, required this.id, this.status = "sent"});
+  Message({required this.text, required this.isMe, required this.time, 
+  //required this.id, 
+  this.status = "sent"});
 
   factory Message.fromJson(Map<String, dynamic> json) {
     final String dateTimeString = json['dateTime'] as String? ?? '';
@@ -2443,10 +2514,10 @@ class Message {
     }
 
     return Message(
-      id: json['messageId'] as int,
+      //id: json['messageId'] as int,
       text: json['content'] as String,
       isMe: json['senderId'] == authorizedUser.id ? true : false,
-      status: json['status'] ?? "sent",
+      status: json['state'] ?? "sent",
       time: parsedDateTime,
     );
   }

@@ -58,13 +58,13 @@ class FriendOfflineEvent {
 
 class FriendNewMessageEvent {
   final Message message;
-  final int friendId;
-  FriendNewMessageEvent(this.message, this.friendId);
+  final int chatId;
+  FriendNewMessageEvent(this.message, this.chatId);
 }
 
 class FriendMessagesReadedEvent {
-  final int friendId;
-  FriendMessagesReadedEvent({required this.friendId});
+  final int chatId;
+  FriendMessagesReadedEvent({required this.chatId});
 }
 
 class FriendRequestSentEvent {
