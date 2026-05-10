@@ -1139,8 +1139,8 @@ class _GameCardState extends State<GameCard> {
                         ),
                         child: Center(
                           child: Text(
-                            //AppLocalizations.of(context)!.join,
-                            "join",
+                            AppLocalizations.of(context)!.join,
+                            //"join",
                             style: TextStyle(
                               fontSize: 15.sp,
                               fontFamily: 'CenturyGothic',

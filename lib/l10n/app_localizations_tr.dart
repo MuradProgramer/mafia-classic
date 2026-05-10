@@ -225,7 +225,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get gatheringPlayers => 'Gathering Players';
 
   @override
-  String get alive => 'Sağ';
+  String get alive => 'Hayatta';
 
   @override
   String get dead => 'Ölü';

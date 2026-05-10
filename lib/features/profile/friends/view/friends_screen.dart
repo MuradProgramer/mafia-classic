@@ -2340,6 +2340,7 @@ class _FriendChatState extends State<FriendChat> {
                                         if (!mounted) return;
                                         //print("RESPONSE MESSAGE ID: ${response?['messageId'].toString()}");
                                         setState(() {
+                                          if (_messageController.text.trim().isEmpty) return;
                                           messages.add(Message(text: _messageController.text, isMe: true, time: DateTime.now(), 
                                           //id: response?['messageId'], 
                                           status: response?['status']));

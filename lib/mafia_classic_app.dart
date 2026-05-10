@@ -109,6 +109,11 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
         log("✅ Server event 302: clientAuthorizationSuccess");
       }
 
+      if (event == ServerEvent.clientDuplicateLogin) {
+        appIsActive.value = true;
+        log("✅ Server event 301: clientDuplicateLogin");
+      }
+
       //? Friendship Invite
       if (event == ServerEvent.friendshipRoomInvite) {
         try {
@@ -238,6 +243,9 @@ class _MafiaClassicAppState extends State<MafiaClassicApp> with WidgetsBindingOb
       if (event == ServerEvent.clientError) {
         //print("EVENT TYPE: CLIENT ERROR PAYLOAD: $payload");
         switch (json.decode(payload)['errorType'] as int) {
+          case 3:
+            showExceptionPopup("Authentication failed!");
+            break;
           case 1007:
             showExceptionPopup("Password is incorrect, try another one!");
             break;

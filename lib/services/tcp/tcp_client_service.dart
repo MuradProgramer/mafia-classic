@@ -158,7 +158,7 @@ class TcpClientService {
             // _isDisconnected guard makes this a safe no-op if
             // notifyNetworkLost() already ran first.
             log('[TCP] Socket onDone');
-            _handleDisconnect();
+            //_handleDisconnect();
           },
           cancelOnError: true,
         );

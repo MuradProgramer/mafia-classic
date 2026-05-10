@@ -820,7 +820,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         final String role = data['role'];
         final String phaseCheck = data['phase'];
 
-        if (data['int'] as int == authorizedUser.id) {
+        if (data['id'] as int == authorizedUser.id) {
           playerDeadSituation = phaseCheck == 'NightVoting' ? 1 : 2;
         }
         
@@ -842,7 +842,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         
         //printInGamePlayers();
       } catch (e) {
-        log('💥 Game Player Eliminated Error - Game Screen 💥');
+        log('💥 Game Player Eliminated Error - Game Screen - $e💥');
       }
     });
 

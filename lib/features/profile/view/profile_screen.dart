@@ -440,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  AppLocalizations.of(context)!.mafia,
+                                  "Mafia",
                                   style: GoogleFonts.playfairDisplay(
                                     fontSize: 55.sp,
                                     height: 0,

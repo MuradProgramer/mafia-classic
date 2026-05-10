@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_classic/repositories/auth_repository/auth_repository.dart';
 import 'package:mafia_classic/services/api_service.dart';
@@ -13,7 +14,7 @@ enum AuthStatus {
 }
 
 class AuthService {
-  static Future<bool> hasValidSession() async {
+  static Future<bool> hasValidSession(BuildContext context) async {
     final accessToken = SharedPrefsService.getAccessToken();
     final refreshToken = SharedPrefsService.getRefreshToken();
     final expiryUtc = SharedPrefsService.getAccessTokenExpiryUtc();
@@ -22,35 +23,46 @@ class AuthService {
       return false;
     }
 
+
     final nowUtc = DateTime.now().toUtc();
 
     final isExpired = DateTime.now().toLocal().isAfter(
       expiryUtc.toLocal().subtract(const Duration(seconds: 30)),
     );
 
+    print("==============================");
+    print("accessToken: $accessToken");
+    print("refreshToken: $refreshToken");
+    print("expiryUtc: $expiryUtc");
+    print("expiryUtc [LOCAL]: ${expiryUtc.toLocal()}");
+    print("isExpired: $isExpired");
+    print("==============================");
+
     if (!isExpired) {
       return true;
     }
+
+    log("🔥🔥 TOKEN IS EXPIRED BY PARVIN 🔥🔥");
 
     // 🔁 refresh if expired
     return await _refresh();
   }
 
   static Future<bool> _refresh() async {
+    bool result = false;
     try {
       log(
         '@@@@@@@@Access token expired. Attempting to refresh... AuthService@@@@@@@@',
       );
-      await GetIt.I<ApiService>()
-          .refreshToken();
+      result = await GetIt.I<ApiService>()
+          .refreshTokenBoolean();
       log(
         '@@@@@@@@Refreshed token succesfuly... AuthService@@@@@@@@',
       );
-      return true;
     } catch (e) {
       await SharedPrefsService.clearAuth();
-      return false;
     }
+    return result;
   }
 
   static Future<void> logout() async {
@@ -58,7 +70,7 @@ class AuthService {
   }
 }
 
-
+/*
 class AuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -87,3 +99,4 @@ class AuthInterceptor extends Interceptor {
     handler.reject(err);
   }
 }
+*/

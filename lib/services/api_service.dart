@@ -4,8 +4,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mafia_classic/features/auth/signin/view/sign_in_screen.dart';
 import 'package:mafia_classic/features/profile/friends/models/models.dart';
 import 'package:mafia_classic/features/profile/friends/view/friends_screen.dart';
 import 'package:mafia_classic/features/widgets/widgets.dart';
@@ -492,8 +494,9 @@ class ApiService extends TokenAwareService {
 
   @override
   Future<void> refreshToken() async {
+    Response<dynamic>? response;
     try {
-      final response = await GetIt.I<DioService>().dio.post(
+      response = await GetIt.I<DioService>().dio.post(
         'Account/RefreshToken',
         options: Options(
           headers: {
@@ -510,6 +513,13 @@ class ApiService extends TokenAwareService {
         _expiration = DateTime.parse(data['expiration']).toUtc();
         _refreshToken = data['refreshToken'];
 
+        log("🔥🔥🔥🔥🔥🔥 refreshToken 🔥🔥🔥🔥🔥🔥🔥🔥");
+        log("ACCESS TOKEN: $_accessToken");
+        log("EXPIRATION DATE: $_expiration");
+        log("EXPIRATOPN DATE NOW: ${_expiration.toLocal()}");
+        log("REFRESH TOKEN: $_refreshToken");
+        log("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+
         await SharedPrefsService.saveTokens(
           accessToken: _accessToken,
           refreshToken: _refreshToken,
@@ -520,13 +530,64 @@ class ApiService extends TokenAwareService {
           id: SharedPrefsService.getUserId()!,
         );
       } else if (response.statusCode == 401) {
-        throw Exception('Failed to refresh token ERROR CODE 401');
+        print('Failed to refresh token ERROR CODE 401');
       } else {
         throw Exception('Failed to refresh token');
       }
     } catch (e) {
       log('💥 Refresh Token Error - $e - API Service 💥');
     }
+  }
+
+ @override
+  Future<bool> refreshTokenBoolean() async {
+    Response<dynamic>? response;
+    try {
+      response = await GetIt.I<DioService>().dio.post(
+        'Account/RefreshToken',
+        options: Options(
+          headers: {
+            'Authorization': 
+            'Bearer $_refreshToken'
+          }
+        )
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = response.data as Map<String, dynamic>;
+
+        _accessToken = data['accessToken'];
+        _expiration = DateTime.parse(data['expiration']).toUtc();
+        _refreshToken = data['refreshToken'];
+        log("🔥🔥🔥🔥🔥🔥 refreshTokenBoolean 🔥🔥🔥🔥🔥🔥🔥🔥");
+        log("ACCESS TOKEN: $_accessToken");
+        log("EXPIRATION DATE: $_expiration");
+        log("EXPIRATOPN DATE NOW: ${_expiration.toLocal()}");
+        log("REFRESH TOKEN: $_refreshToken");
+        log("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+
+        await SharedPrefsService.saveTokens(
+          accessToken: _accessToken,
+          refreshToken: _refreshToken,
+          expiration: _expiration,
+          nickname: SharedPrefsService.getUserNickname()!,
+          avatarUrl: SharedPrefsService.getUserAvatarUrl()!,
+          email: SharedPrefsService.getUserEmail()!,
+          id: SharedPrefsService.getUserId()!,
+        );
+        return true;
+      } else if (response.statusCode == 401) {
+        //print('9`823549`82638`623848`:     Failed to refresh token ERROR CODE 401');
+      } else {
+        throw Exception('Failed to refresh token');
+      }
+    } catch (e) {
+      //if (response?.statusCode == 401) {
+      return false;
+      //}
+      //log('💥 Refresh Token WITH CONTEXT Error - $e - API Service\n\t\tSTATUS CODE: ${response?.statusCode} 💥');
+    }
+    return false;
   }
 
   // DONE
@@ -1027,7 +1088,7 @@ class ApiService extends TokenAwareService {
         }
       });
     } catch (e) {
-      log('💥 Get Requests - API Service 💥');
+      log('💥 Get Requests - API Service - $e 💥');
     }
     return requestsList;
   }
@@ -1241,13 +1302,14 @@ class ApiService extends TokenAwareService {
 }
 
 void setup(User user) {
-  if (!GetIt.I.isRegistered<ApiService>()) {
-    GetIt.I.registerSingleton<ApiService>(
-      ApiService(
-        user.accessToken,
-        user.expirationDate,
-        user.refreshToken,
-      ),
-    );
+  if (GetIt.I.isRegistered<ApiService>()) {
+    GetIt.I.unregister<ApiService>();
   }
+  GetIt.I.registerSingleton<ApiService>(
+    ApiService(
+      user.accessToken,
+      user.expirationDate,
+      user.refreshToken,
+    ),
+  );
 }

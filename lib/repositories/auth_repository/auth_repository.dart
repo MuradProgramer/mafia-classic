@@ -8,6 +8,7 @@ import 'package:mafia_classic/services/api_service.dart';
 import 'package:mafia_classic/services/dio/dio_service.dart';
 import 'package:mafia_classic/services/shared_preferences/shared_preferences.dart';
 import 'package:mafia_classic/services/tcp/general_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepository {
   Future<User> signIn(String email, String password) async {
@@ -35,6 +36,7 @@ class AuthRepository {
           refreshToken: data['refreshToken'], 
           expirationDate: DateTime.parse(data['expiration']).toUtc()
         );
+        print("77777777777777:   ACCESS TOKEN: ${data['accessToken']}");
         await SharedPrefsService.saveTokens(
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
@@ -44,6 +46,7 @@ class AuthRepository {
           email: user.email,
           id: user.id,
         );
+        print("66666666666666:   ACCESS TOKEN: ${SharedPrefsService.getAccessToken()}");
         setup(user);
         await GeneralService(user).init();
         return user;

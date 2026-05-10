@@ -117,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     Timer(Duration(milliseconds: myTargetMilliseconds + 100), () async {
-      final authorized = await AuthService.hasValidSession();
+      final authorized = await AuthService.hasValidSession(context);
 
       if (!mounted) return;
       Navigator.push(context, 
@@ -126,13 +126,13 @@ class _SplashScreenState extends State<SplashScreen> {
           builder: (context) { 
             if (authorized) {
               User alreadyUser = User(
-                id: SharedPrefsService.getUserId() ?? -1, 
-                email: SharedPrefsService.getUserEmail() ?? '', 
-                nickname: SharedPrefsService.getUserNickname() ?? '', 
-                avatarUrl: SharedPrefsService.getUserAvatarUrl() ?? '', 
-                accessToken: SharedPrefsService.getAccessToken() ?? '', 
-                refreshToken: SharedPrefsService.getRefreshToken() ?? '', 
-                expirationDate: SharedPrefsService.getAccessTokenExpiryUtc() ?? DateTime.now()
+                id: SharedPrefsService.getUserId()!, 
+                email: SharedPrefsService.getUserEmail()!, 
+                nickname: SharedPrefsService.getUserNickname()!, 
+                avatarUrl: SharedPrefsService.getUserAvatarUrl()!, 
+                accessToken: SharedPrefsService.getAccessToken()!, 
+                refreshToken: SharedPrefsService.getRefreshToken()!, 
+                expirationDate: SharedPrefsService.getAccessTokenExpiryUtc()!
               );
               setup(alreadyUser);
               initGeneralServiceForAuthorizedUser(alreadyUser);
